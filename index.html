@@ -197,6 +197,14 @@
     }
     .main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; padding: 0.8rem 1rem; text-align: center; }
     .game-layout { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+
+    /* MODIFIED: Make game layout two-column on wider screens */
+    @media (min-width: 992px) {
+        .game-layout {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+
     .panel-title {
         font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
         color: var(--accent-primary); text-align: center;
@@ -309,14 +317,18 @@
     .dashboard-view .bookFloatBtn { width: 110px; padding: 8px; border-radius: 8px; position: fixed; bottom: 10px; right: 10px; border: 0; background: var(--accent-color-dash); color: var(--light-text-dash); z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: pointer; font-size: 0.85rem; }
     .dashboard-view .actionBtn { margin: 4px; background: var(--accent-color-dash); color: var(--light-text-dash); font-weight: bold; border-radius: 4px; border: 0; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.8rem; height: auto; padding: 8px 4px; flex-grow: 1; }
     .dashboard-view .actionBtn:hover { background: #16a085; }
+    
+    /* MODIFIED: Simplified Admin Tables */
     .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
     .dashboard-view .gameSettingTable thead { display: none; }
-    .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr, .dashboard-view .gameSettingTable td { display: block; text-align: right; }
-    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 8px; padding-bottom: 8px; }
-    .dashboard-view .gameSettingTable td { padding: 10px 8px; padding-left: 50%; position: relative; border: none; font-size: 0.9rem; }
-    .dashboard-view .gameSettingTable td::before { content: attr(data-label); position: absolute; left: 8px; width: 45%; padding-right: 8px; white-space: nowrap; text-align: left; font-weight: bold; color: var(--muted-color-dash); font-size: 0.85rem; }
+    .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
+    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 8px; padding-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;}
+    .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
+    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
+    .dashboard-view .gameSettingTable td::before { content: '' !important; /* Removed pseudo-element labels */ }
+    
     .dashboard-view .tableInp { width: 100%; font-size: 0.9rem; padding: 8px; border: 1px solid var(--secondary-bg-dash); font-weight: bold; margin: 0; border-radius: 3px; box-sizing: border-box; background-color: white; color: var(--text-dark); }
-    .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); }
+    .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); cursor: pointer;}
     #adminDashboardView .searchInp, #agentDashboardView .searchInp { font-size: 1rem; padding: 8px; border-radius: 6px; margin: 15px auto 0 auto; display: block; text-align: center; background-color: var(--secondary-bg-dash); color: var(--light-text-dash); border: 1px solid var(--accent-color-dash); width: 90%; }
     .dashboard-view .toggleDiv { display: grid; grid-template-columns: 1fr 1fr; width: 90%; margin: 0 auto; }
     .dashboard-view #showTicketBtn { background: var(--accent-color-dash); }
@@ -376,38 +388,87 @@
 
     /* Style for the public booking popup inputs/buttons */
     /* Public Booking Popup Styles */
-#publicBookingPopup .bookInpDiv {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem; /* adds spacing between columns */
-}
+    #publicBookingPopup .bookInpDiv {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem; /* adds spacing between columns */
+    }
 
-#publicBookingPopup .tableInp {
-    color: var(--light-text-dash);
-    border: 1px solid var(--muted-color-dash);
-    border-radius: 4px; /* smooth corners for a cleaner look */
-    padding: 0.5rem;
-    background-color: var(--input-bg, #fff); /* fallback white if var not set */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
+    #publicBookingPopup .tableInp {
+        color: var(--light-text-dash);
+        border: 1px solid var(--muted-color-dash);
+        border-radius: 4px; /* smooth corners for a cleaner look */
+        padding: 0.5rem;
+        background-color: var(--input-bg, #fff); /* fallback white if var not set */
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-/* Focus state for better UX */
-#publicBookingPopup .tableInp:focus {
-    border-color: var(--primary-color-dash);
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-    outline: none;
-}
+    /* Focus state for better UX */
+    #publicBookingPopup .tableInp:focus {
+        border-color: var(--primary-color-dash);
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        outline: none;
+    }
 
-
-
-.bookBtn {
-width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
+    .bookBtn {
+        width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
         border-radius: 4px; margin-bottom: 0.8rem; text-align: center;
         font-family: var(--font-family-neon);
         background: var(--accent-primary); color: var(--text-dark);
         cursor: pointer; font-weight: 700; transition: box-shadow 0.3s, filter 0.3s;
         letter-spacing: 0.5px;
     }
+
+    /* NEW: Styles for Admin Ticket List */
+    #adminGameSettingTable .booked-ticket-line-1 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+    #adminGameSettingTable .booked-ticket-line-1 .fa-edit {
+        color: var(--accent-color-dash);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+     #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover {
+        transform: scale(1.2);
+    }
+    #adminGameSettingTable .booked-ticket-line-2 {
+        font-size: 0.8rem;
+        color: var(--muted-color-dash);
+        margin-top: 4px;
+    }
+    #adminGameSettingTable .admin-ticket-row td {
+        display: block;
+        width: 100%;
+        padding: 8px;
+    }
+     #adminGameSettingTable .admin-ticket-row.available-ticket td {
+        display: table-cell;
+    }
+    
+    /* MODIFIED: Styles for Dividend Settings for single-line layout */
+    #dividendSettingsTable tr {
+        grid-template-columns: 1fr; /* Override two-column layout */
+    }
+    #dividendSettingsTable td {
+        display: flex; /* Arrange children (text, input, checkbox) in a row */
+        align-items: center;
+        gap: 10px;
+    }
+    .dividend-name-text {
+        flex-grow: 1; /* Allow the name to take up extra space, pushing controls to the right */
+        font-weight: 500;
+        color: var(--light-text-dash);
+    }
+    .dividend-amount {
+        width: 90px !important; /* Fixed width for the amount input */
+        flex-shrink: 0;
+        text-align: right !important;
+    }
+
 
 </style>
 </head>
@@ -529,11 +590,11 @@ width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
         <button class="titleBtn">GAME SETTINGS</button>
         <table class="gameSettingTable" id="settingsTable">
             <tbody>
-                <tr><td data-label="Date-Time">Game date-time</td><td data-label="Value"><input class="tableInp" id="dateTimeInp" type="datetime-local"></td></tr>
-                <tr><td data-label="Total Tickets">Total ticket limit</td><td data-label="Value"><input class="tableInp" id="totalTicketInp" type="number" value="600"></td></tr>
-                <tr><td data-label="Ticket Price">Ticket price</td><td data-label="Value"><input class="tableInp" id="ticketPriceInp" type="number" value="300"></td></tr>
-                <tr><td data-label="Commission">Agent commission</td><td data-label="Value"><input class="tableInp" id="agentCommissionInp" type="number" value="50"></td></tr>
-                <tr><td data-label="Action" colspan="2"><input class="tableInp" id="saveGameBtn" type="button" onclick="saveGameSetting()" value="SAVE SETTINGS" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
+                <tr><td>Game date-time</td><td><input class="tableInp" id="dateTimeInp" type="datetime-local"></td></tr>
+                <tr><td>Total ticket limit</td><td><input class="tableInp" id="totalTicketInp" type="number" value="600"></td></tr>
+                <tr><td>Ticket price</td><td><input class="tableInp" id="ticketPriceInp" type="number" value="300"></td></tr>
+                <tr><td>Agent commission</td><td><input class="tableInp" id="agentCommissionInp" type="number" value="50"></td></tr>
+                <tr><td colspan="2"><input class="tableInp" id="saveGameBtn" type="button" onclick="saveGameSetting()" value="SAVE SETTINGS" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
             </tbody>
         </table>
     </div>
@@ -585,13 +646,13 @@ width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
         <button class="titleBtn">ADMIN INFO</button>
         <table class="gameSettingTable" id="adminInfoTable">
             <tbody>
-                <tr><td data-label="Admin Name">Admin name</td><td data-label="Value"><input class="tableInp" id="adminNameInp"></td></tr>
-                <tr><td data-label="Admin Phone">Admin phone</td><td data-label="Value"><input class="tableInp" id="adminPhoneInp" type="number"></td></tr>
-                <tr><td data-label="Whatsapp Link">Whatsapp group link</td><td data-label="Value"><input class="tableInp" id="adminWpLinkInp"></td></tr>
-                <tr><td data-label="Admin Password">Admin password</td><td data-label="Value"><input class="tableInp" id="adminPassInp" placeholder="Enter new password to change"></td></tr>
+                <tr><td>Admin name</td><td><input class="tableInp" id="adminNameInp"></td></tr>
+                <tr><td>Admin phone</td><td><input class="tableInp" id="adminPhoneInp" type="number"></td></tr>
+                <tr><td>Whatsapp group link</td><td><input class="tableInp" id="adminWpLinkInp"></td></tr>
+                <tr><td>Admin password</td><td><input class="tableInp" id="adminPassInp" placeholder="Enter new password to change"></td></tr>
                 <tr>
-                    <td data-label="Action"><input class="tableInp" onclick="logout()" type="button" value="LOG OUT" style="background-color: var(--muted-color-dash); color: var(--light-text-dash); cursor: pointer;"></td>
-                    <td data-label="Action"><input class="tableInp" id="saveAdminInfoBtn" type="button" onclick="saveAdminInfo()" value="SAVE INFO" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td>
+                    <td><input class="tableInp" onclick="logout()" type="button" value="LOG OUT" style="background-color: var(--muted-color-dash); color: var(--light-text-dash); cursor: pointer;"></td>
+                    <td><input class="tableInp" id="saveAdminInfoBtn" type="button" onclick="saveAdminInfo()" value="SAVE INFO" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td>
                 </tr>
              </tbody>
         </table>
@@ -646,9 +707,9 @@ width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
         <div class="titleBtn">AGENT INFO</div>
         <table class="gameSettingTable">
             <tbody>
-                <tr><td data-label="Info">Agent name</td><td data-label="Value"><input class="tableInp" id="agentNameInp" readonly></td></tr>
-                <tr><td data-label="Info">Agent phone</td><td data-label="Value"><input class="tableInp" id="agentPhoneInp" readonly></td></tr>
-                <tr><td data-label="Action" colspan="2"><button class="actionBtn" style="width:100%;" onclick="logout()">LOG OUT</button></td></tr>
+                <tr><td>Agent name</td><td><input class="tableInp" id="agentNameInp" readonly></td></tr>
+                <tr><td>Agent phone</td><td><input class="tableInp" id="agentPhoneInp" readonly></td></tr>
+                <tr><td colspan="2"><button class="actionBtn" style="width:100%;" onclick="logout()">LOG OUT</button></td></tr>
              </tbody>
         </table>
     </div>
@@ -719,7 +780,36 @@ width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
     </div>
 </div>
 
-<!-- NEW: Ticket Reset Confirmation Popup -->
+<!-- NEW/MODIFIED: Ticket Owner Edit Popup -->
+<div class="overlay-popup" id="editOwnerPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Edit Ticket Owner</h3>
+        <p id="editOwnerInfoText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary);"></p>
+        <div class="login-form">
+             <input id="editOwnerNameInp" type="text" class="agent-inp" placeholder="Owner Name">
+             <input id="editOwnerPhoneInp" type="tel" class="agent-inp" placeholder="Owner Phone">
+             <button id="saveOwnerChangesBtn" class="login-btn agent">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Confirmation for applying changes to all tickets -->
+<div class="overlay-popup" id="applyToAllConfirmPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Confirm Update</h3>
+        <p id="applyToAllConfirmText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.5;"></p>
+        <div class="login-form" style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem;">
+             <button id="confirmApplyToAllBtn" class="login-btn agent">Yes, Apply to All</button>
+             <button id="confirmApplyToSingleBtn" class="login-btn secondary">No, Just This Ticket</button>
+             <button onclick="closePopups()" class="login-btn" style="background-color: var(--muted-color-dash);">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Ticket Reset Confirmation Popup -->
 <div class="overlay-popup" id="ticketResetConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -788,19 +878,40 @@ width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
     <div class="gameDiv">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="titleBtn">RUN GAME</div>
+
+        <!-- === MODIFICATION START: ADDED STATUS BAR === -->
+        <div class="panel" style="background: transparent; border: none; box-shadow: none; padding: 0; width: 95%; margin: 0.5rem auto;">
+            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1rem;">
+                <!-- JS will inject timer here -->
+            </div>
+        </div>
+        <!-- === MODIFICATION END === -->
+
         <table class="runGameTable gameSettingTable">
             <tbody>
                 <tr>
-                    <td data-label="Status">CALLING STATUS</td>
-                    <td data-label="Value"><select class="tableInp" id="callStatusInp" onchange="toggleGameRunner()"><option value="off">OFF</option><option value="on">ON</option></select></td>
+                    <td>CALLING STATUS</td>
+                    <td><select class="tableInp" id="callStatusInp" onchange="toggleGameRunner()"><option value="off">OFF</option><option value="on">ON</option></select></td>
                 </tr>
                 <tr>
-                    <td data-label="Interval">CALLING INTERVAL (sec)</td>
-                    <td data-label="Value"><input type="number" class="tableInp" id="callIntervalInp" value="10"></td>
+                    <td>CALLING INTERVAL (sec)</td>
+                    <td><input type="number" class="tableInp" id="callIntervalInp" value="10"></td>
                 </tr>
+                <!-- === MODIFICATION START: REMOVED GAME TIME ROW === -->
+                <!-- The Game Time table row has been removed. -->
+                <!-- === MODIFICATION END === -->
             </tbody>
         </table>
-        <div class="numBlockDiv" id="runGameNumBlock"></div>
+
+        <!-- === MODIFICATION START: REPLACED GAME BOARD === -->
+        <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
+            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
+            <div class="number-board" id="runGamePopupBoard">
+                <!-- JS will generate the board here -->
+            </div>
+        </section>
+        <!-- === MODIFICATION END === -->
+
         <h3 style="text-align:center; margin-top:15px; font-size: 1.1rem;">Winners</h3>
         <div class="dividentConDiv" id="runGameDividentList"></div>
     </div>
@@ -839,7 +950,12 @@ let lastAnnouncedNumber = null;
 let isAnnouncing = false;
 let countdownInterval = null;
 let gameRunnerInterval = null;
+// === MODIFICATION START ===
+// The specific gameRunTimerInterval has been removed as its logic is now part of the unified countdown system.
+// === MODIFICATION END ===
 let knownWinners = {};
+let ticketIdToEdit = null;
+let originalOwnerInfo = { name: '', phone: '' }; // NEW: For the ticket editor popup
 
 // Local Caches of DB data
 let allTicketsData = [];
@@ -1037,6 +1153,9 @@ function bindEventListeners() {
     });
     // Direct booking popup action
     document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
+    
+    // NEW: Bind ticket editor save button
+    document.getElementById('saveOwnerChangesBtn').addEventListener('click', saveTicketOwnerChanges);
 }
 
 function showPopup(id) {
@@ -1093,7 +1212,10 @@ function setupRealtimeListeners() {
         if (newNumbers.length > currentCalledNumbers.length) {
             const newNum = newNumbers[newNumbers.length - 1];
             if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
-                announceNumber(newNum);
+                // MODIFIED: Only show big announcement on public-facing views
+                if (currentView === 'publicView' || currentView === 'ticketBookingView') {
+                    announceNumber(newNum);
+                }
             }
         }
         currentCalledNumbers = newNumbers;
@@ -1108,7 +1230,7 @@ function setupRealtimeListeners() {
         }
         knownWinners = newWinners;
 
-        updateGameRelatedUIs(currentCalledNumbers, data.winners || {}, data.isGameRunning || false);
+        updateGameRelatedUIs(data); // MODIFIED: Pass full game state
     }, err => { console.error("GameState listener error:", err); showNotification('Could not load game state.', 'error'); });
 
     listeners.tickets = db.ref('tickets');
@@ -1149,12 +1271,18 @@ function updateAllUIsWithSettings(data) {
     updateBusinessInfo();
 }
 
-function updateGameRelatedUIs(calledNums, winners, isRunning) {
+// MODIFIED: Accepts full game state object
+function updateGameRelatedUIs(gameState) {
+    const calledNums = gameState.calledNumbers || [];
+    const winners = gameState.winners || {};
+    
     updateNumberBoard(calledNums);
     updateCalledNumbersList(calledNums);
     updateWinners(winners);
     updateDisplayedTicketPublic();
-    if (currentUserRole === 'admin') updateRunGameUI(winners, isRunning);
+    if (currentUserRole === 'admin') {
+        updateRunGameUI(gameState);
+    }
 }
 
 function updateTicketRelatedUIs() {
@@ -1219,17 +1347,26 @@ function checkSheetSelection(selectedIds) {
     return { valid: false, message: "" };
 }
 
+// === MODIFICATION START: UPDATED TO POPULATE NEW BOARD ===
 function generateNumberBoard() {
     const publicBoard = document.getElementById('numberBoard');
-    const adminBoard = document.getElementById('runGameNumBlock');
-    let publicHtml = '', adminHtml = '';
+    const adminPopupBoard = document.getElementById('runGamePopupBoard');
+
+    let boardHtml = '';
     for(let i = 1; i <= 90; i++) {
-        publicHtml += `<div class="num-cell" id="num-${i}">${i}</div>`;
-        adminHtml += `<div class="num-cell" id="run-num-${i}">${i}</div>`;
+        boardHtml += `<div class="num-cell" id="num-${i}">${i}</div>`;
     }
-    if(publicBoard) publicBoard.innerHTML = publicHtml;
-    if(adminBoard) adminBoard.innerHTML = adminHtml;
+
+    let adminPopupBoardHtml = '';
+    for(let i = 1; i <= 90; i++) {
+        // Use a unique ID prefix for the cells in the admin popup board
+        adminPopupBoardHtml += `<div class="num-cell" id="run-game-popup-num-${i}">${i}</div>`;
+    }
+
+    if(publicBoard) publicBoard.innerHTML = boardHtml;
+    if(adminPopupBoard) adminPopupBoard.innerHTML = adminPopupBoardHtml;
 }
+// === MODIFICATION END ===
 
 function announceNumber(number) {
     isAnnouncing = true;
@@ -1248,14 +1385,20 @@ function announceNumber(number) {
       .to(overlay, { autoAlpha: 0, duration: 0.5, onComplete: () => overlay.style.display = 'none' }, '+=0.5');
 }
 
+// === MODIFICATION START: ADDED NEW TIMER BAR ID ===
 function updateCountdownTimers(targetDateString) {
     if (countdownInterval) clearInterval(countdownInterval);
     const targetDate = new Date(targetDateString).getTime();
-    const timerBars = [document.getElementById('public-timer-bar'), document.getElementById('booking-timer-bar')];
+    // Add the new timer bar from the "Run Game" popup to the list of elements to update
+    const timerBars = [
+        document.getElementById('public-timer-bar'),
+        document.getElementById('booking-timer-bar'),
+        document.getElementById('runGame-timer-bar')
+    ];
 
     if (!targetDateString || isNaN(targetDate)) {
         const waitingHTML = `<div class="info-item"><i class="fas fa-hourglass-half"></i><span>Awaiting Game Schedule</span></div>`;
-        timerBars.forEach(bar => bar.innerHTML = waitingHTML);
+        timerBars.forEach(bar => { if(bar) bar.innerHTML = waitingHTML; });
         return;
     }
     const date = new Date(targetDate);
@@ -1278,11 +1421,12 @@ function updateCountdownTimers(targetDateString) {
             <div class="info-item"><i class="fas fa-calendar-alt"></i><span>${dateText}</span></div>
             <div class="info-item"><i class="fas fa-clock"></i><span>${timeText}</span></div>
             <div class="info-item"><i class="fas fa-hourglass-start"></i><span>${countdownText}</span></div>`;
-        timerBars.forEach(bar => bar.innerHTML = timerHTML);
+        timerBars.forEach(bar => { if(bar) bar.innerHTML = timerHTML; });
     };
     update();
     countdownInterval = setInterval(update, 1000);
 }
+// === MODIFICATION END ===
 
 function renderVisualTicketBookingPage() {
     const gridContainer = document.getElementById('bookingGridContainer');
@@ -1480,7 +1624,7 @@ function populateDividendList(dividends) {
     if (tbody) {
         tbody.innerHTML = (dividends || [])
             .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
-                          <td>${d.name}</td>
+                          <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
                           <td class="winner-info"><span class="winner-name">Pending...</span></td>
                       </tr>`)
             .join('');
@@ -1500,13 +1644,17 @@ function updateWinners(winners) {
     }
 }
 
+// === MODIFICATION START: UPDATED TO TARGET NEW BOARD CELLS ===
 function updateNumberBoard(called) {
     for (let i = 1; i <= 90; i++) {
         const isCalled = called.includes(i);
+        // Update public board
         document.getElementById(`num-${i}`)?.classList.toggle('called', isCalled);
-        document.getElementById(`run-num-${i}`)?.classList.toggle('called', isCalled);
+        // Update new admin popup board
+        document.getElementById(`run-game-popup-num-${i}`)?.classList.toggle('called', isCalled);
     }
 }
+// === MODIFICATION END ===
 
 function updateCalledNumbersList(called) {
     const listEl = document.getElementById('calledNumbersList');
@@ -1603,6 +1751,17 @@ function renderSheetWiseBookedList() {
 
 
 // --- 8. ADMIN DASHBOARD LOGIC ---
+// NEW HELPER: Toggles dividend amount input based on checkbox state.
+function toggleDividendAmountInput(checkbox) {
+    const amountInput = checkbox.closest('td').querySelector('.dividend-amount');
+    if (amountInput) {
+        amountInput.disabled = !checkbox.checked;
+        if (!checkbox.checked) {
+            amountInput.value = '';
+        }
+    }
+}
+
 function updateAdminSettingsUI(data) {
     if (currentView !== 'adminDashboardView') return;
     document.getElementById('dateTimeInp').value = data.gameDateTime || '';
@@ -1612,15 +1771,19 @@ function updateAdminSettingsUI(data) {
 
     const table = document.getElementById('dividendSettingsTable');
     table.innerHTML = `
-        <thead><tr><th>Dividend</th><th>Prize</th><th>Active</th></tr></thead>
+        <thead><tr><th>Dividend Name & Amount</th><th>Active</th></tr></thead>
         <tbody>
             ${allPossibleDividends.map(name => {
                 const dividendData = (data.dividends || []).find(d => d.name === name);
+                const isChecked = !!dividendData;
+                const amount = dividendData ? dividendData.amount || '' : '';
                 return `
                     <tr>
-                        <td data-label="Dividend">${name}</td>
-                        <td data-label="Prize"><input class="tableInp dividend-price" type="number" value="${dividendData?.price || 0}"></td>
-                        <td data-label="Active"><input class="tableCheckbox dividend-active" type="checkbox" ${dividendData ? 'checked' : ''}></td>
+                        <td>
+                            <span class="dividend-name-text">${name}</span>
+                            <input class="tableInp dividend-amount" type="number" placeholder="Amount" value="${amount}" ${!isChecked ? 'disabled' : ''}>
+                            <input class="tableCheckbox dividend-active" type="checkbox" data-name="${name}" ${isChecked ? 'checked' : ''} onchange="toggleDividendAmountInput(this)">
+                        </td>
                     </tr>`;
             }).join('')}
         </tbody>`;
@@ -1732,20 +1895,39 @@ async function appendNewTickets(newCount, oldCount) {
 
 async function saveDividendSettings() {
     const activeDividends = [];
+    let hasError = false;
     document.querySelectorAll('#dividendSettingsTable tbody tr').forEach(row => {
-        if (row.querySelector('.dividend-active').checked) {
-            activeDividends.push({
-                name: row.cells[0].textContent,
-                price: parseInt(row.querySelector('.dividend-price').value, 10) || 0,
-            });
+        const checkbox = row.querySelector('.dividend-active');
+        if (checkbox.checked) {
+            const name = checkbox.dataset.name;
+            const amountInput = row.querySelector('.dividend-amount');
+            const amount = parseInt(amountInput.value, 10);
+
+            if (isNaN(amount) || amount <= 0) {
+                showNotification(`Please enter a valid, positive amount for '${name}'.`, 'error');
+                amountInput.style.border = '2px solid red';
+                hasError = true;
+            } else {
+                 amountInput.style.border = '1px solid var(--secondary-bg-dash)';
+                 activeDividends.push({
+                    name: name,
+                    amount: amount
+                });
+            }
         }
     });
+
+    if (hasError) {
+        return; // Stop the save process if there are errors
+    }
+
     try {
-        await db.ref('settings/gameConfig').update({ dividends: activeDividends });
+        await db.ref('settings/gameConfig/dividends').set(activeDividends);
         showNotification('Dividend settings saved!', 'success');
         await triggerGlobalNotification('Admin has updated the dividend settings.', 'info');
     } catch (e) { showNotification('Error saving dividends: ' + e.message, 'error'); }
 }
+
 
 async function saveAdminInfo() {
     if(!currentUser) return;
@@ -1814,10 +1996,13 @@ async function createAgentByAdmin() {
 }
 
 async function resetCallNum() {
-    if(!confirm('Are you sure? This will reset all called numbers and winners.')) return;
+    if(!confirm('Are you sure? This will reset all called numbers, winners, and the game timer.')) return;
     try {
         await db.ref('gameState/currentState').update({
-            calledNumbers: null, winners: null, isGameRunning: false
+            calledNumbers: null,
+            winners: null,
+            isGameRunning: false,
+            gameStartedAt: null // Reset the game start time
         });
         showNotification('Game state has been reset.', 'success');
         await triggerGlobalNotification('Admin has reset the game board.', 'info');
@@ -1879,7 +2064,6 @@ function showLastSoldTicket() {
     }
 }
 
-// MODIFIED: This function is now fully implemented
 function showLastWinner() {
     const winners = knownWinners;
     if (!winners || Object.keys(winners).length === 0) {
@@ -1906,16 +2090,21 @@ function updateBusinessInfo() {
     const commission = gameSettingsData.agentCommission || 0;
     const totalRevenue = soldCount * price;
     const totalCommission = soldCount * commission;
-    const totalPrizeMoney = (gameSettingsData.dividends || []).reduce((acc, div) => acc + (div.price || 0), 0);
+    
+    // RE-IMPLEMENTED: Calculate prize money from active dividends
+    const activeDividends = gameSettingsData.dividends || [];
+    const totalPrizeMoney = activeDividends.reduce((sum, dividend) => sum + (parseInt(dividend.amount, 10) || 0), 0);
+    
     const netProfit = totalRevenue - totalCommission - totalPrizeMoney;
 
     const adminTable = document.getElementById('businessInfoTable');
     if(adminTable && currentView === 'adminDashboardView') {
         adminTable.innerHTML = `<tbody>
-            <tr><td data-label="Metric">Total Tickets</td><td data-label="Value">${gameSettingsData.totalTickets || 0}</td></tr>
-            <tr><td data-label="Metric">Tickets Sold</td><td data-label="Value">${soldCount}</td></tr>
-            <tr><td data-label="Metric">Total Revenue</td><td data-label="Value">₹ ${totalRevenue.toLocaleString()}</td></tr>
-            <tr><td data-label="Metric">Net Profit</td><td data-label="Value">₹ ${netProfit.toLocaleString()}</td></tr>
+            <tr><td>Total Tickets</td><td>${gameSettingsData.totalTickets || 0}</td></tr>
+            <tr><td>Tickets Sold</td><td>${soldCount}</td></tr>
+            <tr><td>Total Revenue</td><td>₹ ${totalRevenue.toLocaleString()}</td></tr>
+            <tr><td>Total Prize Money</td><td>₹ ${totalPrizeMoney.toLocaleString()}</td></tr>
+            <tr><td>Net Profit</td><td>₹ ${netProfit.toLocaleString()}</td></tr>
         </tbody>`;
     }
 }
@@ -1934,36 +2123,177 @@ function updateAdminList() {
 
     if (adminListState === 'tickets') {
         const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
-        table.innerHTML = `<thead><tr><th>ID</th><th>Status</th><th>Owner</th><th>Phone</th><th>Agent</th></tr></thead><tbody>` +
+        table.innerHTML = `<thead><tr><th>Ticket Details</th></tr></thead><tbody>` +
             tickets.sort((a,b) => a.id - b.id).map(t => {
-                const agent = allUsersData.find(u => u.uid === t.agent_uid);
-                return `<tr>
-                    <td data-label="ID">${t.id}</td>
-                    <td data-label="Status">${t.is_sold ? 'Sold' : 'Available'}</td>
-                    <td data-label="Owner">${t.owner_name || '-'}</td>
-                    <td data-label="Phone">${t.owner_phone || '-'}</td>
-                    <td data-label="Agent">${agent?.name || (t.is_sold ? 'Admin/Direct' : '-')}</td>
-                </tr>`;
+                if (t.is_sold) {
+                    const agent = allUsersData.find(u => u.uid === t.agent_uid);
+                    // Use template literals for clean onclick attributes
+                    const name = t.owner_name ? t.owner_name.replace(/'/g, "\\'") : '';
+                    const phone = t.owner_phone || '';
+                    return `<tr class="admin-ticket-row">
+                        <td>
+                           <div class="booked-ticket-line-1">
+                                <span>#${t.id}: ${t.owner_name}</span>
+                                <i class="fas fa-edit" onclick="showEditTicketPopup(${t.id}, '${name}', '${phone}')"></i>
+                            </div>
+                            <div class="booked-ticket-line-2">
+                                <span>Mobile: ${t.owner_phone || '-'}</span> | <span>Agent: ${agent?.name || (t.is_sold ? 'Admin/Direct' : '-')}</span>
+                            </div>
+                        </td>
+                    </tr>`;
+                } else {
+                     return `<tr class="admin-ticket-row available-ticket">
+                        <td data-label="ID">${t.id}</td>
+                        <td data-label="Status">Available</td>
+                        <td data-label="Owner">-</td>
+                        <td data-label="Actions">-</td>
+                    </tr>`;
+                }
             }).join('') + `</tbody>`;
-    } else {
+    } else { // Agent List
         const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').includes(searchTerm));
-        table.innerHTML = `<thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Email</th><th>Tkt Sold</th></tr></thead><tbody>` +
+        table.innerHTML = `<thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Sold</th><th>Actions</th></tr></thead><tbody>` +
             users.map(u => {
                 const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
+                let actionCell = `<td data-label="Actions">-</td>`;
+                if (u.role === 'agent') {
+                     const name = u.name ? u.name.replace(/'/g, "\\'") : '';
+                    actionCell = `<td data-label="Actions"><i class="fas fa-trash-alt" style="color: #e74c3c; cursor: pointer;" title="Delete Agent" onclick="deleteUser('${u.uid}', '${name}')"></i></td>`;
+                }
                 return `<tr>
                     <td data-label="Name">${u.name}</td>
                     <td data-label="Role">${u.role}</td>
                     <td data-label="Phone">${u.phone}</td>
-                    <td data-label="Email">${u.email}</td>
                     <td data-label="Sold">${soldCount}</td>
+                    ${actionCell}
                 </tr>`;
             }).join('') + `</tbody>`;
     }
 }
 
-function updateRunGameUI(winners, isRunning) {
-    if (currentView !== 'adminDashboardView' || !document.getElementById('runGameWindowDiv').classList.contains('active')) return;
-    document.getElementById('callStatusInp').value = isRunning ? 'on' : 'off';
+// MODIFIED: Opens the ticket editor popup and stores original data.
+function showEditTicketPopup(ticketId, currentName, currentPhone) {
+    ticketIdToEdit = ticketId; // Store the ID of the ticket being edited
+    originalOwnerInfo = { name: currentName, phone: currentPhone }; // NEW: Store original data for comparison
+
+    document.getElementById('editOwnerInfoText').innerHTML = `Editing details for Ticket <b>#${ticketId}</b>.`;
+    document.getElementById('editOwnerNameInp').value = currentName;
+    document.getElementById('editOwnerPhoneInp').value = currentPhone;
+    showPopup('editOwnerPopup');
+}
+
+// REPLACED: This function now triggers a confirmation popup instead of saving directly.
+async function saveTicketOwnerChanges() {
+    if (!ticketIdToEdit || !originalOwnerInfo.phone) return;
+
+    const newName = document.getElementById('editOwnerNameInp').value.trim();
+    const newPhone = document.getElementById('editOwnerPhoneInp').value.trim();
+
+    if (!newName || !newPhone) {
+        return showNotification('Name and Phone cannot be empty.', 'error');
+    }
+
+    // Find how many tickets the original owner has
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+
+    if (ownedTickets.length > 1) {
+        // If the owner has more than one ticket, show the confirmation popup
+        const confirmText = document.getElementById('applyToAllConfirmText');
+        confirmText.innerHTML = `<b>${originalOwnerInfo.name}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to apply the new details to all of them?`;
+
+        // Wire up the buttons in the new popup to call the final save function
+        document.getElementById('confirmApplyToAllBtn').onclick = () => applyOwnerChanges(true, newName, newPhone);
+        document.getElementById('confirmApplyToSingleBtn').onclick = () => applyOwnerChanges(false, newName, newPhone);
+
+        showPopup('applyToAllConfirmPopup');
+    } else {
+        // If the owner has only one ticket, save the changes directly without asking
+        applyOwnerChanges(false, newName, newPhone);
+    }
+}
+
+
+// NEW: Central handler function to apply changes based on the user's choice from the popup.
+async function applyOwnerChanges(applyToAll, newName, newPhone) {
+    try {
+        const updates = {};
+        let ticketsToUpdate = [];
+        let successMessage = '';
+
+        if (applyToAll) {
+            // Find all tickets that match the original owner's phone number
+            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+            successMessage = `Details updated for all ${ticketsToUpdate.length} tickets owned by ${originalOwnerInfo.name}.`;
+        } else {
+            // Find only the single ticket that was being edited
+            const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
+            if (singleTicket) ticketsToUpdate.push(singleTicket);
+            successMessage = `Ticket #${ticketIdToEdit} updated successfully!`;
+        }
+
+        if (ticketsToUpdate.length === 0) {
+            closePopups();
+            return showNotification('Could not find the specified ticket(s) to update.', 'error');
+        }
+
+        // Prepare the data for the database update
+        ticketsToUpdate.forEach(ticket => {
+            updates[`/tickets/${ticket.id}/owner_name`] = newName;
+            updates[`/tickets/${ticket.id}/owner_name_lower`] = newName.toLowerCase();
+            updates[`/tickets/${ticket.id}/owner_phone`] = newPhone;
+        });
+
+        await db.ref().update(updates);
+        showNotification(successMessage, 'success');
+
+    } catch (e) {
+        showNotification('Error updating ticket(s): ' + e.message, 'error');
+    } finally {
+        // Clean up global variables and close all popups
+        closePopups();
+        ticketIdToEdit = null;
+        originalOwnerInfo = { name: '', phone: '' };
+    }
+}
+
+
+async function deleteUser(uid, name) {
+    if (uid === currentUser.uid) {
+        return showNotification("You cannot delete your own account.", "error");
+    }
+    const userToDelete = allUsersData.find(u => u.uid === uid);
+    if (userToDelete && userToDelete.role === 'admin') {
+        return showNotification("Admins cannot be deleted from this panel.", "error");
+    }
+
+    if (!confirm(`Are you sure you want to PERMANENTLY DELETE the agent '${name}'? This action cannot be undone.`)) return;
+
+    try {
+        await db.ref(`users/${uid}`).remove();
+        const msg = `Agent '${name}' has been deleted.`;
+        showNotification(msg, 'success');
+        await triggerGlobalNotification(msg, 'info');
+    } catch (e) {
+        showNotification('Error deleting user: ' + e.message, 'error');
+    }
+}
+
+// === MODIFICATION START: REMOVED TIMER LOGIC AND SIMPLIFIED ===
+/**
+ * Handles the UI updates for the "Run Game" popup, including the winner list.
+ * The timer functionality has been removed from this function as it's now handled
+ * by the global `updateCountdownTimers` function.
+ * @param {object} gameState The current state of the game from Firebase.
+ */
+function updateRunGameUI(gameState) {
+    if (currentView !== 'adminDashboardView' || !document.getElementById('runGameWindowDiv').classList.contains('active')) {
+        return;
+    }
+
+    const { isGameRunning, winners } = gameState || {};
+    document.getElementById('callStatusInp').value = isGameRunning ? 'on' : 'off';
+
+    // Update winner list in the popup
     const runGameContainer = document.getElementById('runGameDividentList');
     const activeDividends = gameSettingsData.dividends || [];
     runGameContainer.innerHTML = '<table><thead><tr><th>Dividend</th><th>Winner</th></tr></thead><tbody>' +
@@ -1972,7 +2302,11 @@ function updateRunGameUI(winners, isRunning) {
             const winnerText = winnerInfo ? `${winnerInfo.name} (Tkt: ${winnerInfo.ticketId})` : 'Pending...';
             return `<tr><td>${div.name}</td><td>${winnerText}</td></tr>`;
         }).join('') + '</tbody></table>';
+
+    // All timer logic has been removed from this function.
 }
+// === MODIFICATION END ===
+
 
 
 // --- 9. AGENT DASHBOARD & SHARED BOOKING LOGIC ---
@@ -1988,9 +2322,9 @@ function updateAgentInfoUI() {
     document.getElementById('earningBtn').textContent = `₹ ${myEarnings.toLocaleString()}`;
 
     document.getElementById('agentBusinessInfoTable').innerHTML = `<tbody>
-        <tr><td data-label="Metric">Game Title</td><td data-label="Value">Sintha Team</td></tr>
-        <tr><td data-label="Metric">Ticket Price</td><td data-label="Value">₹ ${(gameSettingsData.ticketPrice || 0).toLocaleString()}</td></tr>
-        <tr><td data-label="Metric">My Commission/Tkt</td><td data-label="Value">₹ ${(gameSettingsData.agentCommission || 0).toLocaleString()}</td></tr>
+        <tr><td>Game Title</td><td>Sintha Team</td></tr>
+        <tr><td>Ticket Price</td><td>₹ ${(gameSettingsData.ticketPrice || 0).toLocaleString()}</td></tr>
+        <tr><td>My Commission/Tkt</td><td>₹ ${(gameSettingsData.agentCommission || 0).toLocaleString()}</td></tr>
     </tbody>`;
 }
 
@@ -2250,30 +2584,45 @@ function handlePublicPopupBookingRequest() {
 
 // --- 11. GAME RUNNER & WINNER LOGIC ---
 async function toggleGameRunner() {
-    const callStatusRef = db.ref('gameState/currentState/isGameRunning');
+    const gameStateRef = db.ref('gameState/currentState');
     const isRunning = document.getElementById('callStatusInp').value === 'on';
     if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-    try {
-        await callStatusRef.set(isRunning);
-        const msg = `Game runner is now ${isRunning ? 'ON' : 'OFF'}.`;
-        showNotification(msg, 'info');
 
+    try {
         if (isRunning) {
+            // Set running status first
+            await gameStateRef.child('isGameRunning').set(true);
+
+            // Use a transaction to set start time only if it doesn't exist
+            await gameStateRef.transaction(currentData => {
+                if (currentData) {
+                    if (!currentData.gameStartedAt) {
+                        currentData.gameStartedAt = firebase.database.ServerValue.TIMESTAMP;
+                    }
+                }
+                return currentData;
+            });
+
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
             const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
-            if(isNaN(intervalSeconds) || intervalSeconds < 1) {
+            if (isNaN(intervalSeconds) || intervalSeconds < 1) {
                 showNotification("Set a valid call interval (>= 1 second).", 'error');
                 document.getElementById('callStatusInp').value = 'off';
-                await callStatusRef.set(false);
+                await gameStateRef.child('isGameRunning').set(false);
                 return;
             }
             gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
-            callNextNumber();
+            callNextNumber(); // Call immediately
         } else {
-             await triggerGlobalNotification('The game has been paused by the admin.', 'info');
+            await gameStateRef.child('isGameRunning').set(false);
+            await triggerGlobalNotification('The game has been paused by the admin.', 'info');
         }
-    } catch (e) { showNotification("Error starting/stopping game: " + e.message, 'error'); }
+        showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
+    } catch (e) {
+        showNotification("Error starting/stopping game: " + e.message, 'error');
+    }
 }
+
 
 function callNextNumber() {
     const gameStateRef = db.ref('gameState/currentState');
