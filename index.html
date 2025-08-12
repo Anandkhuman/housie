@@ -291,7 +291,12 @@
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
     .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
     .dividend-table .winner-name { font-weight: 700; color: var(--called-color); }
-    #number-announcement-overlay { visibility: hidden; opacity: 0; }
+    #number-announcement-overlay {
+        visibility: hidden;
+        opacity: 0;
+        background: transparent;
+        backdrop-filter: none;
+    }
     #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
 
     /* --- 4. TICKET BOOKING & STATUS VIEW STYLES --- */
