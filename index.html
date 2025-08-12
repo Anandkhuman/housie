@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
+    <!-- NEW: Added jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 
     <!-- Firebase Libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -48,9 +51,9 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; outline: none; border: none; }
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--secondary-surface); }
-    ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
 
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, var(--font-family-neon);
@@ -58,6 +61,7 @@
         background-color: var(--bg-color);
         overflow-x: hidden;
         transition: background-color 0.3s, color 0.3s;
+        font-size: 14px; /* Base small font size */
     }
 
     body.dashboard-view-active {
@@ -77,100 +81,90 @@
         display: block;
     }
 
-    /* --- 2. POPUPS & MODALS (Unified) --- */
+    /* --- 2. POPUPS & MODALS (Unified Small Design) --- */
     .overlay-popup, .gamePopDiv {
         position: fixed; z-index: 1000; width: 100%; height: 100%; top: 0; left: 0;
-        display: none; /* Changed from flex to none */
-        align-items: center; justify-content: center; padding: 1rem;
+        display: none; align-items: center; justify-content: center; padding: 0.5rem;
         background: rgba(16, 12, 42, 0.85);
         backdrop-filter: blur(8px);
         opacity: 0; visibility: hidden;
         transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
         overflow-y: auto;
     }
+
+    .overlay-popup {
+        z-index: 1010; /* Ensures overlay popups appear on top of game popups */
+    }
+
     .overlay-popup.active, .gamePopDiv.active { opacity: 1; visibility: visible; }
 
     .popup-content {
-        width: 90%; max-width: 600px;
+        width: 95%; max-width: 500px;
         background: var(--primary-surface);
-        border: 1px solid var(--accent-primary); border-radius: 12px;
-        padding: 2rem; position: relative; max-height: 90vh; overflow-y: auto;
-        box-shadow: 0 0 30px rgba(0, 246, 255, 0.4);
+        border: 1px solid var(--accent-primary); border-radius: 8px;
+        padding: 1.5rem; position: relative; max-height: 90vh; overflow-y: auto;
+        box-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
         transform: scale(0.95);
         transition: transform var(--transition-speed) var(--transition-ease);
     }
     .overlay-popup.active .popup-content { transform: scale(1); }
 
     .x-button {
-        background: transparent; position: absolute; top: 1rem; right: 1rem;
-        cursor: pointer; color: var(--text-secondary); font-size: 1.5rem;
+        background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
+        cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;
         transition: color 0.3s, transform 0.3s;
         z-index: 10;
     }
     .x-button:hover { color: var(--text-primary); transform: rotate(90deg); }
 
     .popup-title {
-        font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 2rem;
-        color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-primary);
+        font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 1.5rem;
+        color: var(--accent-primary); text-shadow: 0 0 8px var(--accent-primary);
     }
 
     .login-form input, .agent-inp {
-        width: 100%; font-size: 1.1rem; padding: 0.8rem 1rem;
-        border-radius: 6px; margin-bottom: 1rem; text-align: center;
+        width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
+        border-radius: 4px; margin-bottom: 0.8rem; text-align: center;
         font-family: var(--font-family-neon); background: var(--secondary-surface);
         border: 1px solid var(--accent-primary); color: var(--text-primary);
     }
 
     .login-btn {
-        width: 100%; font-size: 1.1rem; padding: 0.8rem 1rem;
-        border-radius: 6px; margin-bottom: 1rem; text-align: center;
+        width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
+        border-radius: 4px; margin-bottom: 0.8rem; text-align: center;
         font-family: var(--font-family-neon);
         background: var(--accent-primary); color: var(--text-dark);
         cursor: pointer; font-weight: 700; transition: box-shadow 0.3s, filter 0.3s;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
     }
-    .login-btn:hover { box-shadow: 0 0 15px var(--accent-primary); filter: brightness(1.1); }
+    .login-btn:hover { box-shadow: 0 0 10px var(--accent-primary); filter: brightness(1.1); }
     .login-btn.secondary { background: var(--accent-secondary); }
-    .login-btn.admin { background: #e67e22; } /* Admin button color */
-    .login-btn.agent { background: #3498db; } /* Agent button color */
+    .login-btn.admin { background: #e67e22; }
+    .login-btn.agent { background: #3498db; }
 
 
-    .agent-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .agent-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .agent-list a {
-        display: flex; align-items: center; gap: 1rem; padding: 1rem;
-        border-radius: 6px; color: var(--text-primary); text-decoration: none;
-        font-size: 1.2rem; font-weight: 600; background: var(--secondary-surface);
+        display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem;
+        border-radius: 4px; color: var(--text-primary); text-decoration: none;
+        font-size: 1rem; font-weight: 600; background: var(--secondary-surface);
         transition: background-color 0.3s, transform 0.3s;
     }
-    .agent-list a:hover { background-color: var(--primary-surface); transform: translateX(5px); }
-    .agent-list .fab.fa-whatsapp { color: #25D366; font-size: 1.5rem; margin-left: auto; }
+    .agent-list a:hover { background-color: var(--primary-surface); transform: translateX(3px); }
+    .agent-list .fab.fa-whatsapp { color: #25D366; font-size: 1.2rem; margin-left: auto; }
 
     /* --- NOTIFICATION SYSTEM --- */
     #notification-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 320px;
+        position: fixed; top: 10px; right: 2.5%; width: 95%;
+        z-index: 9999; display: flex; flex-direction: column; gap: 8px;
     }
     .notification {
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-family: sans-serif;
-        font-size: 1rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        opacity: 0;
-        transform: translateX(100%);
+        padding: 12px 15px; border-radius: 6px; color: white;
+        font-family: sans-serif; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        opacity: 0; transform: translateX(100%);
         transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
-    .notification.show {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    .notification.show { opacity: 1; transform: translateX(0); }
     .notification.success { background-color: #2ecc71; }
     .notification.error { background-color: #e74c3c; }
     .notification.info { background-color: #3498db; }
@@ -193,456 +187,228 @@
         background-image: repeating-linear-gradient(to right, transparent, transparent 99px, var(--accent-primary) 100px);
         background-size: 100px 100px; transform: rotateX(80deg);
     }
-    .page-wrapper { max-width: 1400px; margin: 0 auto; padding: 1.5rem; position: relative; z-index: 1; }
+    .page-wrapper { max-width: 1400px; margin: 0 auto; padding: 1rem; position: relative; z-index: 1; width: 95%; }
     .main-header, .panel {
         background: var(--primary-surface); border: 1px solid var(--accent-primary);
-        border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-        box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 12px rgba(0, 246, 255, 0.1);
-        opacity: 0; transform: translateY(30px);
+        border-radius: 8px; margin-bottom: 1rem;
+        box-shadow: 0 0 15px rgba(0, 246, 255, 0.2), inset 0 0 8px rgba(0, 246, 255, 0.1);
+        opacity: 0; transform: translateY(20px);
+        padding: 1rem;
     }
-    .main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; }
-    .game-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+    .main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; padding: 0.8rem 1rem; text-align: center; }
+    .game-layout { display: grid; grid-template-columns: 1fr; gap: 1rem; }
     .panel-title {
-        font-size: 2rem; font-weight: 700; margin-bottom: 1rem;
+        font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
         color: var(--accent-primary); text-align: center;
-        text-shadow: 0 0 12px var(--accent-primary), 0 0 25px var(--accent-primary);
+        text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
     }
-    .title-container { display: flex; align-items: center; gap: 1rem; }
-    .logo-container { font-size: 2.5rem; color: var(--accent-primary); text-shadow: 0 0 15px var(--accent-primary); animation: pulse-glow 3s infinite ease-in-out; }
+    .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
+    .logo-container { font-size: 1.8rem; color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-primary); animation: pulse-glow 3s infinite ease-in-out; }
     @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .webTitle { font-size: 2.2rem; font-weight: 700; }
-    .icon-bar { display: flex; gap: 0.75rem; }
+    .webTitle { font-size: 1.5rem; font-weight: 700; }
+    .icon-bar { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
     .icon-btn {
-        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        display: flex; align-items: center; justify-content: center; gap: 0.4rem;
         background: transparent; border: 1px solid var(--accent-primary); color: var(--accent-primary);
-        border-radius: 6px; padding: 0.75rem 1rem;
-        font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none;
-        transition: background-color var(--transition-speed) var(--transition-ease), box-shadow var(--transition-speed) var(--transition-ease), transform var(--transition-speed) var(--transition-ease);
+        border-radius: 4px; padding: 0.6rem 0.8rem;
+        font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none;
+        transition: background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease, transform var(--transition-speed) ease;
+        flex-grow: 1;
     }
-    .icon-btn:hover { background: rgba(0, 246, 255, 0.1); box-shadow: 0 0 15px var(--accent-primary); transform: translateY(-3px); }
-    .timer-status-bar { width: 100%; margin-top: 1rem; padding: 1rem; border-top: 1px solid rgba(0, 246, 255, 0.5); display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.75rem 1.5rem; }
-    .info-item { display: flex; align-items: center; gap: 0.75rem; font-size: 1rem; font-weight: 600; color: var(--text-secondary); }
-    .info-item i { font-size: 1.1rem; color: var(--accent-primary); }
-    .info-separator { width: 1px; height: 1.2rem; background: var(--accent-primary); opacity: 0.5; }
-    .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.6rem; }
+    .icon-btn:hover { background: rgba(0, 246, 255, 0.1); box-shadow: 0 0 10px var(--accent-primary); transform: translateY(-2px); }
+    .timer-status-bar { width: 100%; padding: 0.5rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 1rem; }
+    .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+    .info-item i { font-size: 1rem; color: var(--accent-primary); }
+    .info-separator { display: none; }
+    .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
-        background: var(--secondary-surface); border-radius: 6px;
-        font-weight: 700; font-size: clamp(0.8rem, 1.8vw, 1.6rem);
-        color: var(--text-secondary); text-shadow: 0 0 5px rgba(176, 168, 224, 0.5);
+        background: var(--secondary-surface); border-radius: 4px;
+        font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+        color: var(--text-secondary); text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
     }
-    .num-cell.called {
-        background: var(--called-color); color: var(--text-dark);
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); transform: scale(1.05);
-    }
-    .info-column { display: flex; flex-direction: column; gap: 1.5rem; }
-    .called-numbers-list { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; max-height: 150px; overflow-y: auto; padding: 0.5rem; background: var(--secondary-surface); border-radius: 6px; }
-    .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 700; font-size: 1rem; }
+    .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
+    .info-column { display: flex; flex-direction: column; gap: 1rem; }
+    .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
+    .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     .search-container { display: flex; margin-bottom: 1rem; }
-    .searchInp { flex-grow: 1; font-size: 1.1rem; padding: 0.75rem 1rem; border-radius: 6px 0 0 6px; background-color: var(--secondary-surface); color: var(--text-primary); border: 1px solid var(--accent-primary); font-family: var(--font-family-neon); transition: box-shadow var(--transition-speed) ease; }
-    .searchInp:focus { box-shadow: 0 0 15px var(--accent-primary); }
-    .search-btn { padding: 0 1.25rem; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: var(--text-dark); cursor: pointer; border-radius: 0 6px 6px 0; font-size: 1.2rem; font-weight: 700; transition: filter var(--transition-speed) ease; }
+    .searchInp { flex-grow: 1; font-size: 0.9rem; padding: 0.6rem 0.8rem; border-radius: 4px 0 0 4px; background-color: var(--secondary-surface); color: var(--text-primary); border: 1px solid var(--accent-primary); font-family: var(--font-family-neon); transition: box-shadow var(--transition-speed) ease; }
+    .searchInp:focus { box-shadow: 0 0 10px var(--accent-primary); }
+    .search-btn { padding: 0 1rem; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: var(--text-dark); cursor: pointer; border-radius: 0 4px 4px 0; font-size: 1rem; font-weight: 700; transition: filter var(--transition-speed) ease; }
     .search-btn:hover { filter: brightness(1.2); }
     .ticketDisplayArea { display: flex; flex-direction: column; gap: 1rem; }
-    
-    /* UNIVERSAL TICKET STYLES (Used on Public, Booking, and Status pages) */
-    .ticket-view { background: var(--secondary-surface); border: 1px solid var(--accent-secondary); border-radius: 12px; padding: 1rem; box-shadow: 0 0 20px rgba(255, 0, 160, 0.2); }
-    .ticket-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; color: var(--accent-secondary); text-shadow: 0 0 8px var(--accent-secondary); }
-    .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.3rem; }
-    .ticket-num { background: var(--primary-surface); color: var(--text-secondary); text-align: center; padding: 0.5rem 0; border-radius: 4px; font-weight: 700; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; border: 1px solid rgba(255, 0, 160, 0.4); }
-    .ticket-num.ticked { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.08); }
-    .ticket-num.empty { background: transparent; /* The border will be inherited from .ticket-num */ }
-    
+
+    /* UNIVERSAL TICKET STYLES (Mobile Light Blue Theme) */
+    .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
+    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: #01579b; text-shadow: none; }
+    .sheet-view { background-color: #ffffff; border: 1px solid #0277bd; border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem; }
+    .sheet-header { color: #01579b; border-bottom: 1px solid #b3e5fc; font-size: 1rem; margin-bottom: 0.8rem; background: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; padding-bottom: 0.5rem; }
+    .sheet-content { display: grid; gap: 0.8rem; grid-template-columns: 1fr !important; }
+    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; } /* Added position relative */
+    .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
+    .ticket-header span, .ticket-header div { color: #01579b !important; }
+    .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
+    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(0.6rem, 2.5vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+    .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
+    .ticket-num.ticked { background-color: #ffeb3b !important; color: #000000 !important; border-radius: 50%; transform: scale(1.05); box-shadow: 0 0 4px #ffeb3b; text-shadow: none; border: 1px solid #fbc02d; }
+    #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
+
+    /* NEW: Download button style */
+    .download-pdf-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background-color: var(--accent-color-dash);
+        color: white;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        border: 2px solid white;
+        transition: transform 0.2s;
+    }
+    .download-pdf-btn:hover {
+        transform: scale(1.1);
+    }
+
+
     .dividend-table { width: 100%; border-collapse: collapse; }
-    .dividend-table th, .dividend-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid rgba(255, 0, 160, 0.4); }
-    .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 1.1rem; }
+    .dividend-table th, .dividend-table td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.85rem;}
+    .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.9rem; }
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
     .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
     .dividend-table .winner-name { font-weight: 700; color: var(--called-color); }
     #number-announcement-overlay { visibility: hidden; opacity: 0; }
-    #announced-number-display {
-        font-family: var(--font-family-neon); font-size: clamp(30vw, 30vw, 400px); font-weight: 700;
-        color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color);
-        transform: scale(0.5); opacity: 0; visibility: hidden;
-    }
+    #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
 
     /* --- 4. TICKET BOOKING & STATUS VIEW STYLES --- */
-    #bookingGridContainer {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        padding: 1rem;
-        max-height: 60vh;
-        overflow-y: auto;
-        background: var(--secondary-surface);
-        border-radius: 8px;
-        border: 1px solid var(--accent-primary);
-    }
-    #bookingGridContainer .ticket-view {
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    #bookingGridContainer .ticket-view.sold {
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
-    #bookingGridContainer .ticket-view.selected {
-        transform: scale(1.03);
-        box-shadow: 0 0 20px var(--called-color), inset 0 0 10px rgba(255, 242, 0, 0.2);
-        border-color: var(--called-color);
-    }
-
-    #bookingFormContainer {
-        display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;
-    }
-    #bookingFormContainer input {
-        width: 100%; font-size: 1.1rem; padding: 0.8rem 1rem;
-        border-radius: 6px; text-align: center;
-        font-family: var(--font-family-neon); background: var(--secondary-surface);
-        border: 1px solid var(--accent-primary); color: var(--text-primary);
-    }
-    .selection-indicator {
-        text-align: center;
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--called-color);
-        padding: 0.75rem;
-        margin-top: 1rem;
-        border-radius: 6px;
-        background: rgba(255, 242, 0, 0.1);
-        border: 2px dashed var(--called-color);
-        min-height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: border-color 0.3s ease;
-    }
-    
-    #bookedTicketsDisplay {
-        max-height: 80vh;
-        overflow-y: auto;
-        padding: 10px;
-        background: rgba(0,0,0,0.2);
-        border-radius: 6px;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem; /* Gap between sheets */
-    }
-    .sheet-view {
-        background: var(--secondary-surface);
-        border-radius: 8px;
-        padding: 1rem;
-        border-left: 3px solid var(--accent-secondary);
-    }
-    .sheet-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--accent-secondary);
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255, 0, 160, 0.3);
-    }
-    .sheet-content {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1rem;
-    }
-    
-    .full-sheet-selector {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-    }
-    .full-sheet-selector input {
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-    }
-    
-    .book-now-btn-small {
-        background: var(--accent-primary);
-        color: var(--text-dark);
-        border: none;
-        border-radius: 4px;
-        padding: 2px 8px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: filter 0.2s;
-    }
+    #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 60vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+    #bookingGridContainer .ticket-view { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    #bookingGridContainer .ticket-view.sold { cursor: not-allowed; opacity: 0.5; }
+    #bookingGridContainer .ticket-view.selected { transform: scale(1.03); box-shadow: 0 0 15px var(--called-color), inset 0 0 10px rgba(255, 242, 0, 0.2); border-color: var(--called-color); }
+    #bookingFormContainer { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
+    #bookingFormContainer input { width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem; border-radius: 4px; text-align: center; font-family: var(--font-family-neon); background: var(--secondary-surface); border: 1px solid var(--accent-primary); color: var(--text-primary); }
+    .selection-indicator { text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--called-color); padding: 0.6rem; margin-top: 1rem; border-radius: 4px; background: rgba(255, 242, 0, 0.1); border: 2px dashed var(--called-color); min-height: 40px; display: flex; align-items: center; justify-content: center; transition: border-color 0.3s ease; }
+    #bookedTicketsDisplay { max-height: 80vh; overflow-y: auto; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 1rem; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+    .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
+    .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
+    .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
     .book-now-btn-small:hover { filter: brightness(1.2); }
-    
-    /* --- 5. DASHBOARD VIEWS (Admin/Agent) --- */
-    .dashboard-view .gameSettingDiv {
-        width: 80%; background: var(--primary-bg-dash);
-        margin-left: 10%; margin-top: 2rem; padding: 1px 0 10px 0;
-        border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    .dashboard-view .gameSettingDiv:first-child { margin-top: 1rem; }
-    .dashboard-view .titleBtn {
-        width: 100%; border: 0; font-size: 25px; padding: 15px;
-        color: var(--light-text-dash); background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px 8px 0 0; font-weight: bold; text-align: center;
-    }
-    .dashboard-view .clickBtn {
-        font-size: 20px; padding: 10px; color: var(--light-text-dash);
-        border-radius: 10px; border: 0; margin: 3px; cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
-    .dashboard-view .runBtn {
-        width: 80%; font-size: 40px; font-weight: bold; height: 100px;
-        border-radius: 10px; background: var(--accent-color-dash); color: var(--light-text-dash);
-        margin: 10px auto; border: 0; display: block; cursor: pointer;
-    }
-    .dashboard-view .bookFloatBtn {
-        font-size: 20px; padding: 10px; width: 200px; border-radius: 10px;
-        position: fixed; bottom: 10px; right: 10%; border: 0;
-        background: var(--accent-color-dash); color: var(--light-text-dash);
-        z-index: 10; box-shadow: 0 4px 8px rgba(0,0,0,0.4); cursor: pointer;
-    }
-    .dashboard-view .actionBtn {
-        margin: 5px; background: var(--accent-color-dash); font-size: 15px;
-        color: var(--light-text-dash); font-weight: bold; height: 50px;
-        border-radius: 5px; border: 0; cursor: pointer; transition: background-color 0.2s ease;
-    }
-    .dashboard-view .actionBtn:hover { background: #16a085; }
-    .dashboard-view .gameSettingTable { width: 80%; margin-left: 10%; border-collapse: collapse; margin-top: 10px;}
-    .dashboard-view .gameSettingTable th, .dashboard-view .gameSettingTable td { padding: 12px 10px; border-bottom: 1px solid var(--secondary-bg-dash); text-align: left; }
-    .dashboard-view .gameSettingTable th { font-weight: bold; color: var(--muted-color-dash); }
-    .dashboard-view .tableInp {
-        width: 100%; font-size: 15px; padding: 10px; border: 1px solid var(--secondary-bg-dash);
-        font-weight: bold; margin: 0; border-radius: 4px; box-sizing: border-box;
-        background-color: white; color: var(--text-dark);
-    }
-    .dashboard-view .tableCheckbox { width: 25px; height: 25px; vertical-align: middle; accent-color: var(--accent-color-dash); }
-    #adminDashboardView .searchInp, #agentDashboardView .searchInp {
-        width: 80%; font-size: 20px; padding: 10px; border-radius: 10px;
-        margin: 20px auto 0 auto; display: block; text-align: center;
-        background-color: var(--secondary-bg-dash); color: var(--light-text-dash);
-        border: 1px solid var(--accent-color-dash);
-    }
-    .dashboard-view #webTitleInp { text-align: center; background: transparent; border: 0; padding: 15px; font-size: 25px; color: var(--light-text-dash); font-weight: bold; }
 
-    .dashboard-view .toggleDiv { display: grid; grid-template-columns: 1fr 1fr; width: 80%; margin: 0 auto; }
+    /* --- 5. DASHBOARD VIEWS (Admin/Agent) --- */
+    .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 1.5rem; }
+    .dashboard-view .gameSettingDiv:first-child { margin-top: 1rem; }
+    .dashboard-view .titleBtn { width: 100%; border: 0; padding: 10px; color: var(--light-text-dash); background: rgba(255, 255, 255, 0.05); border-radius: 6px 6px 0 0; font-weight: bold; text-align: center; font-size: 1rem; }
+    .dashboard-view .clickBtn { padding: 8px; color: var(--light-text-dash); border-radius: 6px; border: 0; margin: 2px; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.85rem; }
+    .dashboard-view .runBtn { width: 80%; font-weight: bold; border-radius: 6px; background: var(--accent-color-dash); color: var(--light-text-dash); margin: 10px auto; border: 0; display: block; cursor: pointer; font-size: 1.2rem; height: 50px; }
+    .dashboard-view .bookFloatBtn { width: 110px; padding: 8px; border-radius: 8px; position: fixed; bottom: 10px; right: 10px; border: 0; background: var(--accent-color-dash); color: var(--light-text-dash); z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: pointer; font-size: 0.85rem; }
+    .dashboard-view .actionBtn { margin: 4px; background: var(--accent-color-dash); color: var(--light-text-dash); font-weight: bold; border-radius: 4px; border: 0; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.8rem; height: auto; padding: 8px 4px; flex-grow: 1; }
+    .dashboard-view .actionBtn:hover { background: #16a085; }
+    .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
+    .dashboard-view .gameSettingTable thead { display: none; }
+    .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr, .dashboard-view .gameSettingTable td { display: block; text-align: right; }
+    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 8px; padding-bottom: 8px; }
+    .dashboard-view .gameSettingTable td { padding: 10px 8px; padding-left: 50%; position: relative; border: none; font-size: 0.9rem; }
+    .dashboard-view .gameSettingTable td::before { content: attr(data-label); position: absolute; left: 8px; width: 45%; padding-right: 8px; white-space: nowrap; text-align: left; font-weight: bold; color: var(--muted-color-dash); font-size: 0.85rem; }
+    .dashboard-view .tableInp { width: 100%; font-size: 0.9rem; padding: 8px; border: 1px solid var(--secondary-bg-dash); font-weight: bold; margin: 0; border-radius: 3px; box-sizing: border-box; background-color: white; color: var(--text-dark); }
+    .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); }
+    #adminDashboardView .searchInp, #agentDashboardView .searchInp { font-size: 1rem; padding: 8px; border-radius: 6px; margin: 15px auto 0 auto; display: block; text-align: center; background-color: var(--secondary-bg-dash); color: var(--light-text-dash); border: 1px solid var(--accent-color-dash); width: 90%; }
+    .dashboard-view .toggleDiv { display: grid; grid-template-columns: 1fr 1fr; width: 90%; margin: 0 auto; }
     .dashboard-view #showTicketBtn { background: var(--accent-color-dash); }
     .dashboard-view #showAgentBtn { background: var(--secondary-bg-dash); }
-    .dashboard-view .actionBtnDiv { display: grid; grid-template-columns: repeat(3, 2fr); gap: 5px; padding: 10px; }
-    .dashboard-view .numBlockDiv { width: 50%; margin: 1rem auto; border: 10px solid silver; display: grid; grid-template-columns: repeat(10, 1fr); }
-    .dashboard-view .numBlockDiv .num-cell { font-size: 1.2rem; color: var(--text-dark); background: #fff;}
+    .dashboard-view .actionBtnDiv { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 4px; padding: 8px; }
+    .dashboard-view .numBlockDiv { width: 90%; margin: 1rem auto; border: 8px solid silver; display: grid; grid-template-columns: repeat(10, 1fr); }
+    .dashboard-view .numBlockDiv .num-cell { font-size: 1rem; color: var(--text-dark); background: #fff;}
     .dashboard-view .numBlockDiv .num-cell.called { background: var(--accent-color-dash); color: white; }
-    .dashboard-view .bookInpDiv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 80%; margin: 1rem auto; }
-    .dashboard-view .ticketBlockDiv {
-        width: 80%;
-        margin: 1rem auto;
-        overflow-y: scroll;
-        max-height: 45vh;
-        padding: 5px;
-    }
-    .dashboard-view .ticketBlockBtn {
-        font-size: 15px;
-        padding: 5px;
-        background: white;
-        font-weight: bold;
-        border: 2px solid silver;
-        color: #000;
-        cursor: pointer;
-        aspect-ratio: 1/1;
-        transition: background-color 0.2s, color 0.2s;
-    }
-    .dashboard-view .bookBtn { width: 80%; font-size: 15px; padding: 10px; border: 0; font-weight: bold; display: block; margin: 20px auto 0 auto; background: var(--accent-color-dash); color: var(--light-text-dash); border-radius: 5px; }
-    .dashboard-view .runGameTable { width: 60%; margin: 1rem auto; }
-    .dashboard-view .dividentConDiv { width: 60%; margin: 1rem auto; }
+    .dashboard-view .bookInpDiv { display: grid; grid-template-columns: 1fr; gap: 8px; width: 80%; margin: 1rem auto; }
+    .dashboard-view .ticketBlockDiv { width: 80%; margin: 1rem auto; overflow-y: scroll; max-height: 45vh; padding: 4px; grid-template-columns: 1fr; }
+    .dashboard-view .ticketBlockBtn { font-size: 0.9rem; padding: 4px; background: white; font-weight: bold; border: 2px solid silver; color: #000; cursor: pointer; aspect-ratio: 1/1; transition: background-color 0.2s, color 0.2s; }
+    .dashboard-view .bookBtn { width: 80%; font-size: 0.9rem; padding: 8px; border: 0; font-weight: bold; display: block; margin: 15px auto 0 auto; background: var(--accent-color-dash); color: var(--light-text-dash); border-radius: 4px; }
+    .dashboard-view .runGameTable, .dashboard-view .dividentConDiv { width: 95%; margin: 1rem auto; }
     .dashboard-view .dividentConDiv table { width: 100%; color: var(--light-text-dash); border-collapse: collapse; }
-    .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 8px; border: 1px solid var(--muted-color-dash); }
-
+    .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 6px; border: 1px solid var(--muted-color-dash); font-size: 0.85rem;}
     .gamePopDiv { background: rgba(0, 0, 0, 0.8); }
-    .gameDiv {
-        position: relative; width: 80%; height: 95%; background: var(--primary-bg-dash);
-        margin: 2.5% auto; border-radius: 10px; overflow-y: scroll; padding-bottom: 2rem;
+    .gameDiv { position: relative; height: 90vh; background: var(--primary-bg-dash); margin: 2.5% auto; border-radius: 8px; overflow-y: scroll; padding-bottom: 2rem; width: 95%; }
+    .gameDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
+    #agentDashboardView .runBtn { font-size: 1.5rem; }
+    #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
+    #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
+
+    /* == MODIFIED/NEW STYLES FOR BOOKING POPUP LAYOUTS == */
+    .gamePopDiv .gameDiv {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Prevent parent from scrolling */
+        padding-bottom: 0; /* Override default padding */
     }
-    .gameDiv .x-button {
-         position: absolute; top: 10px; right: 15px; font-size: 2rem; color: white;
+    .booking-popup-header, .booking-popup-footer {
+        flex-shrink: 0; /* Prevent these from shrinking */
+        z-index: 5;
     }
-
-    #agentDashboardView .runBtn { font-size: 2rem; }
-
-    /* --- 6. RESPONSIVE DESIGN --- */
-    @media (max-width: 1024px) {
-        .game-layout { grid-template-columns: 1fr; }
-        .num-cell { font-size: clamp(1rem, 2.5vw, 1.8rem); }
-        .sheet-content { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .booking-popup-header {
+        position: relative;
     }
-    @media (max-width: 768px) {
-        /* General */
-        .page-wrapper, .mainDiv { padding: 1rem; width: 95%; }
-        .webTitle { font-size: 1.8rem; }
-        #notification-container { width: 90%; right: 5%;}
-
-        /* Public & Booking View */
-        .main-header { flex-direction: column; align-items: stretch; text-align: center; }
-        .title-container { justify-content: center; }
-        .icon-bar { justify-content: center; flex-wrap: wrap; }
-        .icon-btn { flex-grow: 1; }
-        .timer-status-bar { gap: 0.5rem 1rem; flex-direction: column;}
-        .info-separator { display: none; }
-        .num-cell { font-size: clamp(1rem, 4vw, 1.5rem); border-radius: 4px; }
-        .panel { padding: 1rem; }
-        #announced-number-display { font-size: 45vw; }
-        .sheet-content { grid-template-columns: 1fr !important; }
-
-
-        /* Dashboard */
-        .dashboard-view .gameSettingDiv { width: 95%; margin-left: 2.5%; }
-        .dashboard-view .toggleDiv, .dashboard-view .searchInp { width: 90%; }
-        .dashboard-view .titleBtn, .dashboard-view #webTitleInp { font-size: 18px; padding: 12px; }
-        .dashboard-view .actionBtn { font-size: 12px; height: auto; padding: 10px 5px; }
-        .dashboard-view .runBtn { font-size: 22px; height: 60px; }
-        .dashboard-view .clickBtn { font-size: 14px; }
-        .dashboard-view .bookFloatBtn { font-size: 14px; width: 120px; padding: 8px; right: 10px; bottom: 10px; }
-        .dashboard-view .actionBtnDiv { grid-template-columns: 1fr 1fr; }
-        .dashboard-view .bookInpDiv { grid-template-columns: 1fr; }
-        .dashboard-view .ticketBlockDiv { grid-template-columns: 1fr; }
-        .dashboard-view .runGameTable, .dashboard-view .dividentConDiv { width: 95%; }
-
-        /* Responsive Tables for Dashboard */
-        .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; }
-        .dashboard-view .gameSettingTable thead { display: none; }
-        .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr, .dashboard-view .gameSettingTable td { display: block; text-align: right; }
-        .dashboard-view .gameSettingTable tr {
-            border-bottom: 2px solid var(--secondary-bg-dash);
-            margin-bottom: 10px; padding-bottom: 10px;
-        }
-        .dashboard-view .gameSettingTable td {
-            padding-left: 50%; position: relative; border: none;
-        }
-        .dashboard-view .gameSettingTable td::before {
-            content: attr(data-label); position: absolute; left: 10px; width: 45%;
-            padding-right: 10px; white-space: nowrap; text-align: left;
-            font-weight: bold; color: var(--muted-color-dash);
-        }
-        .dashboard-view .tableInp { font-size: 14px; }
-        .dashboard-view .tableCheckbox { width: 24px; height: 24px; }
-        #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 10px; text-align: left; }
-        #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
-        .gameDiv { width: 95%; height: 90vh; }
-        .dashboard-view .numBlockDiv { width: 90%; }
+    .booking-popup-header .x-button {
+        position: absolute;
+        top: 0;
+        right: 4px;
+        color: white;
+    }
+    .booking-popup-footer {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        background: var(--primary-bg-dash);
+    }
+    /* Make the ticket block scrollable and take up remaining space */
+    .gamePopDiv .ticketBlockDiv {
+        flex-grow: 1; /* Key property */
+        overflow-y: auto; /* Enable vertical scrolling */
+        margin: 0;
+        width: 100%;
+        max-height: none; /* Override previous max-height */
+        padding: 8px;
     }
 
-    /* MOBILE TICKET THEME (Light Blue) */
-    @media (max-width: 768px) {
-        /* This theme applies to both the status display AND the new visual booking page */
-        #bookedTicketsDisplay, #bookingGridContainer {
-            background-color: #e0f7fa;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #b3e5fc;
-        }
-        
-        .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) {
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-        }
+    /* Style for the public booking popup inputs/buttons */
+    /* Public Booking Popup Styles */
+#publicBookingPopup .bookInpDiv {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem; /* adds spacing between columns */
+}
 
-        .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title {
-            color: #01579b;
-            text-shadow: none;
-        }
+#publicBookingPopup .tableInp {
+    color: var(--light-text-dash);
+    border: 1px solid var(--muted-color-dash);
+    border-radius: 4px; /* smooth corners for a cleaner look */
+    padding: 0.5rem;
+    background-color: var(--input-bg, #fff); /* fallback white if var not set */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
-        .sheet-view {
-            background-color: #ffffff;
-            border: 1px solid #0277bd;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
+/* Focus state for better UX */
+#publicBookingPopup .tableInp:focus {
+    border-color: var(--primary-color-dash);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+    outline: none;
+}
 
-        .sheet-header {
-            color: #01579b;
-            border-bottom: 1px solid #b3e5fc;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            background: none;
-        }
-        
-        .ticket-view {
-            border: 2px solid #0288d1;
-            border-radius: 6px;
-            padding: 0;
-            background-color: #f0faff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
 
-        .ticket-header {
-            padding: 0.5rem 0.75rem;
-            background-color: #b3e5fc;
-            color: #01579b;
-            font-family: sans-serif;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-shadow: none;
-            margin-bottom: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
 
-        .ticket-header span, .ticket-header div {
-            color: #01579b !important;
-        }
-        
-        .ticket-grid {
-            display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 0;
-            padding: 0.5rem;
-        }
-
-        .ticket-num {
-            background-color: white;
-            border: 1px solid black;
-            color: #212121;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: sans-serif;
-            font-weight: bold;
-            font-size: clamp(0.7rem, 2.8vw, 1rem);
-            padding: 0;
-            border-radius: 0;
-        }
-
-        .ticket-num.empty {
-            background-color: #f0faff; 
-            border: 1px solid black; /* Match border of other cells */
-        }
-        
-        .ticket-num.ticked {
-            background-color: #ffeb3b !important;
-            color: #000000 !important;
-            border-radius: 50%;
-            transform: scale(1.05);
-            box-shadow: 0 0 5px #ffeb3b;
-            text-shadow: none;
-            border: 1px solid #fbc02d;
-        }
-
-        /* Styles for selected visual ticket on booking page */
-        #bookingGridContainer .ticket-view.selected {
-             border-color: #ffeb3b;
-             box-shadow: 0 0 15px #ffeb3b;
-        }
+.bookBtn {
+width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
+        border-radius: 4px; margin-bottom: 0.8rem; text-align: center;
+        font-family: var(--font-family-neon);
+        background: var(--accent-primary); color: var(--text-dark);
+        cursor: pointer; font-weight: 700; transition: box-shadow 0.3s, filter 0.3s;
+        letter-spacing: 0.5px;
     }
+
 </style>
 </head>
 <body>
@@ -659,7 +425,7 @@
         <header class="main-header">
             <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">Loading...</h1>
+                <h1 class="webTitle">Sintha Team</h1>
             </div>
             <div class="icon-bar" id="public-icon-bar">
                 <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
@@ -689,7 +455,7 @@
                 <section class="panel">
                     <h2 class="panel-title">MY TICKETS</h2>
                     <div class="search-container">
-                        <input type="text" class="searchInp" id="ticketSearchInp" placeholder="Enter name or phone">
+                        <input type="text" class="searchInp" id="ticketSearchInp" placeholder="Enter name, phone, or ticket ID">
                         <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
                     </div>
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
@@ -719,10 +485,11 @@
         <header class="main-header">
              <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">Book Tickets</h1>
+                <h1 class="webTitle">Sintha Team</h1>
             </div>
              <div class="icon-bar" id="booking-icon-bar">
                 <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game Board</span></a>
+                <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Direct Book</span></button>
                 <button class="icon-btn" id="showAgentListBtn-booking"><i class="fas fa-users"></i><span>Agent List</span></button>
                 <button class="icon-btn" id="bookingLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
                 <button class="icon-btn" id="bookingLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
@@ -730,13 +497,13 @@
         </header>
 
         <div class="panel">
-            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1.5rem;">
+            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1rem;">
                 <!-- JS will inject timer here -->
             </div>
         </div>
 
         <section class="panel">
-            <h2 class="panel-title">Select Tickets By Sheet</h2>
+            <h2 class="panel-title">Select Tickets By Sheet (Method 1)</h2>
             <div id="bookingGridContainer">
                 <!-- JS will generate visual tickets here -->
             </div>
@@ -754,7 +521,7 @@
 <!-- ====== VIEW: ADMIN DASHBOARD ====== -->
 <div id="adminDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
-        <input class="titleBtn" id="webTitleInp" onchange="saveGameSetting()" value="ADMIN DASHBOARD">
+        <div class="titleBtn">ADMIN DASHBOARD</div>
     </div>
 
     <!-- GAME SETTINGS -->
@@ -778,9 +545,13 @@
             <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
             <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
             <button class="actionBtn" onclick="resetAgent()">RESET AGENT</button>
-            <button class="actionBtn" onclick="generateHousieTickets()">MANUAL TICKET GENERATION</button>
-            <button class="actionBtn" onclick="showLastSoldTicket()">SHOW LAST TICKET</button>
-            <button class="actionBtn" onclick="showLastWinner()">SHOW LAST WINNER</button>
+            <button class="actionBtn" onclick="generateHousieTickets()">FORCE TICKET REGEN</button>
+            <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
+            <button class="actionBtn" onclick="showLastWinner()">LAST WINNER</button>
+            <!-- NEW/MODIFIED BUTTONS -->
+            <button class="actionBtn" onclick="archiveCurrentGame()">ARCHIVE CURRENT GAME</button>
+            <button class="actionBtn" onclick="downloadPreviousGameTicket()">PREV GAME TICKET PDF</button>
+            <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
         </div>
     </div>
 
@@ -829,12 +600,12 @@
     <!-- CREATE AGENT -->
     <div class="gameSettingDiv">
         <button class="titleBtn">CREATE NEW AGENT</button>
-        <div style="padding: 1.5rem; background-color: var(--secondary-bg-dash); display: flex; flex-direction: column; gap: 1rem; width:80%; margin:auto;">
+        <div style="padding: 1.2rem; background-color: var(--secondary-bg-dash); display: flex; flex-direction: column; gap: 0.8rem; width:80%; margin:auto;">
             <input id="createAgentNameInp" class="tableInp" type="text" placeholder="Agent's Full Name" style="text-align:left;">
             <input id="createAgentEmailInp" class="tableInp" type="email" placeholder="Agent's Email Address" style="text-align:left;">
             <input id="createAgentPhoneInp" class="tableInp" type="tel" placeholder="Agent's Phone Number" style="text-align:left;">
             <input id="createAgentPassInp" class="tableInp" type="password" placeholder="Set Temporary Password" style="text-align:left;">
-            <button class="actionBtn" style="width:100%; height: auto; padding: 12px;" onclick="createAgentByAdmin()">CREATE AGENT ACCOUNT</button>
+            <button class="actionBtn" style="width:100%; height: auto; padding: 10px;" onclick="createAgentByAdmin()">CREATE AGENT ACCOUNT</button>
         </div>
     </div>
 
@@ -906,7 +677,7 @@
                 <input id="loginPassInp" type="password" placeholder="Password">
                 <input type="button" class="login-btn agent" value="AGENT LOGIN" id="agentLoginBtn">
                 <input type="button" class="login-btn admin" value="ADMIN LOGIN" id="adminLoginBtn">
-                <p style="text-align:center; margin: 10px 0;">First-time Admin?</p>
+                <p style="text-align:center; margin: 8px 0; font-size: 0.85rem;">First-time Admin?</p>
                 <input type="button" class="login-btn secondary" value="SIGN UP FOR ADMIN" id="showSignupFormBtn">
             </div>
         </div>
@@ -918,7 +689,7 @@
                 <input id="signupPhoneInp" type="tel" placeholder="Phone Number">
                 <input id="signupPassInp" type="password" placeholder="Create Password">
                 <input type="button" class="login-btn" value="CREATE ADMIN ACCOUNT" id="signupActionBtn">
-                <p style="text-align:center; margin: 10px 0;">Already have an account?</p>
+                <p style="text-align:center; margin: 8px 0; font-size: 0.85rem;">Already have an account?</p>
                 <input type="button" class="login-btn secondary" value="LOGIN INSTEAD" id="showLoginFormBtn">
             </div>
         </div>
@@ -948,22 +719,69 @@
     </div>
 </div>
 
+<!-- NEW: Ticket Reset Confirmation Popup -->
+<div class="overlay-popup" id="ticketResetConfirmPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Confirm Ticket Change</h3>
+        <p id="ticketResetConfirmText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.5;"></p>
+        <div class="login-form" style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem;">
+             <button id="confirmNoResetBtn" class="login-btn secondary">Keep Bookings & Adjust Count</button>
+             <button id="confirmResetBtn" class="login-btn admin">Reset All Tickets & Bookings</button>
+             <button onclick="closePopups()" class="login-btn" style="background-color: var(--muted-color-dash);">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <!-- Dashboard Booking Popup (For Admin/Agent) -->
 <div class="gamePopDiv" id="dashboardBookingPopup">
     <div class="gameDiv">
-         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-         <div class="titleBtn">SELECT TICKET BY SHEET</div>
-        <div class="bookInpDiv">
-            <input class="tableInp" id="dashBookerNameInp" placeholder="Name">
-            <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
+        <!-- FIXED HEADER -->
+        <div class="booking-popup-header">
+            <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+            <div class="titleBtn">BOOK TICKET (ADMIN/AGENT)</div>
+            <div class="bookInpDiv">
+                <input class="tableInp" id="dashBookerNameInp" placeholder="Name">
+                <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
+            </div>
         </div>
+        <!-- SCROLLABLE BODY -->
         <div class="ticketBlockDiv" id="dashTicketBlockDiv">
-            <!-- Sheet-wise booking UI for dashboard -->
+            <!-- Sheet-wise booking UI for dashboard will be injected here by JS -->
         </div>
-        <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
-        <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
+        <!-- FIXED FOOTER -->
+        <div class="booking-popup-footer">
+            <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
+            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
+        </div>
     </div>
 </div>
+
+
+<!-- Public Direct Booking Popup -- NEW/MODIFIED -->
+<div class="gamePopDiv" id="publicBookingPopup">
+    <div class="gameDiv">
+        <!-- FIXED HEADER -->
+        <div class="booking-popup-header">
+            <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+            <div class="titleBtn">DIRECT BOOKING REQUEST</div>
+            <div class="bookInpDiv">
+                <input class="tableInp" id="publicBookerNameInp" placeholder="Your Name">
+                <input class="tableInp" id="publicBookerPhoneInp" placeholder="Your Phone">
+            </div>
+        </div>
+        <!-- SCROLLABLE BODY -->
+        <div class="ticketBlockDiv" id="publicBookingGrid">
+            <!-- JS will populate this interactive grid -->
+        </div>
+        <!-- FIXED FOOTER -->
+        <div class="booking-popup-footer">
+            <div id="publicBookingIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
+            <input class="bookBtn" type="button" id="publicRequestBookingBtn" value="REQUEST BOOKING">
+        </div>
+    </div>
+</div>
+
 
 <!-- Run Game Popup (For Admin) -->
 <div class="gamePopDiv" id="runGameWindowDiv">
@@ -983,7 +801,7 @@
             </tbody>
         </table>
         <div class="numBlockDiv" id="runGameNumBlock"></div>
-        <h3 style="text-align:center; margin-top:20px;">Winners</h3>
+        <h3 style="text-align:center; margin-top:15px; font-size: 1.1rem;">Winners</h3>
         <div class="dividentConDiv" id="runGameDividentList"></div>
     </div>
 </div>
@@ -1027,13 +845,13 @@ let knownWinners = {};
 let allTicketsData = [];
 let allUsersData = [];
 let gameSettingsData = {};
-let publicSelectedTickets = [];
+let publicSelectedTickets = []; // For the main booking page
+let publicPopupSelectedTickets = []; // For the new direct booking popup
 let adminListState = 'tickets';
 
 const allPossibleDividends = [
-	"First Full House", "Second Full House", "Third Full House", "Top Line", "Middle Line", "Bottom Line", 
-    "Early 5", "Early 7", "Corners (4)", "Star"
-    
+    "First Full House", "Second Full House", "Third Full House", "Top Line", "Middle Line", "Bottom Line",
+    "Early 5", "Early 7", "Corners (4)", "Star", "Full Sheet Bonus", "Half Sheet Bonus"
 ];
 
 
@@ -1069,30 +887,26 @@ window.addEventListener('hashchange', handleRouting);
 // --- NOTIFICATION SYSTEM ---
 function showNotification(message, type = 'info', duration = 4000) {
     const container = document.getElementById('notification-container');
-    
-    // Check if an identical notification is already visible or animating out.
+
     const existingNotifs = container.querySelectorAll('.notification');
     for (const notif of existingNotifs) {
         if (notif.textContent === message && notif.classList.contains(type)) {
-            return; // An identical notification already exists, so we stop.
+            return;
         }
     }
 
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     container.appendChild(notification);
 
-    // Animate in
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
 
-    // Animate out and remove
     setTimeout(() => {
         notification.classList.remove('show');
-        // Listen for the transition to end before removing from the DOM
         notification.addEventListener('transitionend', () => notification.remove());
     }, duration);
 }
@@ -1213,7 +1027,16 @@ function bindEventListeners() {
     document.getElementById('navigateToBooking').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'book'; });
     document.getElementById('navigateToGame').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'game'; });
 
+    // Main page booking request
     document.getElementById('requestBookingBtn').addEventListener('click', handlePublicBookingRequest);
+
+    // Direct booking popup button
+    document.getElementById('checkAvailabilityBtn').addEventListener('click', () => {
+        renderPublicBookingGrid();
+        showPopup('publicBookingPopup');
+    });
+    // Direct booking popup action
+    document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
 }
 
 function showPopup(id) {
@@ -1254,7 +1077,6 @@ function showAgentListPopup() {
 
 // --- 5. DATA FETCHING & REAL-TIME LISTENERS (REALTIME DB) ---
 function setupRealtimeListeners() {
-    // Detach old listeners
     Object.values(listeners).forEach(ref => ref.off());
 
     listeners.settings = db.ref('settings/gameConfig');
@@ -1319,7 +1141,6 @@ function setupRealtimeListeners() {
 
 // --- 6. UI UPDATE FUNCTIONS ---
 function updateAllUIsWithSettings(data) {
-    document.querySelectorAll('.webTitle').forEach(el => el.textContent = data.websiteTitle || 'Housie Game');
     document.getElementById('whatsappGroupLink').href = data.whatsappLink || '#';
     updateCountdownTimers(data.gameDateTime);
     populateDividendList(data.dividends || []);
@@ -1337,13 +1158,15 @@ function updateGameRelatedUIs(calledNums, winners, isRunning) {
 }
 
 function updateTicketRelatedUIs() {
-    renderVisualTicketBookingPage(); 
+    renderVisualTicketBookingPage();
     renderSheetWiseBookedList();
     if (document.getElementById('ticketDisplayArea').innerHTML) searchTicketPublic();
     if (currentUserRole === 'admin') updateAdminList();
     if (currentUserRole === 'agent') showAgentSoldTickets();
     updateDashboardBookingPopup();
-    updateBusinessInfo();
+    if (document.getElementById('publicBookingPopup').classList.contains('active')) {
+        renderPublicBookingGrid(); // Refresh if open
+    }
 }
 function updateUserRelatedUIs() {
     if (currentUserRole === 'admin') { updateAdminList(); updateAdminInfoUI(); }
@@ -1375,7 +1198,6 @@ function updateUIAfterLogout() {
 
 
 // --- 7. PUBLIC & BOOKING VIEW LOGIC ---
-
 function checkSheetSelection(selectedIds) {
     const count = selectedIds.length;
     if (count === 0) return { valid: false, message: "" };
@@ -1454,9 +1276,7 @@ function updateCountdownTimers(targetDateString) {
         }
         const timerHTML = `
             <div class="info-item"><i class="fas fa-calendar-alt"></i><span>${dateText}</span></div>
-            <div class="info-separator"></div>
             <div class="info-item"><i class="fas fa-clock"></i><span>${timeText}</span></div>
-            <div class="info-separator"></div>
             <div class="info-item"><i class="fas fa-hourglass-start"></i><span>${countdownText}</span></div>`;
         timerBars.forEach(bar => bar.innerHTML = timerHTML);
     };
@@ -1492,7 +1312,7 @@ function renderVisualTicketBookingPage() {
         const sheetHeader = document.createElement('div');
         sheetHeader.className = 'sheet-header';
         sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tickets ${startTicketId}-${endTicketId})</span>
+            <span>Sheet ${i + 1} (Tkt ${startTicketId}-${endTicketId})</span>
             <label class="full-sheet-selector">
                 <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${endTicketId})"> Select Full
             </label>`;
@@ -1523,7 +1343,7 @@ function renderVisualTicketBookingPage() {
             } else {
                 gridHTML = '<p style="text-align:center; padding: 1rem;">Data missing</p>';
             }
-            
+
             ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
             sheetContent.appendChild(ticketView);
         }
@@ -1574,6 +1394,10 @@ function handlePublicBookingRequest() {
     if (!name || !phone) return showNotification('Please enter your name and mobile number.', 'error');
     if (publicSelectedTickets.length === 0) return showNotification('Please select at least one ticket.', 'error');
 
+    openAgentSelectorForWhatsApp(name, phone, publicSelectedTickets);
+}
+
+function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     const container = document.getElementById('bookingAgentListContainer');
     container.innerHTML = '';
     const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent');
@@ -1581,7 +1405,7 @@ function handlePublicBookingRequest() {
         agents.forEach(agent => {
             const link = document.createElement('a');
             link.href = '#';
-            link.onclick = (e) => { e.preventDefault(); redirectToWhatsApp(agent.phone, name, phone); };
+            link.onclick = (e) => { e.preventDefault(); redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
             link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
         });
@@ -1591,8 +1415,8 @@ function handlePublicBookingRequest() {
     }
 }
 
-function redirectToWhatsApp(agentPhone, userName, userPhone) {
-    const ticketNumbers = publicSelectedTickets.sort((a, b) => a - b).join(', ');
+function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
+    const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
     const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}`;
     const cleanPhone = agentPhone.replace(/\D/g, '');
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
@@ -1600,30 +1424,50 @@ function redirectToWhatsApp(agentPhone, userName, userPhone) {
 }
 
 function searchTicketPublic() {
-    const searchTerm = document.getElementById('ticketSearchInp').value.trim().toLowerCase();
+    const searchTerm = document.getElementById('ticketSearchInp').value.trim();
     const displayArea = document.getElementById('ticketDisplayArea');
-    if (!searchTerm) { displayArea.innerHTML = ''; return; }
+    if (!searchTerm) {
+        displayArea.innerHTML = '';
+        return;
+    }
 
-    const tickets = allTicketsData.filter(t => t.is_sold &&
-        ((t.owner_name_lower || '').includes(searchTerm) || (t.owner_phone || '').includes(searchTerm))
-    );
+    let ticketsToDisplay = [];
+    const searchNumber = parseInt(searchTerm, 10);
 
-    if (tickets.length > 0) {
-        displayArea.innerHTML = tickets.map(ticket => {
+    if (!isNaN(searchNumber) && searchTerm.match(/^\d+$/)) {
+        const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
+        if (initialTicket) {
+            const ownerPhone = initialTicket.owner_phone;
+            ticketsToDisplay = ownerPhone ? allTicketsData.filter(t => t.is_sold && t.owner_phone === ownerPhone) : [initialTicket];
+        }
+    } else {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+        );
+    }
+
+    if (ticketsToDisplay.length > 0) {
+        ticketsToDisplay.sort((a, b) => a.id - b.id);
+        displayArea.innerHTML = ticketsToDisplay.map(ticket => {
             const gridHTML = ticket.numbers.flat().map(n =>
                 `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
             ).join('');
             return `<div class="ticket-view" data-ticket-id="${ticket.id}">
+                        <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})"><i class="fas fa-file-pdf"></i></div>
                         <div class="ticket-header">Ticket #${ticket.id}: ${ticket.owner_name}</div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         }).join('');
         updateDisplayedTicketPublic();
-    } else { displayArea.innerHTML = '<p style="text-align:center;">No tickets found.</p>'; }
+    } else {
+        displayArea.innerHTML = '<p style="text-align:center;">No tickets found.</p>';
+    }
 }
 
+
 function updateDisplayedTicketPublic() {
-    document.querySelectorAll('.ticket-view').forEach(ticketView => {
+    document.querySelectorAll('#ticketDisplayArea .ticket-view, #bookedTicketsDisplay .ticket-view').forEach(ticketView => {
         ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
             const num = parseInt(cell.dataset.num, 10);
             if (num > 0) cell.classList.toggle('ticked', currentCalledNumbers.includes(num));
@@ -1698,7 +1542,7 @@ function renderSheetWiseBookedList() {
     container.innerHTML = '';
 
     if (allTicketsMap.size === 0) {
-        container.innerHTML = '<p style="text-align:center; font-style: italic; color: var(--text-secondary);">No tickets have been generated by the admin.</p>';
+        container.innerHTML = '<p style="text-align:center; font-style: italic; color: #01579b;">No tickets have been generated by the admin.</p>';
         return;
     }
 
@@ -1752,7 +1596,7 @@ function renderSheetWiseBookedList() {
         }
         container.appendChild(sheetWrapper);
     }
-    
+
     updateDisplayedTicketPublic();
 }
 
@@ -1761,7 +1605,6 @@ function renderSheetWiseBookedList() {
 // --- 8. ADMIN DASHBOARD LOGIC ---
 function updateAdminSettingsUI(data) {
     if (currentView !== 'adminDashboardView') return;
-    document.getElementById('webTitleInp').value = data.websiteTitle || 'ADMIN DASHBOARD';
     document.getElementById('dateTimeInp').value = data.gameDateTime || '';
     document.getElementById('totalTicketInp').value = data.totalTickets || 600;
     document.getElementById('ticketPriceInp').value = data.ticketPrice || 0;
@@ -1796,30 +1639,96 @@ function updateAdminInfoUI() {
 async function saveGameSetting() {
     const oldTotalTickets = gameSettingsData.totalTickets || 0;
     const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
-    const hasTicketCountChanged = oldTotalTickets !== newTotalTickets;
 
-    try {
-        const settings = {
-            websiteTitle: document.getElementById('webTitleInp').value,
-            gameDateTime: document.getElementById('dateTimeInp').value,
-            totalTickets: newTotalTickets,
-            ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
-            agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
+    const settingsToSave = {
+        gameDateTime: document.getElementById('dateTimeInp').value,
+        totalTickets: newTotalTickets,
+        ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
+        agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
+    };
+
+    if (oldTotalTickets !== newTotalTickets && newTotalTickets > 0) {
+        // Ticket count has changed, show confirmation popup
+        const confirmText = document.getElementById('ticketResetConfirmText');
+        confirmText.innerHTML = `You are changing the ticket count from <b>${oldTotalTickets}</b> to <b>${newTotalTickets}</b>. <br/><br/> 'Adjust' will add/remove tickets without affecting existing bookings. <br/> 'Reset' will delete all tickets and generate new ones.`;
+
+        document.getElementById('confirmResetBtn').onclick = async () => {
+            closePopups();
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            await generateHousieTickets(true); // Bypass confirm
+            showNotification('Settings saved and all tickets regenerated.', 'success');
         };
-        await db.ref('settings/gameConfig').update(settings);
 
-        showNotification('Game settings saved successfully!', 'success');
-        await triggerGlobalNotification('Admin has updated the game settings.', 'info');
+        document.getElementById('confirmNoResetBtn').onclick = async () => {
+            closePopups();
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            await updateTicketCountWithoutReset(newTotalTickets, oldTotalTickets);
+            showNotification('Settings saved and ticket count adjusted.', 'success');
+        };
 
-        if (hasTicketCountChanged) {
-            if (confirm(`The total ticket count has changed to ${newTotalTickets}. Do you want to regenerate all tickets now?\n\nWARNING: This will delete all existing tickets and any booking information.`)) {
-                await generateHousieTickets(true);
-            }
+        showPopup('ticketResetConfirmPopup');
+    } else {
+        // Ticket count hasn't changed, just save settings
+        try {
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            showNotification('Game settings saved successfully!', 'success');
+            await triggerGlobalNotification('Admin has updated the game settings.', 'info');
+        } catch (e) {
+            showNotification('Error saving settings: ' + e.message, 'error');
         }
-    } catch (e) {
-        showNotification('Error saving settings: ' + e.message, 'error');
     }
 }
+
+async function updateTicketCountWithoutReset(newCount, oldCount) {
+    if (newCount > oldCount) {
+        // Increase ticket count
+        showNotification(`Adding ${newCount - oldCount} new tickets...`, 'info');
+        await appendNewTickets(newCount, oldCount);
+    } else if (newCount < oldCount) {
+        // Decrease ticket count
+        const soldTicketsInRange = allTicketsData.filter(t => t.id > newCount && t.is_sold);
+        if (soldTicketsInRange.length > 0) {
+            showNotification(`Cannot decrease count. ${soldTicketsInRange.length} ticket(s) are already sold in the range you are removing. Please reset tickets instead.`, 'error');
+            // Revert the setting in the database
+            await db.ref('settings/gameConfig/totalTickets').set(oldCount);
+            return;
+        }
+        showNotification(`Removing ${oldCount - newCount} tickets from the end.`, 'info');
+        const updates = {};
+        for (let i = newCount + 1; i <= oldCount; i++) {
+            updates[`/tickets/${i}`] = null;
+        }
+        await db.ref().update(updates);
+    }
+}
+
+async function appendNewTickets(newCount, oldCount) {
+    const numSetsToAdd = Math.ceil((newCount - oldCount) / 6);
+    if (numSetsToAdd <= 0) return;
+
+    showNotification(`Generating ${numSetsToAdd * 6} new tickets...`, 'info');
+    try {
+        const updates = {};
+        for (let i = 0; i < numSetsToAdd; i++) {
+            const currentSet = createTambolaSetOf6();
+            for (let j = 0; j < 6; j++) {
+                const ticketId = oldCount + (i * 6) + j + 1;
+                if (ticketId > newCount) continue;
+                updates[ticketId] = {
+                    id: ticketId,
+                    numbers: currentSet[j],
+                    is_sold: false,
+                    owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
+                };
+            }
+        }
+        await db.ref('/tickets').update(updates);
+        showNotification('New tickets added successfully!', 'success');
+    } catch (e) {
+        showNotification('Error appending new tickets: ' + e.message, 'error');
+    }
+}
+
 
 async function saveDividendSettings() {
     const activeDividends = [];
@@ -1916,7 +1825,7 @@ async function resetCallNum() {
 }
 
 async function resetTicket() {
-    if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD.')) return;
+    if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD. Consider archiving the game first.')) return;
     try {
         const updates = {};
         allTicketsData.forEach(ticket => {
@@ -1963,16 +1872,20 @@ function showLastSoldTicket() {
     if (soldTickets.length > 0) {
         const lastTicket = soldTickets[0];
         const agent = allUsersData.find(u => u.uid === lastTicket.agent_uid);
-        const agentName = agent ? agent.name : 'Admin';
+        const agentName = agent ? agent.name : 'Admin/Direct';
         showNotification(`Last ticket sold: #${lastTicket.id} to ${lastTicket.owner_name} by ${agentName}.`, 'info');
     } else {
         showNotification('No tickets have been sold yet.', 'info');
     }
 }
 
+// MODIFIED: This function is now fully implemented
 function showLastWinner() {
     const winners = knownWinners;
-    if (!winners || Object.keys(winners).length === 0) return showNotification('There are no winners yet.', 'info');
+    if (!winners || Object.keys(winners).length === 0) {
+        showNotification('There are no winners yet for the current game.', 'info');
+        return;
+    }
 
     const lastWinnerEntry = Object.entries(winners)
         .filter(([, winInfo]) => winInfo && typeof winInfo.won_at === 'number')
@@ -1980,9 +1893,9 @@ function showLastWinner() {
 
     if (lastWinnerEntry) {
         const [dividend, winnerInfo] = lastWinnerEntry;
-        showNotification(`Last Winner: ${winnerInfo.name} (Tkt #${winnerInfo.ticketId}) won ${dividend}.`, 'info');
+        showNotification(`Last Winner: ${winnerInfo.name} (Tkt #${winnerInfo.ticketId}) won ${dividend}.`, 'success');
     } else {
-         showNotification('There are no winners yet.', 'info');
+         showNotification('No winners with a valid timestamp found.', 'info');
     }
 }
 
@@ -1999,7 +1912,7 @@ function updateBusinessInfo() {
     const adminTable = document.getElementById('businessInfoTable');
     if(adminTable && currentView === 'adminDashboardView') {
         adminTable.innerHTML = `<tbody>
-            <tr><td data-label="Metric">Total Tickets</td><td data-label="Value">${allTicketsData.length}</td></tr>
+            <tr><td data-label="Metric">Total Tickets</td><td data-label="Value">${gameSettingsData.totalTickets || 0}</td></tr>
             <tr><td data-label="Metric">Tickets Sold</td><td data-label="Value">${soldCount}</td></tr>
             <tr><td data-label="Metric">Total Revenue</td><td data-label="Value">₹ ${totalRevenue.toLocaleString()}</td></tr>
             <tr><td data-label="Metric">Net Profit</td><td data-label="Value">₹ ${netProfit.toLocaleString()}</td></tr>
@@ -2075,7 +1988,7 @@ function updateAgentInfoUI() {
     document.getElementById('earningBtn').textContent = `₹ ${myEarnings.toLocaleString()}`;
 
     document.getElementById('agentBusinessInfoTable').innerHTML = `<tbody>
-        <tr><td data-label="Metric">Game Title</td><td data-label="Value">${gameSettingsData.websiteTitle || ''}</td></tr>
+        <tr><td data-label="Metric">Game Title</td><td data-label="Value">Sintha Team</td></tr>
         <tr><td data-label="Metric">Ticket Price</td><td data-label="Value">₹ ${(gameSettingsData.ticketPrice || 0).toLocaleString()}</td></tr>
         <tr><td data-label="Metric">My Commission/Tkt</td><td data-label="Value">₹ ${(gameSettingsData.agentCommission || 0).toLocaleString()}</td></tr>
     </tbody>`;
@@ -2095,44 +2008,42 @@ function updateDashboardBookingPopup() {
     const container = document.getElementById('dashTicketBlockDiv');
     if (!container) return;
     container.innerHTML = '';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.gap = '1rem';
-    container.style.border = 'none';
     const indicator = document.getElementById('dashboardSelectionIndicator');
     if (indicator) indicator.textContent = '';
+
     const totalTickets = gameSettingsData.totalTickets || 0;
-    if (allTicketsData.length === 0 || totalTickets === 0 || totalTickets % 6 !== 0) {
+    if (allTicketsData.length === 0 || totalTickets === 0) {
         container.innerHTML = '<p style="text-align: center; color: var(--light-text-dash);">Tickets have not been generated.</p>';
         return;
     }
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
-    const numSheets = totalTickets / 6;
+    const numSheets = Math.ceil(totalTickets / 6);
 
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const sheetWrapper = document.createElement('div');
         sheetWrapper.style.background = 'var(--secondary-bg-dash)';
-        sheetWrapper.style.borderRadius = '8px';
-        sheetWrapper.style.padding = '1rem';
+        sheetWrapper.style.borderRadius = '6px';
+        sheetWrapper.style.padding = '0.8rem';
+        sheetWrapper.style.marginBottom = '0.5rem';
         sheetWrapper.style.borderLeft = '3px solid var(--accent-color-dash)';
-        
+
         const sheetHeader = document.createElement('div');
-        sheetHeader.style.fontSize = '1.1rem';
+        sheetHeader.style.fontSize = '1rem';
         sheetHeader.style.fontWeight = '700';
         sheetHeader.style.color = 'var(--accent-color-dash)';
-        sheetHeader.style.marginBottom = '0.75rem';
-        sheetHeader.style.paddingBottom = '0.5rem';
+        sheetHeader.style.marginBottom = '0.6rem';
+        sheetHeader.style.paddingBottom = '0.4rem';
         sheetHeader.style.borderBottom = '1px solid var(--primary-bg-dash)';
         sheetHeader.style.display = 'flex';
         sheetHeader.style.justifyContent = 'space-between';
         sheetHeader.style.alignItems = 'center';
 
         sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tickets ${startTicket}-${endTicket})</span>
-            <label class="full-sheet-selector" style="color: var(--light-text-dash);">
+            <span>Sheet ${i + 1} (Tkt ${startTicket}-${endTicket})</span>
+            <label class="full-sheet-selector" style="color: var(--light-text-dash); font-size: 0.8rem;">
                 <input type="checkbox" onchange="selectFullSheetDashboard(this, ${startTicket}, ${endTicket})"> Full
             </label>
         `;
@@ -2141,9 +2052,9 @@ function updateDashboardBookingPopup() {
         const sheetContent = document.createElement('div');
         sheetContent.style.display = 'grid';
         sheetContent.style.gridTemplateColumns = 'repeat(6, 1fr)';
-        sheetContent.style.gap = '0.5rem';
+        sheetContent.style.gap = '0.4rem';
         sheetWrapper.appendChild(sheetContent);
-        
+
         for (let j = startTicket; j <= endTicket; j++) {
             const ticket = ticketsMap.get(j);
             const btn = document.createElement('button');
@@ -2223,7 +2134,121 @@ async function handleDashboardBooking() {
 }
 
 
-// --- 10. GAME RUNNER & WINNER LOGIC ---
+// --- 10. NEW PUBLIC DIRECT BOOKING LOGIC ---
+
+function renderPublicBookingGrid() {
+    const container = document.getElementById('publicBookingGrid');
+    if (!container) return;
+
+    // Reset state for this popup
+    container.innerHTML = '';
+    publicPopupSelectedTickets = [];
+    updatePublicBookingIndicator();
+
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    if (allTicketsData.length === 0 || totalTickets === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--light-text-dash);">Tickets are not available yet.</p>';
+        return;
+    }
+
+    const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
+    const numSheets = Math.ceil(totalTickets / 6);
+
+    for (let i = 0; i < numSheets; i++) {
+        const startTicket = i * 6 + 1;
+        const endTicket = startTicket + 5;
+        const sheetWrapper = document.createElement('div');
+        sheetWrapper.style.cssText = "background: var(--secondary-bg-dash); border-radius: 6px; padding: 0.8rem; margin-bottom: 0.5rem; border-left: 3px solid var(--accent-secondary);";
+
+        const sheetHeader = document.createElement('div');
+        sheetHeader.style.cssText = "font-size: 1rem; font-weight: 700; color: var(--accent-secondary); margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--primary-bg-dash); display: flex; justify-content: space-between; align-items: center;";
+        sheetHeader.innerHTML = `
+            <span>Sheet ${i + 1} (Tkt ${startTicket}-${endTicket})</span>
+            <label class="full-sheet-selector" style="color: var(--light-text-dash); font-size: 0.8rem;">
+                <input type="checkbox" onchange="selectFullSheetPublic(this, ${startTicket}, ${endTicket})"> Full
+            </label>`;
+        sheetWrapper.appendChild(sheetHeader);
+
+        const sheetContent = document.createElement('div');
+        sheetContent.style.cssText = "display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem;";
+        sheetWrapper.appendChild(sheetContent);
+
+        for (let j = startTicket; j <= endTicket; j++) {
+            const ticket = ticketsMap.get(j);
+            const btn = document.createElement('button');
+            btn.className = 'ticketBlockBtn';
+            btn.textContent = j;
+            btn.id = `public-ticket-btn-${j}`;
+            if (ticket && ticket.is_sold) {
+                btn.disabled = true;
+                btn.style.backgroundColor = 'var(--muted-color-dash)';
+                btn.style.color = 'var(--light-text-dash)';
+                btn.style.textDecoration = 'line-through';
+            } else {
+                btn.onclick = () => togglePublicPopupTicketSelection(j);
+            }
+            sheetContent.appendChild(btn);
+        }
+        container.appendChild(sheetWrapper);
+    }
+}
+
+function togglePublicPopupTicketSelection(ticketId) {
+    const btn = document.getElementById(`public-ticket-btn-${ticketId}`);
+    if (!btn || btn.disabled) return;
+
+    const index = publicPopupSelectedTickets.indexOf(ticketId);
+    if (index > -1) {
+        publicPopupSelectedTickets.splice(index, 1);
+        btn.classList.remove('selected');
+        btn.style.backgroundColor = 'white';
+        btn.style.color = 'black';
+    } else {
+        publicPopupSelectedTickets.push(ticketId);
+        btn.classList.add('selected');
+        btn.style.backgroundColor = 'var(--accent-secondary)';
+        btn.style.color = 'var(--text-dark)';
+    }
+    updatePublicBookingIndicator();
+}
+
+function selectFullSheetPublic(checkbox, startId, endId) {
+    for (let id = startId; id <= endId; id++) {
+        const btn = document.getElementById(`public-ticket-btn-${id}`);
+        if (btn && !btn.disabled) {
+            const isSelected = publicPopupSelectedTickets.includes(id);
+            if (checkbox.checked && !isSelected) {
+                togglePublicPopupTicketSelection(id);
+            } else if (!checkbox.checked && isSelected) {
+                togglePublicPopupTicketSelection(id);
+            }
+        }
+    }
+}
+
+function updatePublicBookingIndicator() {
+    const indicator = document.getElementById('publicBookingIndicator');
+    if (indicator) {
+        const result = checkSheetSelection(publicPopupSelectedTickets);
+        indicator.textContent = result.message;
+        indicator.style.color = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
+        indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
+    }
+}
+
+function handlePublicPopupBookingRequest() {
+    const name = document.getElementById('publicBookerNameInp').value.trim();
+    const phone = document.getElementById('publicBookerPhoneInp').value.trim();
+
+    if (!name || !phone) return showNotification('Please enter your name and phone number.', 'error');
+    if (publicPopupSelectedTickets.length === 0) return showNotification('Please select tickets to book.', 'error');
+
+    // Use the refined function to open the agent selector
+    openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
+}
+
+
+// --- 11. GAME RUNNER & WINNER LOGIC ---
 async function toggleGameRunner() {
     const callStatusRef = db.ref('gameState/currentState/isGameRunning');
     const isRunning = document.getElementById('callStatusInp').value === 'on';
@@ -2256,14 +2281,21 @@ function callNextNumber() {
         if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
         if (!gameState.isGameRunning) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            return; 
+            return; // Abort transaction
         }
+
         const called = gameState.calledNumbers || [];
-        if (called.length >= 90) {
+        const activeDividends = gameSettingsData.dividends || [];
+        const currentWinners = gameState.winners || {};
+        const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
+
+        // MODIFIED: Game over condition
+        if (called.length >= 90 || areAllDividendsClaimed) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameState.isGameRunning = false;
-            showNotification("All 90 numbers have been called! Game over.", 'info');
-            triggerGlobalNotification("All numbers called. The game has ended!", 'info');
+            const reason = areAllDividendsClaimed ? "All dividends have been won!" : "All 90 numbers have been called!";
+            showNotification(`${reason} Game over.`, 'info');
+            triggerGlobalNotification(`${reason} The game has ended!`, 'info');
             return gameState;
         }
 
@@ -2271,6 +2303,14 @@ function callNextNumber() {
         const newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
         gameState.calledNumbers = [...called, newNumber];
         gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
+
+        // Check again if the new number caused all dividends to be won
+        const newWinners = gameState.winners;
+        const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
+        if(nowAllDividendsClaimed){
+            gameState.isGameRunning = false;
+        }
+
         return gameState;
     }, (error, committed, snapshot) => {
         if (error) {
@@ -2278,25 +2318,113 @@ function callNextNumber() {
             showNotification('Game runner failed. Turning off.', 'error');
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameStateRef.child('isGameRunning').set(false);
+        } else if (committed && snapshot.exists() && !snapshot.val().isGameRunning) {
+            // If the transaction committed and set the game to not running, stop the interval
+             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+             showNotification("All dividends won! Game over.", 'info');
+             triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
         }
     });
 }
 
+
 function checkAllWinners(calledNumbers, currentWinners) {
-    let updatedWinners = {...currentWinners};
+    let updatedWinners = { ...currentWinners };
     const activeDividends = gameSettingsData.dividends || [];
     const soldTickets = allTicketsData.filter(t => t.is_sold);
     const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
 
+    // Helper to count marked numbers on a ticket
+    const countMarked = (ticket) => ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+
+    // Pre-group tickets by owner phone for sheet bonus checks
+    const ticketsByOwner = {};
+    for (const ticket of soldTickets) {
+        if (ticket.owner_phone) {
+            if (!ticketsByOwner[ticket.owner_phone]) {
+                ticketsByOwner[ticket.owner_phone] = [];
+            }
+            ticketsByOwner[ticket.owner_phone].push(ticket);
+        }
+    }
+
     for (const dividend of activeDividends) {
-        if (updatedWinners[dividend.name]) continue;
+        if (updatedWinners[dividend.name]) continue; // Skip if already won
+
+        // --- Sheet Bonus Logic ---
+        if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
+            for (const ownerPhone in ticketsByOwner) {
+                const ownerTickets = ticketsByOwner[ownerPhone];
+                const ownerName = ownerTickets[0].owner_name;
+
+                // Group this owner's tickets by sheet number
+                const ticketsBySheet = {};
+                for (const ticket of ownerTickets) {
+                    const sheetNum = Math.floor((ticket.id - 1) / 6);
+                    if (!ticketsBySheet[sheetNum]) {
+                        ticketsBySheet[sheetNum] = [];
+                    }
+                    ticketsBySheet[sheetNum].push(ticket);
+                }
+
+                let winnerFound = false;
+                for (const sheetNum in ticketsBySheet) {
+                    const sheetTickets = ticketsBySheet[sheetNum];
+
+                    // Check for Full Sheet Bonus
+                    if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
+                        const allTicketsMeetCondition = sheetTickets.every(t => countMarked(t) >= 2);
+                        if (allTicketsMeetCondition) {
+                            updatedWinners[dividend.name] = {
+                                name: ownerName,
+                                ticketId: `Sheet ${parseInt(sheetNum) + 1}`,
+                                won_at: firebase.database.ServerValue.TIMESTAMP
+                            };
+                            winnerFound = true;
+                            break;
+                        }
+                    }
+
+                    // Check for Half Sheet Bonus
+                    if (dividend.name === 'Half Sheet Bonus' && sheetTickets.length >= 3) {
+                         const validHalfSheets = [
+                            [sheetTickets[0], sheetTickets[1], sheetTickets[2]],
+                            [sheetTickets[3], sheetTickets[4], sheetTickets[5]]
+                         ].filter(Boolean); // Create potential half sheets
+
+                         for(const halfSheet of validHalfSheets){
+                             if(halfSheet && halfSheet.length === 3){
+                                const allTicketsMeetCondition = halfSheet.every(t => countMarked(t) >= 2);
+                                if (allTicketsMeetCondition) {
+                                    updatedWinners[dividend.name] = {
+                                        name: ownerName,
+                                        ticketId: `Half Sheet in ${parseInt(sheetNum) + 1}`,
+                                        won_at: firebase.database.ServerValue.TIMESTAMP
+                                    };
+                                    winnerFound = true;
+                                    break;
+                                }
+                             }
+                         }
+                    }
+                }
+                if (winnerFound) {
+                    break;
+                }
+            }
+            continue; // Go to the next dividend after checking all owners for sheet bonuses
+        }
+
+
+        // --- Individual Ticket Logic ---
         for (const ticket of soldTickets) {
             let isWinner = false;
             const allTicketNumbers = ticket.numbers.flat().filter(n => n > 0);
 
             if (dividend.name.startsWith("Early")) {
                 const count = parseInt(dividend.name.split(" ")[1], 10);
-                if (allTicketNumbers.filter(n => calledNumbers.includes(n)).length >= count) isWinner = true;
+                if (countMarked(ticket) >= count) isWinner = true;
+
             } else if (dividend.name.includes("Full House")) {
                 const fullHouseClaimedCount = Object.keys(updatedWinners).filter(w => w.includes("Full House")).length;
                 if (check(allTicketNumbers)) {
@@ -2305,26 +2433,28 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     else if (dividend.name === "Third Full House" && fullHouseClaimedCount === 2) isWinner = true;
                 }
             } else {
-                 const numbersInRow1 = ticket.numbers[0].filter(n => n > 0);
-                 const numbersInRow2 = ticket.numbers[1].filter(n => n > 0);
-                 const numbersInRow3 = ticket.numbers[2].filter(n => n > 0);
+                const numbersInRow1 = ticket.numbers[0].filter(n => n > 0);
+                const numbersInRow2 = ticket.numbers[1].filter(n => n > 0);
+                const numbersInRow3 = ticket.numbers[2].filter(n => n > 0);
+                const findFirstNum = (row) => row.find(n => n > 0);
+                const findLastNum = (row) => [...row].reverse().find(n => n > 0);
+                const corners = [
+                    findFirstNum(ticket.numbers[0]), findLastNum(ticket.numbers[0]),
+                    findFirstNum(ticket.numbers[2]), findLastNum(ticket.numbers[2])
+                ].filter(Boolean);
 
-                if (dividend.name === "Top Line" && check(numbersInRow1)) isWinner = true;
-                else if (dividend.name === "Middle Line" && check(numbersInRow2)) isWinner = true;
-                else if (dividend.name === "Bottom Line" && check(numbersInRow3)) isWinner = true;
+                if (dividend.name === "Top Line" && numbersInRow1.length > 0 && check(numbersInRow1)) isWinner = true;
+                else if (dividend.name === "Middle Line" && numbersInRow2.length > 0 && check(numbersInRow2)) isWinner = true;
+                else if (dividend.name === "Bottom Line" && numbersInRow3.length > 0 && check(numbersInRow3)) isWinner = true;
                 else if (dividend.name === "Corners (4)") {
-                    const findFirstNum = (row) => row.find(n => n > 0);
-                    const findLastNum = (row) => [...row].reverse().find(n => n > 0);
-                    const corners = [
-                        findFirstNum(ticket.numbers[0]), findLastNum(ticket.numbers[0]),
-                        findFirstNum(ticket.numbers[2]), findLastNum(ticket.numbers[2])
-                    ].filter(Boolean);
-                    if (corners.length >= 4 && check(corners)) isWinner = true;
-                }
-                else if (dividend.name === "Star") {
-                    const midLine = ticket.numbers[1];
-                    const centerNumber = midLine[4]; // Assuming star is the middle number of the middle row
-                    if (centerNumber > 0 && calledNumbers.includes(centerNumber)) isWinner = true;
+                    if (corners.length === 4 && check(corners)) isWinner = true;
+                } else if (dividend.name === "Star") {
+                    const centerNumber = ticket.numbers[1][4];
+                    const starNumbers = [...corners];
+                    if (centerNumber > 0) {
+                        starNumbers.push(centerNumber);
+                    }
+                    if (starNumbers.length === 5 && check(starNumbers)) isWinner = true;
                 }
             }
 
@@ -2334,7 +2464,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     ticketId: ticket.id,
                     won_at: firebase.database.ServerValue.TIMESTAMP
                 };
-                break;
+                break; // Found winner for this dividend, move to next dividend
             }
         }
     }
@@ -2342,7 +2472,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
 }
 
 
-// --- 11. TICKET GENERATION ---
+
+// --- 12. TICKET GENERATION & ARCHIVING ---
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
     if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
@@ -2355,26 +2486,21 @@ async function generateHousieTickets(bypassConfirm = false) {
     await triggerGlobalNotification('Admin is generating new tickets...', 'info');
 
     try {
-        // Use a timeout to allow the UI to update before the potentially blocking generation code runs
+        await db.ref('/tickets').set(null); // Clear old tickets first
         setTimeout(async () => {
             const ticketSet = createTambolaSetOf6();
             const newTicketsObject = {};
             const numSets = totalTickets / 6;
 
             for (let i = 0; i < numSets; i++) {
-                // For larger sets, we should regenerate the set to ensure variety.
-                // For this implementation, we'll reuse the same set structure, but in a real-world scenario, you might call createTambolaSetOf6() inside the loop.
-                const currentSet = (i > 0) ? createTambolaSetOf6() : ticketSet; // Regenerate for subsequent sets
+                const currentSet = (i > 0) ? createTambolaSetOf6() : ticketSet;
                 for (let j = 0; j < 6; j++) {
                     const ticketId = i * 6 + j + 1;
                     newTicketsObject[ticketId] = {
                         id: ticketId,
                         numbers: currentSet[j],
                         is_sold: false,
-                        owner_name: null,
-                        owner_name_lower: null,
-                        owner_phone: null,
-                        agent_uid: null
+                        owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
                     };
                 }
             }
@@ -2389,11 +2515,30 @@ async function generateHousieTickets(bypassConfirm = false) {
     }
 }
 
+// NEW: Function to archive the current game's results
+async function archiveCurrentGame() {
+    if (!confirm('Are you sure you want to archive the current game data? This will overwrite any previous archive.')) return;
+    try {
+        const soldTickets = allTicketsData.filter(t => t.is_sold);
+        const soldTicketsObject = soldTickets.reduce((obj, ticket) => {
+            obj[ticket.id] = ticket;
+            return obj;
+        }, {});
 
-/**
- * [REPLACED FUNCTION] Creates a set of 6 valid Tambola tickets where all 90 numbers are used exactly once.
- * This robust algorithm ensures all rules are strictly followed by determining a valid structure first.
- */
+        const archiveData = {
+            tickets: soldTicketsObject,
+            winners: knownWinners,
+            archivedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        await db.ref('lastGame').set(archiveData);
+        showNotification('Current game data has been successfully archived.', 'success');
+    } catch (e) {
+        showNotification('Error archiving game data: ' + e.message, 'error');
+    }
+}
+
+
 function createTambolaSetOf6() {
     const shuffle = (arr) => {
         for (let i = arr.length - 1; i > 0; i--) {
@@ -2403,169 +2548,37 @@ function createTambolaSetOf6() {
         return arr;
     };
 
-    // Initialize containers
-    let tickets = Array.from({ length: 6 }, () => Array.from({ length: 3 }, () => Array(9).fill(0)));
-    let numberPools = Array.from({ length: 9 }, (_, i) => {
-        const start = i * 10 + 1;
-        const len = (i === 0) ? 9 : (i === 8 ? 11 : 10);
-        const pool = Array.from({ length: len }, (_, j) => start + j);
-        if (i === 8) pool[0] = 80; // Correcting the 80-90 range
-        return shuffle(pool);
-    });
-
-    // --- Phase 1: Determine the layout of numbers on each ticket ---
-
-    // Define how many numbers each column will contribute to the total of 90
-    // Col 0: 9 numbers, Col 8: 11 numbers, Others: 10 numbers
-    const numbersPerColumn = [9, 10, 10, 10, 10, 10, 10, 10, 11];
-    
-    // An array to track how many numbers are placed in each column for each ticket
-    let ticketColumnCounts = Array.from({ length: 6 }, () => Array(9).fill(0));
-    
-    // An array to track how many numbers are placed in each row for each ticket
-    let ticketRowCounts = Array.from({ length: 6 }, () => Array(3).fill(0));
-
-    // Place one number from each column into each of the first 3 rows across the 6 tickets
-    // This ensures every column starts with at least one number and rows get populated.
-    for(let col = 0; col < 9; col++) {
-        let rows = shuffle([0, 1, 2]);
-        for(let i = 0; i < 3; i++) {
-            let ticket_idx = Math.floor(i / 3 * 6); // Not quite right, let's simplify
-            let t_idx = col % 6;
-            if(col > 5) t_idx = (col+i) % 6; // Just distribute somewhat evenly
-
-             let row_idx = rows[i];
-             // Find a ticket that can accept a number in this column and row
-             let placed = false;
-             for(let attempt = 0; attempt < 6; attempt++){
-                 let current_ticket = (t_idx + attempt) % 6;
-                 if(ticketRowCounts[current_ticket][row_idx] < 5){
-                    ticketColumnCounts[current_ticket][col]++;
-                    ticketRowCounts[current_ticket][row_idx]++;
-                    placed = true;
-                    break;
-                 }
-             }
-        }
-    }
-
-    // Distribute the remaining 90 - 27 = 63 numbers
-    let numbersToPlace = 63;
-    let attempts = 0;
-    while(numbersToPlace > 0 && attempts < 1000){
-         let t = Math.floor(Math.random() * 6);
-         let r = Math.floor(Math.random() * 3);
-         let c = Math.floor(Math.random() * 9);
-        
-        let totalNumbersOnTicket = ticketRowCounts[t].reduce((a,b) => a+b, 0);
-
-        if(totalNumbersOnTicket < 15 && ticketRowCounts[t][r] < 5 && ticketColumnCounts[t][c] < 3 && numbersPerColumn[c] > ticketColumnCounts.reduce((acc, cur) => acc + cur[c], 0)){
-            // Check if this position is empty on the ticket layout (which we are building via counts)
-            // A bit abstract, let's place placeholders instead
-        }
-        attempts++;
-    }
-
-    // The above is complex and can fail. Let's use a more structured, deterministic approach.
-    
-    // --- New Robust Algorithm ---
-    
-    // 1. Create a master list of all 90 number positions to be placed.
-    // Each position is an object {col: c, row: r, ticket: t}
-    let positions = [];
-    
-    // 2. Define the number of elements per column for the whole sheet (is fixed)
-    const colTotals = [9, 10, 10, 10, 10, 10, 10, 10, 11];
-    let colCounts = Array(9).fill(0);
-    
-    // 3. Define the number of elements per row for each ticket (5 per row)
-    let rowCounts = Array.from({length: 6}, () => [5,5,5]);
-
-    // 4. Create placeholders
-    // This is a known hard problem (Exact Cover variant). A simpler heuristic that works well:
-    
-    // First, add one number to each cell of the first two rows of all tickets
-    for(let t=0; t<6; t++){
-        for(let r=0; r<2; r++){
-            for(let c=0; c<9; c++){
-                tickets[t][r][c] = 1; // Placeholder
-            }
-        }
-    }
-    
-    // Second, determine the number of 1s, 2s, and 3s for each column
-    let colPatterns = [];
-    for(let c=0; c<9; c++){
-        let pattern;
-        if(colTotals[c] == 9) pattern = [1,1,1,2,2,2];
-        else if(colTotals[c] == 11) pattern = [1,2,2,2,2,2];
-        else pattern = [1,1,2,2,2,2];
-        shuffle(pattern);
-        colPatterns.push(pattern);
-    }
-
-    // Reset tickets
-    tickets = Array.from({ length: 6 }, () => Array.from({ length: 3 }, () => Array(9).fill(0)));
-
-    // Place numbers based on the patterns
-    for(let c=0; c<9; c++){
-        for(let t=0; t<6; t++){
-            let num_to_place = colPatterns[c][t];
-            let available_rows = shuffle([0,1,2]);
-            for(let i=0; i<num_to_place; i++){
-                tickets[t][available_rows[i]][c] = 1; // Placeholder
-            }
-        }
-    }
-    
-    // At this point, column constraints are met, but row constraints (5 per row) are likely NOT.
-    // The logic has to be more integrated.
-
-    // --- Final, Correct, and simpler to implement algorithm ---
     let ticket;
     do {
       ticket = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
       const numbers = Array(90).fill(0).map((_, i) => i + 1);
       shuffle(numbers);
-      
+
       const col_map = [0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,8];
 
       for (const num of numbers) {
         const c = col_map[num-1];
         let placed = false;
+        const randomStartTicket = Math.floor(Math.random() * 6);
         for (let i = 0; i < 6; i++) {
-          const t = Math.floor(Math.random() * 6);
-          const r = Math.floor(Math.random() * 3);
-          
-          if (ticket[t].flat().filter(Boolean).length < 15 &&
-              ticket[t][r].filter(Boolean).length < 5 &&
-              ticket[t].map(row => row[c]).filter(Boolean).length < 3 &&
-              ticket[t][r][c] === 0) {
-            ticket[t][r][c] = num;
-            placed = true;
-            break;
+          const t = (randomStartTicket + i) % 6;
+          const randomStartRow = Math.floor(Math.random() * 3);
+          for(let j = 0; j < 3; j++){
+              const r = (randomStartRow + j) % 3;
+              if (ticket[t].flat().filter(Boolean).length < 15 &&
+                  ticket[t][r].filter(Boolean).length < 5 &&
+                  ticket[t].map(row => row[c]).filter(Boolean).length < 3 &&
+                  ticket[t][r][c] === 0) {
+                ticket[t][r][c] = num;
+                placed = true;
+                break;
+              }
           }
-        }
-        if(!placed){ // Fallback for difficult placements
-             for(let t=0; t<6; t++){
-                 for(let r=0; r<3; r++){
-                     if (ticket[t].flat().filter(Boolean).length < 15 &&
-                         ticket[t][r].filter(Boolean).length < 5 &&
-                         ticket[t].map(row => row[c]).filter(Boolean).length < 3 &&
-                         ticket[t][r][c] === 0) {
-                       ticket[t][r][c] = num;
-                       placed = true;
-                       break;
-                     }
-                 }
-                 if(placed) break;
-             }
+          if(placed) break;
         }
       }
-    } while (ticket.some(t => t.flat().filter(Boolean).length !== 15));
+    } while (ticket.some(t => t.flat().filter(Boolean).length !== 15 || t.some(r => r.filter(Boolean).length !== 5)));
 
-
-    // Final step: Sort numbers within each column for a clean look
     for (let t = 0; t < 6; t++) {
         for (let c = 0; c < 9; c++) {
             const colNums = [];
@@ -2583,8 +2596,115 @@ function createTambolaSetOf6() {
             }
         }
     }
-    
+
     return ticket;
+}
+
+// --- 13. PDF GENERATION ---
+// NEW: Function to download a ticket as a PDF
+async function downloadTicketAsPDF(ticketId, isFromLastGame = false) {
+    const { jsPDF } = window.jspdf;
+    let ticketData;
+
+    try {
+        const path = isFromLastGame ? `lastGame/tickets/${ticketId}` : `tickets/${ticketId}`;
+        const snapshot = await db.ref(path).once('value');
+        ticketData = snapshot.val();
+        if (!ticketData) {
+            showNotification(`Ticket #${ticketId} not found in ${isFromLastGame ? 'archive' : 'current game'}.`, 'error');
+            return;
+        }
+    } catch (e) {
+        showNotification('Error fetching ticket data: ' + e.message, 'error');
+        return;
+    }
+
+    const doc = new jsPDF();
+    const cellWidth = 20;
+    const cellHeight = 15;
+    const startX = 15;
+    const startY = 20;
+
+    // Header
+    doc.setFontSize(16);
+    doc.text(`Housie Ticket #${ticketData.id}`, startX, startY);
+    if(ticketData.is_sold){
+        doc.setFontSize(10);
+        doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
+    }
+
+
+    // Grid and Numbers
+    doc.setFontSize(14);
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 9; col++) {
+            const x = startX + col * cellWidth;
+            const y = startY + 15 + row * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+            const num = ticketData.numbers[row][col];
+            if (num > 0) {
+                doc.text(String(num), x + cellWidth / 2, y + cellHeight / 2, { align: 'center', baseline: 'middle' });
+            }
+        }
+    }
+
+    doc.save(`Housie-Ticket-${ticketId}.pdf`);
+    showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
+}
+
+// NEW: Function to download a ticket from the previous game archive
+function downloadPreviousGameTicket() {
+    const ticketId = prompt("Please enter the Ticket ID from the previous game you wish to download:");
+    if (ticketId && !isNaN(parseInt(ticketId))) {
+        downloadTicketAsPDF(parseInt(ticketId), true);
+    } else if (ticketId !== null) {
+        showNotification("Invalid Ticket ID. Please enter a number.", "error");
+    }
+}
+
+// NEW: Function to download the winners list as a PDF
+async function downloadWinnersPDF() {
+    if (Object.keys(knownWinners).length === 0) {
+        showNotification("No winners to download yet.", "info");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Housie Game - Winners List", 105, 15, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 20, { align: 'center' });
+
+    const tableData = Object.entries(knownWinners).map(([dividend, winner]) => [
+        dividend,
+        winner.name,
+        String(winner.ticketId)
+    ]);
+
+    // Using autoTable plugin for better tables in jsPDF would be ideal,
+    // but for simplicity, we'll draw it manually.
+    let y = 35;
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text("Dividend", 15, y);
+    doc.text("Winner Name", 80, y);
+    doc.text("Ticket ID", 150, y);
+    doc.setFont(undefined, 'normal');
+    y += 7;
+
+    tableData.forEach(row => {
+        doc.text(row[0], 15, y);
+        doc.text(row[1], 80, y);
+        doc.text(row[2], 150, y);
+        y += 7;
+        if (y > 280) { // Page break
+            doc.addPage();
+            y = 15;
+        }
+    });
+
+    doc.save("Housie-Winners.pdf");
 }
 
 
@@ -2592,7 +2712,6 @@ function createTambolaSetOf6() {
 document.addEventListener('DOMContentLoaded', () => {
     generateNumberBoard();
     bindEventListeners();
-    // A simple animation to fade in the main content.
     gsap.to('.main-header, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 });
 </script>
