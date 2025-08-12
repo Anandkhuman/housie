@@ -391,14 +391,14 @@
     #publicBookingPopup .bookInpDiv {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1rem; /* adds spacing between columns */
+        gap: 0.1rem; /* adds spacing between columns */
     }
 
     #publicBookingPopup .tableInp {
-        color: var(--light-text-dash);
+        color: #000000;
         border: 1px solid var(--muted-color-dash);
-        border-radius: 4px; /* smooth corners for a cleaner look */
-        padding: 0.5rem;
+        border-radius: 10px; /* smooth corners for a cleaner look */
+        padding: 2px 0 0.3rem;
         background-color: var(--input-bg, #fff); /* fallback white if var not set */
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
@@ -480,6 +480,7 @@
 <!-- ====== VIEW: PUBLIC GAME BOARD ====== -->
 <div id="publicView" class="view neon-view active">
     <div class="css-grid-container"><div class="css-grid"></div></div>
+    <!-- This specific audio tag is no longer used by the script but is kept for legacy purposes -->
     <audio id="announcementSound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-2.mp3"></audio>
 
     <div class="page-wrapper">
@@ -854,7 +855,8 @@
         <!-- FIXED HEADER -->
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-            <div class="titleBtn">DIRECT BOOKING REQUEST</div>
+</br></br>
+            <div class="titleBtn"></div>
             <div class="bookInpDiv">
                 <input class="tableInp" id="publicBookerNameInp" placeholder="Your Name">
                 <input class="tableInp" id="publicBookerPhoneInp" placeholder="Your Phone">
@@ -938,6 +940,35 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database(); // Use Realtime Database
 
+// --- AUDIO MANAGEMENT ---
+const audioBaseUrl = "https://housiuniverse4596.com/tambolaCallMp3/";
+
+// Function to play a sound, handling browser restrictions
+function playSound(src) {
+    // We create a new Audio object each time to allow for overlapping sounds
+    const sound = new Audio(src);
+    sound.play().catch(error => {
+        // This catch block prevents console errors if the browser blocks autoplay
+        // console.warn("Audio play was prevented by the browser:", error);
+    });
+}
+
+// Map dividend names from the code to the sound file names
+const dividendSoundMap = {
+    "First Full House": "First%20Full%20House.mp3",
+    "Second Full House": "Second%20Full%20House.mp3",
+    "Third Full House": "Third%20Full%20House.mp3",
+    "Top Line": "Top%20Line.mp3",
+    "Middle Line": "Middle%20Line.mp3",
+    "Bottom Line": "Bottom%20Line.mp3",
+    "Corners (4)": "Corner.mp3",
+    "Quick 7": "Quick7.mp3",
+    "Full Sheet Bonus": "Full%20Sheet%20Bonus.mp3",
+    "Half Sheet Bonus": "Half%20Sheet%20Bonus.mp3",
+    "Star": "Star.mp3",
+    "Early 5": "Early%205.mp3",
+   };
+
 let currentView = 'publicView';
 let currentUser = null;
 let currentUserRole = null;
@@ -950,9 +981,7 @@ let lastAnnouncedNumber = null;
 let isAnnouncing = false;
 let countdownInterval = null;
 let gameRunnerInterval = null;
-// === MODIFICATION START ===
-// The specific gameRunTimerInterval has been removed as its logic is now part of the unified countdown system.
-// === MODIFICATION END ===
+let gameLiveSoundPlayed = false; // Flag to play 'GAME IS LIVE' sound only once
 let knownWinners = {};
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' }; // NEW: For the ticket editor popup
@@ -967,7 +996,7 @@ let adminListState = 'tickets';
 
 const allPossibleDividends = [
     "First Full House", "Second Full House", "Third Full House", "Top Line", "Middle Line", "Bottom Line",
-    "Early 5", "Early 7", "Corners (4)", "Star", "Full Sheet Bonus", "Half Sheet Bonus"
+    "Early 5", "Quick 7", "Corners (4)", "Star", "Full Sheet Bonus", "Half Sheet Bonus"
 ];
 
 
@@ -1226,6 +1255,11 @@ function setupRealtimeListeners() {
                 const winner = newWinners[dividendName];
                 const msg = `${winner.name} (Tkt: ${winner.ticketId}) has won ${dividendName}!`;
                 triggerGlobalNotification(msg, 'success');
+                 // Play dividend win sound
+                const soundFile = dividendSoundMap[dividendName];
+                if (soundFile) {
+                    playSound(audioBaseUrl + soundFile);
+                }
             }
         }
         knownWinners = newWinners;
@@ -1371,7 +1405,10 @@ function generateNumberBoard() {
 function announceNumber(number) {
     isAnnouncing = true;
     lastAnnouncedNumber = number;
-    document.getElementById('announcementSound')?.play().catch(() => {});
+    
+    // Play the specific sound for the called number
+    playSound(audioBaseUrl + number + '.mp3');
+
     const overlay = document.getElementById('number-announcement-overlay');
     const numberDisplay = document.getElementById('announced-number-display');
     if (!overlay || !numberDisplay) { isAnnouncing = false; return; }
@@ -1385,11 +1422,11 @@ function announceNumber(number) {
       .to(overlay, { autoAlpha: 0, duration: 0.5, onComplete: () => overlay.style.display = 'none' }, '+=0.5');
 }
 
-// === MODIFICATION START: ADDED NEW TIMER BAR ID ===
+
 function updateCountdownTimers(targetDateString) {
     if (countdownInterval) clearInterval(countdownInterval);
     const targetDate = new Date(targetDateString).getTime();
-    // Add the new timer bar from the "Run Game" popup to the list of elements to update
+    
     const timerBars = [
         document.getElementById('public-timer-bar'),
         document.getElementById('booking-timer-bar'),
@@ -1397,19 +1434,27 @@ function updateCountdownTimers(targetDateString) {
     ];
 
     if (!targetDateString || isNaN(targetDate)) {
+        gameLiveSoundPlayed = false; // Reset flag for next game
         const waitingHTML = `<div class="info-item"><i class="fas fa-hourglass-half"></i><span>Awaiting Game Schedule</span></div>`;
         timerBars.forEach(bar => { if(bar) bar.innerHTML = waitingHTML; });
         return;
     }
+
     const date = new Date(targetDate);
     const dateText = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     const timeText = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
     const update = () => {
         const distance = targetDate - new Date().getTime();
         let countdownText;
         if (distance < 0) {
             clearInterval(countdownInterval);
             countdownText = 'Game is in Progress!';
+            // Play sound when countdown ends, but only once
+            if (!gameLiveSoundPlayed) {
+                playSound(audioBaseUrl + "GAME%20IS%20LIVE.mp3");
+                gameLiveSoundPlayed = true;
+            }
         } else {
             const d = Math.floor(distance / 86400000).toString().padStart(2, '0');
             const h = Math.floor((distance % 86400000) / 3600000).toString().padStart(2, '0');
@@ -1426,7 +1471,7 @@ function updateCountdownTimers(targetDateString) {
     update();
     countdownInterval = setInterval(update, 1000);
 }
-// === MODIFICATION END ===
+
 
 function renderVisualTicketBookingPage() {
     const gridContainer = document.getElementById('bookingGridContainer');
@@ -2278,13 +2323,7 @@ async function deleteUser(uid, name) {
     }
 }
 
-// === MODIFICATION START: REMOVED TIMER LOGIC AND SIMPLIFIED ===
-/**
- * Handles the UI updates for the "Run Game" popup, including the winner list.
- * The timer functionality has been removed from this function as it's now handled
- * by the global `updateCountdownTimers` function.
- * @param {object} gameState The current state of the game from Firebase.
- */
+
 function updateRunGameUI(gameState) {
     if (currentView !== 'adminDashboardView' || !document.getElementById('runGameWindowDiv').classList.contains('active')) {
         return;
@@ -2302,10 +2341,8 @@ function updateRunGameUI(gameState) {
             const winnerText = winnerInfo ? `${winnerInfo.name} (Tkt: ${winnerInfo.ticketId})` : 'Pending...';
             return `<tr><td>${div.name}</td><td>${winnerText}</td></tr>`;
         }).join('') + '</tbody></table>';
-
-    // All timer logic has been removed from this function.
 }
-// === MODIFICATION END ===
+
 
 
 
@@ -2602,6 +2639,8 @@ async function toggleGameRunner() {
                 }
                 return currentData;
             });
+            
+            playSound(audioBaseUrl + "game%20has%20started.mp3");
 
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
             const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
