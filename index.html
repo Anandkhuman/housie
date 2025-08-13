@@ -259,7 +259,7 @@
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
     .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(0.6rem, 2.5vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
-    .ticket-num.ticked { background-color: #ffeb3b !important; color: #000000 !important; border-radius: 50%; transform: scale(1.05); box-shadow: 0 0 4px #ffeb3b; text-shadow: none; border: 1px solid #fbc02d; }
+    .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
 
     /* NEW: Download button style */
@@ -799,6 +799,18 @@
         </div>
     </div>
 </div>
+
+<!-- NEW: Winning Ticket Viewer Popup -->
+<div class="overlay-popup" id="winningTicketViewerPopup">
+    <div class="popup-content" style="background-color: #e0f7fa; border-color: #0288d1;">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" id="winningTicketPopupTitle" style="color: #01579b; text-shadow: none;">Winning Ticket</h3>
+        <div id="winningTicketDisplayArea" style="padding-top: 1rem;">
+            <!-- Visual ticket will be injected here -->
+        </div>
+    </div>
+</div>
+
 
 <!-- NEW: Confirmation for applying changes to all tickets -->
 <div class="overlay-popup" id="applyToAllConfirmPopup">
@@ -1682,17 +1694,29 @@ function populateDividendList(dividends) {
 }
 
 function updateWinners(winners) {
+    // Reset all winner info cells first
     document.querySelectorAll('#dividendListTable .winner-info').forEach(el => {
         el.innerHTML = `<span class="winner-name">Pending...</span>`;
     });
+
+    // Populate with new winner data
     for (const name in winners) {
         const row = document.querySelector(`#dividendListTable tr[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
         if (row) {
             const winner = winners[name];
-            row.querySelector('.winner-info').innerHTML = `<span class="winner-name">${winner.name}</span> (Tkt: ${winner.ticketId})`;
+            let winnerHTML = `<span class="winner-name">${winner.name}</span> (Tkt: ${winner.ticketId})`;
+            
+            // NEW: Add a clickable eye icon if the ticket ID is a valid number
+            const ticketIdNum = parseInt(winner.ticketId, 10);
+            if (!isNaN(ticketIdNum) && ticketIdNum > 0) {
+                 winnerHTML += ` <i class="fas fa-eye" style="cursor:pointer; color: var(--accent-primary);" onclick="showWinningTicket(${ticketIdNum})"></i>`;
+            }
+            
+            row.querySelector('.winner-info').innerHTML = winnerHTML;
         }
     }
 }
+
 
 // === MODIFICATION START: UPDATED TO TARGET NEW BOARD CELLS ===
 function updateNumberBoard(called) {
@@ -1796,6 +1820,36 @@ function renderSheetWiseBookedList() {
     }
 
     updateDisplayedTicketPublic();
+}
+
+// NEW: Function to show a popup with a visual of the winning ticket
+function showWinningTicket(ticketId) {
+    const ticket = allTicketsData.find(t => t.id === ticketId);
+    if (!ticket) {
+        showNotification(`Ticket #${ticketId} data not found.`, 'error');
+        return;
+    }
+
+    const displayArea = document.getElementById('winningTicketDisplayArea');
+    const title = document.getElementById('winningTicketPopupTitle');
+
+    // Update the popup's title
+    title.textContent = `Ticket #${ticket.id} - ${ticket.owner_name}`;
+
+    // Generate the HTML for the ticket grid, applying the 'ticked' class to called numbers
+    const gridHTML = ticket.numbers.flat().map(n => {
+        const isCalled = n > 0 && currentCalledNumbers.includes(n);
+        return `<div class="ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''}" data-num="${n}">${n > 0 ? n : ''}</div>`;
+    }).join('');
+
+    // Re-use the existing 'ticket-view' styling for a consistent look
+    displayArea.innerHTML = `<div class="ticket-view" data-ticket-id="${ticket.id}">
+                                <div class="ticket-header">Ticket #${ticket.id}: ${ticket.owner_name}</div>
+                                <div class="ticket-grid">${gridHTML}</div>
+                             </div>`;
+
+    // Show the popup
+    showPopup('winningTicketViewerPopup');
 }
 
 
@@ -2720,7 +2774,6 @@ function callNextNumber() {
     });
 }
 
-
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = { ...currentWinners };
     const activeDividends = gameSettingsData.dividends || [];
@@ -2771,7 +2824,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
                             updatedWinners[dividend.name] = {
                                 name: ownerName,
                                 ticketId: `Sheet ${parseInt(sheetNum) + 1}`,
-                                won_at: firebase.database.ServerValue.TIMESTAMP
+                                won_at: firebase.database.ServerValue.TIMESTAMP,
+                                dividendName: dividend.name
                             };
                             winnerFound = true;
                             break;
@@ -2792,7 +2846,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
                                     updatedWinners[dividend.name] = {
                                         name: ownerName,
                                         ticketId: `Half Sheet in ${parseInt(sheetNum) + 1}`,
-                                        won_at: firebase.database.ServerValue.TIMESTAMP
+                                        won_at: firebase.database.ServerValue.TIMESTAMP,
+                                        dividendName: dividend.name
                                     };
                                     winnerFound = true;
                                     break;
@@ -2814,13 +2869,22 @@ function checkAllWinners(calledNumbers, currentWinners) {
             let isWinner = false;
             const allTicketNumbers = ticket.numbers.flat().filter(n => n > 0);
 
-            if (dividend.name.startsWith("Early")) {
-                const count = parseInt(dividend.name.split(" ")[1], 10);
+            if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
+                const count = parseInt(dividend.name.match(/\d+/)[0], 10);
                 if (countMarked(ticket) >= count) isWinner = true;
-
+            
             } else if (dividend.name.includes("Full House")) {
-                const fullHouseClaimedCount = Object.keys(updatedWinners).filter(w => w.includes("Full House")).length;
-                if (check(allTicketNumbers)) {
+                // MODIFIED: Housefull logic to prevent duplicate ticket winners
+                const housefullWinnersData = Object.values(updatedWinners).filter(w => w.dividendName && w.dividendName.includes("Full House"));
+                const housefullWinnerTicketIds = housefullWinnersData.map(w => w.ticketId);
+                const fullHouseClaimedCount = housefullWinnerTicketIds.length;
+
+                if (check(allTicketNumbers)) { // The current ticket is a full house
+                    // Check if this ticket has already won a housefull prize
+                    if (housefullWinnerTicketIds.includes(ticket.id)) {
+                        continue; // Skip to the next ticket
+                    }
+                    
                     if (dividend.name === "First Full House" && fullHouseClaimedCount === 0) isWinner = true;
                     else if (dividend.name === "Second Full House" && fullHouseClaimedCount === 1) isWinner = true;
                     else if (dividend.name === "Third Full House" && fullHouseClaimedCount === 2) isWinner = true;
@@ -2829,25 +2893,32 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 const numbersInRow1 = ticket.numbers[0].filter(n => n > 0);
                 const numbersInRow2 = ticket.numbers[1].filter(n => n > 0);
                 const numbersInRow3 = ticket.numbers[2].filter(n => n > 0);
-                const findFirstNum = (row) => row.find(n => n > 0);
-                const findLastNum = (row) => [...row].reverse().find(n => n > 0);
-                const corners = [
-                    findFirstNum(ticket.numbers[0]), findLastNum(ticket.numbers[0]),
-                    findFirstNum(ticket.numbers[2]), findLastNum(ticket.numbers[2])
-                ].filter(Boolean);
-
+                
                 if (dividend.name === "Top Line" && numbersInRow1.length > 0 && check(numbersInRow1)) isWinner = true;
                 else if (dividend.name === "Middle Line" && numbersInRow2.length > 0 && check(numbersInRow2)) isWinner = true;
                 else if (dividend.name === "Bottom Line" && numbersInRow3.length > 0 && check(numbersInRow3)) isWinner = true;
                 else if (dividend.name === "Corners (4)") {
+                     const findFirstNum = (row) => row.find(n => n > 0);
+                     const findLastNum = (row) => [...row].reverse().find(n => n > 0);
+                     const corners = [
+                        findFirstNum(ticket.numbers[0]), findLastNum(ticket.numbers[0]),
+                        findFirstNum(ticket.numbers[2]), findLastNum(ticket.numbers[2])
+                    ].filter(Boolean); // Filter out undefined if a row has < 2 numbers
                     if (corners.length === 4 && check(corners)) isWinner = true;
                 } else if (dividend.name === "Star") {
-                    const centerNumber = ticket.numbers[1][4];
-                    const starNumbers = [...corners];
-                    if (centerNumber > 0) {
-                        starNumbers.push(centerNumber);
+                    // MODIFIED: New "Star" prize logic
+                    if (numbersInRow1.length === 5 && numbersInRow2.length >= 3 && numbersInRow3.length === 5) {
+                        const starNumbers = [
+                            numbersInRow1[0], // Top row, 1st number
+                            numbersInRow1[4], // Top row, 5th number
+                            numbersInRow2[2], // Middle row, 3rd number
+                            numbersInRow3[0], // Bottom row, 1st number
+                            numbersInRow3[4]  // Bottom row, 5th number
+                        ];
+                        if (check(starNumbers)) {
+                            isWinner = true;
+                        }
                     }
-                    if (starNumbers.length === 5 && check(starNumbers)) isWinner = true;
                 }
             }
 
@@ -2855,7 +2926,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 updatedWinners[dividend.name] = {
                     name: ticket.owner_name,
                     ticketId: ticket.id,
-                    won_at: firebase.database.ServerValue.TIMESTAMP
+                    won_at: firebase.database.ServerValue.TIMESTAMP,
+                    dividendName: dividend.name // Add dividend name to the object
                 };
                 break; // Found winner for this dividend, move to next dividend
             }
