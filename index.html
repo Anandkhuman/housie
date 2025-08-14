@@ -101,10 +101,10 @@
     .overlay-popup.active, .gamePopDiv.active { opacity: 1; visibility: visible; }
 
     .popup-content {
-        width: 95%; max-width: 500px;
+        width: 100%; max-width: 500px;
         background: var(--primary-surface);
         border: 1px solid var(--accent-primary); border-radius: 8px;
-        padding: 1.5rem; position: relative; max-height: 90vh; overflow-y: auto;
+        padding: 0; position: relative; max-height: 90vh; overflow-y: auto;
         box-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
         transform: scale(0.95);
         transition: transform var(--transition-speed) var(--transition-ease);
@@ -994,6 +994,10 @@
             <div class="number-board" id="runGamePopupBoard">
             </div>
         </section>
+	<div style="font-weight:bold;font-size:18px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
+
+
+
       </div>
 </div>
 <div class="overlay-popup" id="genericInfoPopup">
@@ -3408,5 +3412,6 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.to('.main-header, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 });
 </script>
+
 </body>
 </html>
