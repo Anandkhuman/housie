@@ -765,12 +765,11 @@
         <table class="gameSettingTable" id="dividendSettingsTable">
         </table>
          <div style="width: 80%; margin: 10px auto; display:flex; gap: 10px;">
-            <button class="actionBtn" style="flex-grow: 1;" id="saveDividentBtn" onclick="saveDividendSettings()">SAVE DIVIDENDS</button>
+            <button class="actionBtn" style="flex-grow: 1;" id="saveDividentBtn" onclick="saveDividendSettings()">SAVE DEVIDENDS</button>
+	    <button class="actionBtn" style="flex-grow: 1;" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
         </div>
     </div>
-    <div class="gameSettingDiv">
-        <button class="titleBtn" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
-    </div>
+    
     <div class="gameSettingDiv">
         <button class="titleBtn">BUSINESS INFO</button>
         <table class="gameSettingTable" id="businessInfoTable">
@@ -1010,25 +1009,21 @@
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" style="color: var(--light-text-dash);">Game Poster Generator</h3>
         
-        <!-- === MODIFICATION START === -->
         <div id="poster-bg-controls" style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px;">
             <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center;">Change BG:</span>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('party,confetti')">Party</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('fireworks')">Fireworks</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('casino,cards')">Casino</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('stage,lights')">Stage</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg1.jpeg')">BG 1</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg2.jpeg')">BG 2</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg3.jpeg')">BG 3</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg4.jpeg')">BG 4</button>
         </div>
-        <!-- === MODIFICATION END === -->
 
         <div id="posterContent">
             <!-- Poster content will be generated here by JS -->
         </div>
 
         <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
-            <!-- === MODIFICATION START === -->
             <button class="actionBtn" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as Image</button>
             <button class="actionBtn" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
-            <!-- === MODIFICATION END === -->
         </div>
     </div>
 </div>
@@ -2495,11 +2490,15 @@ async function deleteUser(uid, name) {
     }
 }
 
-function changePosterBackground(query) {
+function changePosterBackground(source) {
     const posterContent = document.getElementById('posterContent');
     if (posterContent) {
-        // Add a timestamp to the URL to bypass browser cache and get a new random image
-        const newImageUrl = `https://source.unsplash.com/random/600x800/?${query}&t=${new Date().getTime()}`;
+        let newImageUrl;
+        if (source.startsWith('http')) {
+            newImageUrl = source;
+        } else {
+            newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
+        }
         posterContent.style.backgroundImage = `url('${newImageUrl}')`;
         showNotification('Poster background updated!', 'info', 2000);
     }
@@ -2544,8 +2543,8 @@ function showPosterModal() {
         <p class="ticket-details">Get ticket @ Rs ${ticketPrice}. Total tickets only (${totalTickets})</p>
 
         <div class="contact-section">
-            <p>visit:<a href="${websiteLink}" target="_blank">${websiteLink.replace(/^https?:\/\//, '')}</a></p>
-            <p>call <span>${adminPhone}</span></p>
+            <p>visit: <a href="${websiteLink}" target="_blank">${websiteLink.replace(/^https?:\/\//, '')}</a></p>
+            <p>Whatsapp: <span>${adminPhone}</span></p>
         </div>
     `;
 
@@ -2566,6 +2565,10 @@ function savePosterAsImage() {
         useCORS: true, 
         allowTaint: true,
         logging: false,
+        onrendered: function(canvas) {
+            // This is a fallback for older versions, though the promise-based .then() is modern.
+            // The main logic is in the .then() block.
+        }
     }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'sintha-housie-poster.png';
@@ -2574,7 +2577,7 @@ function savePosterAsImage() {
         showNotification('Poster download started!', 'success');
     }).catch(err => {
         console.error("html2canvas error:", err);
-        showNotification('Could not generate poster image.', 'error');
+        showNotification('Could not generate poster image. Check console for errors.', 'error');
     });
 }
 
@@ -2593,7 +2596,6 @@ async function sharePoster() {
         const websiteName = "Sintha Team Housie Game!";
         const websiteLink = window.location.href.split('#')[0];
         
-        // Check if the browser can share files
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
             await navigator.share({
                 files: filesArray,
@@ -2603,15 +2605,15 @@ async function sharePoster() {
             });
             showNotification('Poster shared successfully!', 'success');
         } else {
-            // Fallback for browsers that don't support file sharing
             showNotification('Image sharing not supported. Saving image instead.', 'info', 6000);
-            savePosterAsImage(); // Trigger download as a helpful action
+            savePosterAsImage();
         }
     } catch (error) {
-        // Don't show an error if the user cancels the share dialog
         if (error.name !== 'AbortError') {
              console.error('Error sharing poster:', error);
              showNotification(`Could not share poster: ${error.message}`, 'error');
+             // As a fallback on share error, we can also offer to save
+             savePosterAsImage();
         }
     }
 }
