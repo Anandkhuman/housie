@@ -4,29 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Housie Game</title>
-
-    <!-- External Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@400;700&family=Lobster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
-    <!-- NEW: Added jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- NEW: Added html2canvas for poster printing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-
-    <!-- Firebase Libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <style>
-    /* --- 1. GLOBAL STYLES & VARIABLES --- */
+    /* --- create by Sintha Team --- */
     :root {
-        /* Neon Grid Theme (Public & Booking Views) */
         --bg-color: #100c2A;
         --primary-surface: #19153a;
         --secondary-surface: #2c2850;
@@ -39,8 +31,6 @@
         --font-family-neon: 'Rajdhani', sans-serif;
         --transition-speed: 0.4s;
         --transition-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-        /* Dashboard Theme (Admin - Based on new request) */
         --primary-bg-dash: #2c3e50; /* Wet Asphalt */
         --secondary-bg-dash: #34495e; /* Midnight Blue */
         --accent-color-dash: #1abc9c; /* Green Sea */
@@ -53,7 +43,6 @@
         100% { background-position: 0 200px; }
     }
 
-    /* NEW: Animation for the last called number */
     @keyframes pulse-highlight {
         0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
         70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
@@ -63,7 +52,6 @@
         animation: pulse-highlight 1.5s infinite;
         border-color: #ff0000 !important;
     }
-
 
     * { margin: 0; padding: 0; box-sizing: border-box; outline: none; border: none; }
     ::-webkit-scrollbar { width: 4px; }
@@ -87,7 +75,7 @@
     }
 
     .view {
-        display: none; /* All views are hidden by default */
+        display: none; 
         width: 100%;
         min-height: 100vh;
     }
@@ -96,7 +84,6 @@
         display: block;
     }
 
-    /* --- 2. POPUPS & MODALS (Unified Small Design) --- */
     .overlay-popup, .gamePopDiv {
         position: fixed; z-index: 1000; width: 100%; height: 100%; top: 0; left: 0;
         display: none; align-items: center; justify-content: center; padding: 0.5rem;
@@ -108,7 +95,7 @@
     }
 
     .overlay-popup {
-        z-index: 1010; /* Ensures overlay popups appear on top of game popups */
+        z-index: 1010; 
     }
 
     .overlay-popup.active, .gamePopDiv.active { opacity: 1; visibility: visible; }
@@ -168,7 +155,6 @@
     .agent-list a:hover { background-color: var(--primary-surface); transform: translateX(3px); }
     .agent-list .fab.fa-whatsapp { color: #25D366; font-size: 1.2rem; margin-left: auto; }
 
-    /* --- NOTIFICATION SYSTEM --- */
     #notification-container {
         position: fixed; top: 10px; right: 2.5%; width: 95%;
         z-index: 9999; display: flex; flex-direction: column; gap: 8px;
@@ -184,7 +170,6 @@
     .notification.error { background-color: #e74c3c; }
     .notification.info { background-color: #3498db; }
 
-    /* --- 3. PUBLIC & BOOKING VIEW (Unified Neon Theme) --- */
     .neon-view {
         background-image:
             linear-gradient(to top, rgba(16,12,42,1) 0%, rgba(16,12,42,0) 40%),
@@ -213,7 +198,6 @@
     .main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; padding: 0.8rem 1rem; text-align: center; }
     .game-layout { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 
-    /* MODIFIED: Make game layout two-column on wider screens */
     @media (min-width: 992px) {
         .game-layout {
             grid-template-columns: 2fr 1fr;
@@ -261,8 +245,6 @@
     .search-btn { padding: 0 1rem; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: var(--text-dark); cursor: pointer; border-radius: 0 4px 4px 0; font-size: 1rem; font-weight: 700; transition: filter var(--transition-speed) ease; }
     .search-btn:hover { filter: brightness(1.2); }
     .ticketDisplayArea { display: flex; flex-direction: column; gap: 1rem; }
-
-    /* UNIVERSAL TICKET STYLES (Mobile Light Blue Theme) */
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
     .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: #01579b; text-shadow: none; }
     .sheet-view { background-color: #ffffff; border: 1px solid #0277bd; border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem; }
@@ -276,8 +258,6 @@
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
-
-    /* NEW: Style for the number that creates the win */
     .ticket-num.winning-strike {
         background-color: var(--called-color) !important;
         color: var(--text-dark) !important;
@@ -288,8 +268,6 @@
         position: relative;
     }
 
-
-    /* NEW: Download button style */
     .download-pdf-btn {
         position: absolute;
         top: 2px;
@@ -311,15 +289,12 @@
         transform: scale(1.1);
     }
 
-
     .dividend-table { width: 100%; border-collapse: collapse; }
     .dividend-table th, .dividend-table td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.85rem;}
     .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.9rem; }
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
     .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
     .dividend-table .winner-name { font-weight: 700; color: var(--called-color); }
-
-    /* MODIFIED: Styles for aligning the winner list eye icon */
     .dividend-table .winner-info {
         display: flex;
         justify-content: space-between;
@@ -346,8 +321,6 @@
         backdrop-filter: none;
     }
     #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
-
-    /* --- 4. TICKET BOOKING & STATUS VIEW STYLES --- */
     #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 60vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
     #bookingGridContainer .ticket-view { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
     #bookingGridContainer .ticket-view.sold { cursor: not-allowed; opacity: 0.5; }
@@ -360,8 +333,6 @@
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
     .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
     .book-now-btn-small:hover { filter: brightness(1.2); }
-
-    /* --- 5. DASHBOARD VIEWS (Admin/Agent) --- */
     .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 1.5rem; }
     .dashboard-view .gameSettingDiv:first-child { margin-top: 1rem; }
     .dashboard-view .titleBtn { width: 100%; border: 0; padding: 10px; color: var(--light-text-dash); background: rgba(255, 255, 255, 0.05); border-radius: 6px 6px 0 0; font-weight: bold; text-align: center; font-size: 1rem; }
@@ -370,8 +341,6 @@
     .dashboard-view .bookFloatBtn { width: 110px; padding: 8px; border-radius: 8px; position: fixed; bottom: 10px; right: 10px; border: 0; background: var(--accent-color-dash); color: var(--light-text-dash); z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: pointer; font-size: 0.85rem; }
     .dashboard-view .actionBtn { margin: 4px; background: var(--accent-color-dash); color: var(--light-text-dash); font-weight: bold; border-radius: 4px; border: 0; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.8rem; height: auto; padding: 8px 4px; flex-grow: 1; }
     .dashboard-view .actionBtn:hover { background: #16a085; }
-    
-    /* MODIFIED: Simplified Admin Tables */
     .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
     .dashboard-view .gameSettingTable thead { display: none; }
     .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
@@ -379,7 +348,6 @@
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
     .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
     .dashboard-view .gameSettingTable td::before { content: '' !important; /* Removed pseudo-element labels */ }
-    
     .dashboard-view .tableInp { width: 100%; font-size: 0.9rem; padding: 8px; border: 1px solid var(--secondary-bg-dash); font-weight: bold; margin: 0; border-radius: 3px; box-sizing: border-box; background-color: white; color: var(--text-dark); }
     .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); cursor: pointer;}
     #adminDashboardView .searchInp, #agentDashboardView .searchInp { font-size: 1rem; padding: 8px; border-radius: 6px; margin: 15px auto 0 auto; display: block; text-align: center; background-color: var(--secondary-bg-dash); color: var(--light-text-dash); border: 1px solid var(--accent-color-dash); width: 90%; }
@@ -403,8 +371,6 @@
     #agentDashboardView .runBtn { font-size: 1.5rem; }
     #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
     #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
-
-    /* == MODIFIED/NEW STYLES FOR BOOKING POPUP LAYOUTS == */
     .gamePopDiv .gameDiv {
         display: flex;
         flex-direction: column;
@@ -429,7 +395,6 @@
         padding-bottom: 0.5rem;
         background: var(--primary-bg-dash);
     }
-    /* Make the ticket block scrollable and take up remaining space */
     .gamePopDiv .ticketBlockDiv {
         flex-grow: 1; /* Key property */
         overflow-y: auto; /* Enable vertical scrolling */
@@ -439,8 +404,6 @@
         padding: 8px;
     }
 
-    /* Style for the public booking popup inputs/buttons */
-    /* Public Booking Popup Styles */
     #publicBookingPopup .bookInpDiv {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -456,7 +419,6 @@
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* Focus state for better UX */
     #publicBookingPopup .tableInp:focus {
         border-color: var(--primary-color-dash);
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
@@ -472,7 +434,6 @@
         letter-spacing: 0.5px;
     }
 
-    /* NEW: Styles for Admin Ticket List */
     #adminGameSettingTable .booked-ticket-line-1 {
         display: flex;
         justify-content: space-between;
@@ -502,27 +463,25 @@
         display: table-cell;
     }
     
-    /* MODIFIED: Styles for Dividend Settings for single-line layout */
     #dividendSettingsTable tr {
-        grid-template-columns: 1fr; /* Override two-column layout */
+        grid-template-columns: 1fr; 
     }
     #dividendSettingsTable td {
-        display: flex; /* Arrange children (text, input, checkbox) in a row */
+        display: flex; 
         align-items: center;
         gap: 10px;
     }
     .dividend-name-text {
-        flex-grow: 1; /* Allow the name to take up extra space, pushing controls to the right */
+        flex-grow: 1; 
         font-weight: 500;
         color: var(--light-text-dash);
     }
     .dividend-amount {
-        width: 90px !important; /* Fixed width for the amount input */
+        width: 90px !important; 
         flex-shrink: 0;
         text-align: right !important;
     }
 
-    /* NEW: Style for generic info popup content */
     #genericInfoPopupContent ul {
         list-style-type: none;
         padding-left: 0;
@@ -543,7 +502,6 @@
         color: var(--text-primary);
     }
 
-    /* --- NEW/MODIFIED: POSTER MAKER STYLES --- */
     #posterContent {
         font-family: 'Oswald', sans-serif;
         color: #ffffff;
@@ -582,7 +540,7 @@
         font-size: 0.7em;
         font-weight: bold;
         margin-top: -0.1rem;
-        color: #ffeb3b; /* Accent color */
+        color: #ffeb3b;
     }
 
     .poster-tagline {
@@ -662,10 +620,8 @@
 </head>
 <body>
 
-<!-- Notification Container -->
 <div id="notification-container"></div>
 
-<!-- ====== VIEW: PUBLIC GAME BOARD ====== -->
 <div id="publicView" class="view neon-view active">
     <div class="css-grid-container"><div class="css-grid"></div></div>
     <div class="page-wrapper">
@@ -685,7 +641,6 @@
 
         <div class="panel">
             <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
-                 <!-- JS will inject timer here -->
             </div>
         </div>
 
@@ -710,7 +665,6 @@
                  <section class="panel">
                     <h2 class="panel-title">ALL TICKETS STATUS</h2>
                     <div id="bookedTicketsDisplay">
-                        <!-- JS will populate this with ALL tickets, sheet-wise -->
                     </div>
                 </section>
                 <section class="panel">
@@ -725,7 +679,6 @@
     </div>
 </div>
 
-<!-- ====== VIEW: TICKET BOOKING ====== -->
 <div id="ticketBookingView" class="view neon-view">
     <div class="css-grid-container"><div class="css-grid"></div></div>
     <div class="page-wrapper">
@@ -745,14 +698,12 @@
 
         <div class="panel">
             <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1rem;">
-                <!-- JS will inject timer here -->
             </div>
         </div>
 
         <section class="panel">
             <h2 class="panel-title">Select Tickets By Sheet (Method 1)</h2>
             <div id="bookingGridContainer">
-                <!-- JS will generate visual tickets here -->
             </div>
             <div id="publicSelectionIndicator" class="selection-indicator"></div>
             <div id="bookingFormContainer">
@@ -763,15 +714,10 @@
         </section>
     </div>
 </div>
-
-
-<!-- ====== VIEW: ADMIN DASHBOARD ====== -->
 <div id="adminDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
         <div class="titleBtn">ADMIN DASHBOARD</div>
     </div>
-
-    <!-- GAME SETTINGS -->
     <div class="gameSettingDiv">
         <button class="titleBtn">GAME SETTINGS</button>
         <table class="gameSettingTable" id="settingsTable">
@@ -784,8 +730,6 @@
             </tbody>
         </table>
     </div>
-
-    <!-- ACTION BUTTONS -->
     <div class="gameSettingDiv">
         <button class="titleBtn">ACTION BUTTONS</button>
         <div class="actionBtnDiv">
@@ -799,38 +743,26 @@
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
         </div>
     </div>
-
-    <!-- START GAME -->
     <div class="gameSettingDiv">
         <button class="titleBtn">START GAME CALLING</button>
         <button class="runBtn" onclick="showPopup('runGameWindowDiv')" id="runGameBtn">RUN GAME</button>
     </div>
-
-    <!-- DIVIDEND SETTINGS -->
     <div class="gameSettingDiv">
         <button class="titleBtn">DIVIDEND SETTINGS</button>
         <table class="gameSettingTable" id="dividendSettingsTable">
-             <!-- JS will generate rows here -->
         </table>
          <div style="width: 80%; margin: 10px auto; display:flex; gap: 10px;">
             <button class="actionBtn" style="flex-grow: 1;" id="saveDividentBtn" onclick="saveDividendSettings()">SAVE DIVIDENDS</button>
         </div>
     </div>
-
-    <!-- MAKE POSTER BUTTON -->
     <div class="gameSettingDiv">
         <button class="titleBtn" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
     </div>
-
-    <!-- BUSINESS INFO -->
     <div class="gameSettingDiv">
         <button class="titleBtn">BUSINESS INFO</button>
         <table class="gameSettingTable" id="businessInfoTable">
-             <!-- JS will generate rows here -->
         </table>
     </div>
-
-    <!-- ADMIN INFO -->
     <div class="gameSettingDiv">
         <button class="titleBtn">ADMIN INFO</button>
         <table class="gameSettingTable" id="adminInfoTable">
@@ -846,8 +778,6 @@
              </tbody>
         </table>
     </div>
-
-    <!-- CREATE AGENT -->
     <div class="gameSettingDiv">
         <button class="titleBtn">CREATE NEW AGENT</button>
         <div style="padding: 1.2rem; background-color: var(--secondary-bg-dash); display: flex; flex-direction: column; gap: 0.8rem; width:80%; margin:auto;">
@@ -858,8 +788,6 @@
             <button class="actionBtn" style="width:100%; height: auto; padding: 10px;" onclick="createAgentByAdmin()">CREATE AGENT ACCOUNT</button>
         </div>
     </div>
-
-    <!-- TICKET/AGENT LIST -->
     <div class="gameSettingDiv" style="margin-bottom: 80px;">
         <button class="titleBtn">TICKET/AGENT LIST</button>
         <div class="toggleDiv">
@@ -869,29 +797,21 @@
         <input class="searchInp" placeholder="Enter keyword" id="adminSearchKeyInp" onkeyup="updateAdminList()">
         <table class="gameSettingTable" id="adminGameSettingTable"></table>
     </div>
-
     <button class="bookFloatBtn" id="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
 </div>
-
-
-<!-- ====== AGENT DASHBOARD ====== -->
 <div id="agentDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
         <div class="titleBtn">AGENT DASHBOARD</div>
     </div>
-
     <div class="gameSettingDiv">
         <div class="titleBtn">TOTAL EARNING</div>
         <button class="runBtn" id="earningBtn">₹ 0</button>
     </div>
-
     <div class="gameSettingDiv">
         <div class="titleBtn">BUSINESS INFO</div>
         <table class="gameSettingTable" id="agentBusinessInfoTable">
-            <!-- Business info for agents -->
         </table>
     </div>
-
     <div class="gameSettingDiv">
         <div class="titleBtn">AGENT INFO</div>
         <table class="gameSettingTable">
@@ -902,21 +822,15 @@
              </tbody>
         </table>
     </div>
-
     <div class="gameSettingDiv" style="margin-bottom: 80px;">
         <div class="titleBtn">MY SOLD TICKETS</div>
         <input class="searchInp" placeholder="Enter keyword" id="agentSearchKeyInp" onkeyup="showAgentSoldTickets()">
         <table class="gameSettingTable" id="agentSoldTicketsTable">
-            <!-- Agent's sold tickets list -->
         </table>
     </div>
 
     <button class="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
 </div>
-
-<!-- ====== ALL POPUPS AND MODALS ====== -->
-
-<!-- Login/Signup Popup -->
 <div class="overlay-popup" id="loginPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -945,8 +859,6 @@
         </div>
     </div>
 </div>
-
-<!-- Agent List Popup -->
 <div class="overlay-popup" id="agentListPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -954,13 +866,9 @@
         <div class="agent-list" id="agentListContainer"></div>
     </div>
 </div>
-
-<!-- Number Announcement Popup -->
 <div class="overlay-popup" id="number-announcement-overlay">
     <div id="announced-number-display">--</div>
 </div>
-
-<!-- Agent Selection for Booking Popup -->
 <div class="overlay-popup" id="agentSelectionPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -968,8 +876,6 @@
         <div class="agent-list" id="bookingAgentListContainer"></div>
     </div>
 </div>
-
-<!-- Ticket Owner Edit Popup -->
 <div class="overlay-popup" id="editOwnerPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -982,20 +888,14 @@
         </div>
     </div>
 </div>
-
-<!-- Winning Ticket Viewer Popup -->
 <div class="overlay-popup" id="winningTicketViewerPopup">
     <div class="popup-content" style="background-color: #e0f7fa; border-color: #0288d1;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" id="winningTicketPopupTitle" style="color: #01579b; text-shadow: none;">Winning Ticket</h3>
         <div id="winningTicketDisplayArea" style="padding-top: 1rem;">
-            <!-- Visual ticket(s) will be injected here -->
         </div>
     </div>
 </div>
-
-
-<!-- Confirmation for applying changes to all tickets -->
 <div class="overlay-popup" id="applyToAllConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1008,9 +908,6 @@
         </div>
     </div>
 </div>
-
-
-<!-- Ticket Reset Confirmation Popup -->
 <div class="overlay-popup" id="ticketResetConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1023,11 +920,8 @@
         </div>
     </div>
 </div>
-
-<!-- Dashboard Booking Popup (For Admin/Agent) -->
 <div class="gamePopDiv" id="dashboardBookingPopup">
     <div class="gameDiv">
-        <!-- FIXED HEADER -->
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
             <div class="titleBtn">BOOK TICKET (ADMIN/AGENT)</div>
@@ -1036,23 +930,16 @@
                 <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
             </div>
         </div>
-        <!-- SCROLLABLE BODY -->
         <div class="ticketBlockDiv" id="dashTicketBlockDiv">
-            <!-- Sheet-wise booking UI for dashboard will be injected here by JS -->
         </div>
-        <!-- FIXED FOOTER -->
         <div class="booking-popup-footer">
             <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
             <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
         </div>
     </div>
 </div>
-
-
-<!-- Public Direct Booking Popup -- NEW/MODIFIED -->
 <div class="gamePopDiv" id="publicBookingPopup">
     <div class="gameDiv">
-        <!-- FIXED HEADER -->
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
 </br></br>
@@ -1062,31 +949,21 @@
                 <input class="tableInp" id="publicBookerPhoneInp" placeholder="Your Phone">
             </div>
         </div>
-        <!-- SCROLLABLE BODY -->
         <div class="ticketBlockDiv" id="publicBookingGrid">
-            <!-- JS will populate this interactive grid -->
         </div>
-        <!-- FIXED FOOTER -->
         <div class="booking-popup-footer">
             <div id="publicBookingIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
             <input class="bookBtn" type="button" id="publicRequestBookingBtn" value="REQUEST BOOKING">
         </div>
     </div>
 </div>
-
-
-<!-- Run Game Popup (For Admin) -->
 <div class="gamePopDiv" id="runGameWindowDiv">
     <div class="gameDiv">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-        <!-- === MODIFICATION START: ADDED STATUS BAR === -->
         <div class="panel" style="background: transparent; border: none; box-shadow: none; padding: 0; width: 95%; margin: 0.5rem auto;">
             <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1rem;">
-                <!-- JS will inject timer here -->
             </div>
         </div>
-        <!-- === MODIFICATION END === -->
-
         <table class="runGameTable gameSettingTable">
             <tbody>
                 <tr>
@@ -1097,56 +974,37 @@
                     <td>CALLING INTERVAL (sec)</td>
                     <td><input type="number" class="tableInp" id="callIntervalInp" value="10"></td>
                 </tr>
-                <!-- === MODIFICATION START: REMOVED GAME TIME ROW === -->
-                <!-- The Game Time table row has been removed. -->
-                <!-- === MODIFICATION END === -->
-            </tbody>
+                </tbody>
         </table>
-
-        <!-- === GAME BOARD === -->
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
             <div class="number-board" id="runGamePopupBoard">
-                <!-- JS will generate the board here -->
             </div>
         </section>
-
         <h3 style="text-align:center; margin-top:15px; font-size: 1.1rem;">Winners</h3>
         <div class="dividentConDiv" id="runGameDividentList"></div>
     </div>
 </div>
-
-<!-- Generic info popup for Prev. Game Winners -->
 <div class="overlay-popup" id="genericInfoPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" id="genericInfoPopupTitle">Info</h3>
         <div id="genericInfoPopupContent" style="text-align: left; color: var(--text-secondary); line-height: 1.6;">
-            <!-- JS will inject content here -->
         </div>
     </div>
 </div>
-
-<!-- Poster Maker Popup -->
 <div class="overlay-popup" id="posterMakerPopup">
     <div class="popup-content" style="max-width: 650px; background: var(--primary-bg-dash);">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" style="color: var(--light-text-dash);">Game Poster Generator</h3>
-
-        <!-- This is the content that will be printed/shared -->
         <div id="posterContent">
-             <!-- JS will inject poster details here -->
         </div>
-
         <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
             <button class="actionBtn" id="printPosterBtn" onclick="printPoster()"><i class="fas fa-print"></i> Print</button>
             <button class="actionBtn" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
         </div>
     </div>
 </div>
-
-
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
@@ -1159,19 +1017,14 @@ const firebaseConfig = {
   measurementId: "G-MGW406NKBY"
 };
 
-// --- 1. INITIALIZATION & GLOBAL STATE ---
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database(); // Use Realtime Database
 
-// --- AUDIO MANAGEMENT ---
 const audioBaseUrl = "https://housiuniverse4596.com/tambolaCallMp3/";
 function playSound(src) {
-    // We create a new Audio object each time to allow for overlapping sounds
     const sound = new Audio(src);
     sound.play().catch(error => {
-        // This catch block prevents console errors if the browser blocks autoplay
-        // console.warn("Audio play was prevented by the browser:", error);
     });
 }
 
@@ -1193,26 +1046,22 @@ const dividendSoundMap = {
 let currentView = 'publicView';
 let currentUser = null;
 let currentUserRole = null;
-let listeners = {}; // Object to hold our listener refs
+let listeners = {}; 
 let authInitialized = false;
-
-// Game State
 let currentCalledNumbers = [];
 let lastAnnouncedNumber = null;
 let isAnnouncing = false;
 let countdownInterval = null;
 let gameRunnerInterval = null;
-let gameLiveSoundPlayed = false; // Flag to play 'GAME IS LIVE' sound only once
+let gameLiveSoundPlayed = false; 
 let knownWinners = {};
 let ticketIdToEdit = null;
-let originalOwnerInfo = { name: '', phone: '' }; // NEW: For the ticket editor popup
-
-// Local Caches of DB data
+let originalOwnerInfo = { name: '', phone: '' }; 
 let allTicketsData = [];
 let allUsersData = [];
 let gameSettingsData = {};
-let publicSelectedTickets = []; // For the main booking page
-let publicPopupSelectedTickets = []; // For the new direct booking popup
+let publicSelectedTickets = []; 
+let publicPopupSelectedTickets = []; 
 let adminListState = 'tickets';
 
 const allPossibleDividends = [
@@ -1220,8 +1069,6 @@ const allPossibleDividends = [
     "Early 5", "Quick 7", "Corners (4)", "Star", "Full Sheet Bonus", "Half Sheet Bonus"
 ];
 
-
-// --- 2. VIEW NAVIGATION & ROUTING ---
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const newView = document.getElementById(viewId);
@@ -1250,7 +1097,6 @@ function handleRouting() {
 
 window.addEventListener('hashchange', handleRouting);
 
-// --- NOTIFICATION SYSTEM ---
 function showNotification(message, type = 'info', duration = 4000) {
     const container = document.getElementById('notification-container');
 
@@ -1277,7 +1123,6 @@ function showNotification(message, type = 'info', duration = 4000) {
     }, duration);
 }
 
-
 async function triggerGlobalNotification(message, type = 'info') {
     try {
         await db.ref('gameState/lastAction').set({
@@ -1290,8 +1135,6 @@ async function triggerGlobalNotification(message, type = 'info') {
     }
 }
 
-
-// --- 3. AUTHENTICATION (FIREBASE) ---
 auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     if (user) {
@@ -1371,40 +1214,27 @@ function logout() {
     });
 }
 
-
-// --- 4. UI & EVENT BINDING ---
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
     document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
-
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
     document.getElementById('signupActionBtn').addEventListener('click', signupUser);
     document.querySelectorAll('#publicLogoutBtn, #bookingLogoutBtn').forEach(btn => btn.addEventListener('click', logout));
-
     document.getElementById('showAgentsBtn').addEventListener('click', showAgentListPopup);
     document.getElementById('showAgentListBtn-booking').addEventListener('click', showAgentListPopup);
     document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.addEventListener('click', () => showPopup('loginPopup')));
-
     document.getElementById('searchBtn').addEventListener('click', searchTicketPublic);
     document.getElementById('ticketSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketPublic(); });
-
     document.getElementById('navigateToBooking').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'book'; });
     document.getElementById('navigateToGame').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'game'; });
-
-    // Main page booking request
     document.getElementById('requestBookingBtn').addEventListener('click', handlePublicBookingRequest);
-
-    // Direct booking popup button
     document.getElementById('checkAvailabilityBtn').addEventListener('click', () => {
         renderPublicBookingGrid();
         showPopup('publicBookingPopup');
     });
-    // Direct booking popup action
     document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
-    
-    // NEW: Bind ticket editor save button
     document.getElementById('saveOwnerChangesBtn').addEventListener('click', saveTicketOwnerChanges);
 }
 
@@ -1444,7 +1274,6 @@ function showAgentListPopup() {
     showPopup('agentListPopup');
 }
 
-// --- 5. DATA FETCHING & REAL-TIME LISTENERS (REALTIME DB) ---
 function setupRealtimeListeners() {
     Object.values(listeners).forEach(ref => ref.off());
 
@@ -1462,7 +1291,6 @@ function setupRealtimeListeners() {
         if (newNumbers.length > currentCalledNumbers.length) {
             const newNum = newNumbers[newNumbers.length - 1];
             if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
-                // MODIFIED: Only show big announcement on public-facing views
                 if (currentView === 'publicView' || currentView === 'ticketBookingView') {
                     announceNumber(newNum);
                 }
@@ -1476,7 +1304,6 @@ function setupRealtimeListeners() {
                 const winner = newWinners[dividendName];
                 const msg = `${winner.name} (Tkt: ${winner.ticketId}) has won ${dividendName}!`;
                 triggerGlobalNotification(msg, 'success');
-                 // Play dividend win sound
                 const soundFile = dividendSoundMap[dividendName];
                 if (soundFile) {
                     playSound(audioBaseUrl + soundFile);
@@ -1485,7 +1312,7 @@ function setupRealtimeListeners() {
         }
         knownWinners = newWinners;
 
-        updateGameRelatedUIs(data); // MODIFIED: Pass full game state
+        updateGameRelatedUIs(data); 
     }, err => { console.error("GameState listener error:", err); showNotification('Could not load game state.', 'error'); });
 
     listeners.tickets = db.ref('tickets');
@@ -1516,7 +1343,6 @@ function setupRealtimeListeners() {
     }, err => console.error("Global notification listener error:", err));
 }
 
-// --- 6. UI UPDATE FUNCTIONS ---
 function updateAllUIsWithSettings(data) {
     document.getElementById('whatsappGroupLink').href = data.whatsappLink || '#';
     updateCountdownTimers(data.gameDateTime);
@@ -1547,7 +1373,7 @@ function updateTicketRelatedUIs() {
     if (currentUserRole === 'agent') showAgentSoldTickets();
     updateDashboardBookingPopup();
     if (document.getElementById('publicBookingPopup').classList.contains('active')) {
-        renderPublicBookingGrid(); // Refresh if open
+        renderPublicBookingGrid(); 
     }
 }
 function updateUserRelatedUIs() {
@@ -1578,8 +1404,6 @@ function updateUIAfterLogout() {
     document.querySelectorAll('.dashboard-link').forEach(link => link.remove());
 }
 
-
-// --- 7. PUBLIC & BOOKING VIEW LOGIC ---
 function checkSheetSelection(selectedIds) {
     const count = selectedIds.length;
     if (count === 0) return { valid: false, message: "" };
@@ -1612,7 +1436,6 @@ function generateNumberBoard() {
 
     let adminPopupBoardHtml = '';
     for(let i = 1; i <= 90; i++) {
-        // Use a unique ID prefix for the cells in the admin popup board
         adminPopupBoardHtml += `<div class="num-cell" id="run-game-popup-num-${i}">${i}</div>`;
     }
 
@@ -1624,7 +1447,6 @@ function announceNumber(number) {
     isAnnouncing = true;
     lastAnnouncedNumber = number;
     
-    // Play the specific sound for the called number
     playSound(audioBaseUrl + number + '.mp3');
 
     const overlay = document.getElementById('number-announcement-overlay');
@@ -1639,7 +1461,6 @@ function announceNumber(number) {
       .to(numberDisplay, { duration: 1.5 }, '+=0.2')
       .to(overlay, { autoAlpha: 0, duration: 0.5, onComplete: () => overlay.style.display = 'none' }, '+=0.5');
 }
-
 
 function updateCountdownTimers(targetDateString) {
     if (countdownInterval) clearInterval(countdownInterval);
@@ -1689,7 +1510,6 @@ function updateCountdownTimers(targetDateString) {
     update();
     countdownInterval = setInterval(update, 1000);
 }
-
 
 function renderVisualTicketBookingPage() {
     const gridContainer = document.getElementById('bookingGridContainer');
@@ -1872,7 +1692,6 @@ function searchTicketPublic() {
     }
 }
 
-
 function updateDisplayedTicketPublic() {
     document.querySelectorAll('#ticketDisplayArea .ticket-view, #bookedTicketsDisplay .ticket-view').forEach(ticketView => {
         ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
@@ -1918,7 +1737,6 @@ function updateWinners(winners) {
                 eyeIcon = `<i class="fas fa-eye" onclick="showWinningSheet('${winner.ticketId}', '${name}')"></i>`;
             }
             else if (!isNaN(ticketIdNum) && ticketIdNum > 0) {
-                 // Pass the ticket ID and the dividend name
                  eyeIcon = `<i class="fas fa-eye" onclick="showWinningTicket(${ticketIdNum}, '${name}')"></i>`;
             }
             
@@ -1926,7 +1744,6 @@ function updateWinners(winners) {
         }
     }
 }
-
 
 function updateNumberBoard(called) {
     const lastCalled = called.length > 0 ? called[called.length - 1] : null;
@@ -2182,7 +1999,7 @@ async function saveGameSetting() {
         document.getElementById('confirmResetBtn').onclick = async () => {
             closePopups();
             await db.ref('settings/gameConfig').update(settingsToSave);
-            await generateHousieTickets(true); // Bypass confirm
+            await generateHousieTickets(true);
             showNotification('Settings saved and all tickets regenerated.', 'success');
         };
 
@@ -2252,7 +2069,6 @@ async function appendNewTickets(newCount, oldCount) {
     }
 }
 
-
 async function saveDividendSettings() {
     const activeDividends = [];
     let hasError = false;
@@ -2278,7 +2094,7 @@ async function saveDividendSettings() {
     });
 
     if (hasError) {
-        return; // Stop the save process if there are errors
+        return; 
     }
 
     try {
@@ -2287,7 +2103,6 @@ async function saveDividendSettings() {
         await triggerGlobalNotification('Admin has updated the dividend settings.', 'info');
     } catch (e) { showNotification('Error saving dividends: ' + e.message, 'error'); }
 }
-
 
 async function saveAdminInfo() {
     if(!currentUser) return;
@@ -2362,15 +2177,14 @@ async function resetCallNum() {
             calledNumbers: null,
             winners: null,
             isGameRunning: false,
-            gameStartedAt: null // Reset the game start time
+            gameStartedAt: null 
         });
         showNotification('Game state has been reset.', 'success');
         await triggerGlobalNotification('Admin has reset the game board.', 'info');
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
 }
-
 async function resetTicket() {
-    if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD. Consider archiving the game first.')) return;
+    if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD.')) return;
     try {
         const updates = {};
         allTicketsData.forEach(ticket => {
@@ -2456,7 +2270,6 @@ async function showPreviousGameWinners() {
     }
 }
 
-
 function updateBusinessInfo() {
     const soldTickets = allTicketsData.filter(t => t.is_sold);
     const soldCount = soldTickets.length;
@@ -2466,9 +2279,7 @@ function updateBusinessInfo() {
     const totalCommission = soldCount * commission;
     const activeDividends = gameSettingsData.dividends || [];
     const totalPrizeMoney = activeDividends.reduce((sum, dividend) => sum + (parseInt(dividend.amount, 10) || 0), 0);
-    
     const netProfit = totalRevenue - totalCommission - totalPrizeMoney;
-
     const adminTable = document.getElementById('businessInfoTable');
     if(adminTable && currentView === 'adminDashboardView') {
         adminTable.innerHTML = `<tbody>
@@ -2521,7 +2332,7 @@ function updateAdminList() {
                     </tr>`;
                 }
             }).join('') + `</tbody>`;
-    } else { // Agent List
+    } else {
         const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').includes(searchTerm));
         table.innerHTML = `<thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Sold</th><th>Actions</th></tr></thead><tbody>` +
             users.map(u => {
@@ -2543,9 +2354,8 @@ function updateAdminList() {
 }
 
 function showEditTicketPopup(ticketId, currentName, currentPhone) {
-    ticketIdToEdit = ticketId; // Store the ID of the ticket being edited
-    originalOwnerInfo = { name: currentName, phone: currentPhone }; // NEW: Store original data for comparison
-
+    ticketIdToEdit = ticketId; 
+    originalOwnerInfo = { name: currentName, phone: currentPhone }; 
     document.getElementById('editOwnerInfoText').innerHTML = `Editing details for Ticket <b>#${ticketId}</b>.`;
     document.getElementById('editOwnerNameInp').value = currentName;
     document.getElementById('editOwnerPhoneInp').value = currentPhone;
@@ -2614,7 +2424,6 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         originalOwnerInfo = { name: '', phone: '' };
     }
 }
-
 
 async function deleteUser(uid, name) {
     if (uid === currentUser.uid) {
@@ -2691,9 +2500,8 @@ function printPoster() {
     if (!posterElement) return;
 
     html2canvas(posterElement, {
-        useCORS: true, // Important for external background images
+        useCORS: true,
         onclone: (document) => {
-            // This is crucial for external fonts like font-awesome if they don't render
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
@@ -2705,7 +2513,7 @@ function printPoster() {
         printWindow.document.write('<img src="' + canvas.toDataURL("image/png") + '" style="width:100%;">');
         printWindow.document.write('</body></html>');
         printWindow.document.close();
-        setTimeout(() => { // Allow image to load
+        setTimeout(() => { 
             printWindow.focus();
             printWindow.print();
             printWindow.close();
@@ -2722,7 +2530,6 @@ function sharePoster() {
     const adminName = adminUser ? adminUser.name : document.getElementById('adminNameInp').value;
     const adminPhone = adminUser ? adminUser.phone : document.getElementById('adminPhoneInp').value;
     const websiteLink = window.location.href.split('#')[0];
-
     let gameTimeFormatted = "Not Set";
     if (gameDateTime) {
         const date = new Date(gameDateTime);
@@ -2756,7 +2563,6 @@ ${websiteLink}
         .then(() => console.log('Successful share'))
         .catch((error) => console.log('Error sharing', error));
     } else {
-        // Fallback for desktop or unsupported browsers
         navigator.clipboard.writeText(shareText.trim()).then(() => {
             showNotification('Share not supported, content copied to clipboard!', 'info');
         }).catch(err => {
@@ -2765,8 +2571,6 @@ ${websiteLink}
     }
 }
 
-
-// --- 9. AGENT DASHBOARD & SHARED BOOKING LOGIC ---
 function updateAgentInfoUI() {
     if (!currentUser || currentView !== 'agentDashboardView') return;
     const agentData = allUsersData.find(u => u.uid === currentUser.uid);
@@ -2895,7 +2699,6 @@ function updateDashboardSelectionIndicator() {
         indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
     }
 }
-
 
 async function handleDashboardBooking() {
     if (!currentUser) return showNotification("You must be logged in.", 'error');
@@ -3030,8 +2833,6 @@ function handlePublicPopupBookingRequest() {
 
     if (!name || !phone) return showNotification('Please enter your name and phone number.', 'error');
     if (publicPopupSelectedTickets.length === 0) return showNotification('Please select tickets to book.', 'error');
-
-    // Use the refined function to open the agent selector
     openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
 }
 
@@ -3042,10 +2843,7 @@ async function toggleGameRunner() {
 
     try {
         if (isRunning) {
-            // Set running status first
             await gameStateRef.child('isGameRunning').set(true);
-
-            // Use a transaction to set start time only if it doesn't exist
             await gameStateRef.transaction(currentData => {
                 if (currentData) {
                     if (!currentData.gameStartedAt) {
@@ -3066,7 +2864,7 @@ async function toggleGameRunner() {
                 return;
             }
             gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
-            callNextNumber(); // Call immediately
+            callNextNumber(); 
         } else {
             await gameStateRef.child('isGameRunning').set(false);
             await triggerGlobalNotification('The game has been paused by the admin.', 'info');
@@ -3077,14 +2875,13 @@ async function toggleGameRunner() {
     }
 }
 
-
 function callNextNumber() {
     const gameStateRef = db.ref('gameState/currentState');
     gameStateRef.transaction(gameState => {
         if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
         if (!gameState.isGameRunning) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            return; // Abort transaction
+            return;
         }
 
         const called = gameState.calledNumbers || [];
@@ -3120,7 +2917,6 @@ function callNextNumber() {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameStateRef.child('isGameRunning').set(false);
         } else if (committed && snapshot.exists() && !snapshot.val().isGameRunning) {
-            // If the transaction committed and set the game to not running, stop the interval
              if (gameRunnerInterval) clearInterval(gameRunnerInterval);
              showNotification("All dividends won! Game over.", 'info');
              triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
@@ -3134,9 +2930,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
     const soldTickets = allTicketsData.filter(t => t.is_sold);
     const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
-
     const countMarked = (ticket) => ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
-
     const ticketsByOwner = {};
     for (const ticket of soldTickets) {
         if (ticket.owner_phone) {
@@ -3184,7 +2978,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         }
                     }
 
-                    // Check for Half Sheet Bonus
                     if (dividend.name === 'Half Sheet Bonus' && sheetTickets.length >= 3) {
                          const validHalfSheets = [
                             [sheetTickets[0], sheetTickets[1], sheetTickets[2]],
@@ -3214,11 +3007,9 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     break;
                 }
             }
-            continue; // Go to the next dividend after checking all owners for sheet bonuses
+            continue; 
         }
 
-
-        // --- Individual Ticket Logic ---
         for (const ticket of soldTickets) {
             let isWinner = false;
             const allTicketNumbers = ticket.numbers.flat().filter(n => n > 0);
@@ -3299,7 +3090,7 @@ async function generateHousieTickets(bypassConfirm = false) {
     await triggerGlobalNotification('Admin is generating new tickets...', 'info');
 
     try {
-        await db.ref('/tickets').set(null); // Clear old tickets first
+        await db.ref('/tickets').set(null); 
         setTimeout(async () => {
             const ticketSet = createTambolaSetOf6();
             const newTicketsObject = {};
@@ -3399,10 +3190,9 @@ function createListPDF(title, headers, dataRows, filename) {
     doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
 
     const startY = 35;
-    const colWidths = [25, 80, 75]; // Widths for ID, Name, Agent
-    const colPositions = [15, 40, 120]; // X positions for each column
+    const colWidths = [25, 80, 75]; 
+    const colPositions = [15, 40, 120]; 
 
-    // Draw headers
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     headers.forEach((header, i) => {
@@ -3414,7 +3204,7 @@ function createListPDF(title, headers, dataRows, filename) {
     let y = startY + 7;
 
     dataRows.forEach(row => {
-        if (y > 280) { // Simple page break
+        if (y > 280) { 
             doc.addPage();
             y = 15;
         }
@@ -3482,7 +3272,6 @@ function downloadCurrentSoldTickets() {
     );
 }
 
-
 async function downloadTicketAsPDF(ticketId) {
     const { jsPDF } = window.jspdf;
     const ticketData = allTicketsData.find(t => t.id === ticketId);
@@ -3494,7 +3283,6 @@ async function downloadTicketAsPDF(ticketId) {
     const startX = 15;
     const startY = 20;
 
-    // Header
     doc.setFontSize(16);
     doc.text(`Housie Ticket #${ticketData.id}`, startX, startY);
     if(ticketData.is_sold){
@@ -3502,7 +3290,6 @@ async function downloadTicketAsPDF(ticketId) {
         doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
     }
 
-    // Grid and Numbers
     doc.setFontSize(14);
     for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 9; col++) {
@@ -3519,7 +3306,6 @@ async function downloadTicketAsPDF(ticketId) {
     doc.save(`Housie-Ticket-${ticketId}.pdf`);
     showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
 }
-
 
 async function downloadWinnersPDF() {
     if (Object.keys(knownWinners).length === 0) {
