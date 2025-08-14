@@ -10,9 +10,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@400;700&family=Lobster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
     <!-- NEW: Added jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- NEW: Added html2canvas for poster printing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
     <!-- Firebase Libraries -->
@@ -519,6 +522,141 @@
         text-align: right !important;
     }
 
+    /* NEW: Style for generic info popup content */
+    #genericInfoPopupContent ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    #genericInfoPopupContent li {
+        padding: 8px;
+        border-bottom: 1px solid var(--secondary-surface);
+    }
+    #genericInfoPopupContent li:last-child {
+        border-bottom: none;
+    }
+    #genericInfoPopupContent .winner-dividend {
+        font-weight: 700;
+        color: var(--accent-primary);
+    }
+    #genericInfoPopupContent .winner-details {
+        font-size: 0.9em;
+        color: var(--text-primary);
+    }
+
+    /* --- NEW/MODIFIED: POSTER MAKER STYLES --- */
+    #posterContent {
+        font-family: 'Oswald', sans-serif;
+        color: #ffffff;
+        padding: 2rem;
+        background-image: url('https://source.unsplash.com/random/600x800/?party,confetti');
+        background-size: cover;
+        background-position: center;
+        text-align: center;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #posterContent::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 1;
+    }
+
+    #posterContent > * {
+        position: relative;
+        z-index: 2;
+    }
+
+    .poster-title {
+        font-size: 1.6em;
+        text-transform: uppercase;
+        font-weight: 700;
+        text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
+        margin: 0;
+    }
+
+    .poster-datetime {
+        font-size: 0.7em;
+        font-weight: bold;
+        margin-top: -0.1rem;
+        color: #ffeb3b; /* Accent color */
+    }
+
+    .poster-tagline {
+        font-size: 0.9em;
+        margin: -0.1rem 0;
+    }
+
+    .prize-section {
+        margin: 0rem auto;
+        padding: 0rem;
+        border-radius: 8px;
+        max-width: 100%;
+    }
+
+    .prize-section h3 {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        border-bottom: 2px solid #ffeb3b;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 1rem;
+    }
+
+    .prize-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1 1rem;
+        text-align: left;
+    }
+
+    .prize-column p {
+        margin: 0.5rem 0;
+        font-size: 1.1em;
+    }
+
+    #prize-amounts {
+        text-align: right;
+        font-weight: bold;
+    }
+
+    .ticket-details {
+        font-size: 0.6em;
+        font-weight: bold;
+        background: #ffeb3b;
+        color: #000;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        display: inline-block;
+        margin: 0;
+    }
+
+    .contact-section {
+        margin-top: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.3);
+        padding-top: 0;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+
+    .contact-section p {
+        font-size: 1.1em;
+        margin: 0;
+    }
+
+    .contact-section a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+    .contact-section a:hover {
+        text-decoration: underline;
+    }
 
 </style>
 </head>
@@ -530,9 +668,6 @@
 <!-- ====== VIEW: PUBLIC GAME BOARD ====== -->
 <div id="publicView" class="view neon-view active">
     <div class="css-grid-container"><div class="css-grid"></div></div>
-    <!-- This specific audio tag is no longer used by the script but is kept for legacy purposes -->
-    <audio id="announcementSound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-2.mp3"></audio>
-
     <div class="page-wrapper">
         <header class="main-header">
             <div class="title-container">
@@ -657,12 +792,10 @@
             <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
             <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
             <button class="actionBtn" onclick="resetAgent()">RESET AGENT</button>
-            <button class="actionBtn" onclick="generateHousieTickets()">FORCE TICKET REGEN</button>
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
-            <button class="actionBtn" onclick="showLastWinner()">LAST WINNER</button>
-            <!-- NEW/MODIFIED BUTTONS -->
-            <button class="actionBtn" onclick="archiveCurrentGame()">ARCHIVE CURRENT GAME</button>
-            <button class="actionBtn" onclick="downloadPreviousGameTicket()">PREV GAME TICKET PDF</button>
+            <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
+            <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
+            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TICKETS</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
         </div>
     </div>
@@ -682,6 +815,11 @@
          <div style="width: 80%; margin: 10px auto; display:flex; gap: 10px;">
             <button class="actionBtn" style="flex-grow: 1;" id="saveDividentBtn" onclick="saveDividendSettings()">SAVE DIVIDENDS</button>
         </div>
+    </div>
+
+    <!-- MAKE POSTER BUTTON -->
+    <div class="gameSettingDiv">
+        <button class="titleBtn" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
     </div>
 
     <!-- BUSINESS INFO -->
@@ -736,7 +874,7 @@
 </div>
 
 
-<!-- ====== VIEW: AGENT DASHBOARD ====== -->
+<!-- ====== AGENT DASHBOARD ====== -->
 <div id="agentDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
         <div class="titleBtn">AGENT DASHBOARD</div>
@@ -831,7 +969,7 @@
     </div>
 </div>
 
-<!-- NEW/MODIFIED: Ticket Owner Edit Popup -->
+<!-- Ticket Owner Edit Popup -->
 <div class="overlay-popup" id="editOwnerPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -857,7 +995,7 @@
 </div>
 
 
-<!-- NEW: Confirmation for applying changes to all tickets -->
+<!-- Confirmation for applying changes to all tickets -->
 <div class="overlay-popup" id="applyToAllConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -965,25 +1103,51 @@
             </tbody>
         </table>
 
-        <!-- === MODIFICATION START: REPLACED GAME BOARD === -->
+        <!-- === GAME BOARD === -->
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
             <div class="number-board" id="runGamePopupBoard">
                 <!-- JS will generate the board here -->
             </div>
         </section>
-        <!-- === MODIFICATION END === -->
 
         <h3 style="text-align:center; margin-top:15px; font-size: 1.1rem;">Winners</h3>
         <div class="dividentConDiv" id="runGameDividentList"></div>
     </div>
 </div>
 
-<!-- ====== SCRIPT BLOCK (REALTIME DATABASE VERSION) ====== -->
+<!-- Generic info popup for Prev. Game Winners -->
+<div class="overlay-popup" id="genericInfoPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" id="genericInfoPopupTitle">Info</h3>
+        <div id="genericInfoPopupContent" style="text-align: left; color: var(--text-secondary); line-height: 1.6;">
+            <!-- JS will inject content here -->
+        </div>
+    </div>
+</div>
+
+<!-- Poster Maker Popup -->
+<div class="overlay-popup" id="posterMakerPopup">
+    <div class="popup-content" style="max-width: 650px; background: var(--primary-bg-dash);">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" style="color: var(--light-text-dash);">Game Poster Generator</h3>
+
+        <!-- This is the content that will be printed/shared -->
+        <div id="posterContent">
+             <!-- JS will inject poster details here -->
+        </div>
+
+        <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
+            <button class="actionBtn" id="printPosterBtn" onclick="printPoster()"><i class="fas fa-print"></i> Print</button>
+            <button class="actionBtn" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
+        </div>
+    </div>
+</div>
+
+
+
 <script>
-// =================================================================================
-// IMPORTANT: PASTE YOUR FIREBASE CONFIGURATION HERE
-// =================================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
   authDomain: "sinthahousie-1dd3b.firebaseapp.com",
@@ -1002,8 +1166,6 @@ const db = firebase.database(); // Use Realtime Database
 
 // --- AUDIO MANAGEMENT ---
 const audioBaseUrl = "https://housiuniverse4596.com/tambolaCallMp3/";
-
-// Function to play a sound, handling browser restrictions
 function playSound(src) {
     // We create a new Audio object each time to allow for overlapping sounds
     const sound = new Audio(src);
@@ -1013,7 +1175,6 @@ function playSound(src) {
     });
 }
 
-// Map dividend names from the code to the sound file names
 const dividendSoundMap = {
     "First Full House": "First%20Full%20House.mp3",
     "Second Full House": "Second%20Full%20House.mp3",
@@ -1365,7 +1526,6 @@ function updateAllUIsWithSettings(data) {
     updateBusinessInfo();
 }
 
-// MODIFIED: Accepts full game state object
 function updateGameRelatedUIs(gameState) {
     const calledNums = gameState.calledNumbers || [];
     const winners = gameState.winners || {};
@@ -1441,7 +1601,6 @@ function checkSheetSelection(selectedIds) {
     return { valid: false, message: "" };
 }
 
-// === MODIFICATION START: UPDATED TO POPULATE NEW BOARD ===
 function generateNumberBoard() {
     const publicBoard = document.getElementById('numberBoard');
     const adminPopupBoard = document.getElementById('runGamePopupBoard');
@@ -1460,7 +1619,6 @@ function generateNumberBoard() {
     if(publicBoard) publicBoard.innerHTML = boardHtml;
     if(adminPopupBoard) adminPopupBoard.innerHTML = adminPopupBoardHtml;
 }
-// === MODIFICATION END ===
 
 function announceNumber(number) {
     isAnnouncing = true;
@@ -1741,25 +1899,20 @@ function populateDividendList(dividends) {
     }
 }
 
-// MODIFIED: updateWinners now handles eye icons for sheet-based wins and passes dividend name
 function updateWinners(winners) {
-    // Reset all winner info cells first
     document.querySelectorAll('#dividendListTable .winner-info').forEach(el => {
         el.innerHTML = `<span class="winner-name">Pending...</span>`;
     });
 
-    // Populate with new winner data
     for (const name in winners) {
         const row = document.querySelector(`#dividendListTable tr[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
         if (row) {
             const winner = winners[name];
-            // The text part of the winner info
             let winnerText = `<span><span class="winner-name">${winner.name}</span> (Tkt: ${winner.ticketId})</span>`;
             
             const ticketIdNum = parseInt(winner.ticketId, 10);
             let eyeIcon = '';
 
-            // Add eye icon with the correct onclick function
             if (name === "Full Sheet Bonus" || name === "Half Sheet Bonus") {
                 // Pass the identifier string and the dividend name to the handler function
                 eyeIcon = `<i class="fas fa-eye" onclick="showWinningSheet('${winner.ticketId}', '${name}')"></i>`;
@@ -1775,7 +1928,6 @@ function updateWinners(winners) {
 }
 
 
-// === MODIFICATION START: UPDATED TO TARGET NEW BOARD CELLS ===
 function updateNumberBoard(called) {
     const lastCalled = called.length > 0 ? called[called.length - 1] : null;
     for (let i = 1; i <= 90; i++) {
@@ -1787,7 +1939,6 @@ function updateNumberBoard(called) {
             publicCell.classList.toggle('last-called-highlight', i === lastCalled);
         }
 
-        // Update new admin popup board
         const adminCell = document.getElementById(`run-game-popup-num-${i}`);
         if(adminCell){
             adminCell.classList.toggle('called', isCalled);
@@ -1795,7 +1946,6 @@ function updateNumberBoard(called) {
         }
     }
 }
-// === MODIFICATION END ===
 
 function updateCalledNumbersList(called) {
     const listEl = document.getElementById('calledNumbersList');
@@ -1889,7 +2039,6 @@ function renderSheetWiseBookedList() {
     updateDisplayedTicketPublic();
 }
 
-// MODIFIED: showWinningTicket now accepts dividendName to find the winning number
 function showWinningTicket(ticketId, dividendName) {
     const ticket = allTicketsData.find(t => t.id === ticketId);
     if (!ticket) {
@@ -1900,7 +2049,6 @@ function showWinningTicket(ticketId, dividendName) {
     const displayArea = document.getElementById('winningTicketDisplayArea');
     const title = document.getElementById('winningTicketPopupTitle');
     
-    // Find the specific winning number for this dividend win
     const winnerInfo = knownWinners[dividendName];
     const winningNumber = winnerInfo ? winnerInfo.winningNumber : null;
 
@@ -1908,7 +2056,6 @@ function showWinningTicket(ticketId, dividendName) {
 
     const gridHTML = ticket.numbers.flat().map(n => {
         const isCalled = n > 0 && currentCalledNumbers.includes(n);
-        // This is the number that specifically triggered the win
         const isWinningStrike = n === winningNumber;
         
         const classes = `ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''} ${isWinningStrike ? 'winning-strike' : ''}`;
@@ -1922,7 +2069,6 @@ function showWinningTicket(ticketId, dividendName) {
     showPopup('winningTicketViewerPopup');
 }
 
-// MODIFIED: showWinningSheet now accepts dividendName to find the winning number
 function showWinningSheet(sheetIdentifier, dividendName) {
     const winnerInfo = knownWinners[dividendName];
     if (!winnerInfo || !winnerInfo.phone) {
@@ -1948,7 +2094,6 @@ function showWinningSheet(sheetIdentifier, dividendName) {
     const displayArea = document.getElementById('winningTicketDisplayArea');
     const title = document.getElementById('winningTicketPopupTitle');
     
-    // Get the number that triggered the sheet win
     const winningNumber = winnerInfo.winningNumber;
 
     title.textContent = `${dividendName} - ${winnerInfo.name}`;
@@ -1972,10 +2117,6 @@ function showWinningSheet(sheetIdentifier, dividendName) {
     showPopup('winningTicketViewerPopup');
 }
 
-
-
-// --- 8. ADMIN DASHBOARD LOGIC ---
-// NEW HELPER: Toggles dividend amount input based on checkbox state.
 function toggleDividendAmountInput(checkbox) {
     const amountInput = checkbox.closest('td').querySelector('.dividend-amount');
     if (amountInput) {
@@ -2035,7 +2176,6 @@ async function saveGameSetting() {
     };
 
     if (oldTotalTickets !== newTotalTickets && newTotalTickets > 0) {
-        // Ticket count has changed, show confirmation popup
         const confirmText = document.getElementById('ticketResetConfirmText');
         confirmText.innerHTML = `You are changing the ticket count from <b>${oldTotalTickets}</b> to <b>${newTotalTickets}</b>. <br/><br/> 'Adjust' will add/remove tickets without affecting existing bookings. <br/> 'Reset' will delete all tickets and generate new ones.`;
 
@@ -2055,7 +2195,6 @@ async function saveGameSetting() {
 
         showPopup('ticketResetConfirmPopup');
     } else {
-        // Ticket count hasn't changed, just save settings
         try {
             await db.ref('settings/gameConfig').update(settingsToSave);
             showNotification('Game settings saved successfully!', 'success');
@@ -2068,15 +2207,12 @@ async function saveGameSetting() {
 
 async function updateTicketCountWithoutReset(newCount, oldCount) {
     if (newCount > oldCount) {
-        // Increase ticket count
         showNotification(`Adding ${newCount - oldCount} new tickets...`, 'info');
         await appendNewTickets(newCount, oldCount);
     } else if (newCount < oldCount) {
-        // Decrease ticket count
         const soldTicketsInRange = allTicketsData.filter(t => t.id > newCount && t.is_sold);
         if (soldTicketsInRange.length > 0) {
             showNotification(`Cannot decrease count. ${soldTicketsInRange.length} ticket(s) are already sold in the range you are removing. Please reset tickets instead.`, 'error');
-            // Revert the setting in the database
             await db.ref('settings/gameConfig/totalTickets').set(oldCount);
             return;
         }
@@ -2288,24 +2424,38 @@ function showLastSoldTicket() {
     }
 }
 
-function showLastWinner() {
-    const winners = knownWinners;
-    if (!winners || Object.keys(winners).length === 0) {
-        showNotification('There are no winners yet for the current game.', 'info');
-        return;
-    }
+async function showPreviousGameWinners() {
+    try {
+        const snapshot = await db.ref('lastGame/winners').once('value');
+        const prevWinners = snapshot.val();
 
-    const lastWinnerEntry = Object.entries(winners)
-        .filter(([, winInfo]) => winInfo && typeof winInfo.won_at === 'number')
-        .sort(([, a], [, b]) => b.won_at - a.won_at)[0];
+        if (!prevWinners || Object.keys(prevWinners).length === 0) {
+            return showNotification('No archived winner data found.', 'info');
+        }
 
-    if (lastWinnerEntry) {
-        const [dividend, winnerInfo] = lastWinnerEntry;
-        showNotification(`Last Winner: ${winnerInfo.name} (Tkt #${winnerInfo.ticketId}) won ${dividend}.`, 'success');
-    } else {
-         showNotification('No winners with a valid timestamp found.', 'info');
+        const titleEl = document.getElementById('genericInfoPopupTitle');
+        const contentEl = document.getElementById('genericInfoPopupContent');
+
+        titleEl.textContent = 'Previous Game Winners';
+
+        let contentHTML = '<ul>';
+        for (const dividend in prevWinners) {
+            const winner = prevWinners[dividend];
+            contentHTML += `<li>
+                <div class="winner-dividend">${dividend}</div>
+                <div class="winner-details">${winner.name} (Ticket: ${winner.ticketId})</div>
+            </li>`;
+        }
+        contentHTML += '</ul>';
+
+        contentEl.innerHTML = contentHTML;
+        showPopup('genericInfoPopup');
+
+    } catch (e) {
+        showNotification('Error fetching previous winners: ' + e.message, 'error');
     }
 }
+
 
 function updateBusinessInfo() {
     const soldTickets = allTicketsData.filter(t => t.is_sold);
@@ -2314,8 +2464,6 @@ function updateBusinessInfo() {
     const commission = gameSettingsData.agentCommission || 0;
     const totalRevenue = soldCount * price;
     const totalCommission = soldCount * commission;
-    
-    // RE-IMPLEMENTED: Calculate prize money from active dividends
     const activeDividends = gameSettingsData.dividends || [];
     const totalPrizeMoney = activeDividends.reduce((sum, dividend) => sum + (parseInt(dividend.amount, 10) || 0), 0);
     
@@ -2351,7 +2499,6 @@ function updateAdminList() {
             tickets.sort((a,b) => a.id - b.id).map(t => {
                 if (t.is_sold) {
                     const agent = allUsersData.find(u => u.uid === t.agent_uid);
-                    // Use template literals for clean onclick attributes
                     const name = t.owner_name ? t.owner_name.replace(/'/g, "\\'") : '';
                     const phone = t.owner_phone || '';
                     return `<tr class="admin-ticket-row">
@@ -2395,7 +2542,6 @@ function updateAdminList() {
     }
 }
 
-// MODIFIED: Opens the ticket editor popup and stores original data.
 function showEditTicketPopup(ticketId, currentName, currentPhone) {
     ticketIdToEdit = ticketId; // Store the ID of the ticket being edited
     originalOwnerInfo = { name: currentName, phone: currentPhone }; // NEW: Store original data for comparison
@@ -2406,7 +2552,6 @@ function showEditTicketPopup(ticketId, currentName, currentPhone) {
     showPopup('editOwnerPopup');
 }
 
-// REPLACED: This function now triggers a confirmation popup instead of saving directly.
 async function saveTicketOwnerChanges() {
     if (!ticketIdToEdit || !originalOwnerInfo.phone) return;
 
@@ -2417,27 +2562,21 @@ async function saveTicketOwnerChanges() {
         return showNotification('Name and Phone cannot be empty.', 'error');
     }
 
-    // Find how many tickets the original owner has
     const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
 
     if (ownedTickets.length > 1) {
-        // If the owner has more than one ticket, show the confirmation popup
         const confirmText = document.getElementById('applyToAllConfirmText');
         confirmText.innerHTML = `<b>${originalOwnerInfo.name}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to apply the new details to all of them?`;
 
-        // Wire up the buttons in the new popup to call the final save function
         document.getElementById('confirmApplyToAllBtn').onclick = () => applyOwnerChanges(true, newName, newPhone);
         document.getElementById('confirmApplyToSingleBtn').onclick = () => applyOwnerChanges(false, newName, newPhone);
 
         showPopup('applyToAllConfirmPopup');
     } else {
-        // If the owner has only one ticket, save the changes directly without asking
         applyOwnerChanges(false, newName, newPhone);
     }
 }
 
-
-// NEW: Central handler function to apply changes based on the user's choice from the popup.
 async function applyOwnerChanges(applyToAll, newName, newPhone) {
     try {
         const updates = {};
@@ -2445,11 +2584,9 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         let successMessage = '';
 
         if (applyToAll) {
-            // Find all tickets that match the original owner's phone number
             ticketsToUpdate = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
             successMessage = `Details updated for all ${ticketsToUpdate.length} tickets owned by ${originalOwnerInfo.name}.`;
         } else {
-            // Find only the single ticket that was being edited
             const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
             if (singleTicket) ticketsToUpdate.push(singleTicket);
             successMessage = `Ticket #${ticketIdToEdit} updated successfully!`;
@@ -2460,7 +2597,6 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
             return showNotification('Could not find the specified ticket(s) to update.', 'error');
         }
 
-        // Prepare the data for the database update
         ticketsToUpdate.forEach(ticket => {
             updates[`/tickets/${ticket.id}/owner_name`] = newName;
             updates[`/tickets/${ticket.id}/owner_name_lower`] = newName.toLowerCase();
@@ -2473,7 +2609,6 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
     } catch (e) {
         showNotification('Error updating ticket(s): ' + e.message, 'error');
     } finally {
-        // Clean up global variables and close all popups
         closePopups();
         ticketIdToEdit = null;
         originalOwnerInfo = { name: '', phone: '' };
@@ -2502,27 +2637,133 @@ async function deleteUser(uid, name) {
     }
 }
 
+function showPosterModal() {
+    const title = "SINTHA TEAM HOUSIE";
+    const gameDateTime = gameSettingsData.gameDateTime;
+    const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
+    const totalTickets = gameSettingsData.totalTickets || 'N/A';
+    const activeDividends = gameSettingsData.dividends || [];
+    const adminUser = allUsersData.find(u => u.role === 'admin');
+    const adminPhone = adminUser ? adminUser.phone : (document.getElementById('adminPhoneInp').value || 'N/A');
+    const websiteLink = window.location.href.split('#')[0];
 
-function updateRunGameUI(gameState) {
-    if (currentView !== 'adminDashboardView' || !document.getElementById('runGameWindowDiv').classList.contains('active')) {
-        return;
+    let gameTimeFormatted = "DATE & TIME NOT SET";
+    if (gameDateTime) {
+        const date = new Date(gameDateTime);
+        gameTimeFormatted = date.toLocaleString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
-    const { isGameRunning, winners } = gameState || {};
-    document.getElementById('callStatusInp').value = isGameRunning ? 'on' : 'off';
+    const dividendNamesHTML = activeDividends.map(d => `<p>${d.name}</p>`).join('');
+    const dividendAmountsHTML = activeDividends.map(d => `<p>Rs ${d.amount.toLocaleString()}</p>`).join('');
 
-    // Update winner list in the popup
-    const runGameContainer = document.getElementById('runGameDividentList');
-    const activeDividends = gameSettingsData.dividends || [];
-    runGameContainer.innerHTML = '<table><thead><tr><th>Dividend</th><th>Winner</th></tr></thead><tbody>' +
-        activeDividends.map(div => {
-            const winnerInfo = winners ? winners[div.name] : null;
-            const winnerText = winnerInfo ? `${winnerInfo.name} (Tkt: ${winnerInfo.ticketId})` : 'Pending...';
-            return `<tr><td>${div.name}</td><td>${winnerText}</td></tr>`;
-        }).join('') + '</tbody></table>';
+    const posterHTML = `
+        <h1 class="poster-title">${title}</h1>
+        <p class="poster-datetime">${gameTimeFormatted}</p>
+        <p class="poster-tagline">🎟️ Grab Your Tickets & Get Ready to Win! 🏆</p>
+
+        <div class="prize-section">
+            <h3>PRIZES</h3>
+            <div class="prize-list">
+                <div class="prize-column" id="prize-names">
+                    ${dividendNamesHTML}
+                </div>
+                <div class="prize-column" id="prize-amounts">
+                    ${dividendAmountsHTML}
+                </div>
+            </div>
+        </div>
+
+        <p class="ticket-details">Get ticket @ Rs ${ticketPrice}. Total tickets only (${totalTickets})</p>
+
+        <div class="contact-section">
+            <p>🌐 <a href="${websiteLink}" target="_blank">${websiteLink.replace(/^https?:\/\//, '')}</a></p>
+            <p>📱 <span>${adminPhone}</span></p>
+        </div>
+    `;
+
+    document.getElementById('posterContent').innerHTML = posterHTML;
+    
+    showPopup('posterMakerPopup');
 }
 
+function printPoster() {
+    const posterElement = document.getElementById('posterContent');
+    if (!posterElement) return;
 
+    html2canvas(posterElement, {
+        useCORS: true, // Important for external background images
+        onclone: (document) => {
+            // This is crucial for external fonts like font-awesome if they don't render
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+            document.head.appendChild(link);
+        }
+    }).then(canvas => {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write('<html><head><title>Print Poster</title></head><body style="margin:0;">');
+        printWindow.document.write('<img src="' + canvas.toDataURL("image/png") + '" style="width:100%;">');
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        setTimeout(() => { // Allow image to load
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    });
+}
+
+function sharePoster() {
+    const websiteName = "Sintha Team";
+    const gameDateTime = gameSettingsData.gameDateTime;
+    const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
+    const activeDividends = gameSettingsData.dividends || [];
+    const adminUser = allUsersData.find(u => u.role === 'admin');
+    const adminName = adminUser ? adminUser.name : document.getElementById('adminNameInp').value;
+    const adminPhone = adminUser ? adminUser.phone : document.getElementById('adminPhoneInp').value;
+    const websiteLink = window.location.href.split('#')[0];
+
+    let gameTimeFormatted = "Not Set";
+    if (gameDateTime) {
+        const date = new Date(gameDateTime);
+        gameTimeFormatted = date.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+    }
+
+    const dividendText = activeDividends.map(d => `- ${d.name}: ₹${d.amount.toLocaleString()}`).join('\n');
+
+    const shareText = `
+🎉 *${websiteName} Housie Game!* 🎉
+
+*Game Time:* ${gameTimeFormatted}
+*Ticket Price:* ₹${ticketPrice}
+
+*Prizes & Dividends:*
+${dividendText}
+
+*To book your tickets, contact:*
+${adminName} - ${adminPhone}
+
+*Visit us:*
+${websiteLink}
+    `;
+
+    if (navigator.share) {
+        navigator.share({
+            title: `${websiteName} Housie Game`,
+            text: shareText.trim(),
+            url: websiteLink,
+        })
+        .then(() => console.log('Successful share'))
+        .catch((error) => console.log('Error sharing', error));
+    } else {
+        // Fallback for desktop or unsupported browsers
+        navigator.clipboard.writeText(shareText.trim()).then(() => {
+            showNotification('Share not supported, content copied to clipboard!', 'info');
+        }).catch(err => {
+            showNotification('Could not copy text.', 'error');
+        });
+    }
+}
 
 
 // --- 9. AGENT DASHBOARD & SHARED BOOKING LOGIC ---
@@ -2683,9 +2924,6 @@ async function handleDashboardBooking() {
     } catch(e) { showNotification('Error booking tickets: ' + e.message, 'error'); }
 }
 
-
-// --- 10. NEW PUBLIC DIRECT BOOKING LOGIC ---
-
 function renderPublicBookingGrid() {
     const container = document.getElementById('publicBookingGrid');
     if (!container) return;
@@ -2739,7 +2977,7 @@ function renderPublicBookingGrid() {
             }
             sheetContent.appendChild(btn);
         }
-        container.appendChild(sheetWrapper);
+        container.appendChild(sheetContent);
     }
 }
 
@@ -2797,8 +3035,6 @@ function handlePublicPopupBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
 }
 
-
-// --- 11. GAME RUNNER & WINNER LOGIC ---
 async function toggleGameRunner() {
     const gameStateRef = db.ref('gameState/currentState');
     const isRunning = document.getElementById('callStatusInp').value === 'on';
@@ -2856,7 +3092,6 @@ function callNextNumber() {
         const currentWinners = gameState.winners || {};
         const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
 
-        // MODIFIED: Game over condition
         if (called.length >= 90 || areAllDividendsClaimed) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameState.isGameRunning = false;
@@ -2871,7 +3106,6 @@ function callNextNumber() {
         gameState.calledNumbers = [...called, newNumber];
         gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
 
-        // Check again if the new number caused all dividends to be won
         const newWinners = gameState.winners;
         const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
         if(nowAllDividendsClaimed){
@@ -2894,7 +3128,6 @@ function callNextNumber() {
     });
 }
 
-// MODIFIED: checkAllWinners now saves the winning number when a win is detected
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = { ...currentWinners };
     const activeDividends = gameSettingsData.dividends || [];
@@ -2902,10 +3135,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
     const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
 
-    // Helper to count marked numbers on a ticket
     const countMarked = (ticket) => ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
-    // Pre-group tickets by owner phone for sheet bonus checks
     const ticketsByOwner = {};
     for (const ticket of soldTickets) {
         if (ticket.owner_phone) {
@@ -2919,13 +3150,11 @@ function checkAllWinners(calledNumbers, currentWinners) {
     for (const dividend of activeDividends) {
         if (updatedWinners[dividend.name]) continue; // Skip if already won
 
-        // --- Sheet Bonus Logic ---
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
             for (const ownerPhone in ticketsByOwner) {
                 const ownerTickets = ticketsByOwner[ownerPhone];
                 const ownerName = ownerTickets[0].owner_name;
 
-                // Group this owner's tickets by sheet number
                 const ticketsBySheet = {};
                 for (const ticket of ownerTickets) {
                     const sheetNum = Math.floor((ticket.id - 1) / 6);
@@ -2939,7 +3168,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 for (const sheetNum in ticketsBySheet) {
                     const sheetTickets = ticketsBySheet[sheetNum];
 
-                    // Check for Full Sheet Bonus
                     if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
                         const allTicketsMeetCondition = sheetTickets.every(t => countMarked(t) >= 2);
                         if (allTicketsMeetCondition) {
@@ -3059,9 +3287,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
     return updatedWinners;
 }
 
-
-
-// --- 12. TICKET GENERATION & ARCHIVING ---
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
     if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
@@ -3102,30 +3327,6 @@ async function generateHousieTickets(bypassConfirm = false) {
         showNotification("Error generating tickets: " + e.message, 'error');
     }
 }
-
-// NEW: Function to archive the current game's results
-async function archiveCurrentGame() {
-    if (!confirm('Are you sure you want to archive the current game data? This will overwrite any previous archive.')) return;
-    try {
-        const soldTickets = allTicketsData.filter(t => t.is_sold);
-        const soldTicketsObject = soldTickets.reduce((obj, ticket) => {
-            obj[ticket.id] = ticket;
-            return obj;
-        }, {});
-
-        const archiveData = {
-            tickets: soldTicketsObject,
-            winners: knownWinners,
-            archivedAt: firebase.database.ServerValue.TIMESTAMP
-        };
-
-        await db.ref('lastGame').set(archiveData);
-        showNotification('Current game data has been successfully archived.', 'success');
-    } catch (e) {
-        showNotification('Error archiving game data: ' + e.message, 'error');
-    }
-}
-
 
 function createTambolaSetOf6() {
     const shuffle = (arr) => {
@@ -3188,24 +3389,104 @@ function createTambolaSetOf6() {
     return ticket;
 }
 
-// --- 13. PDF GENERATION ---
-// NEW: Function to download a ticket as a PDF
-async function downloadTicketAsPDF(ticketId, isFromLastGame = false) {
+function createListPDF(title, headers, dataRows, filename) {
     const { jsPDF } = window.jspdf;
-    let ticketData;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text(title, 105, 15, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
 
-    try {
-        const path = isFromLastGame ? `lastGame/tickets/${ticketId}` : `tickets/${ticketId}`;
-        const snapshot = await db.ref(path).once('value');
-        ticketData = snapshot.val();
-        if (!ticketData) {
-            showNotification(`Ticket #${ticketId} not found in ${isFromLastGame ? 'archive' : 'current game'}.`, 'error');
-            return;
+    const startY = 35;
+    const colWidths = [25, 80, 75]; // Widths for ID, Name, Agent
+    const colPositions = [15, 40, 120]; // X positions for each column
+
+    // Draw headers
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    headers.forEach((header, i) => {
+        doc.text(header, colPositions[i], startY);
+    });
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    let y = startY + 7;
+
+    dataRows.forEach(row => {
+        if (y > 280) { // Simple page break
+            doc.addPage();
+            y = 15;
         }
+        row.forEach((cell, i) => {
+            doc.text(String(cell), colPositions[i], y);
+        });
+        y += 7;
+    });
+
+    doc.save(filename);
+}
+
+async function downloadPreviousGameTicketList() {
+    try {
+        const snapshot = await db.ref('lastGame/tickets').once('value');
+        const prevTicketsObject = snapshot.val();
+        
+        if (!prevTicketsObject || Object.keys(prevTicketsObject).length === 0) {
+            return showNotification('No archived ticket data found.', 'info');
+        }
+
+        const prevTickets = Object.values(prevTicketsObject);
+        // We also need user data to map agent IDs to names
+        const usersSnapshot = await db.ref('users').once('value');
+        const users = usersSnapshot.val();
+        const userMap = new Map(Object.entries(users || {}).map(([uid, data]) => [uid, data]));
+
+        const dataRows = prevTickets.map(ticket => {
+            const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
+            const agentName = agent ? agent.name : 'Direct/Admin';
+            return [ticket.id, ticket.owner_name, agentName];
+        });
+
+        createListPDF(
+            'Previous Game - Sold Tickets',
+            ['Ticket ID', 'Owner Name', 'Booked By'],
+            dataRows,
+            'Previous-Game-Tickets.pdf'
+        );
+
     } catch (e) {
-        showNotification('Error fetching ticket data: ' + e.message, 'error');
-        return;
+        showNotification('Error downloading previous ticket list: ' + e.message, 'error');
     }
+}
+
+function downloadCurrentSoldTickets() {
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    if (soldTickets.length === 0) {
+        return showNotification('No tickets have been sold in the current game yet.', 'info');
+    }
+
+    const userMap = new Map(allUsersData.map(u => [u.uid, u]));
+
+    const dataRows = soldTickets.map(ticket => {
+        const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
+        const agentName = agent ? agent.name : 'Direct/Admin';
+        return [ticket.id, ticket.owner_name, agentName];
+    });
+
+    createListPDF(
+        'Current Game - Sold Tickets',
+        ['Ticket ID', 'Owner Name', 'Booked By'],
+        dataRows,
+        'Current-Sold-Tickets.pdf'
+    );
+}
+
+
+async function downloadTicketAsPDF(ticketId) {
+    const { jsPDF } = window.jspdf;
+    const ticketData = allTicketsData.find(t => t.id === ticketId);
+    if (!ticketData) return showNotification('Ticket data not found.', 'error');
 
     const doc = new jsPDF();
     const cellWidth = 20;
@@ -3220,7 +3501,6 @@ async function downloadTicketAsPDF(ticketId, isFromLastGame = false) {
         doc.setFontSize(10);
         doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
     }
-
 
     // Grid and Numbers
     doc.setFontSize(14);
@@ -3240,17 +3520,7 @@ async function downloadTicketAsPDF(ticketId, isFromLastGame = false) {
     showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
 }
 
-// NEW: Function to download a ticket from the previous game archive
-function downloadPreviousGameTicket() {
-    const ticketId = prompt("Please enter the Ticket ID from the previous game you wish to download:");
-    if (ticketId && !isNaN(parseInt(ticketId))) {
-        downloadTicketAsPDF(parseInt(ticketId), true);
-    } else if (ticketId !== null) {
-        showNotification("Invalid Ticket ID. Please enter a number.", "error");
-    }
-}
 
-// NEW: Function to download the winners list as a PDF
 async function downloadWinnersPDF() {
     if (Object.keys(knownWinners).length === 0) {
         showNotification("No winners to download yet.", "info");
@@ -3270,8 +3540,6 @@ async function downloadWinnersPDF() {
         String(winner.ticketId)
     ]);
 
-    // Using autoTable plugin for better tables in jsPDF would be ideal,
-    // but for simplicity, we'll draw it manually.
     let y = 35;
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
@@ -3295,8 +3563,6 @@ async function downloadWinnersPDF() {
     doc.save("Housie-Winners.pdf");
 }
 
-
-// --- ON DOM CONTENT LOADED ---
 document.addEventListener('DOMContentLoaded', () => {
     generateNumberBoard();
     bindEventListeners();
