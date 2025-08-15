@@ -456,12 +456,18 @@
         font-weight: bold;
         font-size: 1rem;
     }
-    #adminGameSettingTable .booked-ticket-line-1 .fa-edit {
+    #adminGameSettingTable .booked-ticket-line-1 .fa-edit,
+    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt {
         color: var(--accent-color-dash);
         cursor: pointer;
         transition: transform 0.2s;
     }
-     #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover {
+    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt {
+        color: #e74c3c;
+        margin-left: 10px;
+    }
+     #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover,
+     #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt:hover {
         transform: scale(1.2);
     }
     #adminGameSettingTable .booked-ticket-line-2 {
@@ -926,6 +932,18 @@
         </div>
     </div>
 </div>
+<div class="overlay-popup" id="deleteConfirmPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Confirm Deletion</h3>
+        <p id="deleteConfirmText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.5;"></p>
+        <div class="login-form" style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem;">
+             <button id="confirmDeleteAllBtn" class="login-btn admin">Delete All Tickets</button>
+             <button id="confirmDeleteSingleBtn" class="login-btn secondary">Delete Just This One</button>
+             <button onclick="closePopups()" class="login-btn" style="background-color: var(--muted-color-dash);">Cancel</button>
+        </div>
+    </div>
+</div>
 <div class="overlay-popup" id="ticketResetConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1096,6 +1114,7 @@ let gameLiveSoundPlayed = false;
 let knownWinners = {};
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' }; 
+let ticketToDeleteInfo = {};
 let allTicketsData = [];
 let allUsersData = [];
 let gameSettingsData = {};
@@ -2336,17 +2355,24 @@ function updateBusinessInfo() {
     const soldCount = soldTickets.length;
     const price = gameSettingsData.ticketPrice || 0;
     const commission = gameSettingsData.agentCommission || 0;
+    
+    // A ticket has a commission if it was sold by a user with the 'agent' role.
+    const agentUids = new Set(allUsersData.filter(u => u.role === 'agent').map(u => u.uid));
+    const agentSoldCount = soldTickets.filter(t => t.agent_uid && agentUids.has(t.agent_uid)).length;
+    const totalCommission = agentSoldCount * commission;
+
     const totalRevenue = soldCount * price;
-    const totalCommission = soldCount * commission;
     const activeDividends = gameSettingsData.dividends || [];
     const totalPrizeMoney = activeDividends.reduce((sum, dividend) => sum + (parseInt(dividend.amount, 10) || 0), 0);
     const netProfit = totalRevenue - totalCommission - totalPrizeMoney;
+
     const adminTable = document.getElementById('businessInfoTable');
     if(adminTable && currentView === 'adminDashboardView') {
         adminTable.innerHTML = `<tbody>
             <tr><td>Total Tickets</td><td>${gameSettingsData.totalTickets || 0}</td></tr>
             <tr><td>Tickets Sold</td><td>${soldCount}</td></tr>
             <tr><td>Total Revenue</td><td>₹ ${totalRevenue.toLocaleString()}</td></tr>
+            <tr><td>Total Agent Commission</td><td>₹ ${totalCommission.toLocaleString()}</td></tr>
             <tr><td>Total Prize Money</td><td>₹ ${totalPrizeMoney.toLocaleString()}</td></tr>
             <tr><td>Net Profit</td><td>₹ ${netProfit.toLocaleString()}</td></tr>
         </tbody>`;
@@ -2377,7 +2403,10 @@ function updateAdminList() {
                         <td>
                            <div class="booked-ticket-line-1">
                                 <span>#${t.id}: ${t.owner_name}</span>
-                                <i class="fas fa-edit" onclick="showEditTicketPopup(${t.id}, '${name}', '${phone}')"></i>
+                                <div>
+                                    <i class="fas fa-edit" onclick="showEditTicketPopup(${t.id}, '${name}', '${phone}')"></i>
+                                    <i class="fas fa-trash-alt" onclick="promptDeleteTicket(${t.id}, '${name}', '${phone}')"></i>
+                                </div>
                             </div>
                             <div class="booked-ticket-line-2">
                                 <span>Mobile: ${t.owner_phone || '-'}</span> | <span>Agent: ${agent?.name || (t.is_sold ? 'Admin/Direct' : '-')}</span>
@@ -2485,6 +2514,74 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         originalOwnerInfo = { name: '', phone: '' };
     }
 }
+
+function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
+    if (!ownerPhone) {
+        if (confirm(`This ticket has no owner info. Are you sure you want to mark Ticket #${ticketId} as available?`)) {
+            performDelete(ticketId, false);
+        }
+        return;
+    }
+
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === ownerPhone);
+
+    if (ownedTickets.length > 1) {
+        ticketToDeleteInfo = { ticketId, ownerName, ownerPhone };
+        const confirmText = document.getElementById('deleteConfirmText');
+        confirmText.innerHTML = `<b>${ownerName}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to delete all of them, or just this one (<b>#${ticketId}</b>)?`;
+
+        document.getElementById('confirmDeleteAllBtn').onclick = () => performDelete(ownerPhone, true);
+        document.getElementById('confirmDeleteSingleBtn').onclick = () => performDelete(ticketId, false);
+
+        showPopup('deleteConfirmPopup');
+    } else {
+        if (confirm(`Are you sure you want to delete Ticket #${ticketId} for ${ownerName}? This will mark it as available.`)) {
+            performDelete(ticketId, false);
+        }
+    }
+}
+
+async function performDelete(identifier, deleteAll) {
+    try {
+        const updates = {};
+        let ticketsToReset = [];
+        let successMessage = '';
+
+        if (deleteAll) { // identifier is ownerPhone
+            ticketsToReset = allTicketsData.filter(t => t.is_sold && t.owner_phone === identifier);
+            successMessage = `Deleted all ${ticketsToReset.length} tickets for the owner.`;
+        } else { // identifier is ticketId
+            const singleTicket = allTicketsData.find(t => t.id === identifier);
+            if (singleTicket) ticketsToReset.push(singleTicket);
+            successMessage = `Ticket #${identifier} has been deleted and is now available.`;
+        }
+
+        if (ticketsToReset.length === 0) {
+            closePopups();
+            return showNotification('Could not find ticket(s) to delete.', 'error');
+        }
+
+        ticketsToReset.forEach(ticket => {
+            updates[`/tickets/${ticket.id}/is_sold`] = false;
+            updates[`/tickets/${ticket.id}/owner_name`] = null;
+            updates[`/tickets/${ticket.id}/owner_name_lower`] = null;
+            updates[`/tickets/${ticket.id}/owner_phone`] = null;
+            updates[`/tickets/${ticket.id}/agent_uid`] = null;
+            updates[`/tickets/${ticket.id}/sold_at`] = null;
+        });
+
+        await db.ref().update(updates);
+        showNotification(successMessage, 'success');
+        triggerGlobalNotification(`Admin made ${ticketsToReset.length} ticket(s) available again.`, 'info');
+
+    } catch (e) {
+        showNotification('Error deleting ticket(s): ' + e.message, 'error');
+    } finally {
+        closePopups();
+        ticketToDeleteInfo = {};
+    }
+}
+
 
 async function deleteUser(uid, name) {
     if (uid === currentUser.uid) {
