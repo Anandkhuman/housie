@@ -382,7 +382,9 @@
     .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
     .dashboard-view .gameSettingTable thead { display: none; }
     .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
-    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 5px; padding-bottom: 5px; display: grid; grid-template-columns: 10fr 1fr; gap: 0px; align-items: center;}
+    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 2fr 1fr; gap: 0px; align-items: center;}
+    .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
+
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
     .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
     .dashboard-view .gameSettingTable td::before { content: '' !important; /* Removed pseudo-element labels */ }
@@ -906,7 +908,7 @@
             <button class="clickBtn" id="showAgentBtn" onclick="toggleAdminList('agents')">AGENT LIST</button>
         </div>
         <input class="searchInp" placeholder="Enter keyword" id="adminSearchKeyInp" onkeyup="updateAdminList()">
-        <table class="gameSettingTable" id="adminGameSettingTable"></table>
+        <table class="gameSettingTable1" id="adminGameSettingTable"></table>
     </div>
     <button class="bookFloatBtn" id="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
 </div>
