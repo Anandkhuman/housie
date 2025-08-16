@@ -15,7 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></radialGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
 
 
 <style>
@@ -126,11 +126,31 @@
         color: var(--accent-primary); text-shadow: 0 0 8px var(--accent-primary);
     }
 
-    .login-form input, .agent-inp {
-        width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
-        border-radius: 4px; margin-bottom: 0.8rem; text-align: center;
-        font-family: var(--font-family-neon); background: var(--secondary-surface);
-        border: 1px solid var(--accent-primary); color: var(--text-primary);
+    /* UNIFIED INPUT DESIGN */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="datetime-local"],
+    select,
+    .agent-inp,
+    .searchInp,
+    .tableInp,
+    #bookingFormContainer input {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
+        border-radius: 4px;
+        text-align: center;
+        font-family: var(--font-family-neon);
+        background: var(--secondary-surface);
+        border: 1px solid var(--accent-primary);
+        color: var(--text-primary);
+    }
+
+    .login-form input {
+        margin-bottom: 0.8rem;
     }
 
     .login-btn {
@@ -255,7 +275,11 @@
     .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
     .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     .search-container { display: flex; margin-bottom: 1rem; }
-    .searchInp { flex-grow: 1; font-size: 0.9rem; padding: 0.6rem 0.8rem; border-radius: 4px 0 0 4px; background-color: var(--secondary-surface); color: var(--text-primary); border: 1px solid var(--accent-primary); font-family: var(--font-family-neon); transition: box-shadow var(--transition-speed) ease; }
+    .searchInp {
+        flex-grow: 1;
+        border-radius: 4px 0 0 4px;
+        margin: 0;
+    }
     .searchInp:focus { box-shadow: 0 0 10px var(--accent-primary); }
     .search-btn { padding: 0 1rem; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: var(--text-dark); cursor: pointer; border-radius: 0 4px 4px 0; font-size: 1rem; font-weight: 700; transition: filter var(--transition-speed) ease; }
     .search-btn:hover { filter: brightness(1.2); }
@@ -341,7 +365,6 @@
     #bookingGridContainer .ticket-view.sold { cursor: not-allowed; opacity: 0.5; }
     #bookingGridContainer .ticket-view.selected { transform: scale(1.03); box-shadow: 0 0 15px var(--called-color), inset 0 0 10px rgba(255, 242, 0, 0.2); border-color: var(--called-color); }
     #bookingFormContainer { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
-    #bookingFormContainer input { width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem; border-radius: 4px; text-align: center; font-family: var(--font-family-neon); background: var(--secondary-surface); border: 1px solid var(--accent-primary); color: var(--text-primary); }
     .selection-indicator { text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--called-color); padding: 0.6rem; margin-top: 1rem; border-radius: 4px; background: rgba(255, 242, 0, 0.1); border: 2px dashed var(--called-color); min-height: 40px; display: flex; align-items: center; justify-content: center; transition: border-color 0.3s ease; }
     #bookedTicketsDisplay { max-height: 80vh; overflow-y: auto; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 1rem; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
     .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
@@ -359,13 +382,23 @@
     .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
     .dashboard-view .gameSettingTable thead { display: none; }
     .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
-    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 8px; padding-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;}
+    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 5px; padding-bottom: 5px; display: grid; grid-template-columns: 10fr 1fr; gap: 0px; align-items: center;}
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
     .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
     .dashboard-view .gameSettingTable td::before { content: '' !important; /* Removed pseudo-element labels */ }
-    .dashboard-view .tableInp { width: 100%; font-size: 0.9rem; padding: 8px; border: 1px solid var(--secondary-bg-dash); font-weight: bold; margin: 0; border-radius: 3px; box-sizing: border-box; background-color: white; color: var(--text-dark); }
+    .dashboard-view .tableInp {
+        margin: 0;
+        box-sizing: border-box;
+        background-color: white; /* Default for dashboard page */
+        color: var(--text-dark); /* Default for dashboard page */
+        border: 1px solid var(--secondary-bg-dash);
+    }
     .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); cursor: pointer;}
-    #adminDashboardView .searchInp, #agentDashboardView .searchInp { font-size: 1rem; padding: 8px; border-radius: 6px; margin: 15px auto 0 auto; display: block; text-align: center; background-color: var(--secondary-bg-dash); color: var(--light-text-dash); border: 1px solid var(--accent-color-dash); width: 90%; }
+    #adminDashboardView .searchInp, #agentDashboardView .searchInp {
+        margin: 15px auto 0 auto;
+        display: block;
+        width: 90%;
+    }
     .dashboard-view .toggleDiv { display: grid; grid-template-columns: 1fr 1fr; width: 90%; margin: 0 auto; }
     .dashboard-view #showTicketBtn { background: var(--accent-color-dash); }
     .dashboard-view #showAgentBtn { background: var(--secondary-bg-dash); }
@@ -422,22 +455,7 @@
     #publicBookingPopup .bookInpDiv {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.1rem; /* adds spacing between columns */
-    }
-
-    #publicBookingPopup .tableInp {
-        color: #000000;
-        border: 1px solid var(--muted-color-dash);
-        border-radius: 10px; /* smooth corners for a cleaner look */
-        padding: 2px 0 0.3rem;
-        background-color: var(--input-bg, #fff); /* fallback white if var not set */
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    #publicBookingPopup .tableInp:focus {
-        border-color: var(--primary-color-dash);
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-        outline: none;
+        gap: 0.5rem;
     }
 
     .bookBtn {
@@ -478,7 +496,7 @@
     #adminGameSettingTable .admin-ticket-row td {
         display: block;
         width: 100%;
-        padding: 8px;
+        padding: 0;
     }
      #adminGameSettingTable .admin-ticket-row.available-ticket td {
         display: table-cell;
@@ -637,6 +655,74 @@
         text-decoration: underline;
     }
 
+    /* --- NEW STYLES for unified popup inputs and buttons --- */
+    .gamePopDiv .tableInp {
+        width: 50%;
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        text-align: center;
+        font-family: var(--font-family-neon);
+        background: var(--secondary-bg-dash);
+        border: 1px solid var(--accent-color-dash);
+        color: var(--light-text-dash);
+        box-sizing: border-box;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+   .gamePopDiv .tableInp1 {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        text-align: center;
+        font-family: var(--font-family-neon);
+        background: var(--secondary-bg-dash);
+        border: 1px solid var(--accent-color-dash);
+        color: var(--light-text-dash);
+        box-sizing: border-box;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+
+    .gamePopDiv .tableInp:focus {
+        border-color: var(--accent-color-dash);
+        box-shadow: 0 0 8px var(--accent-color-dash);
+        outline: none;
+       
+    }
+
+    /* Custom arrow for select dropdown in popups */
+    .gamePopDiv select.tableInp {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231abc9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+        padding-right: 2.5rem; /* Make space for the arrow */
+    }
+
+    /* Enhanced Manual Call Button in Run Game Popup */
+    .runGameTable button.actionBtn {
+        margin: 0 !important;
+        height: auto; /* Let padding define height */
+        font-size: 1rem;
+	border-radius: 10px
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .runGameTable button.actionBtn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
 </style>
 </head>
 <body>
@@ -727,14 +813,16 @@
 
         <section class="panel">
             <h2 class="panel-title">Select Tickets By Sheet (Method 1)</h2>
-            <div id="bookingGridContainer">
-            </div>
-            <div id="publicSelectionIndicator" class="selection-indicator"></div>
-            <div id="bookingFormContainer">
+	     <div id="bookingFormContainer">
                  <input type="text" id="bookerName" placeholder="Your Name">
                  <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
                  <button class="login-btn" id="requestBookingBtn">Request Booking via Agent</button>
             </div>
+	    <div id="publicSelectionIndicator" class="selection-indicator"></div>
+            <div id="bookingGridContainer">
+            </div>
+            
+           
         </section>
     </div>
 </div>
@@ -960,10 +1048,10 @@
     <div class="gameDiv">
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-            <div class="titleBtn">BOOK TICKET (ADMIN/AGENT)</div>
+            <div class="titleBtn"></div>
             <div class="bookInpDiv">
-                <input class="tableInp" id="dashBookerNameInp" placeholder="Name">
-                <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
+                <input class="tableInp1" id="dashBookerNameInp" placeholder="Name">
+                <input class="tableInp1" id="dashBookerPhoneInp" placeholder="Phone">
             </div>
         </div>
         <div class="ticketBlockDiv" id="dashTicketBlockDiv">
@@ -1003,14 +1091,25 @@
         <table class="runGameTable gameSettingTable">
             <tbody>
                 <tr>
-                    <td>CALLING STATUS</td>
+                    <td>AUTO CALLING</td>
                     <td><select class="tableInp" id="callStatusInp" onchange="toggleGameRunner()"><option value="off">OFF</option><option value="on">ON</option></select></td>
                 </tr>
                 <tr>
-                    <td>CALLING INTERVAL (sec)</td>
+                    <td>INTERVAL (sec)</td>
                     <td><input type="number" class="tableInp" id="callIntervalInp" value="10"></td>
                 </tr>
-                </tbody>
+            </tbody>
+        </table>
+        <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+            <tbody>
+                <tr>
+                    <td>MANUAL CALL</td>
+                    <td style="display: flex; gap: 5px;">
+                        <input type="number" class="tableInp" id="manualCallInp" placeholder="Num" style="flex-grow: 1;">
+                        <button class="actionBtn" onclick="manualCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">CALL</button>
+                    </td>
+                </tr>
+            </tbody>
         </table>
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
@@ -3033,6 +3132,41 @@ async function toggleGameRunner() {
         showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
     } catch (e) {
         showNotification("Error starting/stopping game: " + e.message, 'error');
+    }
+}
+
+async function manualCallNumber() {
+    const inputEl = document.getElementById('manualCallInp');
+    const numberToCall = parseInt(inputEl.value, 10);
+
+    if (isNaN(numberToCall) || numberToCall < 1 || numberToCall > 90) {
+        showNotification('Please enter a valid number between 1 and 90.', 'error');
+        return;
+    }
+
+    if (currentCalledNumbers.includes(numberToCall)) {
+        showNotification(`Number ${numberToCall} has already been called.`, 'error');
+        return;
+    }
+
+    const gameStateRef = db.ref('gameState/currentState');
+    try {
+        await gameStateRef.transaction(gameState => {
+            if (!gameState) {
+                gameState = { isGameRunning: false, calledNumbers: [], winners: {} };
+            }
+            const called = gameState.calledNumbers || [];
+            if (!called.includes(numberToCall)) {
+                gameState.calledNumbers = [...called, numberToCall];
+                gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
+            }
+            return gameState;
+        });
+        showNotification(`Manually called number ${numberToCall}.`, 'success');
+        inputEl.value = ''; // Clear the input after calling
+    } catch (e) {
+        console.error("Manual call failed:", e);
+        showNotification('Error calling number: ' + e.message, 'error');
     }
 }
 
