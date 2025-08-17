@@ -1222,6 +1222,9 @@ let gameSettingsData = {};
 let publicSelectedTickets = []; 
 let publicPopupSelectedTickets = []; 
 let adminListState = 'tickets';
+// --- MODIFICATION START: Add a variable to track the last notification ---
+let lastNotification = { message: '', type: '', timestamp: 0 };
+// --- MODIFICATION END ---
 
 const allPossibleDividends = [
     "First Full House", "Second Full House", "Third Full House", "Top Line", "Middle Line", "Bottom Line",
@@ -1256,9 +1259,27 @@ function handleRouting() {
 
 window.addEventListener('hashchange', handleRouting);
 
+// --- MODIFICATION START: Replace the entire showNotification function ---
 function showNotification(message, type = 'info', duration = 4000) {
+    const now = Date.now();
+    // Cooldown period in milliseconds (e.g., 5 seconds)
+    // to prevent the same notification from appearing again too quickly.
+    const cooldown = 5000;
+
+    // Check if the incoming notification is identical to the last one
+    // and if it's within the cooldown period.
+    if (
+        message === lastNotification.message &&
+        type === lastNotification.type &&
+        (now - lastNotification.timestamp) < cooldown
+    ) {
+        return; // If so, exit the function and don't show it.
+    }
+
     const container = document.getElementById('notification-container');
 
+    // This second check prevents creating duplicate HTML elements if the function
+    // is called multiple times before the `lastNotification` variable is updated.
     const existingNotifs = container.querySelectorAll('.notification');
     for (const notif of existingNotifs) {
         if (notif.textContent === message && notif.classList.contains(type)) {
@@ -1266,21 +1287,28 @@ function showNotification(message, type = 'info', duration = 4000) {
         }
     }
 
+    // If the notification is new, update our tracker.
+    lastNotification = { message, type, timestamp: now };
+
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
 
     container.appendChild(notification);
 
+    // Animate the notification into view
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
 
+    // Set a timer to remove the notification
     setTimeout(() => {
         notification.classList.remove('show');
+        // After the fade-out animation completes, remove the element from the DOM
         notification.addEventListener('transitionend', () => notification.remove());
     }, duration);
 }
+// --- MODIFICATION END ---
 
 async function triggerGlobalNotification(message, type = 'info') {
     try {
@@ -1396,7 +1424,7 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
+    document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
