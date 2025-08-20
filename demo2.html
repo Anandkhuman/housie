@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NightMare369</title>
+    <title>demo2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -816,7 +816,7 @@
         <header class="main-header">
             <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">NightMare369</h1>
+                <h1 class="webTitle">demo2</h1>
             </div>
             <!-- ICON BAR MOVED TO BOTTOM -->
         </header>
@@ -880,7 +880,7 @@
         <header class="main-header">
              <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">NightMare369</h1>
+                <h1 class="webTitle">demo2</h1>
             </div>
             <!-- ICON BAR MOVED TO BOTTOM -->
         </header>
@@ -1231,6 +1231,13 @@
 	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg8.jpeg')">BG 8</button>
 	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg9.jpeg')">BG 9</button>
 	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg10.jpeg')">BG 10</button>
+		<button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg11.jpg')">BG 11</button>
+	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg12.jpg')">BG 12</button>
+	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg13.jpg')">BG 13</button>
+	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg14.jpg')">BG 14</button>
+	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg15.jpg')">BG 15</button>
+	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg116.jpg')">BG 16</button>
+		<button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg117.jpg')">BG 17</button>
 
 
         </div>
@@ -2900,7 +2907,7 @@ function changePosterBackground(source) {
 }
 
 function showPosterModal() {
-    const title = "NightMare369";
+    const title = "demo2";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -2988,7 +2995,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "NightMare369 Housie Game!";
+        const websiteName = "demo2 Housie Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -3025,7 +3032,7 @@ function updateAgentInfoUI() {
     document.getElementById('earningBtn').textContent = `₹ ${myEarnings.toLocaleString()}`;
 
     document.getElementById('agentBusinessInfoTable').innerHTML = `<tbody>
-        <tr><td>Game Title</td><td>NightMare369</td></tr>
+        <tr><td>Game Title</td><td>demo2</td></tr>
         <tr><td>Ticket Price</td><td>₹ ${(gameSettingsData.ticketPrice || 0).toLocaleString()}</td></tr>
         <tr><td>My Commission/Tkt</td><td>₹ ${(gameSettingsData.agentCommission || 0).toLocaleString()}</td></tr>
     </tbody>`;
