@@ -1501,7 +1501,7 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-  // document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
+  document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
