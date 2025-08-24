@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>demo2</title>
+    <title>Demo theme2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +39,7 @@
         /* Dashboard colors (kept for dashboard view) */
         --primary-bg-dash: #03093b; 
         --secondary-bg-dash: #34495e; 
-        --accent-color-dash: #3498db; 
+        --accent-color-dash: #ff0033; 
         --muted-color-dash: #7f8c8d;
         --light-text-dash: #ffffee;
     }
@@ -692,6 +692,29 @@
     .contact-section a:hover {
         text-decoration: underline;
     }
+    
+    /* --- NEW: EDITABLE POSTER STYLES --- */
+    #posterContent [contenteditable="true"] {
+        cursor: text;
+        padding: 2px 4px;
+        border-radius: 3px;
+        transition: background-color 0.3s, box-shadow 0.3s;
+        -webkit-user-select: text; /* Allow text selection */
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+    #posterContent [contenteditable="true"]:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+    #posterContent [contenteditable="true"]:focus {
+        outline: 1px dashed #ffeb3b;
+        background-color: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 10px rgba(255, 235, 59, 0.7);
+    }
+    /* --- END: EDITABLE POSTER STYLES --- */
+
 
     /* --- NEW STYLES for unified popup inputs and buttons --- */
     .gamePopDiv .tableInp {
@@ -816,7 +839,7 @@
         <header class="main-header">
             <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">demo2</h1>
+                <h1 class="webTitle">Demo theme2</h1>
             </div>
             <!-- ICON BAR MOVED TO BOTTOM -->
         </header>
@@ -880,7 +903,7 @@
         <header class="main-header">
              <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">demo2</h1>
+                <h1 class="webTitle">Demo theme2</h1>
             </div>
             <!-- ICON BAR MOVED TO BOTTOM -->
         </header>
@@ -1221,25 +1244,23 @@
         
         <div id="poster-bg-controls" style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px;">
             <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center;">Change BG:</span>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg1.jpeg')">BG 1</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg2.jpeg')">BG 2</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg3.jpeg')">BG 3</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg4.jpeg')">BG 4</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg5.jpeg')">BG 5</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg6.jpeg')">BG 6</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg7.jpeg')">BG 7</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg8.jpeg')">BG 8</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg9.jpeg')">BG 9</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg10.jpeg')">BG 10</button>
-		<button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg11.jpg')">BG 11</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg12.jpg')">BG 12</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg13.jpg')">BG 13</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg14.jpg')">BG 14</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg15.jpg')">BG 15</button>
-	    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg116.jpg')">BG 16</button>
-		<button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://github.com/Anandkhuman/housie/raw/main/bg117.jpg')">BG 17</button>
-
-
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
+            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
         </div>
 
         <div id="posterContent">
@@ -1508,7 +1529,7 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-  document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
+  // document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -2643,8 +2664,9 @@ function updateBusinessInfo() {
     const soldCount = soldTickets.length;
     const price = gameSettingsData.ticketPrice || 0;
     const commission = gameSettingsData.agentCommission || 0;
-    
-    // A ticket has a commission if it was sold by a user with the 'agent' role.
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    const ticketsLeft = totalTickets - soldCount;
+
     const agentUids = new Set(allUsersData.filter(u => u.role === 'agent').map(u => u.uid));
     const agentSoldCount = soldTickets.filter(t => t.agent_uid && agentUids.has(t.agent_uid)).length;
     const totalCommission = agentSoldCount * commission;
@@ -2657,8 +2679,9 @@ function updateBusinessInfo() {
     const adminTable = document.getElementById('businessInfoTable');
     if(adminTable && currentView === 'adminDashboardView') {
         adminTable.innerHTML = `<tbody>
-            <tr><td>Total Tickets</td><td>${gameSettingsData.totalTickets || 0}</td></tr>
+            <tr><td>Total Tickets</td><td>${totalTickets}</td></tr>
             <tr><td>Tickets Sold</td><td>${soldCount}</td></tr>
+            <tr><td>Tickets Left</td><td>${ticketsLeft}</td></tr>
             <tr><td>Total Revenue</td><td>₹ ${totalRevenue.toLocaleString()}</td></tr>
             <tr><td>Total Agent Commission</td><td>₹ ${totalCommission.toLocaleString()}</td></tr>
             <tr><td>Total Prize Money</td><td>₹ ${totalPrizeMoney.toLocaleString()}</td></tr>
@@ -2907,7 +2930,7 @@ function changePosterBackground(source) {
 }
 
 function showPosterModal() {
-    const title = "demo2";
+    const title = "Demo theme2";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -2922,16 +2945,16 @@ function showPosterModal() {
         gameTimeFormatted = date.toLocaleString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
-    const dividendNamesHTML = activeDividends.map(d => `<p>${d.name}</p>`).join('');
-    const dividendAmountsHTML = activeDividends.map(d => `<p>Rs ${d.amount.toLocaleString()}</p>`).join('');
+    const dividendNamesHTML = activeDividends.map(d => `<p contenteditable="true">${d.name}</p>`).join('');
+    const dividendAmountsHTML = activeDividends.map(d => `<p contenteditable="true">Rs ${d.amount.toLocaleString()}</p>`).join('');
 
     const posterHTML = `
-        <h1 class="poster-title">${title}</h1>
-        <p class="poster-datetime">${gameTimeFormatted}</p>
-        <p class="poster-tagline">Grab Your Tickets & Get Ready to Win!</p>
+        <h1 class="poster-title" contenteditable="true">${title}</h1>
+        <p class="poster-datetime" contenteditable="true">${gameTimeFormatted}</p>
+        <p class="poster-tagline" contenteditable="true">Grab Your Tickets & Get Ready to Win!</p>
 
         <div class="prize-section">
-            <h3>PRIZES</h3>
+            <h3 contenteditable="true">PRIZES</h3>
             <div class="prize-list">
                 <div class="prize-column" id="prize-names">
                     ${dividendNamesHTML}
@@ -2942,11 +2965,11 @@ function showPosterModal() {
             </div>
         </div>
 
-        <p class="ticket-details">Get ticket @ Rs ${ticketPrice}. Total tickets only (${totalTickets})</p>
+        <p class="ticket-details" contenteditable="true">Get ticket @ Rs ${ticketPrice}. Total tickets only (${totalTickets})</p>
 
         <div class="contact-section">
-            <p>visit: <a href="${websiteLink}" target="_blank">${websiteLink.replace(/^https?:\/\//, '')}</a></p>
-            <p>Whatsapp: <span>${adminPhone}</span></p>
+            <p contenteditable="true">visit: <a href="${websiteLink}" target="_blank">${websiteLink.replace(/^https?:\/\//, '')}</a></p>
+            <p>Whatsapp: <span contenteditable="true">${adminPhone}</span></p>
         </div>
     `;
 
@@ -2995,7 +3018,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "demo2 Housie Game!";
+        const websiteName = "NightMare369 Housie Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -3022,17 +3045,25 @@ async function sharePoster() {
 
 function updateAgentInfoUI() {
     if (!currentUser || currentView !== 'agentDashboardView') return;
+    
     const agentData = allUsersData.find(u => u.uid === currentUser.uid);
     if (agentData) {
-        document.getElementById('agentNameInp').value = agentData.name;
-        document.getElementById('agentPhoneInp').value = agentData.phone;
+        document.getElementById('agentNameInp').value = agentData.name || '';
+        document.getElementById('agentPhoneInp').value = agentData.phone || '';
     }
+    
     const mySoldTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid);
     const myEarnings = mySoldTickets.length * (gameSettingsData.agentCommission || 0);
     document.getElementById('earningBtn').textContent = `₹ ${myEarnings.toLocaleString()}`;
 
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    const totalSoldCount = allTicketsData.filter(t => t.is_sold).length;
+    const ticketsLeft = totalTickets - totalSoldCount;
+
     document.getElementById('agentBusinessInfoTable').innerHTML = `<tbody>
-        <tr><td>Game Title</td><td>demo2</td></tr>
+        <tr><td>Total Tickets</td><td>${totalTickets}</td></tr>
+        <tr><td>Total Sold</td><td>${totalSoldCount}</td></tr>
+        <tr><td>Tickets Left</td><td>${ticketsLeft}</td></tr>
         <tr><td>Ticket Price</td><td>₹ ${(gameSettingsData.ticketPrice || 0).toLocaleString()}</td></tr>
         <tr><td>My Commission/Tkt</td><td>₹ ${(gameSettingsData.agentCommission || 0).toLocaleString()}</td></tr>
     </tbody>`;
