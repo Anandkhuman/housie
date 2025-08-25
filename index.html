@@ -2617,7 +2617,7 @@ function updateAdminList() {
             }).join('') + `</tbody>`;
     } else {
         const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').toLowerCase().includes(searchTerm));
-        table.innerHTML = `<thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Sold</th><th>Actions</th></tr></thead><tbody>` +
+        table.innerHTML = `` +
             users.map(u => {
                 const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
                 let actionCell = `<td data-label="Actions">-</td>`;
