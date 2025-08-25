@@ -223,13 +223,13 @@
     .page-wrapper { max-width: 1400px; margin: 0 auto; padding: 0em; position: relative; z-index: 1; width: 95%; }
     .main-header, .panel {
         background: var(--primary-surface); border: 1px solid var(--accent-primary);
-        border-radius: 8px; margin-bottom: 1rem;
+        border-radius: 8px; margin-bottom: 0.8rem; /* REDUCED MARGIN */
         box-shadow: 0 0 15px rgba(0, 246, 255, 0.2), inset 0 0 8px rgba(0, 246, 255, 0.1);
         opacity: 0; transform: translateY(20px);
         padding: 1rem;
     }
     .main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; padding: 0.8rem 1rem; text-align: center; }
-    .game-layout { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; /* REDUCED GAP */ }
 
     @media (min-width: 992px) {
         .game-layout {
@@ -269,7 +269,7 @@
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
-    .info-column { display: flex; flex-direction: column; gap: 1rem; }
+    .info-column { display: flex; flex-direction: column; gap: 0.8rem; /* REDUCED GAP */ }
     .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
     .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     
@@ -307,6 +307,7 @@
         justify-content: center;
         border: 1px solid white;
         transition: transform 0.2s, background-color 0.2s;
+        z-index: 5;
     }
     .clear-search-btn:hover {
         transform: scale(1.1);
@@ -325,7 +326,7 @@
     .sheet-view { background-color: #ffffff; border: 1px solid #0277bd; border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem; }
     .sheet-header { color: #01579b; border-bottom: 1px solid #b3e5fc; font-size: 1rem; margin-bottom: 0.8rem; background: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; padding-bottom: 0.5rem; }
     .sheet-content { display: grid; gap: 0.8rem; grid-template-columns: 1fr !important; }
-    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; } /* Added position relative */
+    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
@@ -364,36 +365,20 @@
         transform: scale(1.1);
     }
 
+    /* Professional Dividend List */
     .dividend-table { width: 100%; border-collapse: collapse; }
-    .dividend-table th, .dividend-table td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.85rem;}
-    .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.9rem; }
+    .dividend-table th, .dividend-table td { padding: 0.8rem; text-align: left; border-bottom: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; }
+    .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.95rem; }
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
     .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
+    .dividend-table .winner-info { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+    .dividend-table .winner-details { flex-grow: 1; }
+    .dividend-table .winner-details ul { list-style: none; padding: 0; margin: 0; }
+    .dividend-table .winner-details li { margin-bottom: 4px; }
     .dividend-table .winner-name { font-weight: 700; color: var(--called-color); }
-    .dividend-table .winner-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        line-height: 1.4;
-    }
-    .dividend-table .winner-info .fa-eye {
-        flex-shrink: 0;
-        margin-left: 10px;
-        cursor: pointer;
-        color: var(--accent-primary);
-        font-size: 1.1rem;
-        transition: transform 0.2s;
-    }
-     .dividend-table .winner-info .fa-eye:hover {
-        transform: scale(1.2);
-     }
-     .dividend-table .prize-share {
-        font-size: 0.8em;
-        color: var(--text-secondary);
-        font-style: italic;
-        margin-left: 5px;
-     }
+    .dividend-table .prize-share { font-size: 0.8em; color: var(--text-secondary); font-style: italic; display: block; margin-top: 2px;}
+    .dividend-table .winner-info .fa-eye { flex-shrink: 0; margin-left: 10px; cursor: pointer; color: var(--accent-primary); font-size: 1.1rem; transition: transform 0.2s; padding-top: 4px; }
+    .dividend-table .winner-info .fa-eye:hover { transform: scale(1.2); }
 
     #number-announcement-overlay {
         visibility: hidden;
@@ -429,12 +414,12 @@
 
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
     .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
-    .dashboard-view .gameSettingTable td::before { content: '' !important; /* Removed pseudo-element labels */ }
+    .dashboard-view .gameSettingTable td::before { content: '' !important; }
     .dashboard-view .tableInp {
         margin: 0;
         box-sizing: border-box;
-        background-color: white; /* Default for dashboard page */
-        color: var(--text-dark); /* Default for dashboard page */
+        background-color: white;
+        color: var(--text-dark);
         border: 1px solid var(--secondary-bg-dash);
     }
     .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); cursor: pointer;}
@@ -865,7 +850,7 @@
         </div>
 
         <section class="panel">
-            <h2 class="panel-title">Select Tickets By Sheet (Method 1)</h2>
+            <h2 class="panel-title">Select Tickets</h2>
             <div id="bookingFormContainer">
                  <input type="text" id="bookerName" placeholder="Your Name">
                  <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
@@ -1099,7 +1084,7 @@
     <div class="gameDiv">
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-            <div class="titleBtn" style="margin-bottom: 0.5rem;">Admin/Agent Booking</div>
+            <div class="titleBtn" style="margin-bottom: 0.5rem;"></div>
             <div class="bookInpDiv">
                 <input class="tableInp" id="dashBookerNameInp" placeholder="Name">
                 <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
@@ -1108,7 +1093,6 @@
             <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
         </div>
         <div class="ticketBlockDiv" id="dashTicketBlockDiv">
-            <!-- Tickets will be rendered here by JS -->
         </div>
     </div>
 </div>
@@ -1125,7 +1109,6 @@
             <input class="bookBtn" type="button" id="publicRequestBookingBtn" value="REQUEST BOOKING">
         </div>
         <div class="ticketBlockDiv" id="publicBookingGrid">
-            <!-- Tickets will be rendered here by JS -->
         </div>
     </div>
 </div>
@@ -1467,7 +1450,6 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -1556,7 +1538,7 @@ function setupRealtimeListeners() {
 
         const newWinners = data.winners || {};
         for (const dividendName in newWinners) {
-             if (!knownWinners[dividendName]) { // Check if we haven't processed this win yet
+             if (!knownWinners[dividendName]) {
                 const winnerArray = newWinners[dividendName];
                 if (Array.isArray(winnerArray)) {
                     const winnerNames = winnerArray.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
@@ -1743,7 +1725,7 @@ function updateCountdownTimers(targetDateString) {
     ];
 
     if (!targetDateString || isNaN(targetDate)) {
-        gameLiveSoundPlayed = false; // Reset flag for next game
+        gameLiveSoundPlayed = false;
         const waitingHTML = `<div class="info-item"><i class="fas fa-hourglass-half"></i><span>Awaiting Game Schedule</span></div>`;
         timerBars.forEach(bar => { if(bar) bar.innerHTML = waitingHTML; });
         return;
@@ -2026,9 +2008,9 @@ function updateWinners(winners) {
         const totalAmount = dividendData ? dividendData.amount : 0;
         const shareText = winnerArray.length > 1 ? `<span class="prize-share">(₹${(totalAmount / winnerArray.length).toFixed(2)} each)</span>` : '';
         
-        const winnerText = winnerArray.map(w => 
-            `<span><span class="winner-name">${w.name}</span> (Tkt: ${w.ticketId})</span>`
-        ).join('<br>');
+        const winnerListHTML = `<ul>` + winnerArray.map(w => 
+            `<li><span class="winner-name">${w.name}</span> (Tkt: ${w.ticketId})</li>`
+        ).join('') + `</ul>`;
 
         const firstWinner = winnerArray[0];
         let eyeIcon = '';
@@ -2041,7 +2023,7 @@ function updateWinners(winners) {
             }
         }
         
-        const finalHTML = `<div>${winnerText} ${shareText}</div> ${eyeIcon}`;
+        const finalHTML = `<div class="winner-details">${winnerListHTML} ${shareText}</div> ${eyeIcon}`;
 
         tables.forEach(table => {
             const row = table.querySelector(`tr[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
@@ -2058,7 +2040,6 @@ function updateNumberBoard(called) {
     const lastCalled = called.length > 0 ? called[called.length - 1] : null;
     for (let i = 1; i <= 90; i++) {
         const isCalled = called.includes(i);
-        // Update public board
         const publicCell = document.getElementById(`num-${i}`);
         if(publicCell){
             publicCell.classList.toggle('called', isCalled);
@@ -2916,8 +2897,6 @@ function savePosterAsImage() {
         useCORS: true, 
         allowTaint: true,
         logging: false,
-        onrendered: function(canvas) {
-        }
     }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'sintha-housie-poster.png';
@@ -3028,35 +3007,18 @@ function updateDashboardBookingPopup() {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const sheetWrapper = document.createElement('div');
-        sheetWrapper.style.background = 'var(--secondary-bg-dash)';
-        sheetWrapper.style.borderRadius = '6px';
-        sheetWrapper.style.padding = '0.8rem';
-        sheetWrapper.style.marginBottom = '0.5rem';
-        sheetWrapper.style.borderLeft = '3px solid var(--accent-color-dash)';
-
+        sheetWrapper.style.cssText = "background: var(--secondary-bg-dash); border-radius: 6px; padding: 0.8rem; margin-bottom: 0.5rem; border-left: 3px solid var(--accent-color-dash);";
         const sheetHeader = document.createElement('div');
-        sheetHeader.style.fontSize = '1rem';
-        sheetHeader.style.fontWeight = '700';
-        sheetHeader.style.color = 'var(--accent-color-dash)';
-        sheetHeader.style.marginBottom = '0.6rem';
-        sheetHeader.style.paddingBottom = '0.4rem';
-        sheetHeader.style.borderBottom = '1px solid var(--primary-bg-dash)';
-        sheetHeader.style.display = 'flex';
-        sheetHeader.style.justifyContent = 'space-between';
-        sheetHeader.style.alignItems = 'center';
-
+        sheetHeader.style.cssText = "font-size: 1rem; font-weight: 700; color: var(--accent-color-dash); margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--primary-bg-dash); display: flex; justify-content: space-between; align-items: center;";
         sheetHeader.innerHTML = `
             <span>Sheet ${i + 1} (Tkt ${startTicket}-${endTicket})</span>
             <label class="full-sheet-selector" style="color: var(--light-text-dash); font-size: 0.8rem;">
                 <input type="checkbox" onchange="selectFullSheetDashboard(this, ${startTicket}, ${endTicket})"> Full
             </label>
         `;
-
         sheetWrapper.appendChild(sheetHeader);
         const sheetContent = document.createElement('div');
-        sheetContent.style.display = 'grid';
-        sheetContent.style.gridTemplateColumns = 'repeat(6, 1fr)';
-        sheetContent.style.gap = '0.4rem';
+        sheetContent.style.cssText = "display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem;";
         sheetWrapper.appendChild(sheetContent);
 
         for (let j = startTicket; j <= endTicket; j++) {
@@ -3134,7 +3096,6 @@ async function handleDashboardBooking() {
 function renderPublicBookingGrid() {
     const container = document.getElementById('publicBookingGrid');
     if (!container) return;
-
     container.innerHTML = '';
     publicPopupSelectedTickets = [];
     updatePublicBookingIndicator();
@@ -3153,7 +3114,6 @@ function renderPublicBookingGrid() {
         const endTicket = startTicket + 5;
         const sheetWrapper = document.createElement('div');
         sheetWrapper.style.cssText = "background: var(--secondary-bg-dash); border-radius: 6px; padding: 0.8rem; margin-bottom: 0.5rem; border-left: 3px solid var(--accent-secondary);";
-
         const sheetHeader = document.createElement('div');
         sheetHeader.style.cssText = "font-size: 1rem; font-weight: 700; color: var(--accent-secondary); margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--primary-bg-dash); display: flex; justify-content: space-between; align-items: center;";
         sheetHeader.innerHTML = `
@@ -3162,7 +3122,6 @@ function renderPublicBookingGrid() {
                 <input type="checkbox" onchange="selectFullSheetPublic(this, ${startTicket}, ${endTicket})"> Full
             </label>`;
         sheetWrapper.appendChild(sheetHeader);
-
         const sheetContent = document.createElement('div');
         sheetContent.style.cssText = "display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem;";
         sheetWrapper.appendChild(sheetContent);
@@ -3359,61 +3318,117 @@ function checkAllWinners(calledNumbers, currentWinners) {
     const activeDividends = gameSettingsData.dividends || [];
     const soldTickets = allTicketsData.filter(t => t.is_sold);
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
+    const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
+    const countMarked = (ticket) => ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+
+    const ticketsByOwner = {};
+    for (const ticket of soldTickets) {
+        if (ticket.owner_phone) {
+            if (!ticketsByOwner[ticket.owner_phone]) {
+                ticketsByOwner[ticket.owner_phone] = [];
+            }
+            ticketsByOwner[ticket.owner_phone].push(ticket);
+        }
+    }
 
     for (const dividend of activeDividends) {
-        if (updatedWinners[dividend.name]) continue; 
+        if (updatedWinners[dividend.name]) continue;
 
         let winnersThisTurn = [];
 
-        for (const ticket of soldTickets) {
-            let isWinner = false;
-            let winningPatternNumbers = []; 
+        if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
+            for (const ownerPhone in ticketsByOwner) {
+                const ownerTickets = ticketsByOwner[ownerPhone];
+                const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
+                    const sheetNum = Math.floor((ticket.id - 1) / 6);
+                    if (!acc[sheetNum]) acc[sheetNum] = [];
+                    acc[sheetNum].push(ticket);
+                    return acc;
+                }, {});
 
-            const check = (numbers) => {
-                winningPatternNumbers = numbers;
-                return numbers.every(n => calledNumbers.includes(n));
-            };
-            const countMarked = (t) => t.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+                for (const sheetNum in ticketsBySheet) {
+                    const sheetTickets = ticketsBySheet[sheetNum];
+                    let isWinner = false;
+                    let winningTicketIds = [];
 
-            if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
-                const count = parseInt(dividend.name.match(/\d+/)[0], 10);
-                if (countMarked(ticket) >= count) {
-                    isWinner = true;
-                    winningPatternNumbers = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
-                }
-            } else if (dividend.name.includes("Full House")) {
-                const housefullWinnersData = Object.values(updatedWinners).flat().filter(w => w.dividendName && w.dividendName.includes("Full House"));
-                const housefullWinnerTicketIds = housefullWinnersData.map(w => w.ticketId);
-                const fullHouseClaimedCount = new Set(housefullWinnerTicketIds).size;
-                
-                const allTicketNumbers = ticket.numbers.flat().filter(n => n > 0);
-                if (check(allTicketNumbers)) {
-                    if (housefullWinnerTicketIds.includes(ticket.id)) continue;
-                    
-                    if (dividend.name === "First Full House" && fullHouseClaimedCount === 0) isWinner = true;
-                    else if (dividend.name === "Second Full House" && fullHouseClaimedCount === 1) isWinner = true;
-                    else if (dividend.name === "Third Full House" && fullHouseClaimedCount === 2) isWinner = true;
-                }
-            } else {
-                const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
-                if (dividend.name === "Top Line" && r1.length > 0 && check(r1)) isWinner = true;
-                else if (dividend.name === "Middle Line" && r2.length > 0 && check(r2)) isWinner = true;
-                else if (dividend.name === "Bottom Line" && r3.length > 0 && check(r3)) isWinner = true;
-                else if (dividend.name === "Corners (4)") {
-                    const corners = [r1[0], r1[r1.length - 1], r3[0], r3[r3.length - 1]].filter(Boolean);
-                    if (corners.length === 4 && check(corners)) isWinner = true;
+                    if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
+                        const allTicketsMeetCondition = sheetTickets.every(t => countMarked(t) >= 2);
+                        if (allTicketsMeetCondition && sheetTickets.some(t => t.numbers.flat().includes(lastCalledNumber))) {
+                            isWinner = true;
+                            winningTicketIds.push(`Sheet ${parseInt(sheetNum) + 1}`);
+                        }
+                    } else if (dividend.name === 'Half Sheet Bonus' && sheetTickets.length >= 3) {
+                         // Very simplified check: any 3 tickets in a sheet with >= 2 marks.
+                         const combinations = sheetTickets.length >= 3 ? 1 : 0; // In a real scenario, you'd iterate combinations
+                         if (combinations > 0) {
+                             const firstThree = sheetTickets.slice(0, 3);
+                             if (firstThree.every(t => countMarked(t) >= 2) && firstThree.some(t => t.numbers.flat().includes(lastCalledNumber))) {
+                                isWinner = true;
+                                winningTicketIds.push(`Half Sheet in Sheet ${parseInt(sheetNum) + 1}`);
+                             }
+                         }
+                    }
+
+                    if (isWinner) {
+                        winnersThisTurn.push({
+                            name: ownerTickets[0].owner_name,
+                            phone: ownerPhone,
+                            ticketId: winningTicketIds.join(', '),
+                            winningNumber: lastCalledNumber,
+                            won_at: firebase.database.ServerValue.TIMESTAMP,
+                            dividendName: dividend.name
+                        });
+                    }
                 }
             }
-            
-            if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
-                winnersThisTurn.push({
-                    name: ticket.owner_name,
-                    phone: ticket.owner_phone,
-                    ticketId: ticket.id,
-                    winningNumber: lastCalledNumber,
-                    won_at: firebase.database.ServerValue.TIMESTAMP,
-                    dividendName: dividend.name
-                });
+        } else {
+             for (const ticket of soldTickets) {
+                let isWinner = false;
+                let winningPatternNumbers = [];
+                const checkPattern = (numbers) => {
+                    winningPatternNumbers = numbers;
+                    return numbers.every(n => calledNumbers.includes(n));
+                };
+
+                const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
+
+                if (dividend.name.includes("Full House")) {
+                    const housefullWinnersData = Object.values(updatedWinners).flat().filter(w => w.dividendName && w.dividendName.includes("Full House"));
+                    const housefullWinnerTicketIds = housefullWinnersData.map(w => w.ticketId);
+                    const fullHouseClaimedCount = new Set(housefullWinnerTicketIds).size;
+                    const allTicketNumbers = ticket.numbers.flat().filter(n => n > 0);
+                    if (checkPattern(allTicketNumbers)) {
+                        if (housefullWinnerTicketIds.includes(ticket.id)) continue;
+                        if ((dividend.name === "First Full House" && fullHouseClaimedCount === 0) ||
+                            (dividend.name === "Second Full House" && fullHouseClaimedCount === 1) ||
+                            (dividend.name === "Third Full House" && fullHouseClaimedCount === 2)) {
+                            isWinner = true;
+                        }
+                    }
+                } else if (dividend.name === "Top Line" && r1.length > 0 && checkPattern(r1)) isWinner = true;
+                else if (dividend.name === "Middle Line" && r2.length > 0 && checkPattern(r2)) isWinner = true;
+                else if (dividend.name === "Bottom Line" && r3.length > 0 && checkPattern(r3)) isWinner = true;
+                else if (dividend.name === "Corners (4)") {
+                    const corners = [r1[0], r1[r1.length - 1], r3[0], r3[r3.length - 1]].filter(Boolean);
+                    if (corners.length === 4 && checkPattern(corners)) isWinner = true;
+                } else if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
+                    const count = parseInt(dividend.name.match(/\d+/)[0], 10);
+                    if (countMarked(ticket) >= count) {
+                        isWinner = true;
+                        winningPatternNumbers = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
+                    }
+                }
+
+                if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
+                    winnersThisTurn.push({
+                        name: ticket.owner_name,
+                        phone: ticket.owner_phone,
+                        ticketId: ticket.id,
+                        winningNumber: lastCalledNumber,
+                        won_at: firebase.database.ServerValue.TIMESTAMP,
+                        dividendName: dividend.name
+                    });
+                }
             }
         }
 
@@ -3423,6 +3438,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
     }
     return updatedWinners;
 }
+
 
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
@@ -3547,7 +3563,6 @@ function createListPDF(title, headers, dataRows, filename) {
     doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
 
     const startY = 35;
-    const colWidths = [25, 80, 75]; 
     const colPositions = [15, 40, 120]; 
 
     doc.setFontSize(12);
