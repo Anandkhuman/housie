@@ -3377,7 +3377,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 default:
                     if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
                         const count = parseInt(dividend.name.match(/\d+/)[0], 10);
-                        if (countMarked(ticket) >= count) {
+                        // FIX: Changed >= to === to ensure the win is claimed on the exact number.
+                        if (countMarked(ticket) === count) {
                             isWinner = true;
                             winningPatternNumbers = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
                         }
@@ -3430,6 +3431,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
     }
     return updatedWinners;
 }
+
 
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
