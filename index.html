@@ -31,7 +31,7 @@
         --text-primary: #ffffff;
         --text-secondary: #b0a8e0;
         --text-dark: #100c2A;
-        --font-family-neon: 'Rajdhani', sans-serif;
+        --font-family-neon: 'Roboto', sans-serif;
         --transition-speed: 0.4s;
         --transition-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
         --primary-bg-dash: #2c3e50; /* Wet Asphalt */
@@ -3366,10 +3366,12 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     const allTicketNumbers = r1.concat(r2, r3);
 
                     if (checkPattern(allTicketNumbers) && !housefullWinnerTicketIds.includes(ticket.id)) {
-                        const claimedCount = new Set(housefullWinnerTicketIds).size;
-                        if ((dividend.name === "First Full House" && claimedCount === 0) ||
-                            (dividend.name === "Second Full House" && claimedCount === 1) ||
-                            (dividend.name === "Third Full House" && claimedCount === 2)) {
+                        // **FIXED LOGIC**: Count claimed prize categories, not winning tickets.
+                        const claimedPrizesCount = Object.keys(updatedWinners).filter(key => key.includes("Full House")).length;
+                        
+                        if ((dividend.name === "First Full House" && claimedPrizesCount === 0) ||
+                            (dividend.name === "Second Full House" && claimedPrizesCount === 1) ||
+                            (dividend.name === "Third Full House" && claimedPrizesCount === 2)) {
                             isWinner = true;
                         }
                     }
@@ -3377,7 +3379,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 default:
                     if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
                         const count = parseInt(dividend.name.match(/\d+/)[0], 10);
-                        // FIX: Changed >= to === to ensure the win is claimed on the exact number.
                         if (countMarked(ticket) === count) {
                             isWinner = true;
                             winningPatternNumbers = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
