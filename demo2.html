@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo theme2</title>
+    <title>Demo Theme 2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +39,7 @@
         /* Dashboard colors (kept for dashboard view) */
         --primary-bg-dash: #03093b; 
         --secondary-bg-dash: #34495e; 
-        --accent-color-dash: #ff0033; 
+        --accent-color-dash: #FF5F6D; 
         --muted-color-dash: #7f8c8d;
         --light-text-dash: #ffffee;
     }
@@ -109,7 +109,7 @@
         width: 100%; max-width: 500px;
         background: #fff; /* Solid white for popups */
         border: 1px solid var(--accent-primary); border-radius: 8px;
-        padding: 0; position: relative; max-height: 90vh; overflow-y: auto;
+        padding: 0; position: relative; max-height: 100%; overflow-y: auto;
         box-shadow: 0 0 20px rgba(255, 140, 66, 0.4);
         transform: scale(0.95);
         transition: transform var(--transition-speed) var(--transition-ease);
@@ -317,6 +317,50 @@
     .searchInp:focus { box-shadow: 0 0 10px var(--accent-primary); }
     .search-btn { padding: 0 1rem; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: white; cursor: pointer; border-radius: 0 4px 4px 0; font-size: 1rem; font-weight: 700; transition: filter var(--transition-speed) ease; }
     .search-btn:hover { filter: brightness(1.2); }
+    .search-btn.clear { background: #c0392b; border-radius: 0; color: white;}
+
+    /* NEW SEARCH RESULT STYLES */
+    .search-result-block {
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 1px solid var(--accent-secondary);
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+    }
+    .search-result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.3rem 0.5rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid var(--accent-secondary);
+        font-size: 0.9rem;
+    }
+    .search-result-header strong {
+        color: var(--text-primary);
+    }
+    .clear-result-btn {
+        background: transparent;
+        border: none;
+        color: var(--accent-primary);
+        cursor: pointer;
+        font-size: 1.1rem;
+        padding: 2px 5px;
+        line-height: 1;
+        transition: transform 0.2s, color 0.2s;
+    }
+    .clear-result-btn:hover {
+        transform: scale(1.2);
+        color: #e74c3c;
+    }
+    .search-result-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    /* END NEW SEARCH RESULT STYLES */
+
+
     .ticketDisplayArea { display: flex; flex-direction: column; gap: 1rem; }
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
     .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: #d9534f; text-shadow: none; } /* Changed title color */
@@ -341,40 +385,27 @@
         position: relative;
     }
 
-    .download-pdf-btn {
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        background-color: var(--accent-primary);
-        color: white;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 10;
-        border: 2px solid white;
-        transition: transform 0.2s;
-    }
-    .download-pdf-btn:hover {
-        transform: scale(1.1);
-    }
-
     .dividend-table { width: 100%; border-collapse: collapse; }
-    .dividend-table th, .dividend-table td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid rgba(255, 200, 87, 0.6); font-size: 0.85rem;}
+    .dividend-table th, .dividend-table td { padding: 0.6rem 0.8rem; text-align: left; border-top: 1px solid rgba(255, 200, 87, 0.6); font-size: 0.85rem;}
     .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.9rem; }
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
     .dividend-table tbody tr:hover { background-color: rgba(255, 200, 87, 0.1); }
     .dividend-table .winner-name { font-weight: 700; color: var(--called-color); }
     .dividend-table .winner-info {
         display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        width: 100%;
+    }
+    .dividend-table .winner-entry {
+        display: flex;
         justify-content: space-between;
         align-items: center;
         width: 100%;
     }
-    .dividend-table .winner-info .fa-eye {
+
+    .dividend-table .winner-entry .fa-eye {
         flex-shrink: 0;
         margin-left: 10px;
         cursor: pointer;
@@ -382,7 +413,7 @@
         font-size: 1.1rem;
         transition: transform 0.2s;
     }
-     .dividend-table .winner-info .fa-eye:hover {
+     .dividend-table .winner-entry .fa-eye:hover {
         transform: scale(1.2);
      }
 
@@ -396,7 +427,12 @@
     #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
     #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 60vh; overflow-y: auto; border-radius: 6px; background-color: transparent; border: none; }
     #bookingGridContainer .ticket-view { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    #bookingGridContainer .ticket-view.sold { cursor: not-allowed; opacity: 0.5; }
+    /* MODIFIED: Changed color for sold tickets */
+    #bookingGridContainer .ticket-view.sold { 
+        cursor: not-allowed; 
+        background-color: #ffc; /* Yellow */
+        opacity: 0.8;
+    }
     #bookingGridContainer .ticket-view.selected { transform: scale(1.03); box-shadow: 0 0 15px var(--called-color), inset 0 0 10px rgba(255, 242, 0, 0.2); border-color: var(--called-color); }
     #bookingFormContainer { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem; }
     .selection-indicator { text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--called-color); padding: 0.6rem; margin-top: 1rem; border-radius: 4px; background: rgba(255, 242, 0, 0.1); border: 2px dashed var(--called-color); min-height: 40px; display: flex; align-items: center; justify-content: center; transition: border-color 0.3s ease; }
@@ -447,10 +483,39 @@
     .dashboard-view .bookInpDiv { display: grid; grid-template-columns: 1fr; gap: 8px; width: 80%; margin: 1rem auto; }
     .dashboard-view .ticketBlockDiv { width: 80%; margin: 1rem auto; overflow-y: scroll; max-height: 45vh; padding: 4px; grid-template-columns: 1fr; }
     .dashboard-view .ticketBlockBtn { font-size: 0.9rem; padding: 4px; background: white; font-weight: bold; border: 2px solid silver; color: #000; cursor: pointer; aspect-ratio: 1/1; transition: background-color 0.2s, color 0.2s; }
+    /* MODIFIED: Yellow for booked, white for available */
+    .dashboard-view .ticketBlockBtn:disabled {
+        background-color: yellow;
+        color: black;
+        text-decoration: none;
+        border-color: #f1c40f;
+    }
     .dashboard-view .bookBtn { width: 80%; font-size: 0.9rem; padding: 8px; border: 0; font-weight: bold; display: block; margin: 15px auto 0 auto; background: var(--accent-color-dash); color: var(--light-text-dash); border-radius: 4px; }
     .dashboard-view .runGameTable, .dashboard-view .dividentConDiv { width: 95%; margin: 1rem auto; }
+    
+    /* IMPROVED ADMIN WINNER LIST VIEW */
+    .dashboard-view .dividentConDiv {
+        flex-grow: 1; /* Let it grow to fill available space */
+        min-height: 150px; /* Prevent it from collapsing */
+        overflow-y: auto; /* Make the content scrollable */
+        border: 1px solid var(--muted-color-dash);
+        border-radius: 6px;
+        padding: 0.5rem;
+        background: rgba(0,0,0,0.1);
+    }
+    
     .dashboard-view .dividentConDiv table { width: 100%; color: var(--light-text-dash); border-collapse: collapse; }
     .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 6px; border: 1px solid var(--muted-color-dash); font-size: 0.85rem;}
+    
+    /* NEW: Darker styling for admin dividend table */
+    #runGameDividendTable { color: var(--light-text-dash); }
+    #runGameDividendTable th, #runGameDividendTable td { border-color: var(--muted-color-dash); }
+    #runGameDividendTable td span[style*="color: var(--text-secondary)"] {
+        color: var(--muted-color-dash) !important;
+    }
+    #runGameDividendTable .winner-name { color: #f1c40f; }
+    #runGameDividendTable .winner-entry .fa-eye { color: #1abc9c; }
+
     .gamePopDiv { background: rgba(0, 0, 0, 0.8); }
     .gameDiv { position: relative; height: 95vh; background: var(--primary-bg-dash); margin: 2.5% auto; border-radius: 8px; overflow-y: scroll; padding-bottom: 2rem; width: 95%; }
     .gameDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
@@ -474,7 +539,7 @@
         position: absolute;
         top: 0;
         right: 4px;
-        color: white;
+        color: red;
     }
     .booking-popup-footer {
         padding-top: 0.5rem;
@@ -490,7 +555,7 @@
         padding: 8px;
     }
 
-    #publicBookingPopup .bookInpDiv {
+    .gamePopDiv .bookInpDiv {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
@@ -716,17 +781,17 @@
     /* --- END: EDITABLE POSTER STYLES --- */
 
 
-    /* --- NEW STYLES for unified popup inputs and buttons --- */
+    /* --- MODIFIED for white background/black text inputs --- */
     .gamePopDiv .tableInp {
-        width: 50%;
+        width: 60%;
         font-size: 0.9rem;
         padding: 0.7rem 4rem;
         border-radius: 10px;
         text-align: center;
         font-family: var(--font-family-neon);
-        background: var(--secondary-bg-dash);
-        border: 1px solid var(--accent-color-dash);
-        color: var(--light-text-dash);
+        background: #ffffff;
+        border: 1px solid #cccccc;
+        color: #000000;
         box-sizing: border-box;
         transition: box-shadow 0.2s ease, border-color 0.2s ease;
     }
@@ -738,19 +803,19 @@
         border-radius: 10px;
         text-align: center;
         font-family: var(--font-family-neon);
-        background: var(--secondary-bg-dash);
-        border: 1px solid var(--accent-color-dash);
-        color: var(--light-text-dash);
+        background: #ffffff;
+        border: 1px solid #cccccc;
+        color: #000000;
         box-sizing: border-box;
         transition: box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
 
-    .gamePopDiv .tableInp:focus {
-        border-color: var(--accent-color-dash);
-        box-shadow: 0 0 8px var(--accent-color-dash);
+    .gamePopDiv .tableInp:focus,
+    .gamePopDiv .tableInp1:focus {
+        border-color: var(--accent-primary) !important;
+        box-shadow: 0 0 5px rgba(255, 140, 66, 0.5) !important;
         outline: none;
-       
     }
 
     /* Custom arrow for select dropdown in popups */
@@ -758,7 +823,7 @@
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231abc9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right 1rem center;
         background-size: 1em;
@@ -826,6 +891,13 @@
     input:checked + .slider:before {
       transform: translateX(26px);
     }
+    
+    /* --- FIX: Make Admin Run Game Popup scrollable --- */
+    #runGameWindowDiv > .gameDiv {
+        display: block; /* Override the flex layout which breaks scrolling here */
+        overflow-y: auto; /* Enable vertical scrolling for the entire popup content */
+        padding-bottom: 2rem; /* Restore some space at the bottom */
+    }
 </style>
 </head>
 <body>
@@ -839,9 +911,8 @@
         <header class="main-header">
             <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">Demo theme2</h1>
+                <h1 class="webTitle">Demo Theme2</h1>
             </div>
-            <!-- ICON BAR MOVED TO BOTTOM -->
         </header>
 
         <div class="panel">
@@ -863,6 +934,7 @@
                     <h2 class="panel-title">MY TICKETS</h2>
                     <div class="search-container">
                         <input type="text" class="searchInp" id="ticketSearchInp" placeholder="Enter name, phone, or ticket ID">
+                        <button class="search-btn clear" id="clearSearchBtn" title="Clear all search results" style="display: none;"><i class="fas fa-times"></i></button>
                         <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
                     </div>
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
@@ -885,7 +957,6 @@
             </aside>
         </main>
     </div>
-    <!-- NEW BOTTOM NAV BAR -->
     <nav class="bottom-nav-bar">
         <div class="icon-bar" id="public-icon-bar">
             <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
@@ -903,9 +974,8 @@
         <header class="main-header">
              <div class="title-container">
                 <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">Demo theme2</h1>
+                <h1 class="webTitle">Demo Theme2 </h1>
             </div>
-            <!-- ICON BAR MOVED TO BOTTOM -->
         </header>
 
         <div class="panel">
@@ -923,8 +993,7 @@
             </div>
         </section>
     </div>
-    <!-- NEW BOTTOM NAV BAR -->
-    <nav class="bottom-nav-bar">
+   <nav class="bottom-nav-bar">
         <div class="icon-bar" id="booking-icon-bar">
            <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game Board</span></a>
            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Direct Book</span></button>
@@ -1170,12 +1239,12 @@
                 <input class="tableInp1" id="dashBookerNameInp" placeholder="Name">
                 <input class="tableInp1" id="dashBookerPhoneInp" placeholder="Phone">
             </div>
+            <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
+            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
         </div>
         <div class="ticketBlockDiv" id="dashTicketBlockDiv">
         </div>
         <div class="booking-popup-footer">
-            <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
-            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
         </div>
     </div>
 </div>
@@ -1183,18 +1252,18 @@
     <div class="gameDiv">
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-</br></br>
+            <br/><br/>
             <div class="titleBtn"></div>
             <div class="bookInpDiv">
-                <input class="tableInp" id="publicBookerNameInp" placeholder="Your Name">
-                <input class="tableInp" id="publicBookerPhoneInp" placeholder="Your Phone">
+                <input class="tableInp1" id="publicBookerNameInp" placeholder="Your Name">
+                <input class="tableInp1" id="publicBookerPhoneInp" placeholder="Your Phone">
             </div>
+             <div id="publicBookingIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
+            <input class="bookBtn" type="button" id="publicRequestBookingBtn" value="REQUEST BOOKING">
         </div>
         <div class="ticketBlockDiv" id="publicBookingGrid">
         </div>
         <div class="booking-popup-footer">
-            <div id="publicBookingIndicator" class="selection-indicator" style="width: 80%; margin: 1rem auto; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
-            <input class="bookBtn" type="button" id="publicRequestBookingBtn" value="REQUEST BOOKING">
         </div>
     </div>
 </div>
@@ -1215,6 +1284,7 @@
                     <td>INTERVAL (sec)</td>
                     <td><input type="number" class="tableInp" id="callIntervalInp" value="10"></td>
                 </tr>
+             
             </tbody>
         </table>
         
@@ -1223,10 +1293,16 @@
             <div class="number-board" id="runGamePopupBoard">
             </div>
         </section>
-	<div style="font-weight:bold;font-size:18px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
 
+        <div class="dividentConDiv">
+            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
+            <table class="dividend-table" id="runGameDividendTable">
+                <thead><tr><th>Dividend Name</th><th>Winner</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
 
-
+	<div style="font-weight:bold;font-size:18px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin-top: 1rem;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
       </div>
 </div>
 <div class="overlay-popup" id="genericInfoPopup">
@@ -1273,6 +1349,8 @@
         </div>
     </div>
 </div>
+
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAjvI_Vl4trHwZAosaGLdEYQ87jJHeGYwc",
@@ -1331,9 +1409,7 @@ let gameSettingsData = {};
 let publicSelectedTickets = []; 
 let publicPopupSelectedTickets = []; 
 let adminListState = 'tickets';
-// --- MODIFICATION START: Add a variable to track the last notification ---
 let lastNotification = { message: '', type: '', timestamp: 0 };
-// --- MODIFICATION END ---
 
 const allPossibleDividends = [
     "First Full House", "Second Full House", "Third Full House", "Top Line", "Middle Line", "Bottom Line",
@@ -1370,24 +1446,17 @@ window.addEventListener('hashchange', handleRouting);
 
 function showNotification(message, type = 'info', duration = 4000) {
     const now = Date.now();
-    // Cooldown period in milliseconds (e.g., 5 seconds)
-    // to prevent the same notification from appearing again too quickly.
     const cooldown = 5000;
 
-    // Check if the incoming notification is identical to the last one
-    // and if it's within the cooldown period.
     if (
         message === lastNotification.message &&
         type === lastNotification.type &&
         (now - lastNotification.timestamp) < cooldown
     ) {
-        return; // If so, exit the function and don't show it.
+        return; 
     }
 
     const container = document.getElementById('notification-container');
-
-    // This second check prevents creating duplicate HTML elements if the function
-    // is called multiple times before the `lastNotification` variable is updated.
     const existingNotifs = container.querySelectorAll('.notification');
     for (const notif of existingNotifs) {
         if (notif.textContent === message && notif.classList.contains(type)) {
@@ -1396,19 +1465,13 @@ function showNotification(message, type = 'info', duration = 4000) {
     }
 
     lastNotification = { message, type, timestamp: now };
-
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-
     container.appendChild(notification);
-
-    // Animate the notification into view
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
-
-    // Set a timer to remove the notification
     setTimeout(() => {
         notification.classList.remove('show');
         notification.addEventListener('transitionend', () => notification.remove());
@@ -1527,9 +1590,14 @@ async function handleForgotPassword(e) {
     }
 }
 
+function manageClearAllVisibility() {
+    const displayArea = document.getElementById('ticketDisplayArea');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    clearBtn.style.display = displayArea.children.length > 0 ? 'block' : 'none';
+}
+
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-  // document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -1539,8 +1607,22 @@ function bindEventListeners() {
     document.getElementById('showAgentsBtn').addEventListener('click', showAgentListPopup);
     document.getElementById('showAgentListBtn-booking').addEventListener('click', showAgentListPopup);
     document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.addEventListener('click', () => showPopup('loginPopup')));
+    
+    const searchInput = document.getElementById('ticketSearchInp');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    
     document.getElementById('searchBtn').addEventListener('click', searchTicketPublic);
-    document.getElementById('ticketSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketPublic(); });
+    searchInput.addEventListener('keyup', e => { 
+        if (e.key === "Enter") searchTicketPublic();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+        document.getElementById('ticketDisplayArea').innerHTML = '';
+        searchInput.value = '';
+        manageClearAllVisibility();
+        searchInput.focus();
+    });
+
     document.getElementById('navigateToBooking').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'book'; });
     document.getElementById('navigateToGame').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'game'; });
     document.getElementById('requestBookingBtn').addEventListener('click', handlePublicBookingRequest);
@@ -1613,10 +1695,15 @@ function setupRealtimeListeners() {
         currentCalledNumbers = newNumbers;
 
         const newWinners = data.winners || {};
-        for (const dividendName in newWinners) {
-            if (!knownWinners[dividendName]) {
-                const winner = newWinners[dividendName];
-                const msg = `${winner.name} (Tkt: ${winner.ticketId}) has won ${dividendName}!`;
+        
+        const activeDividends = gameSettingsData.dividends || [];
+        for (const dividend of activeDividends) {
+            const dividendName = dividend.name;
+            if (newWinners[dividendName] && !knownWinners[dividendName]) { 
+                const winnersArray = newWinners[dividendName];
+                const winnerNames = winnersArray.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
+                const msg = `${winnerNames} has won ${dividendName}!`;
+
                 triggerGlobalNotification(msg, 'success');
                 const soundFile = dividendSoundMap[dividendName];
                 if (soundFile) {
@@ -1624,8 +1711,8 @@ function setupRealtimeListeners() {
                 }
             }
         }
+        
         knownWinners = newWinners;
-
         updateGameRelatedUIs(data); 
     }, err => { console.error("GameState listener error:", err); showNotification('Could not load game state.', 'error'); });
 
@@ -1660,11 +1747,11 @@ function setupRealtimeListeners() {
 function updateAllUIsWithSettings(data) {
     document.getElementById('whatsappGroupLink').href = data.whatsappLink || '#';
     updateCountdownTimers(data.gameDateTime);
-    populateDividendList(data.dividends || []);
+    populateDividendTables(data.dividends || []);
     if (currentUserRole === 'admin') updateAdminSettingsUI(data);
     if (currentUserRole === 'agent') updateAgentInfoUI();
     updateBusinessInfo();
-    const isBookingOpen = data.isBookingOpen !== false; // Defaults to true
+    const isBookingOpen = data.isBookingOpen !== false; 
     updateBookingUIs(isBookingOpen);
 }
 
@@ -1674,7 +1761,7 @@ function updateGameRelatedUIs(gameState) {
     
     updateNumberBoard(calledNums);
     updateCalledNumbersList(calledNums);
-    updateWinners(winners);
+    updateAllWinnerDisplays(winners);
     updateDisplayedTicketPublic();
     if (currentUserRole === 'admin') {
         updateRunGameUI(gameState);
@@ -1684,7 +1771,14 @@ function updateGameRelatedUIs(gameState) {
 function updateTicketRelatedUIs() {
     renderVisualTicketBookingPage();
     renderSheetWiseBookedList();
-    if (document.getElementById('ticketDisplayArea').innerHTML) searchTicketPublic();
+    if (document.getElementById('ticketDisplayArea').children.length > 0) {
+        // Re-check displayed tickets against current data
+        document.querySelectorAll('.search-result-block').forEach(block => {
+            const searchTerm = block.dataset.searchTerm;
+            // A full re-search might be too much. For now, just update styling.
+            updateDisplayedTicketPublic();
+        });
+    }
     if (currentUserRole === 'admin') updateAdminList();
     if (currentUserRole === 'agent') showAgentSoldTickets();
     updateDashboardBookingPopup();
@@ -1789,7 +1883,7 @@ function updateCountdownTimers(targetDateString) {
     ];
 
     if (!targetDateString || isNaN(targetDate)) {
-        gameLiveSoundPlayed = false; // Reset flag for next game
+        gameLiveSoundPlayed = false; 
         const waitingHTML = `<div class="info-item"><i class="fas fa-hourglass-half"></i><span>Awaiting Game Schedule</span></div>`;
         timerBars.forEach(bar => { if(bar) bar.innerHTML = waitingHTML; });
         return;
@@ -1805,7 +1899,6 @@ function updateCountdownTimers(targetDateString) {
         if (distance < 0) {
             clearInterval(countdownInterval);
             countdownText = 'Game is in Progress!';
-            // Play sound when countdown ends, but only once
             if (!gameLiveSoundPlayed) {
                 playSound(audioBaseUrl + "GAME%20IS%20LIVE.mp3");
                 gameLiveSoundPlayed = true;
@@ -1968,9 +2061,15 @@ function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
 
 function searchTicketPublic() {
     const searchTerm = document.getElementById('ticketSearchInp').value.trim();
-    const displayArea = document.getElementById('ticketDisplayArea');
     if (!searchTerm) {
-        displayArea.innerHTML = '';
+        showNotification("Please enter a search term.", "info");
+        return;
+    }
+    const displayArea = document.getElementById('ticketDisplayArea');
+
+    // Prevent duplicate searches for the same term
+    if (displayArea.querySelector(`[data-search-term="${CSS.escape(searchTerm)}"]`)) {
+        showNotification(`Results for "${searchTerm}" are already displayed.`, 'info');
         return;
     }
 
@@ -1992,19 +2091,42 @@ function searchTicketPublic() {
 
     if (ticketsToDisplay.length > 0) {
         ticketsToDisplay.sort((a, b) => a.id - b.id);
-        displayArea.innerHTML = ticketsToDisplay.map(ticket => {
+        
+        const resultBlock = document.createElement('div');
+        resultBlock.className = 'search-result-block';
+        resultBlock.dataset.searchTerm = searchTerm;
+
+        const headerHTML = `
+            <div class="search-result-header">
+                <span>Results for: <strong>${searchTerm}</strong> (${ticketsToDisplay.length} tickets)</span>
+                <button class="clear-result-btn" title="Clear this result"><i class="fas fa-times"></i></button>
+            </div>
+        `;
+
+        const contentHTML = ticketsToDisplay.map(ticket => {
             const gridHTML = ticket.numbers.flat().map(n =>
                 `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
             ).join('');
             return `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})"><i class="fas fa-file-pdf"></i></div>
                         <div class="ticket-header">Ticket #${ticket.id}: ${ticket.owner_name}</div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         }).join('');
+
+        resultBlock.innerHTML = headerHTML + `<div class="search-result-content">${contentHTML}</div>`;
+        
+        resultBlock.querySelector('.clear-result-btn').addEventListener('click', () => {
+            resultBlock.remove();
+            manageClearAllVisibility();
+        });
+
+        displayArea.appendChild(resultBlock);
+        
         updateDisplayedTicketPublic();
+        manageClearAllVisibility();
+
     } else {
-        displayArea.innerHTML = '<p style="text-align:center;">No tickets found.</p>';
+        showNotification(`No tickets found for "${searchTerm}".`, 'error');
     }
 }
 
@@ -2015,48 +2137,75 @@ function updateDisplayedTicketPublic() {
             if (num > 0) {
                  const isCalled = currentCalledNumbers.includes(num);
                  cell.classList.toggle('ticked', isCalled);
-                // Highlight the very last number called on all visible tickets
                 cell.classList.toggle('last-called-highlight', num === lastAnnouncedNumber);
             }
         });
     });
 }
 
-function populateDividendList(dividends) {
-    const tbody = document.querySelector('#dividendListTable tbody');
-    if (tbody) {
-        tbody.innerHTML = (dividends || [])
-            .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
-                          <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
-                          <td class="winner-info"><span class="winner-name">Pending...</span></td>
-                      </tr>`)
-            .join('');
-    }
+function populateDividendTables(dividends) {
+    const tables = [
+        document.querySelector('#dividendListTable tbody'),
+        document.querySelector('#runGameDividendTable tbody')
+    ];
+    
+    tables.forEach(tbody => {
+        if (tbody) {
+            tbody.innerHTML = (dividends || [])
+                .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
+                              <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
+                              <td class="winner-info"><span class="winner-name">Pending...</span></td>
+                          </tr>`)
+                .join('');
+        }
+    });
 }
 
-function updateWinners(winners) {
-    document.querySelectorAll('#dividendListTable .winner-info').forEach(el => {
+function updateAllWinnerDisplays(winners) {
+    updateWinnerDisplayForTable('dividendListTable', winners);
+    updateWinnerDisplayForTable('runGameDividendTable', winners);
+}
+
+function updateWinnerDisplayForTable(tableId, winners) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    table.querySelectorAll('.winner-info').forEach(el => {
         el.innerHTML = `<span class="winner-name">Pending...</span>`;
     });
 
-    for (const name in winners) {
-        const row = document.querySelector(`#dividendListTable tr[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
-        if (row) {
-            const winner = winners[name];
-            let winnerText = `<span><span class="winner-name">${winner.name}</span> (Tkt: ${winner.ticketId})</span>`;
-            
-            const ticketIdNum = parseInt(winner.ticketId, 10);
-            let eyeIcon = '';
+    const dividendsData = new Map((gameSettingsData.dividends || []).map(d => [d.name, d]));
 
-            if (name === "Full Sheet Bonus" || name === "Half Sheet Bonus") {
-                // Pass the identifier string and the dividend name to the handler function
-                eyeIcon = `<i class="fas fa-eye" onclick="showWinningSheet('${winner.ticketId}', '${name}')"></i>`;
-            }
-            else if (!isNaN(ticketIdNum) && ticketIdNum > 0) {
-                 eyeIcon = `<i class="fas fa-eye" onclick="showWinningTicket(${ticketIdNum}, '${name}')"></i>`;
-            }
+    for (const name in winners) {
+        const row = table.querySelector(`tr[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
+        if (row) {
+            const winnersArray = winners[name];
+            const winnerCount = winnersArray.length;
+            const dividendInfo = dividendsData.get(name);
+            const totalAmount = dividendInfo ? dividendInfo.amount : 0;
+            const dividedAmount = winnerCount > 0 ? (totalAmount / winnerCount).toFixed(2) : 0;
+
+            const winnerInfoHTML = winnersArray.map(winner => {
+                const ticketId = winner.ticketId;
+                const ticketIdNum = parseInt(ticketId, 10);
+                let eyeIcon = '';
+
+                if (name === "Full Sheet Bonus" || name === "Half Sheet Bonus") {
+                    eyeIcon = `<i class="fas fa-eye" onclick="showWinningSheet('${ticketId}', '${name}')"></i>`;
+                } else if (!isNaN(ticketIdNum) && ticketIdNum > 0) {
+                    eyeIcon = `<i class="fas fa-eye" onclick="showWinningTicket(${ticketIdNum}, '${name}')"></i>`;
+                }
+                
+                return `<div class="winner-entry">
+                            <span>
+                                <span class="winner-name">${winner.name}</span> (Tkt: ${ticketId})
+                                ${winnerCount > 1 ? ` (₹${dividedAmount})` : ''}
+                            </span>
+                            ${eyeIcon}
+                        </div>`;
+            }).join('');
             
-            row.querySelector('.winner-info').innerHTML = winnerText + eyeIcon;
+            row.querySelector('.winner-info').innerHTML = winnerInfoHTML;
         }
     }
 }
@@ -2065,7 +2214,6 @@ function updateNumberBoard(called) {
     const lastCalled = called.length > 0 ? called[called.length - 1] : null;
     for (let i = 1; i <= 90; i++) {
         const isCalled = called.includes(i);
-        // Update public board
         const publicCell = document.getElementById(`num-${i}`);
         if(publicCell){
             publicCell.classList.toggle('called', isCalled);
@@ -2182,7 +2330,8 @@ function showWinningTicket(ticketId, dividendName) {
     const displayArea = document.getElementById('winningTicketDisplayArea');
     const title = document.getElementById('winningTicketPopupTitle');
     
-    const winnerInfo = knownWinners[dividendName];
+    const winnerInfoArray = knownWinners[dividendName] || [];
+    const winnerInfo = winnerInfoArray.find(w => w.ticketId === ticketId);
     const winningNumber = winnerInfo ? winnerInfo.winningNumber : null;
 
     title.textContent = `Ticket #${ticket.id} - ${ticket.owner_name}`;
@@ -2203,16 +2352,17 @@ function showWinningTicket(ticketId, dividendName) {
 }
 
 function showWinningSheet(sheetIdentifier, dividendName) {
-    const winnerInfo = knownWinners[dividendName];
-    if (!winnerInfo || !winnerInfo.phone) {
+    const winnerInfoArray = knownWinners[dividendName];
+    if (!winnerInfoArray || winnerInfoArray.length === 0) {
         return showNotification("Winner information not found for this dividend.", "error");
     }
+    const winnerInfo = winnerInfoArray[0];
 
     const sheetNumberMatch = sheetIdentifier.match(/\d+/);
     if (!sheetNumberMatch) {
         return showNotification("Could not identify the sheet number.", "error");
     }
-    const sheetIndex = parseInt(sheetNumberMatch[0], 10) - 1; // 0-based index
+    const sheetIndex = parseInt(sheetNumberMatch[0], 10) - 1;
 
     const winnerTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === winnerInfo.phone);
     const winningSheetTickets = winnerTickets.filter(t => {
@@ -2266,7 +2416,7 @@ function updateAdminSettingsUI(data) {
     document.getElementById('totalTicketInp').value = data.totalTickets || 600;
     document.getElementById('ticketPriceInp').value = data.ticketPrice || 0;
     document.getElementById('agentCommissionInp').value = data.agentCommission || 0;
-    document.getElementById('bookingStatusSwitch').checked = data.isBookingOpen !== false; // Default to true if undefined
+    document.getElementById('bookingStatusSwitch').checked = data.isBookingOpen !== false;
 
     const table = document.getElementById('dividendSettingsTable');
     table.innerHTML = `
@@ -2490,7 +2640,6 @@ async function createAgentByAdmin() {
 async function setBookingStatus(isOpen) {
     const action = isOpen ? "OPEN" : "CLOSE";
     if (!confirm(`Are you sure you want to ${action} ticket booking for everyone?`)) {
-        // If user cancels, revert the switch state
         document.getElementById('bookingStatusSwitch').checked = !isOpen;
         return;
     }
@@ -2502,7 +2651,6 @@ async function setBookingStatus(isOpen) {
         await triggerGlobalNotification(msg, 'info');
     } catch (e) {
         showNotification(`Error updating booking status: ${e.message}`, 'error');
-        // Revert switch on error
         document.getElementById('bookingStatusSwitch').checked = !isOpen;
     }
 }
@@ -2541,7 +2689,7 @@ function updateBookingUIs(isBookingOpen) {
         applyStyles(bookingButtons, { opacity: '1', pointerEvents: 'auto' });
         applyStyles(bookingContainers, { opacity: '1', pointerEvents: 'auto' });
         
-    } else { // Booking is closed
+    } else { 
         bookingButtons.forEach(btn => { if (btn) btn.disabled = true; });
         applyStyles(bookingButtons, { opacity: '0.5', pointerEvents: 'none', cursor: 'not-allowed' });
         applyStyles(bookingContainers, { opacity: '0.5', pointerEvents: 'none' });
@@ -2643,11 +2791,13 @@ async function showPreviousGameWinners() {
 
         let contentHTML = '<ul>';
         for (const dividend in prevWinners) {
-            const winner = prevWinners[dividend];
-            contentHTML += `<li>
-                <div class="winner-dividend">${dividend}</div>
-                <div class="winner-details">${winner.name} (Ticket: ${winner.ticketId})</div>
-            </li>`;
+            const winnersArray = prevWinners[dividend];
+            winnersArray.forEach(winner => {
+                 contentHTML += `<li>
+                    <div class="winner-dividend">${dividend}</div>
+                    <div class="winner-details">${winner.name} (Ticket: ${winner.ticketId})</div>
+                </li>`;
+            });
         }
         contentHTML += '</ul>';
 
@@ -2930,7 +3080,7 @@ function changePosterBackground(source) {
 }
 
 function showPosterModal() {
-    const title = "Demo theme2";
+    const title = "Demo Theme2";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -2991,8 +3141,6 @@ function savePosterAsImage() {
         allowTaint: true,
         logging: false,
         onrendered: function(canvas) {
-            // This is a fallback for older versions, though the promise-based .then() is modern.
-            // The main logic is in the .then() block.
         }
     }).then(canvas => {
         const link = document.createElement('a');
@@ -3037,7 +3185,6 @@ async function sharePoster() {
         if (error.name !== 'AbortError') {
              console.error('Error sharing poster:', error);
              showNotification(`Could not share poster: ${error.message}`, 'error');
-             // As a fallback on share error, we can also offer to save
              savePosterAsImage();
         }
     }
@@ -3138,9 +3285,9 @@ function updateDashboardBookingPopup() {
             btn.id = `dash-ticket-btn-${j}`;
             if (ticket && ticket.is_sold) {
                 btn.disabled = true;
-                btn.style.backgroundColor = 'var(--muted-color-dash)';
-                btn.style.color = 'var(--light-text-dash)';
-                btn.style.textDecoration = 'line-through';
+                btn.style.backgroundColor = 'yellow';
+                btn.style.color = 'black';
+                btn.style.borderColor = '#f1c40f';
             } else {
                 btn.onclick = () => {
                     btn.classList.toggle('selected');
@@ -3211,7 +3358,6 @@ function renderPublicBookingGrid() {
     const container = document.getElementById('publicBookingGrid');
     if (!container) return;
 
-    // Reset state for this popup
     container.innerHTML = '';
     publicPopupSelectedTickets = [];
     updatePublicBookingIndicator();
@@ -3252,9 +3398,9 @@ function renderPublicBookingGrid() {
             btn.id = `public-ticket-btn-${j}`;
             if (ticket && ticket.is_sold) {
                 btn.disabled = true;
-                btn.style.backgroundColor = 'var(--muted-color-dash)';
-                btn.style.color = 'var(--light-text-dash)';
-                btn.style.textDecoration = 'line-through';
+                btn.style.backgroundColor = 'yellow';
+                btn.style.color = 'black';
+                btn.style.borderColor = '#f1c40f';
             } else {
                 btn.onclick = () => togglePublicPopupTicketSelection(j);
             }
@@ -3347,7 +3493,7 @@ async function toggleGameRunner() {
             callNextNumber(); 
         } else {
             await gameStateRef.child('isGameRunning').set(false);
-                    }
+        }
         showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
     } catch (e) {
         showNotification("Error starting/stopping game: " + e.message, 'error');
@@ -3382,7 +3528,7 @@ async function manualCallNumber() {
             return gameState;
         });
         showNotification(`Manually called number ${numberToCall}.`, 'success');
-        inputEl.value = ''; // Clear the input after calling
+        inputEl.value = '';
     } catch (e) {
         console.error("Manual call failed:", e);
         showNotification('Error calling number: ' + e.message, 'error');
@@ -3438,159 +3584,174 @@ function callNextNumber() {
     });
 }
 
+// ====================================================================================
+// MODIFIED WINNER CHECKING LOGIC - `checkAllWinners` function
+// ====================================================================================
 function checkAllWinners(calledNumbers, currentWinners) {
-    let updatedWinners = { ...currentWinners };
+    let updatedWinners = JSON.parse(JSON.stringify(currentWinners)); 
     const activeDividends = gameSettingsData.dividends || [];
     const soldTickets = allTicketsData.filter(t => t.is_sold);
-    const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
-    const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
+    const lastCalledNumber = calledNumbers.length > 0 ? calledNumbers[calledNumbers.length - 1] : null;
+
+    if (!lastCalledNumber) return updatedWinners;
+
+    const checkWin = (numbersToCheck) => {
+        const nonZero = numbersToCheck.filter(n => n > 0);
+        if (nonZero.length === 0) return false;
+        if (!nonZero.includes(lastCalledNumber)) return false;
+        return nonZero.every(n => calledNumbers.includes(n));
+    };
+
     const countMarked = (ticket) => ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
-    const ticketsByOwner = {};
+
+    const winnersThisTurn = new Map();
+
+    // --- Standard Dividends Check ---
     for (const ticket of soldTickets) {
-        if (ticket.owner_phone) {
-            if (!ticketsByOwner[ticket.owner_phone]) {
-                ticketsByOwner[ticket.owner_phone] = [];
+        // Full House
+        const isAlreadyFHWinner = Object.values(updatedWinners).flat().some(w => w.dividendName?.includes("Full House") && w.ticketId === ticket.id);
+        if (!isAlreadyFHWinner && checkWin(ticket.numbers.flat())) {
+            if (!winnersThisTurn.has('Full House')) winnersThisTurn.set('Full House', []);
+            winnersThisTurn.get('Full House').push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id });
+        }
+        
+        // Lines
+        const lines = { "Top Line": 0, "Middle Line": 1, "Bottom Line": 2 };
+        for (const [lineName, rowIndex] of Object.entries(lines)) {
+            if (!updatedWinners[lineName] && checkWin(ticket.numbers[rowIndex])) {
+                if (!winnersThisTurn.has(lineName)) winnersThisTurn.set(lineName, []);
+                winnersThisTurn.get(lineName).push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id });
             }
-            ticketsByOwner[ticket.owner_phone].push(ticket);
+        }
+        
+        // Early/Quick Dividends
+        const earlyDividends = activeDividends.filter(d => d.name.match(/^(Early|Quick)\s\d+$/));
+        for (const div of earlyDividends) {
+            if (!updatedWinners[div.name]) {
+                const count = parseInt(div.name.match(/\d+/)[0], 10);
+                if (countMarked(ticket) === count && ticket.numbers.flat().includes(lastCalledNumber)) {
+                    if (!winnersThisTurn.has(div.name)) winnersThisTurn.set(div.name, []);
+                    winnersThisTurn.get(div.name).push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id });
+                }
+            }
+        }
+
+        // Corners
+        if (!updatedWinners["Corners (4)"]) {
+             const findFirstNum = (row) => row.find(n => n > 0);
+             const findLastNum = (row) => [...row].reverse().find(n => n > 0);
+             const corners = [
+                findFirstNum(ticket.numbers[0]), findLastNum(ticket.numbers[0]),
+                findFirstNum(ticket.numbers[2]), findLastNum(ticket.numbers[2])
+             ].filter(Boolean);
+             if (corners.length === 4 && checkWin(corners)) {
+                if (!winnersThisTurn.has("Corners (4)")) winnersThisTurn.set("Corners (4)", []);
+                winnersThisTurn.get("Corners (4)").push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id });
+             }
+        }
+        
+        // Star
+        if (!updatedWinners["Star"]) {
+            const r1 = ticket.numbers[0].filter(n => n > 0);
+            const r2 = ticket.numbers[1].filter(n => n > 0);
+            const r3 = ticket.numbers[2].filter(n => n > 0);
+            if (r1.length > 0 && r2.length > 0 && r3.length > 0) {
+                 const middleNumIndex = Math.floor(r2.length / 2);
+                 const starNumbers = [r1[0], r1[r1.length-1], r2[middleNumIndex], r3[0], r3[r3.length-1]].filter(Boolean);
+                 if(starNumbers.length >= 4 && checkWin(starNumbers)) {
+                    if (!winnersThisTurn.has("Star")) winnersThisTurn.set("Star", []);
+                    winnersThisTurn.get("Star").push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id });
+                 }
+            }
         }
     }
 
-    for (const dividend of activeDividends) {
-        if (updatedWinners[dividend.name]) continue; // Skip if already won
-
-        if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
-            for (const ownerPhone in ticketsByOwner) {
-                const ownerTickets = ticketsByOwner[ownerPhone];
-                const ownerName = ownerTickets[0].owner_name;
-
-                const ticketsBySheet = {};
-                for (const ticket of ownerTickets) {
-                    const sheetNum = Math.floor((ticket.id - 1) / 6);
-                    if (!ticketsBySheet[sheetNum]) {
-                        ticketsBySheet[sheetNum] = [];
-                    }
-                    ticketsBySheet[sheetNum].push(ticket);
-                }
-
-                let winnerFound = false;
-                for (const sheetNum in ticketsBySheet) {
-                    const sheetTickets = ticketsBySheet[sheetNum];
-
-                    if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
-                        const allTicketsMeetCondition = sheetTickets.every(t => countMarked(t) >= 2);
-                        if (allTicketsMeetCondition) {
-                            updatedWinners[dividend.name] = {
-                                name: ownerName,
-                                phone: ownerPhone,
-                                ticketId: `Sheet ${parseInt(sheetNum) + 1}`,
-                                winningNumber: lastCalledNumber, // Store winning number
-                                won_at: firebase.database.ServerValue.TIMESTAMP,
-                                dividendName: dividend.name
-                            };
-                            winnerFound = true;
-                            break;
-                        }
-                    }
-
-                    if (dividend.name === 'Half Sheet Bonus' && sheetTickets.length >= 3) {
-                         const validHalfSheets = [
-                            [sheetTickets[0], sheetTickets[1], sheetTickets[2]],
-                            [sheetTickets[3], sheetTickets[4], sheetTickets[5]]
-                         ].filter(Boolean); // Create potential half sheets
-
-                         for(const halfSheet of validHalfSheets){
-                             if(halfSheet && halfSheet.length === 3){
-                                const allTicketsMeetCondition = halfSheet.every(t => t && countMarked(t) >= 2);
-                                if (allTicketsMeetCondition) {
-                                    updatedWinners[dividend.name] = {
-                                        name: ownerName,
-                                        phone: ownerPhone,
-                                        ticketId: `Half Sheet in Sheet ${parseInt(sheetNum) + 1}`,
-                                        winningNumber: lastCalledNumber, // Store winning number
-                                        won_at: firebase.database.ServerValue.TIMESTAMP,
-                                        dividendName: dividend.name
-                                    };
-                                    winnerFound = true;
-                                    break;
-                                }
-                             }
-                         }
-                    }
-                }
-                if (winnerFound) {
-                    break;
-                }
-            }
-            continue; 
+    // --- NEW: Sheet Bonus Logic ---
+    const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
+        const ownerPhone = ticket.owner_phone;
+        if (ownerPhone) {
+            if (!acc[ownerPhone]) acc[ownerPhone] = { name: ticket.owner_name, tickets: [] };
+            acc[ownerPhone].tickets.push(ticket);
         }
+        return acc;
+    }, {});
 
-        for (const ticket of soldTickets) {
-            let isWinner = false;
-            const allTicketNumbers = ticket.numbers.flat().filter(n => n > 0);
+    for (const [ownerPhone, ownerData] of Object.entries(ticketsByOwner)) {
+        const sheets = ownerData.tickets.reduce((acc, ticket) => {
+            const sheetNum = Math.floor((ticket.id - 1) / 6);
+            if (!acc[sheetNum]) acc[sheetNum] = [];
+            acc[sheetNum].push(ticket);
+            return acc;
+        }, {});
 
-            if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
-                const count = parseInt(dividend.name.match(/\d+/)[0], 10);
-                if (countMarked(ticket) >= count) isWinner = true;
-            
-            } else if (dividend.name.includes("Full House")) {
-                const housefullWinnersData = Object.values(updatedWinners).filter(w => w.dividendName && w.dividendName.includes("Full House"));
-                const housefullWinnerTicketIds = housefullWinnersData.map(w => w.ticketId);
-                const fullHouseClaimedCount = housefullWinnerTicketIds.length;
-
-                if (check(allTicketNumbers)) {
-                    if (housefullWinnerTicketIds.includes(ticket.id)) {
-                        continue;
-                    }
-                    
-                    if (dividend.name === "First Full House" && fullHouseClaimedCount === 0) isWinner = true;
-                    else if (dividend.name === "Second Full House" && fullHouseClaimedCount === 1) isWinner = true;
-                    else if (dividend.name === "Third Full House" && fullHouseClaimedCount === 2) isWinner = true;
-                }
-            } else {
-                const numbersInRow1 = ticket.numbers[0].filter(n => n > 0);
-                const numbersInRow2 = ticket.numbers[1].filter(n => n > 0);
-                const numbersInRow3 = ticket.numbers[2].filter(n => n > 0);
+        for (const [sheetNum, sheetTickets] of Object.entries(sheets)) {
+            // Full Sheet Bonus Check (First 2 numbers on all 6 tickets)
+            if (!updatedWinners["Full Sheet Bonus"] && sheetTickets.length === 6) {
+                const allTicketsInSheetMetCondition = sheetTickets.every(ticket => {
+                    const markedCount = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+                    return markedCount >= 2;
+                });
                 
-                if (dividend.name === "Top Line" && numbersInRow1.length > 0 && check(numbersInRow1)) isWinner = true;
-                else if (dividend.name === "Middle Line" && numbersInRow2.length > 0 && check(numbersInRow2)) isWinner = true;
-                else if (dividend.name === "Bottom Line" && numbersInRow3.length > 0 && check(numbersInRow3)) isWinner = true;
-                else if (dividend.name === "Corners (4)") {
-                     const findFirstNum = (row) => row.find(n => n > 0);
-                     const findLastNum = (row) => [...row].reverse().find(n => n > 0);
-                     const corners = [
-                        findFirstNum(ticket.numbers[0]), findLastNum(ticket.numbers[0]),
-                        findFirstNum(ticket.numbers[2]), findLastNum(ticket.numbers[2])
-                    ].filter(Boolean);
-                    if (corners.length === 4 && check(corners)) isWinner = true;
-                } else if (dividend.name === "Star") {
-                    if (numbersInRow1.length === 5 && numbersInRow2.length >= 3 && numbersInRow3.length === 5) {
-                        const starNumbers = [
-                            numbersInRow1[0], numbersInRow1[4],
-                            numbersInRow2[2],
-                            numbersInRow3[0], numbersInRow3[4]
-                        ];
-                        if (check(starNumbers)) {
-                            isWinner = true;
-                        }
-                    }
+                const didLastNumberHelp = sheetTickets.some(ticket => {
+                    const markedCountBefore = ticket.numbers.flat().filter(n => n > 0 && n !== lastCalledNumber && calledNumbers.includes(n)).length;
+                    const markedCountAfter = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+                    return markedCountBefore === 1 && markedCountAfter === 2;
+                });
+                
+                if(allTicketsInSheetMetCondition && didLastNumberHelp) {
+                    const winner = { name: ownerData.name, phone: ownerPhone, ticketId: `Sheet-${parseInt(sheetNum) + 1}` };
+                    if (!winnersThisTurn.has("Full Sheet Bonus")) winnersThisTurn.set("Full Sheet Bonus", []);
+                    winnersThisTurn.get("Full Sheet Bonus").push(winner);
                 }
             }
+            
+            // Half Sheet Bonus Check (First 2 numbers on all 3 tickets)
+            if (!updatedWinners["Half Sheet Bonus"] && sheetTickets.length === 3) {
+                 const allTicketsInSheetMetCondition = sheetTickets.every(ticket => {
+                    const markedCount = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+                    return markedCount >= 2;
+                });
 
-            if (isWinner) {
-                updatedWinners[dividend.name] = {
-                    name: ticket.owner_name,
-                    phone: ticket.owner_phone,
-                    ticketId: ticket.id,
-                    winningNumber: lastCalledNumber, // Store winning number
-                    won_at: firebase.database.ServerValue.TIMESTAMP,
-                    dividendName: dividend.name
-                };
-                break;
+                const didLastNumberHelp = sheetTickets.some(ticket => {
+                    const markedCountBefore = ticket.numbers.flat().filter(n => n > 0 && n !== lastCalledNumber && calledNumbers.includes(n)).length;
+                    const markedCountAfter = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+                    return markedCountBefore === 1 && markedCountAfter === 2;
+                });
+                
+                if(allTicketsInSheetMetCondition && didLastNumberHelp) {
+                    const winner = { name: ownerData.name, phone: ownerPhone, ticketId: `Sheet-${parseInt(sheetNum) + 1}` };
+                    if (!winnersThisTurn.has("Half Sheet Bonus")) winnersThisTurn.set("Half Sheet Bonus", []);
+                    winnersThisTurn.get("Half Sheet Bonus").push(winner);
+                }
             }
         }
     }
+
+    // --- Assign Winners for This Turn ---
+    if (winnersThisTurn.size > 0) {
+        if (winnersThisTurn.has('Full House')) {
+            const fhSlots = ["First Full House", "Second Full House", "Third Full House"];
+            const potentialWinners = winnersThisTurn.get('Full House');
+            for (const slot of fhSlots) {
+                if (!updatedWinners[slot]) {
+                    updatedWinners[slot] = potentialWinners.map(w => ({ ...w, dividendName: slot, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP }));
+                    break; 
+                }
+            }
+            winnersThisTurn.delete('Full House');
+        }
+
+        for (const [dividendName, winners] of winnersThisTurn.entries()) {
+            updatedWinners[dividendName] = winners.map(w => ({ ...w, dividendName: dividendName, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP }));
+        }
+    }
+
     return updatedWinners;
 }
+// ====================================================================================
+// END OF MODIFIED LOGIC
+// ====================================================================================
+
 
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
@@ -3633,13 +3794,8 @@ async function generateHousieTickets(bypassConfirm = false) {
     }
 }
 
-/**
- * Creates a complete, valid set of 6 Housie/Tambola tickets.
- * This is the corrected and robust version of the function.
- * @returns {Array<Array<Array<number>>>} A 6x3x9 array representing the sheet.
- */
+
 function createTambolaSetOf6() {
-    // Helper to shuffle an array
     const shuffle = (arr) => {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -3648,25 +3804,16 @@ function createTambolaSetOf6() {
         return arr;
     };
 
-    // 1. A pre-validated matrix that defines how many numbers each column of each ticket will hold.
-    // The sums are structured to ensure all 90 numbers are used across the 6 tickets.
     const colCounts = [
-        [1, 2, 1, 2, 1, 2, 2, 2, 2],
-        [1, 1, 2, 1, 2, 2, 2, 2, 2],
-        [1, 1, 2, 2, 2, 1, 2, 3, 1],
-        [2, 2, 1, 2, 1, 2, 1, 1, 3],
-        [2, 2, 2, 1, 2, 1, 2, 1, 2],
-        [2, 2, 2, 2, 2, 2, 1, 1, 1]
+        [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2],
+        [1, 1, 2, 2, 2, 1, 2, 3, 1], [2, 2, 1, 2, 1, 2, 1, 1, 3],
+        [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
     ];
 
-    // 2. Generate the layout (a grid of 0s and 1s) for all 6 tickets.
     const ticketLayouts = [];
     for (let t = 0; t < 6; t++) {
         const layout = Array(3).fill(0).map(() => Array(9).fill(0));
         const ticketColCounts = colCounts[t];
-
-        // Phase 1: Initial random placement based on column counts.
-        // This ensures columns are correct, but rows might be unbalanced.
         for (let c = 0; c < 9; c++) {
             const rowsToPlace = shuffle([0, 1, 2]).slice(0, ticketColCounts[c]);
             for (const r of rowsToPlace) {
@@ -3674,7 +3821,6 @@ function createTambolaSetOf6() {
             }
         }
 
-        // Phase 2: Balance the rows to ensure each has exactly 5 numbers.
         let isBalanced = false;
         while (!isBalanced) {
             const rowCounts = layout.map(row => row.reduce((a, b) => a + b, 0));
@@ -3685,18 +3831,14 @@ function createTambolaSetOf6() {
                 isBalanced = true;
                 continue;
             }
-
             const rOver = overfullRows[0];
             const rUnder = underfullRows[0];
-
-            // Find a column where we can swap a number from the overfull to the underfull row.
             const swappableCols = [];
             for (let c = 0; c < 9; c++) {
                 if (layout[rOver][c] === 1 && layout[rUnder][c] === 0) {
                     swappableCols.push(c);
                 }
             }
-
             if (swappableCols.length > 0) {
                 const colToSwap = swappableCols[Math.floor(Math.random() * swappableCols.length)];
                 layout[rOver][colToSwap] = 0;
@@ -3706,20 +3848,18 @@ function createTambolaSetOf6() {
         ticketLayouts.push(layout);
     }
 
-    // 3. Create and shuffle number pools for each decade.
     const numberPools = [
-        shuffle(Array.from({ length: 9 }, (_, i) => i + 1)),   // 1-9
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 10)), // 10-19
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 20)), // 20-29
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 30)), // 30-39
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 40)), // 40-49
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 50)), // 50-59
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 60)), // 60-69
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 70)), // 70-79
-        shuffle(Array.from({ length: 11 }, (_, i) => i + 80))  // 80-90
+        shuffle(Array.from({ length: 9 }, (_, i) => i + 1)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 10)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 20)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 30)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 40)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 50)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 60)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 70)),
+        shuffle(Array.from({ length: 11 }, (_, i) => i + 80))
     ];
 
-    // 4. Populate the final tickets by replacing placeholders (1s) with numbers from the pools.
     const finalTickets = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
     for (let c = 0; c < 9; c++) {
         for (let t = 0; t < 6; t++) {
@@ -3731,7 +3871,6 @@ function createTambolaSetOf6() {
         }
     }
 
-    // 5. Final Sort: Sort numbers within each column of each ticket for readability.
     for (let t = 0; t < 6; t++) {
         for (let c = 0; c < 9; c++) {
             const colValues = [];
@@ -3749,7 +3888,6 @@ function createTambolaSetOf6() {
             }
         }
     }
-
     return finalTickets;
 }
 
@@ -3764,7 +3902,6 @@ function createListPDF(title, headers, dataRows, filename) {
     doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
 
     const startY = 35;
-    const colWidths = [25, 80, 75]; 
     const colPositions = [15, 40, 120]; 
 
     doc.setFontSize(12);
@@ -3801,7 +3938,6 @@ async function downloadPreviousGameTicketList() {
         }
 
         const prevTickets = Object.values(prevTicketsObject);
-        // We also need user data to map agent IDs to names
         const usersSnapshot = await db.ref('users').once('value');
         const users = usersSnapshot.val();
         const userMap = new Map(Object.entries(users || {}).map(([uid, data]) => [uid, data]));
@@ -3894,11 +4030,9 @@ async function downloadWinnersPDF() {
     doc.setFontSize(10);
     doc.text(new Date().toLocaleString(), 105, 20, { align: 'center' });
 
-    const tableData = Object.entries(knownWinners).map(([dividend, winner]) => [
-        dividend,
-        winner.name,
-        String(winner.ticketId)
-    ]);
+    const tableData = Object.entries(knownWinners).flatMap(([dividend, winnersArray]) => 
+        winnersArray.map(winner => [dividend, winner.name, String(winner.ticketId)])
+    );
 
     let y = 35;
     doc.setFontSize(12);
@@ -3914,7 +4048,7 @@ async function downloadWinnersPDF() {
         doc.text(row[1], 80, y);
         doc.text(row[2], 150, y);
         y += 7;
-        if (y > 280) { // Page break
+        if (y > 280) { 
             doc.addPage();
             y = 15;
         }
