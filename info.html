@@ -24,7 +24,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Roboto', sans-serif;
+        font-family: 'Rajdhani', sans-serif;
     }
 
     body {
@@ -69,13 +69,37 @@
         letter-spacing: 0.5px;
     }
 
-    .spinner-loader {
+    /* --- NEW Smooth Round Animation --- */
+    .smooth-spinner {
+        animation: rotate 2s linear infinite;
         width: 80px;
         height: 80px;
-        border: 5px solid var(--secondary-bg-dash);
-        border-top-color: var(--accent-color-dash);
-        border-radius: 50%;
-        animation: spin 1.5s ease-in-out infinite;
+    }
+    .smooth-spinner .path {
+        stroke: var(--accent-color-dash);
+        stroke-linecap: round;
+        animation: dash 1.5s ease-in-out infinite;
+    }
+
+    @keyframes rotate {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes dash {
+        0% {
+            stroke-dasharray: 1, 150;
+            stroke-dashoffset: 0;
+        }
+        50% {
+            stroke-dasharray: 90, 150;
+            stroke-dashoffset: -35;
+        }
+        100% {
+            stroke-dasharray: 90, 150;
+            stroke-dashoffset: -124;
+        }
     }
     
     /* Success Animation Styles */
@@ -180,12 +204,15 @@
 </style>
 </head>
 <body>
-<audio id="background-music" src="bg.mp3" loop></audio>
+<!-- Added 'playsinline' for better mobile compatibility -->
+<audio id="background-music" src="https://raw.githubusercontent.com/Anandkhuman/housie/main/bg.mp3" loop playsinline></audio>
 
 <div id="login-container">
     <!-- Verification Animation (shown by default) -->
     <div id="verification-container">
-        <div class="spinner-loader"></div>
+        <svg class="smooth-spinner" viewBox="0 0 50 50">
+          <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+        </svg>
         <p class="verification-text">Admin Verification in Process...</p>
     </div>
 
@@ -286,7 +313,31 @@
     const successContainer = document.getElementById('success-container');
     const loginBox = document.querySelector('.login-box');
 
-    
+    // --- START: MUSIC AUTOPLAY FIX ---
+    // This function handles browser autoplay policies by trying to play music,
+    // and if blocked, it waits for the first user interaction to play it.
+    function tryToPlayMusic() {
+        if (bgMusic && bgMusic.paused) {
+            const playPromise = bgMusic.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn("Music autoplay blocked by browser. It will start on the first user interaction.", error);
+                    // Define a function that will be called on the first user interaction
+                    const playOnFirstInteraction = () => {
+                        bgMusic.play().catch(e => console.error("Could not play music after interaction.", e));
+                        // Clean up the listeners so they don't fire again
+                        document.removeEventListener('click', playOnFirstInteraction);
+                        document.removeEventListener('touchstart', playOnFirstInteraction);
+                    };
+                    // Add the event listeners
+                    document.addEventListener('click', playOnFirstInteraction);
+                    document.addEventListener('touchstart', playOnFirstInteraction);
+                });
+            }
+        }
+    }
+    // --- END: MUSIC AUTOPLAY FIX ---
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             const userData = (await db.ref('users/' + user.uid).once('value')).val();
@@ -294,22 +345,17 @@
                 currentUser = { uid: user.uid, ...userData };
                 document.getElementById('admin-name').textContent = `Welcome, ${userData.name}`;
                 
-                // --- NEW AUTHENTICATION ANIMATION FLOW ---
                 verificationContainer.style.display = 'flex';
                 loginBox.style.display = 'none';
 
-                // 1. Simulate verification process (2 seconds)
                 setTimeout(() => {
-                    // 2. Hide spinner and show success animation
                     verificationContainer.style.display = 'none';
                     successContainer.style.display = 'flex';
 
-                    // 3. After success animation finishes (1.5 seconds), show the main page
                     setTimeout(() => {
                         document.body.classList.add('admin-dashboard-active');
-                        if (bgMusic) {
-                            bgMusic.play().catch(error => console.log("Music autoplay failed:", error));
-                        }
+                        // MODIFIED: Call the robust play function instead of the simple .play()
+                        tryToPlayMusic(); 
                         showMainContent();
                         fetchData();
                     }, 1500); 
@@ -317,15 +363,12 @@
                 }, 2000);
 
             } else {
-                // Not an admin or no user data found, sign them out.
-                // This will trigger the 'else' block below to show the login form.
                 auth.signOut();
             }
         } else {
-            // No user is signed in. Show the login form.
             verificationContainer.style.display = 'none';
             successContainer.style.display = 'none';
-            loginBox.style.display = 'block'; // Use block to match its container nature
+            loginBox.style.display = 'block'; 
             
             document.body.classList.remove('admin-dashboard-active');
              if (bgMusic) {
