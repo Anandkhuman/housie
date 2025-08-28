@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Info - Sintha Housie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        :root {
+            --primary-bg-dash: #2c3e50;
+            --secondary-bg-dash: #34495e;
+            --accent-color-dash: #1abc9c;
+            --muted-color-dash: #7f8c8d;
+            --light-text-dash: #ecf0f1;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    body {
+        background-color: var(--primary-bg-dash);
+        color: var(--light-text-dash);
+        font-size: 16px;
+        line-height: 1.6;
+        transition: background 0.5s ease-in-out; /* Smooth background transition */
+    }
+    
+    /* --- NEW: Custom background for Admin Dashboard --- */
+    body.admin-dashboard-active {
+        background: #141E30;  /* Fallback */
+        background: -webkit-linear-gradient(to right, #243B55, #141E30);
+        background: linear-gradient(to right, #243B55, #141E30);
+        background-attachment: fixed;
+    }
+
+    /* --- NEW: Hypothetical background for Agent Dashboard --- */
+    body.agent-dashboard-active {
+        background: #3a6073; /* Fallback */
+        background: -webkit-linear-gradient(to right, #16222a, #3a6073);
+        background: linear-gradient(to right, #16222a, #3a6073);
+        background-attachment: fixed;
+    }
+
+
+    /* --- LOGIN STYLES --- */
+    #login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1rem;
+        background-image: linear-gradient(to top right, #2c3e50, #466368);
+    }
+
+    .login-box {
+        background-color: var(--secondary-bg-dash);
+        padding: 2.5rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        border-top: 4px solid var(--accent-color-dash);
+    }
+
+    .login-box h1 { color: var(--accent-color-dash); margin-bottom: 0.5rem; font-weight: 700; }
+    .login-box p { color: var(--muted-color-dash); margin-bottom: 2rem; font-size: 0.9rem; }
+
+    .login-input {
+        width: 100%; padding: 0.8rem 1rem; margin-bottom: 1rem; border-radius: 4px; border: 1px solid var(--muted-color-dash);
+        background-color: var(--primary-bg-dash); color: var(--light-text-dash); font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .login-input:focus { outline: none; border-color: var(--accent-color-dash); box-shadow: 0 0 8px rgba(26, 188, 156, 0.5); }
+    #login-btn {
+        width: 100%; padding: 0.8rem 1rem; border: none; border-radius: 4px; background-color: var(--accent-color-dash); color: white;
+        font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s, transform 0.2s;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    #login-btn .spinner {
+        width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%;
+        animation: spin 1s linear infinite; display: none;
+    }
+    #login-btn.loading .spinner { display: block; }
+    #login-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #login-btn:hover:not(:disabled) { background-color: #16a085; transform: translateY(-2px); }
+    #login-btn:disabled { background-color: var(--muted-color-dash); cursor: not-allowed; }
+    #login-error { color: var(--error-color); margin-top: 1rem; height: 20px; font-size: 0.9rem; font-weight: 500; }
+
+    /* --- MAIN CONTENT STYLES --- */
+    #main-container { display: none; max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 2rem; }
+    .header h1 { font-size: 2rem; font-weight: 700; }
+    #logout-btn { background: var(--error-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
+    #logout-btn:hover { background-color: #c0392b; }
+    .container-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+    .calc-card { background-color: var(--secondary-bg-dash); padding: 1.5rem; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+    .calc-card h2 { color: var(--accent-color-dash); margin-bottom: 1.5rem; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group.inline { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--muted-color-dash); }
+    .form-group input, .form-group select { width: 100%; padding: 0.6rem; border-radius: 4px; border: 1px solid var(--muted-color-dash); background-color: var(--primary-bg-dash); color: var(--light-text-dash); font-size: 1rem; }
+    .calculate-btn { width: 100%; padding: 0.7rem; border: none; border-radius: 5px; background-color: var(--accent-color-dash); color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: background-color 0.3s; }
+    .calculate-btn:hover { background-color: #16a085; }
+    .assignment-section { margin-bottom: 2rem; }
+    .assignment-section h3 { color: var(--light-text-dash); font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .info-text { font-size: 0.9rem; color: var(--muted-color-dash); margin-bottom: 1rem; }
+    .assignment-list { max-height: 250px; overflow-y: auto; border: 1px solid var(--primary-bg-dash); border-radius: 4px; padding: 0.5rem; background-color: var(--primary-bg-dash); }
+    .assignment-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--secondary-bg-dash); transition: opacity 0.3s; }
+    .assignment-item.excluded { opacity: 0.6; }
+    .assignment-item.excluded .details .name, .assignment-item.excluded .details .sub-text { text-decoration: line-through; color: var(--muted-color-dash); }
+    .assignment-item:last-child { border-bottom: none; }
+    .assignment-item .toggle-group { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+    .assignment-item .toggle-group input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+    .assignment-item .details { flex-grow: 1; margin-right: 1rem; }
+    .assignment-item .details .name { font-weight: 600; color: var(--light-text-dash); }
+    .assignment-item .details .sub-text { font-size: 0.85rem; color: var(--muted-color-dash); display: block; }
+    .assignment-item select { width: auto; min-width: 120px; flex-shrink: 0; padding: 0.4rem; }
+    
+    /* --- RESULTS VIEW STYLES --- */
+    #results-view { padding-top: 2rem; }
+    #results-view h1 { text-align: center; color: var(--accent-color-dash); margin-bottom: 2rem; font-size: 2rem; }
+    .results-area { margin-bottom: 2rem; background-color: var(--secondary-bg-dash); padding: 1rem; border-radius: 5px; border-left: 4px solid var(--accent-color-dash); }
+    .results-area h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.5rem; color: var(--accent-color-dash); }
+    .result-block { background-color: var(--primary-bg-dash); padding: 1rem; margin-bottom: 1rem; border-radius: 5px; border-left: 3px solid var(--muted-color-dash); }
+    .result-block h4 { color: var(--accent-color-dash); margin-top:0; margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--secondary-bg-dash); font-size: 1.2rem; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--secondary-bg-dash); }
+    .result-item:last-child { border-bottom: none; }
+    .result-item span:first-child { font-weight: 500; color: var(--muted-color-dash); }
+    .result-item span:last-child { font-weight: 600; color: var(--light-text-dash); }
+    .result-item.total span:last-child { color: var(--success-color); font-size: 1.2rem; }
+    .result-item.total.negative span:last-child { color: var(--error-color); }
+    .result-item.deduction span:last-child { color: var(--warning-color); }
+    #back-to-calc-btn { width: auto; padding: 0.7rem 1.5rem; display: block; margin: 2rem auto 0; background-color: var(--warning-color); }
+</style>
+</head>
+<body>
+<!-- NEW: Audio element for background music -->
+<audio id="background-music" src="bg.mp3" loop></audio>
+
+<div id="login-container">
+    <div class="login-box">
+        <h1><i class="fas fa-chart-line"></i> Business Info</h1>
+        <p>Admin authentication required to access this page.</p>
+        <form id="login-form">
+            <input type="email" id="login-email" class="login-input" placeholder="Admin Email" required>
+            <input type="password" id="login-password" class="login-input" placeholder="Password" required>
+            <button type="submit" id="login-btn">
+                <span class="btn-text">Login</span><div class="spinner"></div>
+            </button>
+            <p id="login-error"></p>
+        </form>
+    </div>
+</div>
+
+<div id="main-container">
+    <header class="header">
+       
+        <div>
+            <span id="admin-name" style="margin-right: 1rem;"></span>
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </header>
+
+    <div id="calculator-view">
+         <div class="calc-card">
+            <h2><i class="fas fa-handshake"></i> Final Settlement Calculator</h2>
+            <div class="form-group inline">
+                <div>
+                    <label for="free-half-sheet-settlement">Free Tickets per Half Sheet</label>
+                    <input type="number" id="free-half-sheet-settlement" placeholder="e.g., 1" value="0">
+                </div>
+                <div>
+                    <label for="free-full-sheet-settlement">Free Tickets per Full Sheet</label>
+                    <input type="number" id="free-full-sheet-settlement" placeholder="e.g., 2" value="0">
+                </div>
+            </div>
+            <div class="assignment-section">
+                <h3><i class="fas fa-user-tie"></i> Agent Inclusion & Assignment</h3>
+                <p class="info-text">Uncheck an agent to exclude them. Then, assign a receiving admin for each included agent.</p>
+                <div id="agent-assignment-list" class="assignment-list"></div>
+            </div>
+            <div class="assignment-section">
+                <h3><i class="fas fa-trophy"></i> Prize Payout Inclusion & Assignment</h3>
+                <p class="info-text">Uncheck a prize to exclude it. Then, assign a paying admin for each included prize.</p>
+                <div id="winner-assignment-list" class="assignment-list"></div>
+            </div>
+            <button class="calculate-btn" id="calc-settlement-btn">Calculate & View Report</button>
+        </div>
+    </div>
+
+    <div id="results-view" style="display: none;">
+        <!-- Results will be injected here by JavaScript -->
+    </div>
+
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
+        authDomain: "sinthahousie-1dd3b.firebaseapp.com",
+        databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
+        projectId: "sinthahousie-1dd3b",
+        storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
+        messagingSenderId: "76567991256",
+        appId: "1:76567991256:web:c58b127b8d86d8a1c598ad"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let allUsers = [], allTickets = [], gameSettings = {}, gameWinners = {}, currentUser = null;
+    let isDataReady = { users: false, tickets: false, settings: false, winners: false };
+
+    const loginContainer = document.getElementById('login-container');
+    const mainContainer = document.getElementById('main-container');
+    const calcView = document.getElementById('calculator-view');
+    const resultsView = document.getElementById('results-view');
+    const bgMusic = document.getElementById('background-music'); // NEW: Reference to the audio element
+    
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const userData = (await db.ref('users/' + user.uid).once('value')).val();
+            if (userData && userData.role === 'admin') {
+                currentUser = { uid: user.uid, ...userData };
+                document.getElementById('admin-name').textContent = `Welcome, ${userData.name}`;
+                
+                // --- NEW: Apply admin theme and play music ---
+                document.body.classList.add('admin-dashboard-active');
+                if (bgMusic) {
+                    bgMusic.play().catch(error => console.log("Music autoplay failed:", error));
+                }
+                
+                showMainContent();
+                fetchData();
+            } else {
+                document.getElementById('login-error').textContent = "Access denied. Admin role required.";
+                
+                // --- NEW: Revert theme and stop music on access denial ---
+                document.body.classList.remove('admin-dashboard-active', 'agent-dashboard-active');
+                if (bgMusic) {
+                    bgMusic.pause();
+                    bgMusic.currentTime = 0;
+                }
+                auth.signOut();
+                showLogin();
+            }
+        } else {
+            // --- NEW: Revert theme and stop music when logged out ---
+            document.body.classList.remove('admin-dashboard-active', 'agent-dashboard-active');
+             if (bgMusic) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }
+            showLogin();
+        }
+    });
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const loginError = document.getElementById('login-error');
+        const loginBtn = document.getElementById('login-btn');
+        loginError.textContent = '';
+        loginBtn.classList.add('loading');
+        loginBtn.disabled = true;
+        auth.signInWithEmailAndPassword(email, password)
+            .catch((error) => {
+                loginError.textContent = error.message;
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+            });
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        // --- NEW: Stop music before signing out ---
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
+        auth.signOut();
+    });
+
+    function showLogin() { mainContainer.style.display = 'none'; loginContainer.style.display = 'flex'; }
+    function showMainContent() { loginContainer.style.display = 'none'; mainContainer.style.display = 'block'; }
+
+    function fetchData() {
+        db.ref('users').on('value', s => { allUsers = Object.entries(s.val()||{}).map(([uid,d])=>({uid,...d})); isDataReady.users = true; checkAndRender(); });
+        db.ref('tickets').on('value', s => { allTickets = Object.values(s.val()||{}); isDataReady.tickets = true; checkAndRender(); });
+        db.ref('settings/gameConfig').on('value', s => { gameSettings = s.val()||{}; isDataReady.settings = true; checkAndRender(); });
+        db.ref('gameState/currentState/winners').on('value', s => { gameWinners = s.val()||{}; isDataReady.winners = true; checkAndRender(); });
+    }
+    
+    function checkAndRender() { if (Object.values(isDataReady).every(Boolean)) populateAssignmentLists(); }
+
+    function populateAssignmentLists() {
+        const admins = allUsers.filter(u => u.role === 'admin');
+        const agents = allUsers.filter(u => u.role === 'agent');
+        const agentListContainer = document.getElementById('agent-assignment-list');
+        const winnerListContainer = document.getElementById('winner-assignment-list');
+        
+        if (admins.length === 0) return;
+        const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
+
+        agentListContainer.innerHTML = agents.map(agent => `
+            <div class="assignment-item">
+                <div class="toggle-group"><input type="checkbox" class="include-checkbox agent-checkbox" data-agent-uid="${agent.uid}" checked><div class="details"><span class="name">${agent.name}</span></div></div>
+                <select class="admin-selector" data-agent-uid="${agent.uid}">${adminOptionsHtml}</select>
+            </div>`).join('');
+        
+        winnerListContainer.innerHTML = ''; // Clear previous
+        const allWinners = [];
+        for (const dividendName in gameWinners) {
+            const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
+            if (prizeInfo) {
+                gameWinners[dividendName].forEach(winner => {
+                    const ticket = allTickets.find(t => t.id === winner.ticketId);
+                    if (ticket) allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: prizeInfo.amount / gameWinners[dividendName].length });
+                });
+            }
+        }
+        winnerListContainer.innerHTML = allWinners.map(winner => `
+            <div class="assignment-item">
+                <div class="toggle-group">
+                    <input type="checkbox" class="include-checkbox prize-checkbox" data-prize-amount="${winner.prizeAmount}" data-ticket-id="${winner.ticketId}" checked>
+                    <div class="details"><span class="name">Ticket #${winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span><span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString()}</span></div>
+                </div>
+                <select class="admin-selector">${adminOptionsHtml}</select>
+            </div>`).join('');
+        
+        document.querySelectorAll('.include-checkbox').forEach(cb => cb.addEventListener('change', e => e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked)));
+        document.querySelectorAll('.agent-checkbox').forEach(agentCb => agentCb.addEventListener('change', e => {
+            const agentUid = e.target.dataset.agentUid;
+            const isChecked = e.target.checked;
+            const ticketIdsSoldByAgent = allTickets.filter(t => t.agent_uid === agentUid).map(t => t.id);
+            document.querySelectorAll('.prize-checkbox').forEach(prizeCb => {
+                if (ticketIdsSoldByAgent.includes(parseInt(prizeCb.dataset.ticketId))) {
+                    prizeCb.checked = isChecked;
+                    prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked);
+                }
+            });
+        }));
+    }
+    
+    document.getElementById('calc-settlement-btn').addEventListener('click', () => {
+        const ticketPrice = gameSettings.ticketPrice || 0;
+        const commissionRate = gameSettings.agentCommission || 0;
+        const admins = allUsers.filter(u => u.role === 'admin');
+        const agents = allUsers.filter(u => u.role === 'agent');
+        const freePerHalf = parseInt(document.getElementById('free-half-sheet-settlement').value) || 0;
+        const freePerFull = parseInt(document.getElementById('free-full-sheet-settlement').value) || 0;
+        
+        const includedAgentUids = Array.from(document.querySelectorAll('#agent-assignment-list .include-checkbox:checked')).map(cb => cb.dataset.agentUid);
+        const initialSoldTickets = allTickets.filter(t => t.is_sold && t.owner_phone && (allUsers.find(u => u.uid === t.agent_uid)?.role === 'admin' || includedAgentUids.includes(t.agent_uid)));
+
+        const processedTickets = JSON.parse(JSON.stringify(initialSoldTickets));
+        const bookings = processedTickets.reduce((acc, t) => { acc[t.owner_phone] = (acc[t.owner_phone] || []).concat(t); return acc; }, {});
+        for (const phone in bookings) {
+            let ticketsInBooking = bookings[phone];
+            const sheets = ticketsInBooking.reduce((acc, t) => { const s = Math.floor((t.id-1)/6); acc[s] = (acc[s]||0)+1; return acc; }, {});
+            let freeCount = 0;
+            for (const sheet in sheets) {
+                freeCount += (Math.floor(sheets[sheet]/6) * freePerFull) + (Math.floor((sheets[sheet]%6)/3) * freePerHalf);
+            }
+            for(let i=0; i < ticketsInBooking.length && i < freeCount; i++) {
+                ticketsInBooking[i].isFree = true;
+            }
+        }
+        
+        const paidTickets = processedTickets.filter(t => !t.isFree);
+        const freeTickets = processedTickets.filter(t => t.isFree);
+
+        const adminBalances = admins.map(admin => ({ name: admin.name, uid: admin.uid, ticketsSold: 0, freeTicketsGenerated: 0, directCollection: 0, transfersInFromAgents: 0, prizesPaid: 0 }));
+        const agentSettlements = agents.map(agent => ({ name: agent.name, uid: agent.uid, ticketsSold: 0, freeTicketsGenerated: 0, collection: 0, commission: 0, netTransfer: 0, transferToAdminName: 'N/A (Excluded)'}));
+
+        paidTickets.forEach(t => {
+            const seller = adminBalances.find(a => a.uid === t.agent_uid) || agentSettlements.find(a => a.uid === t.agent_uid);
+            if (seller) seller.ticketsSold++;
+        });
+        freeTickets.forEach(t => {
+            const seller = adminBalances.find(a => a.uid === t.agent_uid) || agentSettlements.find(a => a.uid === t.agent_uid);
+            if (seller) seller.freeTicketsGenerated++;
+        });
+        
+        document.querySelectorAll('#winner-assignment-list .assignment-item').forEach(item => {
+            if (item.querySelector('.include-checkbox:checked')) {
+                const admin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value);
+                if(admin) admin.prizesPaid += parseFloat(item.querySelector('.include-checkbox').dataset.prizeAmount);
+            }
+        });
+
+        agentSettlements.forEach(agent => {
+            agent.collection = agent.ticketsSold * ticketPrice;
+            agent.commission = (agent.ticketsSold + agent.freeTicketsGenerated) * commissionRate;
+            if (includedAgentUids.includes(agent.uid)) {
+                const item = document.querySelector(`#agent-assignment-list .agent-checkbox[data-agent-uid="${agent.uid}"]`).closest('.assignment-item');
+                const receivingAdmin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value);
+                if(receivingAdmin) {
+                    agent.netTransfer = agent.collection - agent.commission;
+                    agent.transferToAdminName = receivingAdmin.name;
+                    receivingAdmin.transfersInFromAgents += agent.netTransfer;
+                }
+            }
+        });
+
+        adminBalances.forEach(admin => admin.directCollection = admin.ticketsSold * ticketPrice);
+
+        const summary = {
+            totalSoldTickets: paidTickets.length,
+            totalFreeTickets: freeTickets.length,
+            totalCollection: paidTickets.length * ticketPrice,
+            totalPrizesPaid: adminBalances.reduce((sum, admin) => sum + admin.prizesPaid, 0),
+            totalCommissionsPaid: agentSettlements.reduce((sum, agent) => sum + agent.commission, 0),
+        };
+        summary.netProfit = summary.totalCollection - (summary.totalPrizesPaid + summary.totalCommissionsPaid);
+
+        renderResults(summary, adminBalances, agentSettlements);
+    });
+
+    function renderResults(summary, admins, agents) {
+        resultsView.innerHTML = `
+            <h1>Settlement Report</h1>
+            <div class="results-area">
+                <h3>Business Summary</h3>
+                <div class="result-block">
+                    <div class="result-item"><span>Total Paid Tickets</span><span>${summary.totalSoldTickets}</span></div>
+                    <div class="result-item"><span>Total Free Tickets Given</span><span>${summary.totalFreeTickets}</span></div>
+                    <div class="result-item"><span>(+) Total Collection</span><span>₹ ${summary.totalCollection.toLocaleString()}</span></div>
+                    <div class="result-item deduction"><span>(-) Total Prizes Paid</span><span>₹ ${Math.round(summary.totalPrizesPaid).toLocaleString()}</span></div>
+                    <div class="result-item deduction"><span>(-) Total Commissions</span><span>₹ ${Math.round(summary.totalCommissionsPaid).toLocaleString()}</span></div>
+                    <div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit / Loss</span><span>₹ ${Math.round(summary.netProfit).toLocaleString()}</span></div>
+                </div>
+            </div>
+            <div class="results-area">
+                <h3>Admin Balances</h3>
+                ${admins.map(admin => {
+                    const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid;
+                    return `
+                    <div class="result-block">
+                        <h4>${admin.name}</h4>
+                        <div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div>
+                        <div class="result-item"><span>Free Tickets Generated</span><span>${admin.freeTicketsGenerated}</span></div>
+                        <div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString()}</span></div>
+                        <div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString()}</span></div>
+                        <div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString()}</span></div>
+                        <div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance</span><span>₹ ${Math.round(finalBalance).toLocaleString()}</span></div>
+                    </div>`;
+                }).join('')}
+            </div>
+            <div class="results-area">
+                <h3>Agent Settlements</h3>
+                ${agents.map(agent => `
+                    <div class="result-block">
+                        <h4>${agent.name}</h4>
+                        <div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div>
+                        <div class="result-item"><span>Free Tickets Generated</span><span>${agent.freeTicketsGenerated}</span></div>
+                        <div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString()}</span></div>
+                        <div class="result-item deduction"><span>(-) Commission Earned (on all tickets)</span><span>₹ ${agent.commission.toLocaleString()}</span></div>
+                        <div class="result-item total">
+                            <span>Net Transfer to ${agent.transferToAdminName}</span>
+                            <span>₹ ${agent.netTransfer.toLocaleString()}</span>
+                        </div>
+                    </div>`).join('')}
+            </div>
+            <button class="calculate-btn" id="back-to-calc-btn">Back to Calculator</button>
+        `;
+        
+        document.getElementById('back-to-calc-btn').addEventListener('click', () => {
+            resultsView.style.display = 'none';
+            calcView.style.display = 'block';
+        });
+
+        calcView.style.display = 'none';
+        resultsView.style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+</script>
+</body>
+</html>
