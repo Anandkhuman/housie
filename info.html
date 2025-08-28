@@ -205,7 +205,6 @@
 </head>
 <body>
 
-<!-- UPDATED: Added 'playsinline' for better mobile compatibility -->
 <audio id="background-music" src="https://raw.githubusercontent.com/Anandkhuman/housie/main/bg.mp3" loop playsinline></audio>
 
 <div id="login-container">
@@ -313,23 +312,17 @@
     const successContainer = document.getElementById('success-container');
     const loginBox = document.querySelector('.login-box');
 
-    // --- NEW: MUSIC AUTOPLAY FIX ---
-    // This function handles browser autoplay policies by trying to play music,
-    // and if blocked, it waits for the first user interaction to play it.
     function tryToPlayMusic() {
         if (bgMusic && bgMusic.paused) {
             const playPromise = bgMusic.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
                     console.warn("Music autoplay blocked by browser. It will start on the first user interaction.", error);
-                    // Define a function that will be called on the first user interaction
                     const playOnFirstInteraction = () => {
                         bgMusic.play().catch(e => console.error("Could not play music after interaction.", e));
-                        // Clean up the listeners so they don't fire again
                         document.removeEventListener('click', playOnFirstInteraction);
                         document.removeEventListener('touchstart', playOnFirstInteraction);
                     };
-                    // Add the event listeners to the whole page
                     document.addEventListener('click', playOnFirstInteraction);
                     document.addEventListener('touchstart', playOnFirstInteraction);
                 });
@@ -353,7 +346,6 @@
 
                     setTimeout(() => {
                         document.body.classList.add('admin-dashboard-active');
-                        // --- NEW: Call the robust play function here ---
                         tryToPlayMusic(); 
                         showMainContent();
                         fetchData();
@@ -370,7 +362,6 @@
             loginBox.style.display = 'block'; 
             
             document.body.classList.remove('admin-dashboard-active');
-            // --- NEW: Ensure music stops when logged out ---
              if (bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
@@ -397,7 +388,6 @@
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
-        // --- NEW: Ensure music stops on logout click ---
         if (bgMusic) {
             bgMusic.pause();
             bgMusic.currentTime = 0;
@@ -423,12 +413,18 @@
     
     function checkAndRender() { if (Object.values(isDataReady).every(Boolean)) populateAssignmentLists(); }
 
+    // ========================================================================================
+    // YAHAN PAR AAPKA ISSUE FIX KIYA GAYA HAI - HALF/FULL SHEET BONUS AB DIKHEGA
+    // ========================================================================================
     function populateAssignmentLists() {
         const admins = allUsers.filter(u => u.role === 'admin');
         const agents = allUsers.filter(u => u.role === 'agent');
         const agentListContainer = document.getElementById('agent-assignment-list');
         const winnerListContainer = document.getElementById('winner-assignment-list');
         
+        agentListContainer.innerHTML = '';
+        winnerListContainer.innerHTML = '';
+
         if (admins.length === 0) return;
         const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
 
@@ -438,33 +434,71 @@
                 <select class="admin-selector" data-agent-uid="${agent.uid}">${adminOptionsHtml}</select>
             </div>`).join('');
         
-        winnerListContainer.innerHTML = ''; // Clear previous
+        // --- FIX SHURU ---
         const allWinners = [];
-        for (const dividendName in gameWinners) {
-            const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
-            if (prizeInfo) {
-                gameWinners[dividendName].forEach(winner => {
-                    const ticket = allTickets.find(t => t.id === winner.ticketId);
-                    if (ticket) allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: prizeInfo.amount / gameWinners[dividendName].length });
-                });
+        const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
+
+        dividendOrder.forEach(dividendName => {
+            if (gameWinners[dividendName]) {
+                const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
+                if (prizeInfo) {
+                    gameWinners[dividendName].forEach(winner => {
+                        
+                        // YEH NAYI LOGIC HAI JO DONO TARAH KE WINNERS (NUMBER ID AUR TEXT ID) KO HANDLE KARTI HAI
+                        if (typeof winner.ticketId === 'number') {
+                            // Case 1: Standard ticket winner (jaise Early 5, Full House)
+                            const ticket = allTickets.find(t => t.id === winner.ticketId);
+                            if (ticket) {
+                                allWinners.push({
+                                    ...winner,
+                                    ticket, // Asli ticket object
+                                    prizeName: dividendName,
+                                    prizeAmount: prizeInfo.amount / gameWinners[dividendName].length
+                                });
+                            }
+                        } else if (typeof winner.ticketId === 'string') {
+                            // Case 2: Sheet-based winner (jaise Full/Half Sheet Bonus)
+                            // Yahan winner object mein pehle se naam hota hai, isliye ticket dhoondne ki zaroorat nahi.
+                            // Hum ek "nakli" ticket object banate hain taaki neeche ka HTML code kaam kare.
+                            const mockTicket = {
+                                id: winner.ticketId,
+                                owner_name: winner.name // Naam seedhe winner object se lein
+                            };
+                            allWinners.push({
+                                ...winner,
+                                ticket: mockTicket, // Nakli ticket object use karein
+                                prizeName: dividendName,
+                                prizeAmount: prizeInfo.amount / gameWinners[dividendName].length
+                            });
+                        }
+                    });
+                }
             }
-        }
+        });
+        
+        // --- FIX KHATAM ---
+
         winnerListContainer.innerHTML = allWinners.map(winner => `
             <div class="assignment-item">
                 <div class="toggle-group">
                     <input type="checkbox" class="include-checkbox prize-checkbox" data-prize-amount="${winner.prizeAmount}" data-ticket-id="${winner.ticketId}" checked>
-                    <div class="details"><span class="name">Ticket #${winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span><span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString()}</span></div>
+                    <div class="details">
+                        <span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span>
+                        <span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString()}</span>
+                    </div>
                 </div>
                 <select class="admin-selector">${adminOptionsHtml}</select>
             </div>`).join('');
         
         document.querySelectorAll('.include-checkbox').forEach(cb => cb.addEventListener('change', e => e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked)));
+        
         document.querySelectorAll('.agent-checkbox').forEach(agentCb => agentCb.addEventListener('change', e => {
             const agentUid = e.target.dataset.agentUid;
             const isChecked = e.target.checked;
             const ticketIdsSoldByAgent = allTickets.filter(t => t.agent_uid === agentUid).map(t => t.id);
             document.querySelectorAll('.prize-checkbox').forEach(prizeCb => {
-                if (ticketIdsSoldByAgent.includes(parseInt(prizeCb.dataset.ticketId))) {
+                const prizeTicketId = parseInt(prizeCb.dataset.ticketId, 10);
+                if (!isNaN(prizeTicketId) && ticketIdsSoldByAgent.includes(prizeTicketId)) {
                     prizeCb.checked = isChecked;
                     prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked);
                 }
@@ -588,7 +622,7 @@
                         <div class="result-item deduction"><span>Commission Earned</span><span>₹ ${agent.commission.toLocaleString()}</span></div>
                         <div class="result-item total">
                             <span>Net Transfer to ${agent.transferToAdminName}</span>
-                            <span>₹ ${agent.netTransfer.toLocaleString()}</span>
+                            <span>₹ ${agent.netTransfer > 0 ? agent.netTransfer.toLocaleString() : 0}</span>
                         </div>
                     </div>`).join('')}
             </div>
