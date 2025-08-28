@@ -24,7 +24,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Rajdhani', sans-serif;
+        font-family: 'Roboto', sans-serif;
     }
 
     body {
@@ -32,27 +32,17 @@
         color: var(--light-text-dash);
         font-size: 16px;
         line-height: 1.6;
-        transition: background 0.5s ease-in-out; /* Smooth background transition */
+        transition: background 0.5s ease-in-out;
     }
     
-    /* --- NEW: Custom background for Admin Dashboard --- */
     body.admin-dashboard-active {
-        background: #141E30;  /* Fallback */
+        background: #141E30;
         background: -webkit-linear-gradient(to right, #243B55, #141E30);
         background: linear-gradient(to right, #243B55, #141E30);
         background-attachment: fixed;
     }
 
-    /* --- NEW: Hypothetical background for Agent Dashboard --- */
-    body.agent-dashboard-active {
-        background: #3a6073; /* Fallback */
-        background: -webkit-linear-gradient(to right, #16222a, #3a6073);
-        background: linear-gradient(to right, #16222a, #3a6073);
-        background-attachment: fixed;
-    }
-
-
-    /* --- LOGIN STYLES --- */
+    /* --- LOGIN & VERIFICATION STYLES --- */
     #login-container {
         display: flex;
         align-items: center;
@@ -62,15 +52,60 @@
         background-image: linear-gradient(to top right, #2c3e50, #466368);
     }
 
-    .login-box {
-        background-color: var(--secondary-bg-dash);
-        padding: 2.5rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        width: 100%;
-        max-width: 400px;
+    /* Verification Animation Container */
+    #verification-container, #success-container {
+        display: flex; /* Initially visible by default */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        border-top: 4px solid var(--accent-color-dash);
+    }
+
+    .verification-text {
+        color: var(--light-text-dash);
+        font-size: 1.2rem;
+        margin-top: 1.5rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .spinner-loader {
+        width: 80px;
+        height: 80px;
+        border: 5px solid var(--secondary-bg-dash);
+        border-top-color: var(--accent-color-dash);
+        border-radius: 50%;
+        animation: spin 1.5s ease-in-out infinite;
+    }
+    
+    /* Success Animation Styles */
+    .success-animation { display: inline-block; }
+    .checkmark {
+        width: 80px; height: 80px; border-radius: 50%; display: block;
+        stroke-width: 3; stroke: #fff; stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px var(--accent-color-dash);
+        animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+    }
+    .checkmark__circle {
+        stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3;
+        stroke-miterlimit: 10; stroke: var(--accent-color-dash); fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .checkmark__check {
+        transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+    @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+    @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+    @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px var(--accent-color-dash); } }
+
+
+    /* Login Form Box */
+    .login-box {
+        background-color: var(--secondary-bg-dash); padding: 2.5rem 2rem; border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); width: 100%; max-width: 400px;
+        text-align: center; border-top: 4px solid var(--accent-color-dash);
+        display: none; /* Hidden by default, shown via JS if needed */
     }
 
     .login-box h1 { color: var(--accent-color-dash); margin-bottom: 0.5rem; font-weight: 700; }
@@ -145,10 +180,27 @@
 </style>
 </head>
 <body>
-<!-- NEW: Audio element for background music -->
 <audio id="background-music" src="bg.mp3" loop></audio>
 
 <div id="login-container">
+    <!-- Verification Animation (shown by default) -->
+    <div id="verification-container">
+        <div class="spinner-loader"></div>
+        <p class="verification-text">Admin Verification in Process...</p>
+    </div>
+
+    <!-- Success Animation (hidden by default) -->
+    <div id="success-container" style="display: none;">
+        <div class="success-animation">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
+        <p class="verification-text">Verification Successful</p>
+    </div>
+
+    <!-- Original Login Box (hidden by default) -->
     <div class="login-box">
         <h1><i class="fas fa-chart-line"></i> Business Info</h1>
         <p>Admin authentication required to access this page.</p>
@@ -227,7 +279,13 @@
     const mainContainer = document.getElementById('main-container');
     const calcView = document.getElementById('calculator-view');
     const resultsView = document.getElementById('results-view');
-    const bgMusic = document.getElementById('background-music'); // NEW: Reference to the audio element
+    const bgMusic = document.getElementById('background-music');
+
+    // NEW: References for animation and login form
+    const verificationContainer = document.getElementById('verification-container');
+    const successContainer = document.getElementById('success-container');
+    const loginBox = document.querySelector('.login-box');
+
     
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -236,29 +294,40 @@
                 currentUser = { uid: user.uid, ...userData };
                 document.getElementById('admin-name').textContent = `Welcome, ${userData.name}`;
                 
-                // --- NEW: Apply admin theme and play music ---
-                document.body.classList.add('admin-dashboard-active');
-                if (bgMusic) {
-                    bgMusic.play().catch(error => console.log("Music autoplay failed:", error));
-                }
-                
-                showMainContent();
-                fetchData();
+                // --- NEW AUTHENTICATION ANIMATION FLOW ---
+                verificationContainer.style.display = 'flex';
+                loginBox.style.display = 'none';
+
+                // 1. Simulate verification process (2 seconds)
+                setTimeout(() => {
+                    // 2. Hide spinner and show success animation
+                    verificationContainer.style.display = 'none';
+                    successContainer.style.display = 'flex';
+
+                    // 3. After success animation finishes (1.5 seconds), show the main page
+                    setTimeout(() => {
+                        document.body.classList.add('admin-dashboard-active');
+                        if (bgMusic) {
+                            bgMusic.play().catch(error => console.log("Music autoplay failed:", error));
+                        }
+                        showMainContent();
+                        fetchData();
+                    }, 1500); 
+
+                }, 2000);
+
             } else {
-                document.getElementById('login-error').textContent = "Access denied. Admin role required.";
-                
-                // --- NEW: Revert theme and stop music on access denial ---
-                document.body.classList.remove('admin-dashboard-active', 'agent-dashboard-active');
-                if (bgMusic) {
-                    bgMusic.pause();
-                    bgMusic.currentTime = 0;
-                }
+                // Not an admin or no user data found, sign them out.
+                // This will trigger the 'else' block below to show the login form.
                 auth.signOut();
-                showLogin();
             }
         } else {
-            // --- NEW: Revert theme and stop music when logged out ---
-            document.body.classList.remove('admin-dashboard-active', 'agent-dashboard-active');
+            // No user is signed in. Show the login form.
+            verificationContainer.style.display = 'none';
+            successContainer.style.display = 'none';
+            loginBox.style.display = 'block'; // Use block to match its container nature
+            
+            document.body.classList.remove('admin-dashboard-active');
              if (bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
@@ -285,7 +354,6 @@
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
-        // --- NEW: Stop music before signing out ---
         if (bgMusic) {
             bgMusic.pause();
             bgMusic.currentTime = 0;
@@ -293,8 +361,14 @@
         auth.signOut();
     });
 
-    function showLogin() { mainContainer.style.display = 'none'; loginContainer.style.display = 'flex'; }
-    function showMainContent() { loginContainer.style.display = 'none'; mainContainer.style.display = 'block'; }
+    function showLogin() { 
+        mainContainer.style.display = 'none'; 
+        loginContainer.style.display = 'flex'; 
+    }
+    function showMainContent() { 
+        loginContainer.style.display = 'none'; 
+        mainContainer.style.display = 'block'; 
+    }
 
     function fetchData() {
         db.ref('users').on('value', s => { allUsers = Object.entries(s.val()||{}).map(([uid,d])=>({uid,...d})); isDataReady.users = true; checkAndRender(); });
