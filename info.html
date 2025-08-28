@@ -24,7 +24,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Rajdhani', sans-serif;
+        font-family: 'Roboto', sans-serif;
     }
 
     body {
@@ -204,7 +204,8 @@
 </style>
 </head>
 <body>
-<!-- Added 'playsinline' for better mobile compatibility -->
+
+<!-- UPDATED: Added 'playsinline' for better mobile compatibility -->
 <audio id="background-music" src="https://raw.githubusercontent.com/Anandkhuman/housie/main/bg.mp3" loop playsinline></audio>
 
 <div id="login-container">
@@ -266,12 +267,12 @@
             </div>
             <div class="assignment-section">
                 <h3><i class="fas fa-user-tie"></i> Agent Inclusion & Assignment</h3>
-                <p class="info-text">Uncheck an agent to exclude them. Then, assign a receiving admin for each included agent.</p>
+                <p class="info-text">Uncheck an agent to exclude them.</p>
                 <div id="agent-assignment-list" class="assignment-list"></div>
             </div>
             <div class="assignment-section">
                 <h3><i class="fas fa-trophy"></i> Prize Payout Inclusion & Assignment</h3>
-                <p class="info-text">Uncheck a prize to exclude it. Then, assign a paying admin for each included prize.</p>
+                <p class="info-text">Uncheck your own ticket winner to exclude them.</p>
                 <div id="winner-assignment-list" class="assignment-list"></div>
             </div>
             <button class="calculate-btn" id="calc-settlement-btn">Calculate & View Report</button>
@@ -308,12 +309,11 @@
     const resultsView = document.getElementById('results-view');
     const bgMusic = document.getElementById('background-music');
 
-    // NEW: References for animation and login form
     const verificationContainer = document.getElementById('verification-container');
     const successContainer = document.getElementById('success-container');
     const loginBox = document.querySelector('.login-box');
 
-    // --- START: MUSIC AUTOPLAY FIX ---
+    // --- NEW: MUSIC AUTOPLAY FIX ---
     // This function handles browser autoplay policies by trying to play music,
     // and if blocked, it waits for the first user interaction to play it.
     function tryToPlayMusic() {
@@ -329,14 +329,13 @@
                         document.removeEventListener('click', playOnFirstInteraction);
                         document.removeEventListener('touchstart', playOnFirstInteraction);
                     };
-                    // Add the event listeners
+                    // Add the event listeners to the whole page
                     document.addEventListener('click', playOnFirstInteraction);
                     document.addEventListener('touchstart', playOnFirstInteraction);
                 });
             }
         }
     }
-    // --- END: MUSIC AUTOPLAY FIX ---
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -354,7 +353,7 @@
 
                     setTimeout(() => {
                         document.body.classList.add('admin-dashboard-active');
-                        // MODIFIED: Call the robust play function instead of the simple .play()
+                        // --- NEW: Call the robust play function here ---
                         tryToPlayMusic(); 
                         showMainContent();
                         fetchData();
@@ -371,6 +370,7 @@
             loginBox.style.display = 'block'; 
             
             document.body.classList.remove('admin-dashboard-active');
+            // --- NEW: Ensure music stops when logged out ---
              if (bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
@@ -397,6 +397,7 @@
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
+        // --- NEW: Ensure music stops on logout click ---
         if (bgMusic) {
             bgMusic.pause();
             bgMusic.currentTime = 0;
@@ -568,7 +569,7 @@
                     <div class="result-block">
                         <h4>${admin.name}</h4>
                         <div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div>
-                        <div class="result-item"><span>Free Tickets Generated</span><span>${admin.freeTicketsGenerated}</span></div>
+                        <div class="result-item"><span>Free Tickets</span><span>${admin.freeTicketsGenerated}</span></div>
                         <div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString()}</span></div>
                         <div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString()}</span></div>
                         <div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString()}</span></div>
@@ -582,7 +583,7 @@
                     <div class="result-block">
                         <h4>${agent.name}</h4>
                         <div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div>
-                        <div class="result-item"><span>Free Tickets Generated</span><span>${agent.freeTicketsGenerated}</span></div>
+                        <div class="result-item"><span>Free Tickets</span><span>${agent.freeTicketsGenerated}</span></div>
                         <div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString()}</span></div>
                         <div class="result-item deduction"><span>(-) Commission Earned (on all tickets)</span><span>₹ ${agent.commission.toLocaleString()}</span></div>
                         <div class="result-item total">
