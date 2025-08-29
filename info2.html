@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Info - Sintha Housie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-bg-dash: #2c3e50;
+            --secondary-bg-dash: #34495e;
+            --accent-color-dash: #1abc9c;
+            --muted-color-dash: #7f8c8d;
+            --light-text-dash: #ecf0f1;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+        background-color: var(--primary-bg-dash);
+        color: var(--light-text-dash);
+        font-size: 12px;
+        line-height: 1.6;
+        transition: background 0.5s ease-in-out;
+    }
+    
+    body.admin-dashboard-active {
+        background: #141E30;
+        background: -webkit-linear-gradient(to right, #243B55, #141E30);
+        background: linear-gradient(to right, #243B55, #141E30);
+        background-attachment: fixed;
+    }
+
+    /* --- LOGIN & VERIFICATION STYLES --- */
+    #login-container {
+        display: flex; align-items: center; justify-content: center; min-height: 100vh;
+        padding: 1rem; background-image: linear-gradient(to top right, #2c3e50, #466368);
+    }
+    #verification-container, #success-container {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    }
+    .verification-text {
+        color: var(--light-text-dash); font-size: 1.2rem; margin-top: 1.5rem;
+        font-weight: 500; letter-spacing: 0.5px;
+    }
+    .smooth-spinner { animation: rotate 2s linear infinite; width: 80px; height: 80px; }
+    .smooth-spinner .path {
+        stroke: var(--accent-color-dash); stroke-linecap: round; animation: dash 1.5s ease-in-out infinite;
+    }
+    @keyframes rotate { 100% { transform: rotate(360deg); } }
+    @keyframes dash { 0% { stroke-dasharray: 1, 150; stroke-dashoffset: 0; } 50% { stroke-dasharray: 90, 150; stroke-dashoffset: -35; } 100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; } }
+    .success-animation { display: inline-block; }
+    .checkmark { width: 80px; height: 80px; border-radius: 50%; display: block; stroke-width: 3; stroke: #fff; stroke-miterlimit: 10; box-shadow: inset 0px 0px 0px var(--accent-color-dash); animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both; }
+    .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--accent-color-dash); fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+    .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+    @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+    @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+    @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px var(--accent-color-dash); } }
+    .login-box { background-color: var(--secondary-bg-dash); padding: 2.5rem 2rem; border-radius: 8px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); width: 100%; max-width: 400px; text-align: center; border-top: 4px solid var(--accent-color-dash); display: none; }
+    .login-box h1 { color: var(--accent-color-dash); margin-bottom: 0.5rem; font-weight: 700; }
+    .login-box p { color: var(--muted-color-dash); margin-bottom: 2rem; font-size: 0.9rem; }
+    .login-input { width: 100%; padding: 0.8rem 1rem; margin-bottom: 1rem; border-radius: 4px; border: 1px solid var(--muted-color-dash); background-color: var(--primary-bg-dash); color: var(--light-text-dash); font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; }
+    .login-input:focus { outline: none; border-color: var(--accent-color-dash); box-shadow: 0 0 8px rgba(26, 188, 156, 0.5); }
+    #login-btn { width: 100%; padding: 0.8rem 1rem; border: none; border-radius: 4px; background-color: var(--accent-color-dash); color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s, transform 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    #login-btn .spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
+    #login-btn.loading .spinner { display: block; }
+    #login-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #login-btn:hover:not(:disabled) { background-color: #16a085; transform: translateY(-2px); }
+    #login-btn:disabled { background-color: var(--muted-color-dash); cursor: not-allowed; }
+    #login-error { color: var(--error-color); margin-top: 1rem; height: 20px; font-size: 0.9rem; font-weight: 500; }
+
+    /* --- MAIN CONTENT STYLES --- */
+    #main-container { display: none; max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 2rem; }
+    .header h1 { font-size: 2rem; font-weight: 700; }
+    #logout-btn { background: var(--error-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
+    #logout-btn:hover { background-color: #c0392b; }
+    .calc-card { background-color: var(--secondary-bg-dash); padding: 1.5rem; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+    .calc-card h2 { color: var(--accent-color-dash); margin-bottom: 1.5rem; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; }
+    .form-group.inline { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--muted-color-dash); }
+    input, select { width: 100%; padding: 0.6rem; border-radius: 4px; border: 1px solid var(--muted-color-dash); background-color: var(--primary-bg-dash); color: var(--light-text-dash); font-size: 1rem; }
+    .calculate-btn { width: 100%; padding: 0.7rem; border: none; border-radius: 5px; background-color: var(--accent-color-dash); color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: background-color 0.3s; }
+    .calculate-btn:hover { background-color: #16a085; }
+    .assignment-section { margin-bottom: 2rem; }
+    .assignment-section h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .info-text { font-size: 0.9rem; color: var(--muted-color-dash); margin-bottom: 1rem; }
+    .assignment-list { max-height: 250px; overflow-y: auto; border: 1px solid var(--primary-bg-dash); border-radius: 4px; padding: 0.5rem; background-color: var(--primary-bg-dash); }
+    .assignment-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--secondary-bg-dash); transition: opacity 0.3s; }
+    .assignment-item.excluded { opacity: 0.6; }
+    .assignment-item.excluded .details .name, .assignment-item.excluded .details .sub-text { text-decoration: line-through; color: var(--muted-color-dash); }
+    .assignment-item:last-child { border-bottom: none; }
+    .assignment-item .toggle-group { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+    .assignment-item .toggle-group input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+    .assignment-item .details { flex-grow: 1; margin-right: 1rem; }
+    .assignment-item .details .name { font-weight: 600; }
+    .assignment-item .details .sub-text { font-size: 0.85rem; color: var(--muted-color-dash); display: block; }
+    .assignment-item select { width: auto; min-width: 120px; flex-shrink: 0; padding: 0.4rem; }
+    
+    /* --- RESULTS VIEW STYLES --- */
+    #results-view { padding-top: 2rem; }
+    .report-title-container { text-align: center; margin-bottom: 2rem; }
+    .report-title-container h1 { color: var(--accent-color-dash); margin-bottom: 0.5rem; font-size: 2rem; }
+    .report-title-container .report-subtitle { font-size: 1.1rem; font-weight: 500; color: var(--muted-color-dash); margin-top: 0; }
+    .results-area { margin-bottom: 2rem; background-color: var(--secondary-bg-dash); padding: 1rem; border-radius: 5px; border-left: 4px solid var(--accent-color-dash); }
+    .results-area h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.5rem; color: var(--accent-color-dash); }
+    .result-block { background-color: var(--primary-bg-dash); padding: 1rem; margin-bottom: 1rem; border-radius: 5px; border-left: 3px solid var(--muted-color-dash); }
+    .result-block h4 { color: var(--accent-color-dash); margin-top:0; margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--secondary-bg-dash); font-size: 1.2rem; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--secondary-bg-dash); }
+    .result-item:last-child { border-bottom: none; }
+    .result-item span:first-child { font-weight: 500; color: var(--muted-color-dash); }
+    .result-item span:last-child { font-weight: 600; }
+    .result-item.total span:last-child { color: var(--success-color); font-size: 1.2rem; }
+    .result-item.total.negative span:last-child { color: var(--error-color); }
+    .result-item.deduction span:last-child { color: var(--warning-color); }
+    .results-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; }
+    .action-btn { width: auto; padding: 0.7rem 1.5rem; border: none; border-radius: 5px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s, transform 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+    #back-to-calc-btn { background-color: var(--muted-color-dash); }
+    #back-to-calc-btn:hover { background-color: #95a5a6; }
+    #download-pdf-btn { background-color: var(--success-color); }
+    #download-pdf-btn:hover { background-color: #27ae60; }
+    #download-pdf-btn:disabled { background-color: var(--muted-color-dash); cursor: not-allowed; }
+
+    /* --- MODAL STYLES --- */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); }
+    .modal-content { background-color: var(--secondary-bg-dash); padding: 2rem; border-radius: 8px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); width: 90%; max-width: 450px; text-align: center; border-top: 4px solid var(--accent-color-dash); transform: scale(0.9); animation: modal-pop 0.3s ease-out forwards; }
+    @keyframes modal-pop { to { transform: scale(1); } }
+    .modal-content h2 { color: var(--accent-color-dash); margin-bottom: 1rem; }
+    .modal-content p { color: var(--light-text-dash); margin-bottom: 1.5rem; line-height: 1.7; }
+    .modal-content button { width: 100%; padding: 0.8rem 1rem; border: none; border-radius: 4px; background-color: var(--success-color); color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
+    .modal-content button:hover { transform: translateY(-2px); }
+    .modal-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .modal-buttons button { width: 50%; flex-grow: 1; }
+    #confirm-overwrite-btn { background-color: var(--success-color); }
+    #confirm-overwrite-btn:hover { background-color: #27ae60; }
+    #cancel-overwrite-btn { background-color: var(--muted-color-dash); }
+    #cancel-overwrite-btn:hover { background-color: #95a5a6; }
+
+
+    /* --- HISTORY STYLES --- */
+    #history-btn { background: transparent; color: var(--light-text-dash); border: 1px solid var(--muted-color-dash); padding: 0.5rem 0.8rem; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+    #history-btn:hover { background-color: var(--accent-color-dash); color: white; border-color: var(--accent-color-dash); }
+    .history-modal-content { max-width: 500px; text-align: left; padding: 0; overflow: hidden; }
+    .history-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background-color: var(--primary-bg-dash); border-bottom: 1px solid var(--muted-color-dash); }
+    .history-header h2 { margin: 0; }
+    #close-history-btn { background: none; border: none; color: var(--light-text-dash); font-size: 2rem; font-weight: bold; cursor: pointer; line-height: 1; padding: 0 0.5rem; }
+    .history-list-container { padding: 0.5rem 1.5rem 1.5rem; max-height: 60vh; overflow-y: auto; }
+    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0.5rem; border-bottom: 1px solid var(--primary-bg-dash); cursor: pointer; transition: background-color 0.2s; }
+    .history-item:hover { background-color: var(--primary-bg-dash); }
+    .history-item .remove-history { color: var(--muted-color-dash); font-size: 1.1rem; transition: color 0.2s; padding: 0.5rem; z-index: 2; }
+    .history-item .remove-history:hover { color: var(--error-color); }
+    .no-history { color: var(--muted-color-dash); text-align: center; padding: 2rem 0; }
+    .history-item .history-item-details { display: flex; flex-direction: column; gap: 0.3rem; pointer-events: none; }
+    .history-item .history-game-time { font-weight: 700; color: var(--accent-color-dash); font-size: 1rem; }
+    .history-item .history-calc-time { font-weight: 400; font-size: 0.8rem; color: var(--muted-color-dash); }
+</style>
+</head>
+<body>
+
+<audio id="background-music" src="https://raw.githubusercontent.com/Anandkhuman/housie/main/bg.mp3" loop playsinline></audio>
+
+<div id="login-container">
+    <div id="verification-container"><svg class="smooth-spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg><p class="verification-text">Admin Verification in Process...</p></div>
+    <div id="success-container" style="display: none;"><div class="success-animation"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div><p class="verification-text">Verification Successful</p></div>
+    <div class="login-box"><h1><i class="fas fa-chart-line"></i> Business Info</h1><p>Admin authentication required to access this page.</p><form id="login-form"><input type="email" id="login-email" class="login-input" placeholder="Admin Email" required><input type="password" id="login-password" class="login-input" placeholder="Password" required><button type="submit" id="login-btn"><span class="btn-text">Login</span><div class="spinner"></div></button><p id="login-error"></p></form></div>
+</div>
+
+<div id="main-container">
+    <header class="header">
+        <h1><i class="fas fa-calculator"></i></h1>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span id="admin-name"></span>
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button id="history-btn" title="Calculation History"><i class="fas fa-history"></i></button>
+        </div>
+    </header>
+
+    <div id="calculator-view">
+         <div class="calc-card">
+            <h2><i class="fas fa-handshake"></i> Final Settlement Calculator</h2>
+            <div class="form-group inline">
+                <div><label for="free-half-sheet-settlement">Free Tickets per Half Sheet</label><input type="number" id="free-half-sheet-settlement" placeholder="e.g., 1" value="0"></div>
+                <div><label for="free-full-sheet-settlement">Free Tickets per Full Sheet</label><input type="number" id="free-full-sheet-settlement" placeholder="e.g., 2" value="0"></div>
+            </div>
+            <div class="assignment-section">
+                <h3><i class="fas fa-user-tie"></i> Agent Inclusion & Assignment</h3><p class="info-text">Uncheck an agent to exclude them.</p><div id="agent-assignment-list" class="assignment-list"></div>
+            </div>
+            <div class="assignment-section">
+                <h3><i class="fas fa-trophy"></i> Prize Payout Inclusion & Assignment</h3><p class="info-text">Uncheck your own ticket winner to exclude them.</p><div id="winner-assignment-list" class="assignment-list"></div>
+            </div>
+            <button class="calculate-btn" id="calc-settlement-btn">Calculate & View Report</button>
+        </div>
+    </div>
+    <div id="results-view" style="display: none;"></div>
+</div>
+
+<div id="confirmation-modal" class="modal-overlay"><div class="modal-content"><h2>Confirmation Required</h2><p>Please confirm with another admin before calculation. Clicking below will take you to the dashboard.</p><button id="confirm-proceed-btn">Proceed to Dashboard</button></div></div>
+<div id="history-modal" class="modal-overlay"><div class="modal-content history-modal-content"><div class="history-header"><h2>Calculation History</h2><button id="close-history-btn">&times;</button></div><div id="history-list-container" class="history-list-container"><p class="no-history">No history found.</p></div></div></div>
+
+<div id="overwrite-confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Confirm Update</h2>
+        <p>A calculation for this game already exists in history. Do you want to update it with this new calculation?</p>
+        <div class="modal-buttons">
+            <button id="cancel-overwrite-btn">Cancel</button>
+            <button id="confirm-overwrite-btn">Yes, Update</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
+        authDomain: "sinthahousie-1dd3b.firebaseapp.com",
+        databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
+        projectId: "sinthahousie-1dd3b",
+        storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
+        messagingSenderId: "76567991256",
+        appId: "1:76567991256:web:c58b127b8d86d8a1c598ad"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let allUsers = [], allTickets = [], gameSettings = {}, gameWinners = {}, currentUser = null, gameStartTime = null;
+    let isDataReady = { users: false, tickets: false, settings: false, winners: false, startTime: false };
+
+    const loginContainer = document.getElementById('login-container');
+    const mainContainer = document.getElementById('main-container');
+    const calcView = document.getElementById('calculator-view');
+    const resultsView = document.getElementById('results-view');
+    const bgMusic = document.getElementById('background-music');
+    const verificationContainer = document.getElementById('verification-container');
+    const successContainer = document.getElementById('success-container');
+    const loginBox = document.querySelector('.login-box');
+    
+    // Modal References
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const confirmProceedBtn = document.getElementById('confirm-proceed-btn');
+    const historyModal = document.getElementById('history-modal');
+    const closeHistoryBtn = document.getElementById('close-history-btn');
+    const historyListContainer = document.getElementById('history-list-container');
+    const historyBtn = document.getElementById('history-btn');
+    const overwriteConfirmModal = document.getElementById('overwrite-confirm-modal');
+    const confirmOverwriteBtn = document.getElementById('confirm-overwrite-btn');
+    const cancelOverwriteBtn = document.getElementById('cancel-overwrite-btn');
+
+
+    function tryToPlayMusic() {
+        if (bgMusic && bgMusic.paused) {
+            bgMusic.play().catch(error => console.warn("Music play failed:", error));
+        }
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const userData = (await db.ref('users/' + user.uid).once('value')).val();
+            if (userData && userData.role === 'admin') {
+                currentUser = { uid: user.uid, ...userData };
+                document.getElementById('admin-name').textContent = `Welcome, ${userData.name}`;
+                verificationContainer.style.display = 'flex';
+                loginBox.style.display = 'none';
+                setTimeout(() => {
+                    verificationContainer.style.display = 'none';
+                    successContainer.style.display = 'flex';
+                    setTimeout(() => { confirmationModal.style.display = 'flex'; }, 1500); 
+                }, 2000);
+            } else { auth.signOut(); }
+        } else {
+            currentUser = null;
+            verificationContainer.style.display = 'none';
+            successContainer.style.display = 'none';
+            loginBox.style.display = 'block'; 
+            document.body.classList.remove('admin-dashboard-active');
+            if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+            showLogin();
+        }
+    });
+
+    confirmProceedBtn.addEventListener('click', () => {
+        confirmationModal.style.display = 'none';
+        document.body.classList.add('admin-dashboard-active');
+        tryToPlayMusic();
+        showMainContent();
+        fetchData();
+    });
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const loginError = document.getElementById('login-error');
+        const loginBtn = document.getElementById('login-btn');
+        loginError.textContent = '';
+        loginBtn.classList.add('loading');
+        loginBtn.disabled = true;
+        auth.signInWithEmailAndPassword(email, password).catch((error) => {
+            loginError.textContent = error.message;
+            loginBtn.classList.remove('loading');
+            loginBtn.disabled = false;
+        });
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+        auth.signOut();
+    });
+
+    function showLogin() { mainContainer.style.display = 'none'; loginContainer.style.display = 'flex'; }
+    function showMainContent() { loginContainer.style.display = 'none'; mainContainer.style.display = 'block'; }
+
+    function fetchData() {
+        db.ref('users').on('value', s => { allUsers = Object.entries(s.val()||{}).map(([uid,d])=>({uid,...d})); isDataReady.users = true; checkAndRender(); });
+        db.ref('tickets').on('value', s => { allTickets = Object.values(s.val()||{}); isDataReady.tickets = true; checkAndRender(); });
+        db.ref('settings/gameConfig').on('value', s => { gameSettings = s.val()||{}; isDataReady.settings = true; checkAndRender(); });
+        db.ref('gameState/currentState/winners').on('value', s => { gameWinners = s.val()||{}; isDataReady.winners = true; checkAndRender(); });
+        db.ref('settings/gameConfig/gameDateTime').on('value', s => { gameStartTime = s.val()||null; isDataReady.startTime = true; checkAndRender(); });
+    }
+    
+    function checkAndRender() { if (Object.values(isDataReady).every(Boolean)) populateAssignmentLists(); }
+
+    function populateAssignmentLists() {
+        const admins = allUsers.filter(u => u.role === 'admin');
+        const agents = allUsers.filter(u => u.role === 'agent');
+        const agentListContainer = document.getElementById('agent-assignment-list');
+        const winnerListContainer = document.getElementById('winner-assignment-list');
+        agentListContainer.innerHTML = ''; winnerListContainer.innerHTML = '';
+        if (admins.length === 0) return;
+        const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
+        agentListContainer.innerHTML = agents.map(agent => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox agent-checkbox" data-agent-uid="${agent.uid}" checked><div class="details"><span class="name">${agent.name}</span></div></div><select class="admin-selector" data-agent-uid="${agent.uid}">${adminOptionsHtml}</select></div>`).join('');
+        const allWinners = [];
+        const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
+        dividendOrder.forEach(dividendName => {
+            if (gameWinners[dividendName]) {
+                const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
+                if (prizeInfo) {
+                    gameWinners[dividendName].forEach(winner => {
+                        if (typeof winner.ticketId === 'number') {
+                            const ticket = allTickets.find(t => t.id === winner.ticketId);
+                            if (ticket) allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: prizeInfo.amount / gameWinners[dividendName].length });
+                        } else if (typeof winner.ticketId === 'string') {
+                            const mockTicket = { id: winner.ticketId, owner_name: winner.name };
+                            allWinners.push({ ...winner, ticket: mockTicket, prizeName: dividendName, prizeAmount: prizeInfo.amount / gameWinners[dividendName].length });
+                        }
+                    });
+                }
+            }
+        });
+        winnerListContainer.innerHTML = allWinners.map(winner => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox prize-checkbox" data-prize-amount="${winner.prizeAmount}" data-ticket-id="${winner.ticketId}" checked><div class="details"><span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span><span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString()}</span></div></div><select class="admin-selector">${adminOptionsHtml}</select></div>`).join('');
+        document.querySelectorAll('.include-checkbox').forEach(cb => cb.addEventListener('change', e => e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked)));
+        document.querySelectorAll('.agent-checkbox').forEach(agentCb => agentCb.addEventListener('change', e => {
+            const agentUid = e.target.dataset.agentUid, isChecked = e.target.checked;
+            const ticketIdsSoldByAgent = allTickets.filter(t => t.agent_uid === agentUid).map(t => t.id);
+            document.querySelectorAll('.prize-checkbox').forEach(prizeCb => {
+                const prizeTicketId = parseInt(prizeCb.dataset.ticketId, 10);
+                if (!isNaN(prizeTicketId) && ticketIdsSoldByAgent.includes(prizeTicketId)) {
+                    prizeCb.checked = isChecked;
+                    prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked);
+                }
+            });
+        }));
+    }
+    
+    async function checkIfHistoryExists(startTime) {
+        if (!currentUser || !currentUser.uid || !startTime) return false;
+        const snapshot = await db.ref(`calculationHistory/${currentUser.uid}`)
+                                 .orderByChild('gameStartTime')
+                                 .equalTo(startTime)
+                                 .once('value');
+        return snapshot.exists();
+    }
+
+    function performCalculation() {
+        const ticketPrice = gameSettings.ticketPrice || 0, commissionRate = gameSettings.agentCommission || 0;
+        const admins = allUsers.filter(u => u.role === 'admin'), agents = allUsers.filter(u => u.role === 'agent');
+        const freePerHalf = parseInt(document.getElementById('free-half-sheet-settlement').value) || 0;
+        const freePerFull = parseInt(document.getElementById('free-full-sheet-settlement').value) || 0;
+        const includedAgentUids = Array.from(document.querySelectorAll('#agent-assignment-list .include-checkbox:checked')).map(cb => cb.dataset.agentUid);
+        const initialSoldTickets = allTickets.filter(t => t.is_sold && t.owner_phone && (allUsers.find(u => u.uid === t.agent_uid)?.role === 'admin' || includedAgentUids.includes(t.agent_uid)));
+        const processedTickets = JSON.parse(JSON.stringify(initialSoldTickets));
+        const bookings = processedTickets.reduce((acc, t) => { acc[t.owner_phone] = (acc[t.owner_phone] || []).concat(t); return acc; }, {});
+        for (const phone in bookings) {
+            let ticketsInBooking = bookings[phone], freeCount = 0;
+            const sheets = ticketsInBooking.reduce((acc, t) => { const s = Math.floor((t.id-1)/6); acc[s] = (acc[s]||0)+1; return acc; }, {});
+            for (const sheet in sheets) freeCount += (Math.floor(sheets[sheet]/6) * freePerFull) + (Math.floor((sheets[sheet]%6)/3) * freePerHalf);
+            for(let i=0; i < ticketsInBooking.length && i < freeCount; i++) ticketsInBooking[i].isFree = true;
+        }
+        const paidTickets = processedTickets.filter(t => !t.isFree), freeTickets = processedTickets.filter(t => t.isFree);
+        const adminBalances = admins.map(a => ({ name: a.name, uid: a.uid, ticketsSold: 0, freeTicketsGenerated: 0, directCollection: 0, transfersInFromAgents: 0, prizesPaid: 0 }));
+        const agentSettlements = agents.map(a => ({ name: a.name, uid: a.uid, ticketsSold: 0, freeTicketsGenerated: 0, collection: 0, commission: 0, netTransfer: 0, transferToAdminName: 'N/A (Excluded)'}));
+        paidTickets.forEach(t => { const s = adminBalances.find(a => a.uid === t.agent_uid) || agentSettlements.find(a => a.uid === t.agent_uid); if (s) s.ticketsSold++; });
+        freeTickets.forEach(t => { const s = adminBalances.find(a => a.uid === t.agent_uid) || agentSettlements.find(a => a.uid === t.agent_uid); if (s) s.freeTicketsGenerated++; });
+        document.querySelectorAll('#winner-assignment-list .assignment-item').forEach(item => { if (item.querySelector('.include-checkbox:checked')) { const admin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value); if(admin) admin.prizesPaid += parseFloat(item.querySelector('.include-checkbox').dataset.prizeAmount); } });
+        agentSettlements.forEach(agent => {
+            agent.collection = agent.ticketsSold * ticketPrice;
+            agent.commission = (agent.ticketsSold + agent.freeTicketsGenerated) * commissionRate;
+            if (includedAgentUids.includes(agent.uid)) {
+                const item = document.querySelector(`#agent-assignment-list .agent-checkbox[data-agent-uid="${agent.uid}"]`).closest('.assignment-item');
+                const receivingAdmin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value);
+                if(receivingAdmin) { agent.netTransfer = agent.collection - agent.commission; agent.transferToAdminName = receivingAdmin.name; receivingAdmin.transfersInFromAgents += agent.netTransfer; }
+            }
+        });
+        adminBalances.forEach(admin => admin.directCollection = admin.ticketsSold * ticketPrice);
+        const summary = { totalSoldTickets: paidTickets.length, totalFreeTickets: freeTickets.length, totalCollection: paidTickets.length * ticketPrice, totalPrizesPaid: adminBalances.reduce((s, a) => s + a.prizesPaid, 0), totalCommissionsPaid: agentSettlements.reduce((s, a) => s + a.commission, 0), };
+        summary.netProfit = summary.totalCollection - (summary.totalPrizesPaid + summary.totalCommissionsPaid);
+        const calcAdminName = currentUser ? currentUser.name : 'Unknown Admin';
+        renderResults(summary, adminBalances, agentSettlements, gameStartTime, calcAdminName);
+        saveOrUpdateReport();
+    }
+    
+    document.getElementById('calc-settlement-btn').addEventListener('click', async () => {
+        const historyExists = await checkIfHistoryExists(gameStartTime);
+        if (historyExists) {
+            overwriteConfirmModal.style.display = 'flex';
+        } else {
+            performCalculation();
+        }
+    });
+
+    function renderResults(summary, admins, agents, startTime, calcAdminName) {
+        const formattedDate = formatTimestamp(startTime);
+        const gameTimeSubtitle = formattedDate ? `<h2 class="report-subtitle">Game Time: ${formattedDate}</h2>` : '';
+        const adminNameSubtitle = calcAdminName ? `<p class="report-subtitle" style="margin-top: 5px; font-size: 0.9rem;">Calculated by: <strong>${calcAdminName}</strong></p>` : '';
+        
+        resultsView.innerHTML = `
+            <div id="report-content">
+                <div class="report-title-container">
+                    <h1>Settlement Report</h1>
+                    ${gameTimeSubtitle}
+                    ${adminNameSubtitle}
+                </div>
+                <div class="results-area"><h3>Business Summary</h3><div class="result-block"><div class="result-item"><span>Total Paid Tickets</span><span>${summary.totalSoldTickets}</span></div><div class="result-item"><span>Total Free Tickets Given</span><span>${summary.totalFreeTickets}</span></div><div class="result-item"><span>(+) Total Collection</span><span>₹ ${summary.totalCollection.toLocaleString()}</span></div><div class="result-item deduction"><span>(-) Total Prizes Paid</span><span>₹ ${Math.round(summary.totalPrizesPaid).toLocaleString()}</span></div><div class="result-item deduction"><span>(-) Total Commissions</span><span>₹ ${Math.round(summary.totalCommissionsPaid).toLocaleString()}</span></div><div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit / Loss</span><span>₹ ${Math.round(summary.netProfit).toLocaleString()}</span></div></div></div>
+                <div class="results-area"><h3>Admin Balances</h3>${admins.map(admin => { const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid; return `<div class="result-block"><h4>${admin.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${admin.freeTicketsGenerated}</span></div><div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString()}</span></div><div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString()}</span></div><div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString()}</span></div><div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance</span><span>₹ ${Math.round(finalBalance).toLocaleString()}</span></div></div>`; }).join('')}</div>
+                <div class="results-area"><h3>Agent Settlements</h3>${agents.map(agent => `<div class="result-block"><h4>${agent.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${agent.freeTicketsGenerated}</span></div><div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString()}</span></div><div class="result-item deduction"><span>Commission Earned</span><span>₹ ${agent.commission.toLocaleString()}</span></div><div class="result-item total"><span>Net Transfer to ${agent.transferToAdminName}</span><span>₹ ${agent.netTransfer > 0 ? Math.round(agent.netTransfer).toLocaleString() : 0}</span></div></div>`).join('')}</div>
+            </div>
+            <div class="results-actions">
+                <button class="action-btn" id="back-to-calc-btn"><i class="fas fa-arrow-left"></i> Back to Calculator</button>
+                <button class="action-btn" id="download-pdf-btn"><i class="fas fa-file-download"></i> Download Summary</button>
+            </div>
+        `;
+        document.getElementById('back-to-calc-btn').addEventListener('click', () => { resultsView.style.display = 'none'; calcView.style.display = 'block'; });
+        document.getElementById('download-pdf-btn').addEventListener('click', () => downloadReportAsPDF(startTime));
+        calcView.style.display = 'none'; resultsView.style.display = 'block'; window.scrollTo(0, 0);
+    }
+    
+    async function downloadReportAsPDF(reportTimestamp) {
+        const downloadBtn = document.getElementById('download-pdf-btn');
+        const reportContent = document.getElementById('report-content');
+        if (!reportContent || !downloadBtn) return;
+
+        const originalBtnContent = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        downloadBtn.disabled = true;
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const canvas = await html2canvas(reportContent, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: getComputedStyle(document.body).getPropertyValue('--secondary-bg-dash')
+            });
+            
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 295; // A4 height in mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let heightLeft = imgHeight;
+            const pdf = new jsPDF('p', 'mm');
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+              position = heightLeft - imgHeight;
+              pdf.addPage();
+              pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+              heightLeft -= pageHeight;
+            }
+            
+            let formattedFilenameDate = 'report';
+            if (reportTimestamp) {
+                const ts = new Date(reportTimestamp);
+                const year = ts.getFullYear();
+                const month = String(ts.getMonth() + 1).padStart(2, '0');
+                const day = String(ts.getDate()).padStart(2, '0');
+                const hours = String(ts.getHours()).padStart(2, '0');
+                const minutes = String(ts.getMinutes()).padStart(2, '0');
+                formattedFilenameDate = `${year}-${month}-${day}_${hours}h${minutes}m`;
+            }
+            
+            pdf.save(`SinthaHousie_Report_${formattedFilenameDate}.pdf`);
+
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            alert("Sorry, there was an error creating the PDF. Please try again.");
+        } finally {
+            downloadBtn.innerHTML = originalBtnContent;
+            downloadBtn.disabled = false;
+        }
+    }
+
+    // --- HISTORY FUNCTIONS ---
+    function formatTimestamp(timestamp) {
+        if (!timestamp) return null;
+        return new Date(timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+
+    async function saveOrUpdateReport() {
+        if (!currentUser || !currentUser.uid || !gameStartTime) {
+            console.error("Cannot save report: Missing user info or game start time.");
+            return;
+        }
+
+        const historyRef = db.ref(`calculationHistory/${currentUser.uid}`);
+        const query = historyRef.orderByChild('gameStartTime').equalTo(gameStartTime);
+        
+        try {
+            const snapshot = await query.once('value');
+            const reportData = {
+                reportHtml: resultsView.querySelector('#report-content').innerHTML,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                gameStartTime: gameStartTime
+            };
+
+            if (snapshot.exists()) {
+                const existingRecordKey = Object.keys(snapshot.val())[0];
+                await historyRef.child(existingRecordKey).update(reportData);
+                console.log(`History record UPDATED for game: ${formatTimestamp(gameStartTime)}`);
+            } else {
+                await historyRef.push().set(reportData);
+                console.log(`NEW history record CREATED for game: ${formatTimestamp(gameStartTime)}`);
+            }
+        } catch (error) {
+            console.error("Error saving or updating history:", error);
+        }
+    }
+
+    function loadAndRenderHistory() {
+        if (!currentUser) return;
+        db.ref(`calculationHistory/${currentUser.uid}`).orderByChild('createdAt').limitToLast(50).once('value', snapshot => {
+            historyListContainer.innerHTML = '';
+            if (!snapshot.exists()) {
+                historyListContainer.innerHTML = '<p class="no-history">No history found.</p>';
+                return;
+            }
+            const historyItems = [];
+            snapshot.forEach(child => historyItems.push({ key: child.key, ...child.val() }));
+            historyItems.reverse();
+
+            historyItems.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'history-item';
+                itemEl.dataset.historyKey = item.key;
+                itemEl.dataset.reportHtml = item.reportHtml;
+                itemEl.dataset.gameStartTime = item.gameStartTime;
+                const gameTimeTitle = item.gameStartTime ? formatTimestamp(item.gameStartTime) : 'Report (Date not available)';
+                itemEl.innerHTML = `<div class="history-item-details"><span class="history-game-time">${gameTimeTitle}</span><span class="history-calc-time">Calculated: ${formatTimestamp(item.createdAt)}</span></div><i class="fas fa-trash-alt remove-history" title="Delete this entry"></i>`;
+                historyListContainer.appendChild(itemEl);
+            });
+        });
+    }
+
+    function deleteHistoryItem(historyKey) {
+        if (!currentUser || !historyKey) return;
+        db.ref(`calculationHistory/${currentUser.uid}/${historyKey}`).remove()
+            .then(() => {
+                console.log("History item deleted successfully from database.");
+                loadAndRenderHistory();
+            })
+            .catch(error => {
+                console.error("Error deleting history:", error);
+                alert("Could not delete the history item. Check console for errors.");
+            });
+    }
+
+    // --- EVENT LISTENERS FOR MODALS ---
+    historyBtn.addEventListener('click', () => { loadAndRenderHistory(); historyModal.style.display = 'flex'; });
+    closeHistoryBtn.addEventListener('click', () => historyModal.style.display = 'none');
+    historyModal.addEventListener('click', (e) => { if (e.target === historyModal) historyModal.style.display = 'none'; });
+
+    confirmOverwriteBtn.addEventListener('click', () => {
+        performCalculation();
+        overwriteConfirmModal.style.display = 'none';
+    });
+    cancelOverwriteBtn.addEventListener('click', () => {
+        overwriteConfirmModal.style.display = 'none';
+    });
+    overwriteConfirmModal.addEventListener('click', (e) => {
+        if (e.target === overwriteConfirmModal) {
+            overwriteConfirmModal.style.display = 'none';
+        }
+    });
+
+    historyListContainer.addEventListener('click', e => {
+        const historyItem = e.target.closest('.history-item');
+        if (!historyItem) return;
+        
+        if (e.target.classList.contains('remove-history')) {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to delete this report permanently? This cannot be undone.')) {
+                deleteHistoryItem(historyItem.dataset.historyKey);
+            }
+        } else {
+            const historyGameStartTime = parseInt(historyItem.dataset.gameStartTime, 10);
+            resultsView.innerHTML = `
+                <div id="report-content">${historyItem.dataset.reportHtml}</div>
+                <div class="results-actions">
+                    <button class="action-btn" id="back-to-calc-btn"><i class="fas fa-arrow-left"></i> Back to Calculator</button>
+                    <button class="action-btn" id="download-pdf-btn"><i class="fas fa-file-download"></i> Download Summary</button>
+                </div>`;
+
+            document.getElementById('back-to-calc-btn').addEventListener('click', () => { 
+                resultsView.style.display = 'none'; 
+                calcView.style.display = 'block'; 
+            });
+            document.getElementById('download-pdf-btn').addEventListener('click', () => downloadReportAsPDF(historyGameStartTime));
+            calcView.style.display = 'none'; 
+            resultsView.style.display = 'block';
+            historyModal.style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+    });
+</script>
+</body>
+</html>
