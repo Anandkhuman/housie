@@ -201,6 +201,61 @@
     .result-item.total.negative span:last-child { color: var(--error-color); }
     .result-item.deduction span:last-child { color: var(--warning-color); }
     #back-to-calc-btn { width: auto; padding: 0.7rem 1.5rem; display: block; margin: 2rem auto 0; background-color: var(--warning-color); }
+
+    /* --- NEW: MODAL STYLES --- */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+    .modal-content {
+        background-color: var(--secondary-bg-dash);
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+        border-top: 4px solid var(--accent-color-dash);
+        transform: scale(0.9);
+        animation: modal-pop 0.3s ease-out forwards;
+    }
+    @keyframes modal-pop {
+        to { transform: scale(1); }
+    }
+    .modal-content h2 {
+        color: var(--accent-color-dash);
+        margin-bottom: 1rem;
+    }
+    .modal-content p {
+        color: var(--light-text-dash);
+        margin-bottom: 1.5rem;
+        line-height: 1.7;
+    }
+    .modal-content button {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 4px;
+        background-color: var(--success-color);
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .modal-content button:hover {
+        background-color: #27ae60;
+        transform: translateY(-2px);
+    }
 </style>
 </head>
 <body>
@@ -284,6 +339,16 @@
 
 </div>
 
+<!-- NEW: Confirmation Modal -->
+<div id="confirmation-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h2>Confirmation Required</h2>
+        <p>Please confirm with another admin before calculation. Clicking below will take you to the dashboard.</p>
+        <button id="confirm-proceed-btn">Proceed to Dashboard</button>
+    </div>
+</div>
+
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
@@ -312,19 +377,17 @@
     const successContainer = document.getElementById('success-container');
     const loginBox = document.querySelector('.login-box');
 
+    // NEW: Get references to the modal elements
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const confirmProceedBtn = document.getElementById('confirm-proceed-btn');
+
     function tryToPlayMusic() {
         if (bgMusic && bgMusic.paused) {
             const playPromise = bgMusic.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
-                    console.warn("Music autoplay blocked by browser. It will start on the first user interaction.", error);
-                    const playOnFirstInteraction = () => {
-                        bgMusic.play().catch(e => console.error("Could not play music after interaction.", e));
-                        document.removeEventListener('click', playOnFirstInteraction);
-                        document.removeEventListener('touchstart', playOnFirstInteraction);
-                    };
-                    document.addEventListener('click', playOnFirstInteraction);
-                    document.addEventListener('touchstart', playOnFirstInteraction);
+                    console.warn("Music play failed, even after interaction:", error);
+                    // In a real-world scenario, you might show a muted icon the user can click.
                 });
             }
         }
@@ -344,11 +407,9 @@
                     verificationContainer.style.display = 'none';
                     successContainer.style.display = 'flex';
 
+                    // CHANGED: Instead of showing the dashboard, show the confirmation modal.
                     setTimeout(() => {
-                        document.body.classList.add('admin-dashboard-active');
-                        tryToPlayMusic(); 
-                        showMainContent();
-                        fetchData();
+                        confirmationModal.style.display = 'flex'; 
                     }, 1500); 
 
                 }, 2000);
@@ -368,6 +429,17 @@
             }
             showLogin();
         }
+    });
+
+    // NEW: Add event listener for the confirmation button
+    confirmProceedBtn.addEventListener('click', () => {
+        confirmationModal.style.display = 'none'; // Hide the modal
+
+        // Now, perform the actions that were previously automatic
+        document.body.classList.add('admin-dashboard-active');
+        tryToPlayMusic(); // This will work now because it's triggered by a user click
+        showMainContent();
+        fetchData();
     });
 
     document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -413,9 +485,6 @@
     
     function checkAndRender() { if (Object.values(isDataReady).every(Boolean)) populateAssignmentLists(); }
 
-    // ========================================================================================
-    // YAHAN PAR AAPKA ISSUE FIX KIYA GAYA HAI - HALF/FULL SHEET BONUS AB DIKHEGA
-    // ========================================================================================
     function populateAssignmentLists() {
         const admins = allUsers.filter(u => u.role === 'admin');
         const agents = allUsers.filter(u => u.role === 'agent');
@@ -434,7 +503,6 @@
                 <select class="admin-selector" data-agent-uid="${agent.uid}">${adminOptionsHtml}</select>
             </div>`).join('');
         
-        // --- FIX SHURU ---
         const allWinners = [];
         const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
 
@@ -443,30 +511,24 @@
                 const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
                 if (prizeInfo) {
                     gameWinners[dividendName].forEach(winner => {
-                        
-                        // YEH NAYI LOGIC HAI JO DONO TARAH KE WINNERS (NUMBER ID AUR TEXT ID) KO HANDLE KARTI HAI
                         if (typeof winner.ticketId === 'number') {
-                            // Case 1: Standard ticket winner (jaise Early 5, Full House)
                             const ticket = allTickets.find(t => t.id === winner.ticketId);
                             if (ticket) {
                                 allWinners.push({
                                     ...winner,
-                                    ticket, // Asli ticket object
+                                    ticket,
                                     prizeName: dividendName,
                                     prizeAmount: prizeInfo.amount / gameWinners[dividendName].length
                                 });
                             }
                         } else if (typeof winner.ticketId === 'string') {
-                            // Case 2: Sheet-based winner (jaise Full/Half Sheet Bonus)
-                            // Yahan winner object mein pehle se naam hota hai, isliye ticket dhoondne ki zaroorat nahi.
-                            // Hum ek "nakli" ticket object banate hain taaki neeche ka HTML code kaam kare.
                             const mockTicket = {
                                 id: winner.ticketId,
-                                owner_name: winner.name // Naam seedhe winner object se lein
+                                owner_name: winner.name
                             };
                             allWinners.push({
                                 ...winner,
-                                ticket: mockTicket, // Nakli ticket object use karein
+                                ticket: mockTicket,
                                 prizeName: dividendName,
                                 prizeAmount: prizeInfo.amount / gameWinners[dividendName].length
                             });
@@ -475,8 +537,6 @@
                 }
             }
         });
-        
-        // --- FIX KHATAM ---
 
         winnerListContainer.innerHTML = allWinners.map(winner => `
             <div class="assignment-item">
