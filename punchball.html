@@ -1,381 +1,365 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Punch Ball v1.0</title>
+  <!-- Mobile-First Viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <!-- For "Add to Home Screen" on mobile for a more native feel -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&display=swap&subset=latin-ext" rel="stylesheet">
   <style>
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  font-family: "PT Sans Narrow", sans-serif;
-}
+    /* --- General Reset & Base Styles --- */
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: "PT Sans Narrow", sans-serif;
+    }
 
-body {
-  height: 100vh;
-  background-color: #000280;
-  overflow: hidden;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-}
+    html, body {
+      height: 100%;
+      width: 100%;
+      background-color: #000280;
+      overflow: hidden;
+      /* Prevents text selection during gameplay */
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      user-select: none;
+    }
 
-.display {
-  box-sizing: border-box;
-  background-image: radial-gradient(ellipse 150% 100% at center bottom, rgba(0, 0, 0, 0) 40%, black 100%), linear-gradient(180deg, #6dd1eb 30%, #faaf00 80%, #fc0909 100%);
-  position: relative;
-  margin: auto;
-  height: 93vh;
-}
+    .display {
+      box-sizing: border-box;
+      background-image: radial-gradient(ellipse 150% 100% at center bottom, rgba(0, 0, 0, 0) 40%, black 100%), linear-gradient(180deg, #6dd1eb 30%, #faaf00 80%, #fc0909 100%);
+      position: relative;
+      margin: auto;
+      height: 93vh;
+    }
 
-.cloud {
-  position: absolute;
-  bottom: 30%;
-  right: 29%;
-  width: 14.62vw;
-  height: 4.38vw;
-  background: #f1eea7;
-  border-radius: 14.62vw;
-  box-shadow: 0 0 3vw 0px #f1eea7;
-  transform: scale(1.5);
-}
-.cloud:before, .cloud:after {
-  content: "";
-  position: absolute;
-  background: #f1eea7;
-  width: 8.76vw;
-  height: 5.84vw;
-  position: absolute;
-  top: -1.1vw;
-  left: 0.58vw;
-  border-radius: 8.76vw;
-  transform: rotate(30deg);
-  box-shadow: 0 0 3vw 0px #f1eea7;
-}
-.cloud:after {
-  width: 8.76vw;
-  height: 7.3vw;
-  top: -2.48vw;
-  left: auto;
-  right: 1.1vw;
-}
+    .floor {
+      width: 100%;
+      height: 7vh;
+      background: linear-gradient(to top, #01ff01 0%, #00bd00 50%, #3b5b00 100%);
+      box-shadow: 0px -0.51vw 0.7vw 0.5vw #3b5b00;
+      position: relative;
+      bottom: 0;
+    }
 
-.floor {
-  width: 100%;
-  height: 7vh;
-  background: linear-gradient(to top, #01ff01 0%, #00bd00 50%, #3b5b00 100%);
-  box-shadow: 0px -0.51vw 0.7vw 0.5vw #3b5b00;
-  position: relative;
-  bottom: 0;
-}
+    /* --- Game Elements --- */
+    .sun {
+      position: absolute;
+      min-width: 100px;
+      width: 16vw;
+      min-height: 100px;
+      height: 16vw;
+      background: linear-gradient(to bottom, #fbeb00 0%, rgba(240, 145, 44, 0.315) 80%);
+      right: 10%;
+      bottom: 33%;
+      border-radius: 50%;
+      box-shadow: 0 -7px 22px 0px #fbeb00;
+    }
+    
+    .mountains {
+      position: absolute;
+      width: 33vw;
+      min-width: 200px;
+      height: 15vw;
+      min-height: 80px;
+      background: linear-gradient(to bottom, rgba(48, 10, 1, 0.7) 30%, rgba(209, 59, 0, 0) 100%);
+      clip-path: polygon(48% 0, 64% 46%, 69% 31%, 100% 100%, 0 100%, 19% 40%, 30% 60%);
+      right: 8vw;
+      bottom: 30px;
+    }
 
-.target {
-  position: absolute;
-  background: radial-gradient(ellipse 100% 100% at 50% 88%, #d0ff00 10%, #422c03 50%, #9c430f 100%);
-  bottom: calc(3.8vh - 1.6vw);
-  left: 23%;
-  width: 16vw;
-  color: #019601;
-  text-align: center;
-  box-shadow: 0 0 0.9vw 0 #02692a;
-  height: 3.2vw;
-  font-size: 4.6vw;
-  font-weight: bold;
-  line-height: 3vw;
-  border-radius: 50%;
-  transition: left 0.5s ease-in-out;
-}
+    .cloud {
+      position: absolute;
+      bottom: 30%;
+      right: 29%;
+      width: 14.62vw;
+      height: 4.38vw;
+      background: #f1eea7;
+      border-radius: 14.62vw;
+      box-shadow: 0 0 3vw 0px #f1eea7;
+      /* Mobile style is now default */
+      transform: scale(3);
+    }
+    .cloud:before, .cloud:after {
+      content: "";
+      position: absolute;
+      background: #f1eea7;
+      width: 8.76vw;
+      height: 5.84vw;
+      position: absolute;
+      top: -1.1vw;
+      left: 0.58vw;
+      border-radius: 8.76vw;
+      transform: rotate(30deg);
+      box-shadow: 0 0 3vw 0px #f1eea7;
+    }
+    .cloud:after {
+      width: 8.76vw;
+      height: 7.3vw;
+      top: -2.48vw;
+      left: auto;
+      right: 1.1vw;
+    }
 
-.ball {
-  position: absolute;
-  bottom: calc(11vw + 3.5vh);
-  left: 15%;
-  width: 3.6vw;
-  height: 3.6vw;
-  z-index: 2;
-  border-radius: 50%;
-  transform: translate(0, 0);
-  background-image: radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%);
-  opacity: 1;
-}
+    .svg {
+      position: absolute;
+      left: 0%;
+      bottom: -0.4vw;
+      width: 60vw;
+      min-width: 300px;
+      height: auto;
+      padding: 0;
+    }
+    
+    /* --- Punching Mechanism --- */
+    .target {
+      position: absolute;
+      background: radial-gradient(ellipse 100% 100% at 50% 88%, #d0ff00 10%, #422c03 50%, #9c430f 100%);
+      bottom: calc(3.8vh - 1.6vw);
+      left: 23%;
+      width: 16vw;
+      color: #019601;
+      text-align: center;
+      box-shadow: 0 0 0.9vw 0 #02692a;
+      height: 3.2vw;
+      font-size: 4.6vw;
+      font-weight: bold;
+      line-height: 3vw;
+      border-radius: 50%;
+      transition: left 0.5s ease-in-out;
+    }
 
-.shadow {
-  position: absolute;
-  bottom: calc(3.5vh - 14vw);
-  left: 15%;
-  width: 3.6vw;
-  height: 3vw;
-  z-index: 1;
-  border-radius: 50%;
-  background: #063002;
-  opacity: 1;
-}
+    .ball {
+      position: absolute;
+      bottom: calc(11vw + 3.5vh);
+      left: 15%;
+      width: 3.6vw;
+      height: 3.6vw;
+      z-index: 2;
+      border-radius: 50%;
+      transform: translate(0, 0);
+      background-image: radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%);
+      opacity: 1;
+    }
 
-.stick {
-  box-sizing: border-box;
-  position: absolute;
-  background-color: #d7b850;
-  background: linear-gradient(to top, #ddca23 10%, #8d6c00 100%);
-  left: -3.5%;
-  width: 18vw;
-  z-index: 2;
-  transform: translateY(0%) rotate(-20deg) translateX(0%);
-  transform-origin: center right;
-  top: calc(3.5vh - 12.8vw);
-  height: 1.5vw;
-  border-radius: 0 0.6vw 0.6vw 0;
-  border-right: 0.6vw solid green;
-  animation-name: stick;
-  animation-duration: 1.5s;
-  animation-direction: alternate;
-  animation-iteration-count: infinite;
-  animation-play-state: paused;
-  animation-timing-function: ease-out;
-}
+    .shadow {
+      position: absolute;
+      bottom: calc(3.5vh - 14vw);
+      left: 15%;
+      width: 3.6vw;
+      height: 3vw;
+      z-index: 1;
+      border-radius: 50%;
+      background: #063002;
+      opacity: 1;
+    }
 
-.mountains {
-  position: absolute;
-  width: 33vw;
-  min-width: 200px;
-  height: 15vw;
-  min-height: 80px;
-  background: linear-gradient(to bottom, rgba(48, 10, 1, 0.7) 30%, rgba(209, 59, 0, 0) 100%);
-  clip-path: polygon(48% 0, 64% 46%, 69% 31%, 100% 100%, 0 100%, 19% 40%, 30% 60%);
-  right: 8vw;
-  bottom: 30px;
-}
+    .stick {
+      box-sizing: border-box;
+      position: absolute;
+      background-color: #d7b850;
+      background: linear-gradient(to top, #ddca23 10%, #8d6c00 100%);
+      left: -3.5%;
+      width: 18vw;
+      z-index: 2;
+      transform: translateY(0%) rotate(-20deg) translateX(0%);
+      transform-origin: center right;
+      top: calc(3.5vh - 12.8vw);
+      height: 1.5vw;
+      border-radius: 0 0.6vw 0.6vw 0;
+      border-right: 0.6vw solid green;
+      animation-name: stick;
+      animation-duration: 1.5s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-play-state: paused;
+      animation-timing-function: ease-out;
+    }
 
-.stand {
-  position: absolute;
-  background: radial-gradient(ellipse 100% 0.8vw at 25% 100%, black 0%, rgba(255, 255, 255, 0) 100%), radial-gradient(ellipse 100% 1.8vw at 15% 0, black 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(to left, #d9480f 0%, #79360f 40%, #4f270f 55%, #2f1709 100%);
-  bottom: 3.5vh;
-  left: 15%;
-  width: 3.6vw;
-  height: 11vw;
-  border-radius: 1.8vw 1.8vw 0.5vw 0.5vw;
-  z-index: 2;
-}
-.stand::after {
-  display: block;
-  content: "";
-  background: #063002;
-  z-index: 1;
-  border-radius: 0.5vw 0.5vw 0 0;
-  height: 11vw;
-  transform-origin: top right;
-  transform: translateY(11vw) skewX(-79deg);
-}
+    .stand {
+      position: absolute;
+      background: radial-gradient(ellipse 100% 0.8vw at 25% 100%, black 0%, rgba(255, 255, 255, 0) 100%), radial-gradient(ellipse 100% 1.8vw at 15% 0, black 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(to left, #d9480f 0%, #79360f 40%, #4f270f 55%, #2f1709 100%);
+      bottom: 3.5vh;
+      left: 15%;
+      width: 3.6vw;
+      height: 11vw;
+      border-radius: 1.8vw 1.8vw 0.5vw 0.5vw;
+      z-index: 2;
+    }
+    .stand::after {
+      display: block;
+      content: "";
+      background: #063002;
+      z-index: 1;
+      border-radius: 0.5vw 0.5vw 0 0;
+      height: 11vw;
+      transform-origin: top right;
+      transform: translateY(11vw) skewX(-79deg);
+    }
+    
+    /* --- UI & Controls --- */
+    .face {
+      box-sizing: border-box;
+      position: absolute;
+      padding: 1.67vh;
+      top: 1vh;
+      background-image: radial-gradient(100% 100% at 80% 80%, #f8ff29 0%, #421b04 78%, #2ff8ff 94%);
+      border-radius: 45% 45% 10vh 10vh;
+      box-shadow: -6px -6px 12px -6px #639ea8;
+      /* Mobile style is now default */
+      right: 1vh;
+      left: 1vh;
+      transform: translateX(0);
+    }
 
-.face {
-  box-sizing: border-box;
-  position: absolute;
-  left: 50%;
-  padding: 1.67vh;
-  transform: translateX(-50%);
-  top: 1vh;
-  min-width: 40vw;
-  background-image: radial-gradient(100% 100% at 80% 80%, #f8ff29 0%, #421b04 78%, #2ff8ff 94%);
-  border-radius: 45% 45% 10vh 10vh;
-  box-shadow: -6px -6px 12px -6px #639ea8;
-}
+    .gradBtn {
+      max-width: 70%;
+      margin: 0 auto;
+      border-radius: 50%;
+      background-image: linear-gradient(172deg, #421b04 20%, #fcf80f 40%, #421b04 70%);
+    }
 
-.gradBtn {
-  max-width: 70%;
-  margin: 0 auto;
-  border-radius: 50%;
-  background-image: linear-gradient(172deg, #421b04 20%, #fcf80f 40%, #421b04 70%);
-}
+    .btn {
+      box-sizing: border-box;
+      background: transparent;
+      background-image: radial-gradient(100% 100% at 50% 50%, #d0d618 0%, #421b04 40%, rgba(66, 27, 4, 0) 50%, rgba(0, 0, 0, 0) 100%);
+      display: block;
+      width: 100%;
+      margin: 0 auto;
+      border: 0;
+      color: #e7d424;
+      text-shadow: 0px 0px 5px #a37d0a;
+      border-radius: 50%;
+      font-size: 4.5vh;
+      padding: 3vh 0;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s linear;
+    }
+    .btn:hover {
+      color: #f1ecbe;
+    }
+    .btn::-moz-focus-inner {
+      border: 0;
+    }
 
-.btn {
-  box-sizing: border-box;
-  background: transparent;
-  background-image: radial-gradient(100% 100% at 50% 50%, #d0d618 0%, #421b04 40%, rgba(66, 27, 4, 0) 50%, rgba(0, 0, 0, 0) 100%);
-  display: block;
-  width: 100%;
-  margin: 0 auto;
-  border: 0;
-  color: #e7d424;
-  text-shadow: 0px 0px 5px #a37d0a;
-  border-radius: 50%;
-  font-size: 4.5vh;
-  padding: 3vh 0;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s linear;
-}
-.btn:hover {
-  color: #f1ecbe;
-}
-.btn::-moz-focus-inner {
-  border: 0;
-}
+    .lives {
+      text-align: center;
+      color: black;
+      text-shadow: 0 0 0.2vw black;
+      font-size: 3vh;
+      margin-top: 1vh;
+    }
 
-.lives {
-  text-align: center;
-  color: black;
-  text-shadow: 0 0 0.2vw black;
-}
+    .power {
+      position: relative;
+      border-radius: 10px;
+      margin-top: 0.8vh;
+      height: 5.3vh;
+      box-shadow: 0 0 12px 0 black;
+      overflow: hidden;
+      background-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0) 70%, black 150%), linear-gradient(to right, #0dff00 0%, yellow 50%, red 100%);
+    }
 
-.power {
-  position: relative;
-  border-radius: 10px;
-  margin-top: 0.8vh;
-  height: 5.3vh;
-  box-shadow: 0 0 12px 0 black;
-  overflow: hidden;
-  background-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0) 70%, black 150%), linear-gradient(to right, #0dff00 0%, yellow 50%, red 100%);
-}
+    .fill {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+      animation-name: bar;
+      animation-duration: 1.5s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-play-state: paused;
+      animation-timing-function: ease-out;
+    }
+    .fill .fillSpan {
+      position: absolute;
+      background-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0) 70%, black 150%), radial-gradient(100% 100% at 80% 80%, #f8ff29 0%, #421b04 78%, #2ff8ff 94%);
+      height: 100%;
+      width: 100%;
+      animation-name: pbar;
+      animation-duration: 1.5s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-play-state: paused;
+      animation-timing-function: ease-out;
+    }
 
-.fill {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: black;
-  animation-name: bar;
-  animation-duration: 1.5s;
-  animation-direction: alternate;
-  animation-iteration-count: infinite;
-  animation-play-state: paused;
-  animation-timing-function: ease-out;
-}
-.fill .fillSpan {
-  position: absolute;
-  background-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0) 70%, black 150%), radial-gradient(100% 100% at 80% 80%, #f8ff29 0%, #421b04 78%, #2ff8ff 94%);
-  height: 100%;
-  width: 100%;
-  animation-name: pbar;
-  animation-duration: 1.5s;
-  animation-direction: alternate;
-  animation-iteration-count: infinite;
-  animation-play-state: paused;
-  animation-timing-function: ease-out;
-}
+    .score {
+      margin: 1.5vh 1vh 0 1vh;
+      font-size: 6vh;
+      line-height: 8vh;
+      color: #e7d424;
+      text-shadow: 0px 0px 5px #a37d0a;
+      text-align: center;
+      box-shadow: 0 0 12px 0 black;
+      border-radius: 5vw 5vw 15vw 15vw;
+      background-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0) 70%, black 150%), radial-gradient(100% 100% at 80% 80%, #f8ff29 0%, #421b04 78%, #2ff8ff 94%);
+    }
 
-.score {
-  margin: 1.5vh 1vh 0 1vh;
-  font-size: 6vh;
-  line-height: 8vh;
-  color: #e7d424;
-  text-shadow: 0px 0px 5px #a37d0a;
-  text-align: center;
-  box-shadow: 0 0 12px 0 black;
-  border-radius: 5vw 5vw 15vw 15vw;
-  background-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0) 70%, black 150%), radial-gradient(100% 100% at 80% 80%, #f8ff29 0%, #421b04 78%, #2ff8ff 94%);
-}
+    /* --- Keyframe Animations --- */
+    @keyframes bar {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+    @keyframes pbar {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+    @keyframes stick {
+      to {
+        transform: translateY(0%) rotate(-20deg) translateX(-80%);
+      }
+    }
+    @keyframes stick-shoot {
+      to {
+        transform: translateY(0) rotate(-20deg) translateX(7%);
+      }
+    }
 
-.sun {
-  position: absolute;
-  min-width: 100px;
-  width: 16vw;
-  min-height: 100px;
-  height: 16vw;
-  background: linear-gradient(to bottom, #fbeb00 0%, rgba(240, 145, 44, 0.315) 80%);
-  right: 10%;
-  bottom: 33%;
-  border-radius: 50%;
-  box-shadow: 0 -7px 22px 0px #fbeb00;
-}
-
-.svg {
-  position: absolute;
-  left: 0%;
-  bottom: -0.4vw;
-  width: 60vw;
-  min-width: 300px;
-  height: auto;
-  padding: 0;
-}
-
-.btnFscreen {
-  box-shadow: 0 0 5px 0 black;
-  display: block;
-  border-color: olive;
-  background-image: radial-gradient(100% 100% at 50% 50%, #887b03 0%, #421b04 40%, #421b04 50%, black 100%);
-  padding: 0 1vh;
-  border: none;
-  font-size: 2vh;
-  line-height: 5vh;
-  border-radius: 50%;
-  outline: none;
-  margin: 1vh auto 0;
-  color: #c5b738;
-  font-weight: 700;
-}
-.btnFscreen:hover {
-  cursor: pointer;
-  color: #ecdb43;
-}
-.btnFscreen::-moz-focus-inner {
-  border: 0;
-}
-.btnFscreen:focus {
-  outline: none;
-}
-
-@keyframes bar {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-@keyframes pbar {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-@keyframes stick {
-  to {
-    transform: translateY(0%) rotate(-20deg) translateX(-80%);
-  }
-}
-@keyframes stick-shoot {
-  to {
-    transform: translateY(0) rotate(-20deg) translateX(7%);
-  }
-}
-@media (max-width: 640px) and (orientation: portrait) {
-  body {
-    overflow: hidden;
-  }
-
-  .cloud {
-    transform: scale(3);
-  }
-
-  .face {
-    transform: translateX(0);
-    right: 1vh;
-    left: 1vh;
-  }
-
-  .btn:hover {
-    color: #f5de0c;
-  }
-}
-</style>
-
+    /* --- Media Query for Tablets & Desktops (Desktop-first styles moved here) --- */
+    @media (min-width: 641px) {
+      .cloud {
+        /* Revert to desktop style */
+        transform: scale(1.5);
+      }
+      .face {
+        /* Revert to desktop style */
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        min-width: 40vw;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Punch Ball Game</title>
-    <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700&display=swap&subset=latin-ext" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css">
-    <svg style="display: none" version="1.1" xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" xml:space="preserve">
+  <div class="display">
+    <section class="apla">
+      <div class="sun"></div>
+      <div class="mountains"></div>
+      <div class="cloud"></div>
+      <svg version="1.1" class="svg" viewBox="0 0 100 50" style="display: none;">
         <g id="gate">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M45.833,1.417c0.167,0,0.333,0,0.5,0
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M45.833,1.417c0.167,0,0.333,0,0.5,0
             c2.781,9.096,6.159,18.551,10.833,26.166c1.502,2.446,3.184,5.055,5.833,6.334c5.506-3.605,7.141-11.082,9.667-17.667
             c0.616,0.559,2.566,0.807,3.667,0.333c0.295-0.127,0.319-0.753,0.667-0.333c1.162,4.632,2.183,9.585,3.5,14.167
             c1.299,4.521,2.935,8.852,6,11.666c0.426,0.408,1.741-0.074,2.167,0.334c0.48,0.195,0.71,0.749,1.167,1
@@ -422,386 +406,389 @@ body {
             c0.378-0.122,1.3,0.3,1.167-0.334C18.363,39.298,17.294,39.476,17.333,39.917z M15,39.75c0.749-0.082,1.249,0.085,1.833,0.167
             C16.963,39.268,14.594,39.593,15,39.75z" />
         </g>
-    </svg>
-</head>
-<body>
-    <div class="display">
-        <section class="apla">
-            <div class="sun"></div>
-            <div class="mountains"></div>
-            <div class="cloud"></div>
-            <svg version="1.1" class="svg" viewBox="0 0 100 50">
-                <defs>
-                    <radialGradient id="grad1" cx="100%" cy="100%" r="100%" fx="100%" fy="100%">
-                        <stop offset="0" style="stop-color:rgb(255,115,0);stop-opacity:0" />
-                        <stop offset="1" style="stop-color:rgb(0,0,0);stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <use class="gate" xlink:href="#gate" fill="url(#grad1)" />
-            </svg>
-        </section>
-        <section class="face">
-            <div class="gradBtn">
-                <button class="btn"></button>
-            </div>
-            <button class="btnFscreen" data-toggle-fullscreen>Set Fullscreen</button>
-            <h1 class="lives"></h1>
-            <div class="power">
-                <div class="fill">
-                    <span class="fillSpan"></span>
-                </div>
-            </div>
-            <h1 class="score">SCORE: 0</h1>
-        </section>
-    </div>
-    <div class="floor">
-        <div class="stand"></div>
-        <div class="ball"></div>
-        <div class="shadow"></div>
-        <div class="stick"></div>
-        <div class="target"></div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
-    <script src="./js/index.js"></script>
-</body>
-</html>
-<!-- partial -->
+      </svg>
+      <svg class="svg" viewBox="0 0 100 50">
+        <defs>
+          <radialGradient id="grad1" cx="100%" cy="100%" r="100%" fx="100%" fy="100%">
+            <stop offset="0" style="stop-color:rgb(255,115,0);stop-opacity:0" />
+            <stop offset="1" style="stop-color:rgb(0,0,0);stop-opacity:1" />
+          </radialGradient>
+        </defs>
+        <use class="gate" xlink:href="#gate" fill="url(#grad1)" />
+      </svg>
+    </section>
+    <section class="face">
+      <div class="gradBtn">
+        <button class="btn"></button>
+      </div>
+      <h1 class="lives"></h1>
+      <div class="power">
+        <div class="fill">
+          <span class="fillSpan"></span>
+        </div>
+      </div>
+      <h1 class="score">SCORE: 0</h1>
+    </section>
+  </div>
+  <div class="floor">
+    <div class="stand"></div>
+    <div class="ball"></div>
+    <div class="shadow"></div>
+    <div class="stick"></div>
+    <div class="target"></div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
   <script>
-"use strict";
-window.onload = () => {
-  const ball = document.querySelector(".ball");
-  const shadowEl = document.querySelector(".shadow");
-  const btn = document.querySelector(".btn");
-  const stick = document.querySelector(".stick");
-  const target = document.querySelector(".target");
-  const barPower_Fill = document.querySelector(".fill");
-  const fillSpan = document.querySelector(".fillSpan");
-  const scoreObj = document.querySelector(".score");
-  const display = document.body.querySelector(".display");
-  const livesObj = document.body.querySelector(".lives");
-  let display_width = display.clientWidth;
-  let matrixValue = [];
-  let grdValue,
-    lives,
-    score,
-    targetArea,
-    ratioX = 0;
-  const randomRange = (min, max) => {
-    return Math.random() * (max - min) + min;
-  };
-  const rndTarget = () => {
-    let min = parseInt(display_width - targetArea);
-    let max = parseInt(display_width - target.clientWidth);
-    target.style.left = `${randomRange(min, max)}px`;
-  };
-  const checkHit = () => {
-    let target_StyleL = target.offsetLeft;
-    let target_StyleR = target_StyleL + target.clientWidth;
-    let ball_StyleL =
-      display_width * 0.15 + display_width * 0.85 * (ratioX / 100);
-    let ball_StyleR = ball_StyleL + ball.clientWidth;
-    let condition = ball_StyleR < target_StyleR && ball_StyleL > target_StyleL;
-    return condition ? true : false;
-  };
-  const ballAnim = () => {
-    grdValue = 75 - ratioX * 0.35;
-    const skewShadow = -79 + ratioX * 1.1;
-    const ballX = ratioX * 0.85;
-    const main = () => {
-      const tl = new TimelineMax({
-        onComplete: () => scoring(checkHit())
-      });
-      tl.timeScale(1 - ratioX * 0.006);
-      tl.add("start");
-      tl.set(ball, {
-        backgroundImage: `radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)`
-      });
-      tl.to(
-        ball,
-        0.35,
-        { ease: Power2.easeOut, y: `-=${ratioX * 0.1}vw` },
-        "start"
-      );
-      tl.to(ball, 0.5, { ease: Power2.easeIn, y: "11vw" });
-      tl.to(ball, 0.1, { ease: Power4.easeOut, y: "-=5vw" });
-      tl.to(ball, 0.3, { ease: Bounce.easeOut, y: "+=5vw" });
-      tl.to(
-        ball,
-        1.3,
-        {
-          backgroundImage: `radial-gradient(circle at ${grdValue}% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)`,
-          ease: Power1.easeOut
-        },
-        "start"
-      );
-      tl.to(ball, 1.3, { x: `+${ballX}}vw`, ease: Power1.easeOut }, "start");
-      return tl;
-    };
-    const shadow = () => {
-      const tl = new TimelineMax();
-      tl.timeScale(1 - ratioX * 0.006);
-      tl.add("start");
-      tl.set(shadowEl, { transformOrigin: "top center" });
-      tl.to(
-        shadowEl,
-        0.35,
-        { ease: Power2.easeOut, y: `+=${ratioX * 0.1}vw` },
-        "start"
-      );
-      tl.to(shadowEl, 0.5, { ease: Power2.easeIn, y: "-11vw" });
-      tl.to(shadowEl, 0.1, { ease: Power4.easeOut, y: "+=5vw" });
-      tl.to(shadowEl, 0.3, { ease: Bounce.easeOut, y: "-=5vw" });
-      tl.to(
-        shadowEl,
-        1.3,
-        { skewX: `${skewShadow}deg`, x: `+${ballX}}vw`, ease: Power1.easeOut },
-        "start"
-      );
-      return tl;
-    };
-    const master = new TimelineMax();
-    master.add("start");
-    master.add(main(), "start");
-    master.add(shadow(), "start");
-  };
-  const btn_releasedAnim = () => {
-    targetArea = display_width - display_width * 0.23;
-    stick.style.transform = `matrix(${matrixValue[0]},${matrixValue[1]},${
+    "use strict";
+    window.onload = () => {
+      const ball = document.querySelector(".ball");
+      const shadowEl = document.querySelector(".shadow");
+      const btn = document.querySelector(".btn");
+      const stick = document.querySelector(".stick");
+      const target = document.querySelector(".target");
+      const barPower_Fill = document.querySelector(".fill");
+      const fillSpan = document.querySelector(".fillSpan");
+      const scoreObj = document.querySelector(".score");
+      const display = document.body.querySelector(".display");
+      const livesObj = document.body.querySelector(".lives");
+      let display_width = display.clientWidth;
+      let matrixValue = [];
+      let grdValue,
+        lives,
+        score,
+        targetArea,
+        ratioX = 0;
+      const randomRange = (min, max) => {
+        return Math.random() * (max - min) + min;
+      };
+      const rndTarget = () => {
+        let min = parseInt(display_width - targetArea);
+        let max = parseInt(display_width - target.clientWidth);
+        target.style.left = `${randomRange(min, max)}px`;
+      };
+      const checkHit = () => {
+        let target_StyleL = target.offsetLeft;
+        let target_StyleR = target_StyleL + target.clientWidth;
+        let ball_StyleL =
+          display_width * 0.15 + display_width * 0.85 * (ratioX / 100);
+        let ball_StyleR = ball_StyleL + ball.clientWidth;
+        let condition = ball_StyleR < target_StyleR && ball_StyleL > target_StyleL;
+        return condition ? true : false;
+      };
+      const ballAnim = () => {
+        grdValue = 75 - ratioX * 0.35;
+        const skewShadow = -79 + ratioX * 1.1;
+        const ballX = ratioX * 0.85;
+        const main = () => {
+          const tl = new TimelineMax({
+            onComplete: () => scoring(checkHit())
+          });
+          tl.timeScale(1 - ratioX * 0.006);
+          tl.add("start");
+          tl.set(ball, {
+            backgroundImage: `radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)`
+          });
+          tl.to(
+            ball,
+            0.35, {
+              ease: Power2.easeOut,
+              y: `-=${ratioX * 0.1}vw`
+            },
+            "start"
+          );
+          tl.to(ball, 0.5, {
+            ease: Power2.easeIn,
+            y: "11vw"
+          });
+          tl.to(ball, 0.1, {
+            ease: Power4.easeOut,
+            y: "-=5vw"
+          });
+          tl.to(ball, 0.3, {
+            ease: Bounce.easeOut,
+            y: "+=5vw"
+          });
+          tl.to(
+            ball,
+            1.3, {
+              backgroundImage: `radial-gradient(circle at ${grdValue}% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)`,
+              ease: Power1.easeOut
+            },
+            "start"
+          );
+          tl.to(ball, 1.3, {
+            x: `+${ballX}}vw`,
+            ease: Power1.easeOut
+          }, "start");
+          return tl;
+        };
+        const shadow = () => {
+          const tl = new TimelineMax();
+          tl.timeScale(1 - ratioX * 0.006);
+          tl.add("start");
+          tl.set(shadowEl, {
+            transformOrigin: "top center"
+          });
+          tl.to(
+            shadowEl,
+            0.35, {
+              ease: Power2.easeOut,
+              y: `+=${ratioX * 0.1}vw`
+            },
+            "start"
+          );
+          tl.to(shadowEl, 0.5, {
+            ease: Power2.easeIn,
+            y: "-11vw"
+          });
+          tl.to(shadowEl, 0.1, {
+            ease: Power4.easeOut,
+            y: "+=5vw"
+          });
+          tl.to(shadowEl, 0.3, {
+            ease: Bounce.easeOut,
+            y: "-=5vw"
+          });
+          tl.to(
+            shadowEl,
+            1.3, {
+              skewX: `${skewShadow}deg`,
+              x: `+${ballX}}vw`,
+              ease: Power1.easeOut
+            },
+            "start"
+          );
+          return tl;
+        };
+        const master = new TimelineMax();
+        master.add("start");
+        master.add(main(), "start");
+        master.add(shadow(), "start");
+      };
+      const btn_releasedAnim = () => {
+        targetArea = display_width - display_width * 0.23;
+        stick.style.transform = `matrix(${matrixValue[0]},${matrixValue[1]},${
       matrixValue[2]
     },${matrixValue[3]},${matrixValue[4]},${matrixValue[5]})`;
-    stick.style.animation =
-      "stick-shoot .4s forwards cubic-bezier(.58,1.46,1,-0.64)";
-    stick.addEventListener("animationend", ballAnim);
-  };
-  const startGame = () => {
-    lives = 3;
-    score = 0;
-    scoreObj.textContent = `SCORE: ${score}`;
-    btn.removeEventListener("click", startGame);
-    init();
-  };
-  const update = () => {
-    scoreObj.textContent = `SCORE: ${score}`;
-    rndTarget();
-    init();
-  };
-  const reset = () => {
-    lives = 0;
-    target.style.left = `23%`;
-    init();
-  };
-  const hitBallAnim = () => {
-    const tm = new TimelineMax({
-      onComplete: () => {
-        update();
-      }
-    });
-    tm.add("start");
-    tm.from(
-      target,
-      0.8,
-      {
-        background: `radial-gradient(ellipse 100% 100% at 50% 88%, rgb(230, 44, 0) 10%, rgb(66, 44, 3) 50%, rgb(156, 67, 15) 100%)`,
-        ease: Power0.easeOut
-      },
-      "start"
-    );
-    tm.to(
-      ball,
-      0.5,
-      {
-        opacity: "0",
-        background: `radial-gradient(circle at ${grdValue}% 35%, #fff3a5 0%, #ffba78 23%, #ff8a69 39%, #ff3a42 66%, black 100%)`,
-        ease: Power2.easeIn,
-        delay: 0.2
-      },
-      "start"
-    );
-    tm.to(
-      shadowEl,
-      0.5,
-      { opacity: "0", background: "red", ease: Power2.easeIn, delay: 0.2 },
-      "start"
-    );
-    tm.add("hidden");
-    tm.to(
-      ball,
-      0,
-      {
-        x: "0",
-        y: "0",
-        backgroundImage:
-          "radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)"
-      },
-      "hidden"
-    );
-    tm.to(shadowEl, 0, { x: "0", y: "0" }, "hidden");
-    tm.add("end");
-    tm.to(ball, 0.5, { opacity: "1" }, "end");
-    tm.to(shadowEl, 0.5, { opacity: "1" }, "end");
-  };
-  const failBallAnim = () => {
-    const tm = new TimelineMax({
-      delay: 0.666,
-      onComplete: () => {
-        lives ? update() : reset();
-      }
-    });
-    tm.add("start");
-    tm.to(
-      ball,
-      1,
-      {
-        backgroundImage: `radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)`,
-        ease: Power3.easeOut
-      },
-      "start"
-    );
-    tm.to(ball, 1, { x: "0", y: "0", ease: Power3.easeOut }, "start");
-    tm.to(shadowEl, 1, { x: "0", y: "0", ease: Power3.easeOut }, "start");
-  };
-  const scoring = bool => {
-    stick.removeEventListener("animationend", ballAnim);
-    stick.style.animation = "";
-    stick.style.transform = `translateY(0vh) rotate(-20deg) translateX(0)`;
-    if (bool) {
-      score++;
-      hitBallAnim();
-    } else {
-      lives--;
-      failBallAnim();
-    }
-  };
-  const setMatrixArray = () => {
-    let computedStyle = window.getComputedStyle(stick, null);
-    let matrix = computedStyle.getPropertyValue("transform");
-    let matrixPattern = /^\w*\((-?((\d+)|(\d*\.\d+)),\s*)*(-?(\d+)|(\d*\.\d+))\)/i;
-    if (matrixPattern.test(matrix)) {
-      let matrixCopy = matrix.replace(/^\w*\(/, "").replace(")", "");
-      matrixValue = matrixCopy.split(/\s*,\s*/);
-    }
-  };
-  const nbrPattern = i => {
-    let style = window.getComputedStyle(barPower_Fill, null);
-    let trans = style.transform;
-    let numberPattern = /-?\d+\.?\d+|\d+/g;
-    let values = trans.match(numberPattern);
-    return values[i];
-  };
-  const setPower = () => {
-    let computedTranslateX = nbrPattern(4);
-    let xPercentage = computedTranslateX / barPower_Fill.offsetWidth * 100;
-    ratioX = xPercentage.toFixed(0);
-  };
-  const btn_released = () => {
-    setMatrixArray();
-    stick.style.animation = "";
-    stick.style.animationName = "none";
-    setPower();
-    btn.disabled = true;
-    btn.textContent = `POWER: ${ratioX}%`;
-    barPower_Fill.style.animationPlayState = "paused";
-    fillSpan.style.animationPlayState = "paused";
-    btn_releasedAnim();
-    btn.removeEventListener("touchend", btn_released);
-    btn.removeEventListener("mouseup", btn_released);
-  };
-  const btn_pushed = () => {
-    stick.style.animationName = "stick";
-    barPower_Fill.style.animationName = "bar";
-    fillSpan.style.animationName = "pbar";
-    barPower_Fill.style.animationPlayState = "running";
-    fillSpan.style.animationPlayState = "running";
-    stick.style.animationPlayState = "running";
-    btn.textContent = "???";
-    btn.removeEventListener("touchstart", btn_pushed);
-    btn.removeEventListener("mousedown", btn_pushed);
-  };
-  const resize = () => {
-    display_width = display.clientWidth;
-    target.style.left = `23%`;
-  };
-  const setFscreen = () => {
-    if (!Element.prototype.requestFullscreen) {
-      Element.prototype.requestFullscreen =
-        Element.prototype.mozRequestFullscreen ||
-        Element.prototype.webkitRequestFullscreen ||
-        Element.prototype.msRequestFullscreen;
-    }
-    if (!document.exitFullscreen) {
-      document.exitFullscreen =
-        document.mozExitFullscreen ||
-        document.webkitExitFullscreen ||
-        document.msExitFullscreen;
-    }
-    if (!document.fullscreenElement) {
-      Object.defineProperty(document, "fullscreenElement", {
-        get: function() {
-          return (
-            document.mozFullScreenElement ||
-            document.msFullscreenElement ||
-            document.webkitFullscreenElement
-          );
+        stick.style.animation =
+          "stick-shoot .4s forwards cubic-bezier(.58,1.46,1,-0.64)";
+        stick.addEventListener("animationend", ballAnim);
+      };
+      const startGame = () => {
+        // --- AUTO FULLSCREEN TRIGGER ---
+        // Request fullscreen on the first user interaction for an immersive experience.
+        const elem = document.documentElement;
+        if (document.fullscreenElement === null) { // Only request if not already fullscreen
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => {
+                    console.warn(`Fullscreen request failed: ${err.message}`);
+                });
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
         }
-      });
-      Object.defineProperty(document, "fullscreenEnabled", {
-        get: function() {
-          return (
-            document.mozFullScreenEnabled ||
-            document.msFullscreenEnabled ||
-            document.webkitFullscreenEnabled
-          );
-        }
-      });
-    }
-  };
-  const addListeners = () => {
-    window.addEventListener("resize", () => resize());
-    setFscreen();
-    document.addEventListener(
-      "click",
-      function(event) {
-        if (!event.target.hasAttribute("data-toggle-fullscreen")) return;
-        if (document.fullscreenElement) {
-          event.target.textContent = "Set Fullscreen";
-          document.exitFullscreen();
+        // --- END AUTO FULLSCREEN ---
+        
+        lives = 3;
+        score = 0;
+        scoreObj.textContent = `SCORE: ${score}`;
+        btn.removeEventListener("click", startGame);
+        init();
+      };
+      const update = () => {
+        scoreObj.textContent = `SCORE: ${score}`;
+        rndTarget();
+        init();
+      };
+      const reset = () => {
+        lives = 0;
+        target.style.left = `23%`;
+        init();
+      };
+      const hitBallAnim = () => {
+        const tm = new TimelineMax({
+          onComplete: () => {
+            update();
+          }
+        });
+        tm.add("start");
+        tm.from(
+          target,
+          0.8, {
+            background: `radial-gradient(ellipse 100% 100% at 50% 88%, rgb(230, 44, 0) 10%, rgb(66, 44, 3) 50%, rgb(156, 67, 15) 100%)`,
+            ease: Power0.easeOut
+          },
+          "start"
+        );
+        tm.to(
+          ball,
+          0.5, {
+            opacity: "0",
+            background: `radial-gradient(circle at ${grdValue}% 35%, #fff3a5 0%, #ffba78 23%, #ff8a69 39%, #ff3a42 66%, black 100%)`,
+            ease: Power2.easeIn,
+            delay: 0.2
+          },
+          "start"
+        );
+        tm.to(
+          shadowEl,
+          0.5, {
+            opacity: "0",
+            background: "red",
+            ease: Power2.easeIn,
+            delay: 0.2
+          },
+          "start"
+        );
+        tm.add("hidden");
+        tm.to(
+          ball,
+          0, {
+            x: "0",
+            y: "0",
+            backgroundImage: "radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)"
+          },
+          "hidden"
+        );
+        tm.to(shadowEl, 0, {
+          x: "0",
+          y: "0"
+        }, "hidden");
+        tm.add("end");
+        tm.to(ball, 0.5, {
+          opacity: "1"
+        }, "end");
+        tm.to(shadowEl, 0.5, {
+          opacity: "1"
+        }, "end");
+      };
+      const failBallAnim = () => {
+        const tm = new TimelineMax({
+          delay: 0.666,
+          onComplete: () => {
+            lives ? update() : reset();
+          }
+        });
+        tm.add("start");
+        tm.to(
+          ball,
+          1, {
+            backgroundImage: `radial-gradient(circle at 75% 35%, #fcf3a5 0%, #c5ba78 23%, #998a69 39%, #2e3a42 66%, black 100%)`,
+            ease: Power3.easeOut
+          },
+          "start"
+        );
+        tm.to(ball, 1, {
+          x: "0",
+          y: "0",
+          ease: Power3.easeOut
+        }, "start");
+        tm.to(shadowEl, 1, {
+          x: "0",
+          y: "0",
+          ease: Power3.easeOut
+        }, "start");
+      };
+      const scoring = bool => {
+        stick.removeEventListener("animationend", ballAnim);
+        stick.style.animation = "";
+        stick.style.transform = `translateY(0vh) rotate(-20deg) translateX(0)`;
+        if (bool) {
+          score++;
+          hitBallAnim();
         } else {
-          event.target.textContent = "Exit Fullscreen";
-          document.documentElement.requestFullscreen();
+          lives--;
+          failBallAnim();
         }
-      },
-      false
-    );
-  };
-  const init = () => {
-    btn.disabled = false;
-    !lives
-      ? (btn.textContent = "Start Game")
-      : (btn.textContent =
-          score > 0 && lives > 0 ? "Shoot again!" : "GET POWER!");
-    if (!lives) {
-      btn.removeEventListener("touchend", btn_released);
-      btn.removeEventListener("mouseup", btn_released);
-      btn.removeEventListener("touchstart", btn_pushed);
-      btn.removeEventListener("mousedown", btn_pushed);
-      btn.addEventListener("click", startGame);
-      lives = 0;
-    } else {
-      TweenMax.set(ball, { clearProps: "all" });
-      TweenMax.set(shadowEl, { clearProps: "all" });
-      btn.addEventListener("touchstart", btn_pushed);
-      btn.addEventListener("touchend", btn_released);
-      btn.addEventListener("mousedown", btn_pushed);
-      btn.addEventListener("mouseup", btn_released);
-    }
-    livesObj.textContent = `Lives: ${lives}`;
-    barPower_Fill.style.animationName = "none";
-    fillSpan.style.animationName = "none";
-  };
-  addListeners();
-  init();
-};
-</script>
+      };
+      const setMatrixArray = () => {
+        let computedStyle = window.getComputedStyle(stick, null);
+        let matrix = computedStyle.getPropertyValue("transform");
+        let matrixPattern = /^\w*\((-?((\d+)|(\d*\.\d+)),\s*)*(-?(\d+)|(\d*\.\d+))\)/i;
+        if (matrixPattern.test(matrix)) {
+          let matrixCopy = matrix.replace(/^\w*\(/, "").replace(")", "");
+          matrixValue = matrixCopy.split(/\s*,\s*/);
+        }
+      };
+      const nbrPattern = i => {
+        let style = window.getComputedStyle(barPower_Fill, null);
+        let trans = style.transform;
+        let numberPattern = /-?\d+\.?\d+|\d+/g;
+        let values = trans.match(numberPattern);
+        return values[i];
+      };
+      const setPower = () => {
+        let computedTranslateX = nbrPattern(4);
+        let xPercentage = computedTranslateX / barPower_Fill.offsetWidth * 100;
+        ratioX = xPercentage.toFixed(0);
+      };
+      const btn_released = () => {
+        setMatrixArray();
+        stick.style.animation = "";
+        stick.style.animationName = "none";
+        setPower();
+        btn.disabled = true;
+        btn.textContent = `POWER: ${ratioX}%`;
+        barPower_Fill.style.animationPlayState = "paused";
+        fillSpan.style.animationPlayState = "paused";
+        btn_releasedAnim();
+        btn.removeEventListener("touchend", btn_released);
+        btn.removeEventListener("mouseup", btn_released);
+      };
+      const btn_pushed = () => {
+        stick.style.animationName = "stick";
+        barPower_Fill.style.animationName = "bar";
+        fillSpan.style.animationName = "pbar";
+        barPower_Fill.style.animationPlayState = "running";
+        fillSpan.style.animationPlayState = "running";
+        stick.style.animationPlayState = "running";
+        btn.textContent = "???";
+        btn.removeEventListener("touchstart", btn_pushed);
+        btn.removeEventListener("mousedown", btn_pushed);
+      };
+      const resize = () => {
+        display_width = display.clientWidth;
+        target.style.left = `23%`;
+      };
+      const addListeners = () => {
+        window.addEventListener("resize", () => resize());
+      };
+      const init = () => {
+        btn.disabled = false;
+        !lives ?
+          (btn.textContent = "Start Game") :
+          (btn.textContent =
+            score > 0 && lives > 0 ? "Shoot again!" : "GET POWER!");
+        if (!lives) {
+          btn.removeEventListener("touchend", btn_released);
+          btn.removeEventListener("mouseup", btn_released);
+          btn.removeEventListener("touchstart", btn_pushed);
+          btn.removeEventListener("mousedown", btn_pushed);
+          btn.addEventListener("click", startGame);
+          lives = 0;
+        } else {
+          TweenMax.set(ball, {
+            clearProps: "all"
+          });
+          TweenMax.set(shadowEl, {
+            clearProps: "all"
+          });
+          btn.addEventListener("touchstart", btn_pushed);
+          btn.addEventListener("touchend", btn_released);
+          btn.addEventListener("mousedown", btn_pushed);
+          btn.addEventListener("mouseup", btn_released);
+        }
+        livesObj.textContent = `Lives: ${lives}`;
+        barPower_Fill.style.animationName = "none";
+        fillSpan.style.animationName = "none";
+      };
 
+      addListeners();
+      init();
+    };
+  </script>
 </body>
+
 </html>
