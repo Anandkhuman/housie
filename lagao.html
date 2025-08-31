@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jhandi Munda Casino</title>
+    <title>sintha lagao</title>
     
     <!-- Google Fonts for the theme -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,7 +70,7 @@
         .page-title {
             font-family: 'Cinzel Decorative', cursive;
             color: var(--gold);
-            font-size: 2rem;
+            font-size: 1.5rem;
             margin: 0;
             text-shadow: 2px 2px 4px var(--deep-red);
             text-align: center;
@@ -186,7 +186,7 @@
     <main id="page-game" class="page">
         <div id="game-container" class="content-container">
             <header class="game-header">
-                <h1 class="game-title">SINTHA LAGAO</h1>
+                <h1 class="game-title"SINTHA LAGAO</h1>
                 <div class="wallet">
                     <span>Balance:</span>
                     <span id="wallet-balance">₹0</span>
@@ -997,8 +997,12 @@
             }, (error, committed) => {
                 if (error) {
                     console.error("ProcessRoundEnd transaction failed:", error);
-                    gameState.isTransitioning = false; // Unlock on error
                 }
+                // *** FIX: Unlock the transition lock ***
+                // Whether the transaction succeeded or failed, we must unlock the client's
+                // transition lock to allow the gameTick to process the new (or old) state.
+                // Without this, the game freezes after the first round.
+                gameState.isTransitioning = false;
             });
         };
 
@@ -1015,9 +1019,11 @@
                 }
                 return; 
             }, (error, committed) => {
-                if (error) gameState.isTransitioning = false;
+                if (error) {
+                     gameState.isTransitioning = false; // Also unlock on error here
+                }
                 if (committed) {
-                    resetLocalBets();
+                    resetLocalBets(); // This function already resets the transition lock
                     gameDiceEls().forEach(d => {
                         d.textContent = '?';
                         d.style.color = ''; // Reset color from transparent
