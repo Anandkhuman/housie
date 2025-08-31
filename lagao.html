@@ -289,6 +289,8 @@
                 </div>
                 <button type="submit" class="btn">Login</button>
             </form>
+            <!-- FORGOT PASSWORD LINK ADDED HERE -->
+            <p class="link-text" style="margin-bottom: -5px;"><a href="#" id="goto-forgot-password">Forgot Password?</a></p>
             <p class="link-text">Don't have an account? <a href="#" id="goto-register">Register here</a></p>
         </div>
     </main>
@@ -320,6 +322,22 @@
                 <button type="submit" class="btn">Register</button>
             </form>
             <p class="link-text">Already have an account? <a href="#" id="goto-login">Login here</a></p>
+        </div>
+    </main>
+
+    <!-- PAGE: FORGOT PASSWORD (NEWLY ADDED) -->
+    <main id="page-forgot-password" class="page">
+        <div class="content-container">
+            <h1 class="page-title">Reset Password</h1>
+            <p style="text-align:center; font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px;">Enter your email address and we will send you a link to reset your password.</p>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="forgot-password-email">Email</label>
+                    <input type="email" id="forgot-password-email" placeholder="Enter your registered email" required>
+                </div>
+                <button type="submit" class="btn">Send Reset Link</button>
+            </form>
+            <p class="link-text">Remember your password? <a href="#" id="goto-login-from-forgot">Login here</a></p>
         </div>
     </main>
 
@@ -661,6 +679,20 @@
                 .catch(error => alert(error.message));
         };
         const handleLogout = () => auth.signOut().catch(error => alert(error.message));
+        // NEW FUNCTION FOR FORGOT PASSWORD
+        const handleForgotPassword = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-password-email').value;
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    alert('Password reset email sent! Please check your inbox.');
+                    document.getElementById('forgot-password-form').reset();
+                    showPage('login');
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                });
+        };
         const handleProfileUpdate = (e) => {
             e.preventDefault();
             if(!AppState.currentUser) return;
@@ -1127,8 +1159,11 @@
         });
         document.getElementById('login-form').addEventListener('submit', handleLogin);
         document.getElementById('register-form').addEventListener('submit', handleRegister);
+        document.getElementById('forgot-password-form').addEventListener('submit', handleForgotPassword); // EVENT LISTENER FOR FORGOT PASSWORD
         document.getElementById('goto-register').addEventListener('click', (e) => { e.preventDefault(); showPage('register'); });
         document.getElementById('goto-login').addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
+        document.getElementById('goto-forgot-password').addEventListener('click', (e) => { e.preventDefault(); showPage('forgot-password'); });
+        document.getElementById('goto-login-from-forgot').addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
         profileForm.addEventListener('submit', handleProfileUpdate);
         document.getElementById('topup-btn').addEventListener('click', handleTopupRequest);
         document.getElementById('withdrawal-btn').addEventListener('click', handleWithdrawalRequest);
