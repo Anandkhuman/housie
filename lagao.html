@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sintha Lagao</title>
-    
     <!-- Google Fonts for the theme -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +14,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-
 
     <style>
         /* ==================== GLOBAL & THEME STYLES ==================== */
@@ -90,10 +88,8 @@
         .dice-tray { display: flex; justify-content: center; gap: 10px; perspective: 800px; min-height: 54px; }
         .dice { width: 50px; height: 50px; background-color: #fef08a; border: 2px solid #ca8a04; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: var(--deep-red); box-shadow: 3px 3px 5px rgba(0,0,0,0.3); transition: transform 0.5s ease-out, color 0.1s; }
         
-        /* CORRECTED ANIMATION LOGIC */
         .dice-tray.rolling .dice {
             animation: tumble 1.5s ease-out forwards;
-            /* Hide the text content during the roll animation for suspense */
             color: transparent; 
         }
 
@@ -111,7 +107,6 @@
         .chip:active { transform: translateY(2px); box-shadow: 0 2px #94a3b8; }
         .chip.active { border-color: var(--gold); transform: scale(1.1); box-shadow: 0 4px var(--gold); }
         .clear-btn { background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-        .clear-btn:hover { background-color: #dc2626; }
         .clear-btn:disabled { background-color: #999; cursor: not-allowed; }
 
         /* ==================== FORM & UI STYLES ==================== */
@@ -123,13 +118,11 @@
         .link-text { text-align: center; margin-top: 15px; }
         .link-text a { color: var(--gold); text-decoration: none; font-weight: bold; }
         
-        /* Wallet Page Styles */
         .wallet-info { background-color: var(--table-green); padding: 20px; border-radius: 10px; text-align: center; border: 2px solid var(--gold); }
         .wallet-balance-display { font-size: 0.8rem; color: var(--gold); font-weight: bold; margin: 0; }
         .wallet-label { font-size: 1rem; color: #eee; }
         .wallet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
 
-        /* Admin Dashboard & User Management Styles */
         .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .data-table th, .data-table td { padding: 8px; border: 1px solid var(--gold); text-align: left; }
         .data-table th { background-color: var(--deep-red); }
@@ -139,7 +132,17 @@
         .reject-btn, .delete-btn { background-color: #ef4444; color: white; }
         .ban-btn { background-color: #f97316; color: white;}
         .unban-btn { background-color: #3b82f6; color: white;}
-
+        
+        .audio-control-container { display: flex; justify-content: space-between; align-items: center; }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+        input:checked + .slider { background-color: #22c55e; }
+        input:focus + .slider { box-shadow: 0 0 1px #22c55e; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .slider.round { border-radius: 28px; }
+        .slider.round:before { border-radius: 50%; }
 
         /* ==================== BOTTOM NAV BAR ==================== */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(0, 0, 0, 0.8); border-top: 2px solid var(--gold); display: flex; justify-content: space-around; padding: 5px 0; box-shadow: 0 -5px 15px rgba(255, 215, 0, 0.2); z-index: 100; }
@@ -179,7 +182,6 @@
 <body>
     <!-- Audio element for the game countdown sound -->
     <audio id="game-audio" loop src="https://raw.githubusercontent.com/Anandkhuman/housie/main/lagao.mp3" preload="auto"></audio>
-
     <!-- ============================================== -->
     <!-- ============== PAGE CONTAINERS =============== -->
     <!-- ============================================== -->
@@ -246,6 +248,23 @@
         </div>
     </main>
     
+    <!-- PAGE: HISTORY (NEW) -->
+    <main id="page-history" class="page">
+        <div class="content-container">
+            <h1 class="page-title">Transaction History</h1>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="transaction-history-list">
+                        <!-- History items will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
     <!-- PAGE: PROFILE / SETTINGS -->
     <main id="page-profile" class="page">
          <div class="content-container">
@@ -291,7 +310,6 @@
                 </div>
                 <button type="submit" class="btn">Login</button>
             </form>
-            <!-- FORGOT PASSWORD LINK ADDED HERE -->
             <p class="link-text" style="margin-bottom: -5px;"><a href="#" id="goto-forgot-password">Forgot Password?</a></p>
             <p class="link-text">Don't have an account? <a href="#" id="goto-register">Register here</a></p>
         </div>
@@ -315,10 +333,13 @@
                     <input type="password" id="register-password" required>
                 </div>
                 <div class="form-group">
+                    <label for="register-upi">UPI ID (for withdrawals)</label>
+                    <input type="text" id="register-upi" placeholder="yourname@upi" required>
+                </div>
+                <div class="form-group">
                     <label for="register-role">Account Type</label>
                     <select id="register-role">
                         <option value="user">User</option>
-                        
                     </select>
                 </div>
                 <button type="submit" class="btn">Register</button>
@@ -369,9 +390,31 @@
                     <tbody id="admin-withdrawal-list"></tbody>
                 </table>
             </div>
+
+            <hr style="border-color: var(--gold); opacity: 0.5;">
+
+            <h3 style="color: var(--gold);">Payment Settings</h3>
+            <form id="payment-settings-form">
+                <div class="form-group">
+                    <label for="admin-upi-id">Receiving UPI ID</label>
+                    <input type="text" id="admin-upi-id" placeholder="your-upi@oksbi" required>
+                </div>
+                <button type="submit" class="btn">Update UPI</button>
+            </form>
+            
+            <hr style="border-color: var(--gold); opacity: 0.5;">
+            <h3 style="color: var(--gold);">Audio Settings</h3>
+            <div class="audio-control-container">
+                <span>Background Music</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="music-toggle-checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
         </div>
     </main>
-    
+
     <!-- PAGE: ADMIN USER MANAGEMENT -->
     <main id="page-users" class="page">
         <div class="content-container" style="max-width: 90%;">
@@ -391,7 +434,7 @@
     <!-- ============================================== -->
     <!-- ============== MODAL POPUPS ================== -->
     <!-- ============================================== -->
-    
+
     <!-- Result Modal Popup -->
     <div id="result-modal" class="modal-overlay">
         <div class="modal-content">
@@ -403,16 +446,16 @@
             <p id="modal-text"></p>
         </div>
     </div>
-    
+
     <!-- Payment Modal Popup -->
     <div id="payment-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="page-title">Complete Your Top-up</h2>
             <p>Scan the QR code or use the UPI ID below to pay.</p>
-            <img id="payment-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=your-upi-id@oksbi" alt="QR Code">
+            <img id="payment-qr-code" src="" alt="QR Code Loading...">
             <div id="payment-details">
                 <p>Amount: <span id="payment-modal-amount"></span></p>
-                <p>UPI ID: your-upi-id@oksbi</p>
+                <p>UPI ID: <span id="payment-upi-display">Loading...</span></p>
             </div>
             <form id="payment-form">
                 <div class="form-group">
@@ -424,7 +467,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Admin Top-up Modal -->
     <div id="admin-topup-modal" class="modal-overlay">
         <div class="modal-content">
@@ -441,7 +484,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Login Success Ticket -->
     <div id="login-success-ticket" class="modal-overlay">
         <div class="ticket-content">
@@ -460,6 +503,7 @@
     <nav class="bottom-nav">
         <a href="#game" class="nav-item user-nav" data-page="game"><i class="fas fa-dice"></i> Game</a>
         <a href="#wallet" class="nav-item user-nav" data-page="wallet"><i class="fas fa-wallet"></i> Wallet</a>
+        <a href="#history" class="nav-item user-nav" data-page="history"><i class="fas fa-history"></i> History</a>
         <a href="#profile" class="nav-item user-nav" data-page="profile"><i class="fas fa-user-cog"></i> Profile</a>
         <a href="#admin" class="nav-item admin-nav" data-page="admin"><i class="fas fa-user-shield"></i> Admin</a>
         <a href="#users" class="nav-item admin-nav" data-page="users"><i class="fas fa-users-cog"></i> Users</a>
@@ -493,7 +537,32 @@
         const AppState = {
             currentUser: null, 
             currentUserAuth: null, 
+            paymentSettings: { upiId: 'default-upi@provider' },
+            audioSettings: { enabled: true }
         };
+        
+        db.ref('settings/paymentDetails').on('value', snapshot => {
+            const settings = snapshot.val();
+            if (settings && settings.upiId) {
+                AppState.paymentSettings = settings;
+            }
+            const upiId = AppState.paymentSettings.upiId;
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${upiId}`;
+            
+            const qrCodeImg = document.getElementById('payment-qr-code');
+            if (qrCodeImg) qrCodeImg.src = qrCodeUrl;
+
+            const upiDisplay = document.getElementById('payment-upi-display');
+            if (upiDisplay) upiDisplay.textContent = upiId;
+        });
+
+        db.ref('settings/audio').on('value', snapshot => {
+            const settings = snapshot.val();
+            if (settings) {
+                AppState.audioSettings = settings;
+            }
+            updateMusicSwitchUI();
+        });
         
         let serverTimeOffset = 0;
         db.ref('.info/serverTimeOffset').on('value', snap => {
@@ -501,7 +570,6 @@
         });
         const estimatedServerTime = () => Date.now() + serverTimeOffset;
 
-        // --- Game Config ---
         const GAME_CONFIG = {
             SYMBOLS: [
                 { id: 'heart',   emoji: '❤️' }, { id: 'spade',   emoji: '♠️' },
@@ -509,12 +577,11 @@
                 { id: 'face',    emoji: '👑' }, { id: 'flag',    emoji: '🚩' }
             ],
             BETTING_DURATION: 35,
-            RESULT_VIEW_DURATION: 3, // How long to show results after animation
+            RESULT_VIEW_DURATION: 3,
             BETTING_LOCKED_TIME: 5,
-            ANIMATION_DURATION: 1500 // 1.5 seconds, MUST match CSS animation
+            ANIMATION_DURATION: 1500
         };
 
-        // --- Game State (Client-side) ---
         let gameState = {
             currentBets: {}, selectedChipValue: 100, serverState: null,
             lastProcessedPeriodId: null, isGameInitialized: false, uiUpdateInterval: null,
@@ -585,6 +652,11 @@
                 adminNavItems.forEach(item => {
                     item.style.display = AppState.currentUser.role === 'admin' ? 'flex' : 'none';
                 });
+
+                if (AppState.currentUser.role === 'admin') {
+                    const walletNavItem = document.querySelector('.nav-item[data-page="wallet"]');
+                    if (walletNavItem) walletNavItem.style.display = 'none';
+                }
                 
                 if (withdrawalSection) {
                     withdrawalSection.style.display = AppState.currentUser.role === 'admin' ? 'none' : 'block';
@@ -614,6 +686,13 @@
             profilePasswordInput.value = '';
         };
 
+        const updateMusicSwitchUI = () => {
+            const musicToggleCheckbox = document.getElementById('music-toggle-checkbox');
+            if (!musicToggleCheckbox) return;
+            musicToggleCheckbox.checked = AppState.audioSettings.enabled;
+        };
+
+
         // ==================== AUTH, PROFILE, WALLET, ADMIN ====================
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -624,7 +703,7 @@
                         AppState.currentUser = { uid: user.uid, ...userData };
                         updateUI();
                         if (!document.querySelector('.page.active') || document.getElementById('page-login').classList.contains('active')) {
-                           showPage('game');
+                           showPage(AppState.currentUser.role === 'admin' ? 'admin' : 'game');
                         }
                     } else {
                         auth.signOut();
@@ -653,7 +732,7 @@
                            loginSuccessTicket.classList.add('visible');
                            setTimeout(() => {
                                loginSuccessTicket.classList.remove('visible');
-                               showPage('game');
+                               showPage(userData.role === 'admin' ? 'admin' : 'game');
                            }, 2500);
                         }
                     });
@@ -666,12 +745,13 @@
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
             const role = document.getElementById('register-role').value;
+            const upi = document.getElementById('register-upi').value;
             auth.createUserWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     const user = userCredential.user;
                     db.ref('users/' + user.uid).set({
                         name: name, email: email, role: role, balance: 1000, 
-                        phone: '', upi: '', isBanned: false,
+                        phone: '', upi: upi, isBanned: false,
                         createdAt: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
                         alert('Registration successful! Please log in.');
@@ -682,7 +762,6 @@
                 .catch(error => alert(error.message));
         };
         const handleLogout = () => auth.signOut().catch(error => alert(error.message));
-        // NEW FUNCTION FOR FORGOT PASSWORD
         const handleForgotPassword = (e) => {
             e.preventDefault();
             const email = document.getElementById('forgot-password-email').value;
@@ -716,15 +795,7 @@
                 })
                 .catch(error => alert(`Profile update failed: ${error.message}`));
         };
-        const handleTopupRequest = () => {
-            const amount = parseInt(topupAmountInput.value, 10);
-            if (isNaN(amount) || amount <= 0) {
-                alert('Please enter a valid amount.');
-                return;
-            }
-            paymentModalAmount.textContent = `₹${amount}`;
-            paymentModal.classList.add('visible');
-        };
+
         const handleTopupSubmit = (e) => {
             e.preventDefault();
             const amount = parseInt(paymentModalAmount.textContent.replace('₹', ''), 10);
@@ -733,21 +804,33 @@
                 alert('Please enter the transaction ID.');
                 return;
             }
-            const newRequestRef = db.ref('topupRequests').push();
-            newRequestRef.set({
-                userId: AppState.currentUser.uid,
+
+            const userId = AppState.currentUser.uid;
+            const newRequestKey = db.ref('topupRequests').push().key; // Get a unique key
+
+            const newRequestData = {
+                userId: userId,
                 userEmail: AppState.currentUser.email,
                 amount: amount,
                 transactionId: transactionId,
                 status: 'pending',
                 timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                paymentModal.classList.remove('visible');
-                document.getElementById('payment-form').reset();
-                topupAmountInput.value = '';
-                alert('Top-up request submitted! It will be reviewed by an admin.');
-            }).catch(e => alert(e.message));
+            };
+
+            // Prepare a multi-location update
+            const updates = {};
+            updates[`/topupRequests/${newRequestKey}`] = newRequestData; // For admin queue
+            updates[`/userTransactions/${userId}/all/${newRequestKey}`] = { ...newRequestData, type: 'Top-up' }; // For user's personal history
+
+            db.ref().update(updates)
+                .then(() => {
+                    paymentModal.classList.remove('visible');
+                    document.getElementById('payment-form').reset();
+                    topupAmountInput.value = '';
+                    alert('Top-up request submitted! It will be reviewed by an admin.');
+                }).catch(err => alert(err.message));
         };
+
         const handleWithdrawalRequest = () => {
             const amount = parseInt(withdrawalAmountInput.value, 10);
             if (isNaN(amount) || amount < 10) {
@@ -761,7 +844,9 @@
             }
             const fee = Math.floor(amount / 10);
             const totalDeduction = amount + fee;
-            const userBalanceRef = db.ref('users/' + AppState.currentUser.uid + '/balance');
+            const userId = AppState.currentUser.uid;
+            const userBalanceRef = db.ref('users/' + userId + '/balance');
+
             userBalanceRef.transaction(currentBalance => {
                 if (currentBalance >= totalDeduction) {
                     return currentBalance - totalDeduction;
@@ -771,23 +856,45 @@
                 if (error) {
                     alert('Withdrawal failed. Please try again.');
                 } else if (committed) {
-                    const newRequestRef = db.ref('withdrawalRequests').push();
-                    newRequestRef.set({
-                        userId: AppState.currentUser.uid,
+                    const newRequestKey = db.ref('withdrawalRequests').push().key; // Get a unique key
+                    
+                    const newRequestData = {
+                        userId: userId,
                         userEmail: AppState.currentUser.email,
                         amount: amount,
                         fee: fee,
                         upi: AppState.currentUser.upi,
                         status: 'pending',
                         timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    withdrawalAmountInput.value = '';
-                    alert(`Withdrawal request for ₹${amount} submitted! Your balance has been updated.`);
+                    };
+
+                    // Prepare a multi-location update
+                    const updates = {};
+                    updates[`/withdrawalRequests/${newRequestKey}`] = newRequestData; // For admin queue
+                    updates[`/userTransactions/${userId}/all/${newRequestKey}`] = { ...newRequestData, type: 'Withdrawal' }; // For user's history
+
+                    db.ref().update(updates)
+                        .then(() => {
+                             withdrawalAmountInput.value = '';
+                             alert(`Withdrawal request for ₹${amount} submitted! Your balance has been updated.`);
+                        });
+
                 } else {
                     alert(`Insufficient balance. You need ₹${totalDeduction} (including fee) to withdraw ₹${amount}.`);
                 }
             });
         };
+        
+        const handleTopupRequest = () => {
+            const amount = parseInt(topupAmountInput.value, 10);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+            paymentModalAmount.textContent = `₹${amount}`;
+            paymentModal.classList.add('visible');
+        };
+
         const renderAdminDashboard = () => {
             db.ref('topupRequests').orderByChild('status').equalTo('pending').on('value', snapshot => {
                 adminTopupList.innerHTML = '';
@@ -813,7 +920,12 @@
                     adminWithdrawalList.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>';
                 }
             });
+            const adminUpiInput = document.getElementById('admin-upi-id');
+            if (adminUpiInput && AppState.paymentSettings) {
+                adminUpiInput.value = AppState.paymentSettings.upiId;
+            }
         };
+
         const renderUserManagementPage = () => {
              db.ref('users').on('value', snapshot => {
                 adminUserList.innerHTML = '';
@@ -831,18 +943,108 @@
                 }
             });
         };
+        
+        const renderHistoryPage = async () => {
+            if (!AppState.currentUser) return;
+
+            const historyListEl = document.getElementById('transaction-history-list');
+            const historyTableHead = historyListEl.parentElement.querySelector('thead tr');
+            const isAdmin = AppState.currentUser.role === 'admin';
+            const colspan = isAdmin ? 5 : 4;
+
+            historyListEl.innerHTML = `<tr><td colspan="${colspan}">Loading history...</td></tr>`;
+            
+            historyTableHead.innerHTML = isAdmin 
+                ? '<th>Date</th><th>User</th><th>Type</th><th>Amount</th><th>Status</th>'
+                : '<th>Date</th><th>Type</th><th>Amount</th><th>Status</th>';
+            
+            try {
+                let transactions = [];
+                let transactionKeys = []; // To keep track of original keys
+
+                if (isAdmin) {
+                    // Admin fetches from the global queues
+                    const [topupSnapshot, withdrawalSnapshot] = await Promise.all([
+                        db.ref('topupRequests').get(),
+                        db.ref('withdrawalRequests').get()
+                    ]);
+                    topupSnapshot.forEach(snap => {
+                        transactions.push({ ...snap.val(), type: 'Top-up' });
+                        transactionKeys.push({key: snap.key, type: 'topup'});
+                    });
+                    withdrawalSnapshot.forEach(snap => {
+                        transactions.push({ ...snap.val(), type: 'Withdrawal' });
+                        transactionKeys.push({key: snap.key, type: 'withdrawal'});
+                    });
+                } else {
+                    // Regular user fetches from their own personal transaction log
+                    const userTransactionsRef = db.ref(`userTransactions/${AppState.currentUser.uid}/all`);
+                    const snapshot = await userTransactionsRef.get();
+                    snapshot.forEach(snap => {
+                        transactions.push(snap.val());
+                        transactionKeys.push({key: snap.key, type: snap.val().type === 'Top-up' ? 'topup' : 'withdrawal'});
+                    });
+                }
+
+                // Now sort and render
+                const combined = transactions.map((tx, i) => ({...tx, key: transactionKeys[i].key, typeKey: transactionKeys[i].type}));
+                combined.sort((a, b) => b.timestamp - a.timestamp);
+
+                if (combined.length === 0) {
+                    historyListEl.innerHTML = `<tr><td colspan="${colspan}">No transactions found.</td></tr>`;
+                    return;
+                }
+
+                // To get the latest status, we need to fetch the admin queues regardless
+                const [allTopups, allWithdrawals] = await Promise.all([db.ref('topupRequests').get(), db.ref('withdrawalRequests').get()]);
+                const statusMap = {};
+                allTopups.forEach(snap => statusMap[snap.key] = snap.val().status);
+                allWithdrawals.forEach(snap => statusMap[snap.key] = snap.val().status);
+                
+                let html = '';
+                combined.forEach(tx => {
+                    const currentStatus = statusMap[tx.key] || tx.status;
+                    const date = new Date(tx.timestamp).toLocaleString();
+                    const statusClass = currentStatus === 'approved' ? 'approve-btn' : (currentStatus === 'rejected' ? 'reject-btn' : '');
+                    const statusText = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+                    const userCell = isAdmin ? `<td>${(tx.userEmail || 'N/A').split('@')[0]}</td>` : '';
+                    
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            ${userCell}
+                            <td>${tx.type}</td>
+                            <td>₹${(tx.amount || 0).toLocaleString()}</td>
+                            <td><span class="action-btn ${statusClass}" style="cursor:default;border:none;">${statusText}</span></td>
+                        </tr>
+                    `;
+                });
+                historyListEl.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error fetching history:", error);
+                historyListEl.innerHTML = `<tr><td colspan="${colspan}">Error loading history. Please check console for details.</td></tr>`;
+            }
+        };
+
         window.app = {
             approveRequest: (type, reqId) => {
                 const requestRef = db.ref(`${type}Requests/${reqId}`);
                 requestRef.get().then(snapshot => {
                     if (!snapshot.exists()) return;
                     const req = snapshot.val();
+                    const updates = {};
+                    updates[`/${type}Requests/${reqId}/status`] = 'approved';
+                    updates[`/userTransactions/${req.userId}/all/${reqId}/status`] = 'approved';
+
                     if(type === 'topup'){
                         const userRef = db.ref(`users/${req.userId}/balance`);
-                        userRef.transaction(currentBalance => (currentBalance || 0) + req.amount);
+                        userRef.transaction(currentBalance => (currentBalance || 0) + req.amount, (err, comm, snap) => {
+                            if (comm) db.ref().update(updates).then(() => alert(`Request approved.`));
+                        });
+                    } else {
+                         db.ref().update(updates).then(() => alert(`Request approved.`));
                     }
-                    requestRef.update({ status: 'approved' });
-                    alert(`Request approved.`);
                 });
             },
             rejectRequest: (type, reqId) => {
@@ -850,12 +1052,18 @@
                 requestRef.get().then(snapshot => {
                     if (!snapshot.exists()) return;
                     const req = snapshot.val();
+                    const updates = {};
+                    updates[`/${type}Requests/${reqId}/status`] = 'rejected';
+                    updates[`/userTransactions/${req.userId}/all/${reqId}/status`] = 'rejected';
+
                     if(type === 'withdrawal') {
                         const userRef = db.ref(`users/${req.userId}/balance`);
-                        userRef.transaction(currentBalance => (currentBalance || 0) + req.amount + req.fee);
+                        userRef.transaction(currentBalance => (currentBalance || 0) + req.amount + req.fee, (err, comm, snap) => {
+                           if (comm) db.ref().update(updates).then(() => alert(`Request rejected.`));
+                        });
+                    } else {
+                         db.ref().update(updates).then(() => alert(`Request rejected.`));
                     }
-                    requestRef.update({ status: 'rejected' });
-                    alert(`Request rejected.`);
                 });
             },
             toggleUserBan: (userId, shouldBeBanned) => {
@@ -879,24 +1087,19 @@
         // ==================== REAL-TIME GAME LOGIC ================
         // ==========================================================
         
-        // --- Audio Controls ---
         const playAudio = () => {
-            // Ensure audio is paused before playing to avoid errors and restart it
+            if (!AppState.audioSettings.enabled) return;
             if (gameAudio.paused) {
                 const playPromise = gameAudio.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        // Autoplay was prevented by the browser. User interaction may be required.
-                        console.warn("Audio playback was prevented. User may need to click on the page.");
-                    });
+                    playPromise.catch(error => { console.warn("Audio playback was prevented."); });
                 }
             }
         };
-
         const pauseAudio = () => {
             if (!gameAudio.paused) {
                 gameAudio.pause();
-                gameAudio.currentTime = 0; // Reset audio to the beginning for the next round
+                gameAudio.currentTime = 0; 
             }
         };
         
@@ -917,7 +1120,6 @@
                 if (serverState && serverState.status && serverState.roundEndTime) {
                     handleServerStateUpdate(serverState);
                 } else {
-                    console.warn("Game state is missing or invalid. Forcing initialization.");
                     initServerGameState();
                 }
             });
@@ -966,9 +1168,7 @@
         };
         
         const gameTick = () => {
-            if (!AppState.currentUser || !gameState.serverState) return;
-
-            if (gameState.isTransitioning) return;
+            if (!AppState.currentUser || !gameState.serverState || gameState.isTransitioning) return;
             
             const { roundEndTime, status } = gameState.serverState;
             const now = estimatedServerTime();
@@ -989,7 +1189,6 @@
                     processRoundEnd();
                 }
             } else if (status === 'viewing_result') {
-                // The timer now includes animation time + view time
                 const timeLeft = Math.ceil((roundEndTime - now) / 1000);
                 const displayTime = Math.max(0, timeLeft - (GAME_CONFIG.ANIMATION_DURATION / 1000));
                 
@@ -1007,7 +1206,6 @@
         };
 
         const handleServerStateUpdate = (serverState) => {
-            // Check if the state is transitioning TO 'betting' to start the audio
             if (gameState.serverState?.status !== 'betting' && serverState.status === 'betting') {
                 playAudio();
             }
@@ -1015,40 +1213,32 @@
             gameState.serverState = serverState;
             periodIdDisplayEl.textContent = serverState.periodId;
 
-            // Always show the last result during the betting phase.
             if (serverState.status === 'betting' && Array.isArray(serverState.lastResult)) {
                 gameDiceEls().forEach((diceEl, index) => {
                     const symbolId = serverState.lastResult[index];
                     const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
                     diceEl.textContent = symbolData ? symbolData.emoji : '?';
-                    diceEl.style.color = ''; // Ensure text is visible
+                    diceEl.style.color = '';
                 });
             }
             
-            // This is the core logic for revealing results after the animation.
             if (gameState.lastProcessedPeriodId !== serverState.periodId && serverState.status === 'viewing_result') {
                 gameState.lastProcessedPeriodId = serverState.periodId;
                 const resultSymbols = serverState.lastResult;
 
-                // 1. Start the rolling animation on all clients.
                 diceTrayEl.classList.add('rolling');
 
-                // 2. Wait for the animation to finish before revealing results.
                 setTimeout(() => {
-                    // 3. Reveal the results on the dice.
                     gameDiceEls().forEach((diceEl, index) => {
                         const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === resultSymbols[index]);
                         diceEl.textContent = symbolData ? symbolData.emoji : '?';
-                        diceEl.style.color = ''; // Make sure color is reset from transparent
+                        diceEl.style.color = '';
                     });
                     
-                    // 4. Remove the rolling class (good practice).
                     diceTrayEl.classList.remove('rolling');
-                    
-                    // 5. Calculate winnings and show the result modal.
                     calculateWinningsAndShowModal(resultSymbols);
                     
-                }, GAME_CONFIG.ANIMATION_DURATION); // Wait must match CSS animation duration.
+                }, GAME_CONFIG.ANIMATION_DURATION);
             }
         };
 
@@ -1060,15 +1250,12 @@
                         ...currentData,
                         status: 'viewing_result',
                         lastResult: resultSymbols,
-                        // The total duration for the result phase is animation + viewing time
                         roundEndTime: estimatedServerTime() + GAME_CONFIG.ANIMATION_DURATION + (GAME_CONFIG.RESULT_VIEW_DURATION * 1000)
                     };
                 }
-                return; // Abort if conditions not met
+                return;
             }, (error, committed) => {
-                if (error) {
-                    console.error("ProcessRoundEnd transaction failed:", error);
-                }
+                if (error) console.error("ProcessRoundEnd transaction failed:", error);
                 gameState.isTransitioning = false;
             });
         };
@@ -1086,18 +1273,13 @@
                 }
                 return; 
             }, (error, committed) => {
-                if (error) {
-                     gameState.isTransitioning = false;
-                }
-                if (committed) {
-                    resetLocalBets();
-                }
+                if (error) gameState.isTransitioning = false;
+                if (committed) resetLocalBets();
             });
         };
         
         const calculateWinningsAndShowModal = (resultSymbols) => {
-            pauseAudio(); // Stop the countdown audio as soon as results are processed
-
+            pauseAudio();
             if (!AppState.currentUser || AppState.currentUser.role === 'admin') return;
 
             const resultCounts = {};
@@ -1115,7 +1297,6 @@
             }
             
             const amountCredited = totalPayout + winningBetsPrincipal;
-            
             if (amountCredited > 0) {
                 db.ref(`users/${AppState.currentUser.uid}/balance`).transaction(bal => (bal || 0) + amountCredited);
             }
@@ -1147,9 +1328,7 @@
         };
 
         const placeBet = (symbolId) => {
-            if (gameState.isBettingLocked || !AppState.currentUser || AppState.currentUser.role === 'admin') {
-                return;
-            }
+            if (gameState.isBettingLocked || !AppState.currentUser || AppState.currentUser.role === 'admin') return;
             if (AppState.currentUser.balance < gameState.selectedChipValue) {
                 alert("Insufficient balance for this bet!"); return;
             }
@@ -1183,13 +1362,14 @@
                     if (page === 'profile') renderProfilePage();
                     if (page === 'admin') renderAdminDashboard();
                     if (page === 'users') renderUserManagementPage();
+                    if (page === 'history') renderHistoryPage();
                     showPage(page);
                 }
             });
         });
         document.getElementById('login-form').addEventListener('submit', handleLogin);
         document.getElementById('register-form').addEventListener('submit', handleRegister);
-        document.getElementById('forgot-password-form').addEventListener('submit', handleForgotPassword); // EVENT LISTENER FOR FORGOT PASSWORD
+        document.getElementById('forgot-password-form').addEventListener('submit', handleForgotPassword);
         document.getElementById('goto-register').addEventListener('click', (e) => { e.preventDefault(); showPage('register'); });
         document.getElementById('goto-login').addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
         document.getElementById('goto-forgot-password').addEventListener('click', (e) => { e.preventDefault(); showPage('forgot-password'); });
@@ -1199,6 +1379,18 @@
         document.getElementById('withdrawal-btn').addEventListener('click', handleWithdrawalRequest);
         document.getElementById('payment-form').addEventListener('submit', handleTopupSubmit);
         document.getElementById('payment-cancel-btn').addEventListener('click', () => paymentModal.classList.remove('visible'));
+        document.getElementById('payment-settings-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (AppState.currentUser?.role !== 'admin') return;
+            const newUpiId = document.getElementById('admin-upi-id').value.trim();
+            if (newUpiId) {
+                db.ref('settings/paymentDetails').set({ upiId: newUpiId })
+                    .then(() => alert('UPI ID updated successfully!'))
+                    .catch(err => alert('Error: ' + err.message));
+            } else {
+                alert('UPI ID cannot be empty.');
+            }
+        });
         adminTopupForm.addEventListener('submit', (e) => { 
             e.preventDefault(); 
             const userId = document.getElementById('admin-topup-userid').value; 
@@ -1228,20 +1420,22 @@
             AppState.currentUser.balance += totalBetValue;
             resetLocalBets();
         });
+
+        const musicToggleCheckbox = document.getElementById('music-toggle-checkbox');
+        if (musicToggleCheckbox) {
+            musicToggleCheckbox.addEventListener('change', (e) => {
+                const newStatus = e.target.checked;
+                db.ref('settings/audio').set({ enabled: newStatus })
+                    .catch(err => alert('Error updating setting: ' + err.message));
+                
+                if (!newStatus) {
+                    pauseAudio();
+                }
+            });
+        }
     });
     </script>
     <script>
-(function(){
-    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
-    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
-    document['addEventListener']('keydown',function(_0x2){
-        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
-        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
-           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
-            _0x2['preventDefault']();
-        }
-    });
-})();
-    </script>
+      (function(){function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}document'addEventListener';document['addEventListener']('keydown',function(_0x2){if(_0x2['key']==='F12'){_0x2'preventDefault';}if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']'includes')||(_0x2['ctrlKey']&&['U','S']'includes')){_0x2'preventDefault';}});})();</script>
 </body>
 </html>
