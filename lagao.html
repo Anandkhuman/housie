@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jhandi Munda Casino</title>
+    
+    <!-- Google Fonts for the theme -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ================== FIREBASE SDKs ================== -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
+
+    <style>
+        /* ==================== GLOBAL & THEME STYLES ==================== */
+        :root {
+            --gold: #FFD700;
+            --deep-red: #8B0000;
+            --dark-red: #4a0404;
+            --table-green: #006400;
+            --light-gold: #fffbeb;
+            --dark-gray: #333;
+        }
+
+        body {
+            margin: 0 0 80px 0; /* Add bottom margin for nav bar */
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-red);
+            background-image: radial-gradient(var(--deep-red) 1px, transparent 1px),
+                              radial-gradient(var(--deep-red) 1px, var(--dark-red) 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            color: white;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .page {
+            display: none; /* Hide all pages by default */
+            min-height: calc(100vh - 110px);
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-direction: column; /* Allow multiple containers vertically */
+        }
+
+        .page.active {
+            display: flex; /* Show the active page */
+        }
+        
+        .content-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 3px solid var(--gold);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-family: 'Cinzel Decorative', cursive;
+            color: var(--gold);
+            font-size: 2rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px var(--deep-red);
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 10px;
+        }
+
+        /* ==================== GAME STYLES (Existing & NEW) ==================== */
+        .game-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+        .game-title { font-family: 'Cinzel Decorative', cursive; color: var(--gold); font-size: 2rem; margin: 0; text-shadow: 2px 2px 4px var(--deep-red); }
+        .wallet { background-color: var(--gold); color: var(--deep-red); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 1.1rem; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+        .game-state { text-align: center; }
+        .period-info { text-align: center; font-size: 1.1rem; color: var(--gold); margin-bottom: 5px; font-weight: 600; }
+        .timer-display { font-size: 4rem; font-weight: 700; line-height: 1; color: #4ade80; transition: color 0.5s; }
+        .timer-display.locked { color: #f87171; }
+        .status-message { font-size: 1.2rem; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; min-height: 22px; }
+        .dice-tray { display: flex; justify-content: center; gap: 10px; perspective: 800px; min-height: 54px; }
+        .dice { width: 50px; height: 50px; background-color: #fef08a; border: 2px solid #ca8a04; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: var(--deep-red); box-shadow: 3px 3px 5px rgba(0,0,0,0.3); transition: transform 0.5s ease-out, color 0.1s; }
+        
+        /* CORRECTED ANIMATION LOGIC */
+        .dice-tray.rolling .dice {
+            animation: tumble 1.5s ease-out forwards;
+            /* Hide the text content during the roll animation for suspense */
+            color: transparent; 
+        }
+
+        @keyframes tumble { 0% { transform: scale(0.8) rotateX(0deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: scale(1) rotateX(720deg) rotateY(1080deg) rotateZ(360deg); } }
+        .betting-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .bet-spot { position: relative; background: var(--table-green); border: 3px solid var(--gold); border-radius: 10px; height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s, transform 0.2s; }
+        .bet-spot:hover:not(.locked) { background-color: #008000; transform: translateY(-3px); }
+        .bet-spot.locked { cursor: not-allowed; opacity: 0.7; }
+        .bet-symbol { font-size: 3rem; line-height: 1; }
+        .bet-amount { position: absolute; top: -10px; right: -10px; background-color: var(--deep-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px black; transform: scale(0); transition: transform 0.2s ease-out; }
+        .bet-amount.visible { transform: scale(1); }
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .chip-selector { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .chip { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #ccc; font-size: 1rem; font-weight: bold; cursor: pointer; background-color: #f8fafc; color: #334155; box-shadow: 0 4px #94a3b8; transition: all 0.1s ease-in-out; }
+        .chip:active { transform: translateY(2px); box-shadow: 0 2px #94a3b8; }
+        .chip.active { border-color: var(--gold); transform: scale(1.1); box-shadow: 0 4px var(--gold); }
+        .clear-btn { background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+        .clear-btn:hover { background-color: #dc2626; }
+        .clear-btn:disabled { background-color: #999; cursor: not-allowed; }
+
+        /* ==================== FORM & UI STYLES ==================== */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--gold); }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid var(--gold); background-color: var(--light-gold); color: var(--dark-gray); box-sizing: border-box; }
+        .btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 25px; background-color: var(--gold); color: var(--deep-red); font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; text-align: center; }
+        .btn:hover { background-color: #e6c300; }
+        .link-text { text-align: center; margin-top: 15px; }
+        .link-text a { color: var(--gold); text-decoration: none; font-weight: bold; }
+        
+        /* Wallet Page Styles */
+        .wallet-info { background-color: var(--table-green); padding: 20px; border-radius: 10px; text-align: center; border: 2px solid var(--gold); }
+        .wallet-balance-display { font-size: 2.5rem; color: var(--gold); font-weight: bold; margin: 0; }
+        .wallet-label { font-size: 1rem; color: #eee; }
+        .wallet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        /* Admin Dashboard & User Management Styles */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-table th, .data-table td { padding: 8px; border: 1px solid var(--gold); text-align: left; }
+        .data-table th { background-color: var(--deep-red); }
+        .data-table td { word-break: break-all; }
+        .action-btn { padding: 5px 8px; font-size: 0.8rem; margin: 2px; border-radius: 5px; width: auto; display: inline-block; }
+        .approve-btn, .topup-action-btn { background-color: #22c55e; color: white; }
+        .reject-btn, .delete-btn { background-color: #ef4444; color: white; }
+        .ban-btn { background-color: #f97316; color: white;}
+        .unban-btn { background-color: #3b82f6; color: white;}
+
+
+        /* ==================== BOTTOM NAV BAR ==================== */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(0, 0, 0, 0.8); border-top: 2px solid var(--gold); display: flex; justify-content: space-around; padding: 5px 0; box-shadow: 0 -5px 15px rgba(255, 215, 0, 0.2); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #ccc; text-decoration: none; padding: 5px 10px; font-size: 0.8rem; transition: color 0.2s; }
+        .nav-item i { font-size: 1.5rem; margin-bottom: 3px; }
+        .nav-item.active, .nav-item:hover { color: var(--gold); }
+
+        /* ==================== MODAL STYLES (UPDATED) ==================== */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--dark-red); color: white; padding: 30px; border-radius: 10px; border: 2px solid var(--gold); text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slide-in 0.3s ease-out; max-width: 90%; width: 350px; }
+        @keyframes slide-in { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .result-icon-container { margin-bottom: 15px; }
+        .result-icon { width: 80px; height: 80px; display: none; margin: 0 auto; }
+        .modal-content.result-win .win-icon { display: block; color: var(--gold); }
+        .modal-content.result-loss .loss-icon { display: block; color: #ef4444; }
+        #modal-title { margin-top: 0; font-family: 'Cinzel Decorative', cursive; }
+        #modal-text { font-size: 1.1rem; line-height: 1.5; }
+
+        #payment-qr-code { max-width: 200px; margin: 15px auto; }
+        #payment-details p { margin: 5px 0; font-weight: bold; }
+
+        /* ==================== LOGIN SUCCESS TICKET ANIMATION ==================== */
+        .ticket-content { position: relative; background: linear-gradient(145deg, #22c55e, #16a34a); color: white; padding: 40px 30px; border-radius: 20px; width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-left: 10px dashed rgba(0,0,0,0.2); transform: scale(0.7); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s; }
+        .modal-overlay.visible .ticket-content { transform: scale(1); opacity: 1; }
+        .ticket-content::before, .ticket-content::after { content: ''; position: absolute; width: 40px; height: 40px; background-color: rgba(0,0,0,0.7); border-radius: 50%; left: -30px; }
+        .ticket-content::before { top: -20px; }
+        .ticket-content::after { bottom: -20px; }
+        .ticket-icon { font-size: 5rem; line-height: 1; color: white; }
+        .ticket-icon .fa-check-circle { animation: pop-in 0.5s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; transform: scale(0); }
+        @keyframes pop-in { to { transform: scale(1); } }
+        .ticket-title { font-family: 'Cinzel Decorative', cursive; margin: 15px 0 5px; font-size: 1.8rem; }
+        .ticket-text { margin: 0; font-size: 0.9rem; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================== -->
+    <!-- ============== PAGE CONTAINERS =============== -->
+    <!-- ============================================== -->
+
+    <!-- PAGE: GAME -->
+    <main id="page-game" class="page">
+        <div id="game-container" class="content-container">
+            <header class="game-header">
+                <h1 class="game-title">SINTHA LAGAO</h1>
+                <div class="wallet">
+                    <span>Balance:</span>
+                    <span id="wallet-balance">₹0</span>
+                </div>
+            </header>
+            <div class="game-state">
+                <div class="period-info">Period: <span id="period-id-display">--</span></div>
+                <div id="timer" class="timer-display">--</div>
+                <div id="status-message" class="status-message">Connecting...</div>
+            </div>
+            <div id="dice-tray" class="dice-tray">
+                <div class="dice">?</div><div class="dice">?</div><div class="dice">?</div>
+                <div class="dice">?</div><div class="dice">?</div><div class="dice">?</div>
+            </div>
+            <div id="betting-grid" class="betting-grid"></div>
+            <footer class="controls">
+                <div class="chip-selector">
+                    <button class="chip" data-value="10">10</button>
+                    <button class="chip" data-value="20">20</button>
+                    <button class="chip" data-value="50">50</button>
+                    <button class="chip active" data-value="100">100</button>
+                    <button class="chip" data-value="200">200</button>
+                </div>
+                <button id="clear-bets-btn" class="clear-btn">Clear Bets</button>
+            </footer>
+        </div>
+    </main>
+
+    <!-- PAGE: WALLET -->
+    <main id="page-wallet" class="page">
+        <div class="content-container">
+            <h1 class="page-title">My Wallet</h1>
+            <div class="wallet-info">
+                <p class="wallet-label">Available Balance</p>
+                <h2 id="wallet-balance-display" class="wallet-balance-display">₹0</h2>
+            </div>
+            <div id="topup-section">
+                 <h3 style="text-align: center; color: var(--gold);">Top-up</h3>
+                 <div class="form-group">
+                    <label for="topup-amount">Enter Amount (₹)</label>
+                    <input type="number" id="topup-amount" placeholder="e.g., 500">
+                </div>
+                <button id="topup-btn" class="btn">Add Funds</button>
+            </div>
+            <hr style="border-color: var(--gold); opacity: 0.5;">
+            <div id="withdrawal-section">
+                <h3 style="text-align: center; color: var(--gold);">Withdraw</h3>
+                <div class="form-group">
+                    <label for="withdrawal-amount">Enter Amount (₹)</label>
+                    <input type="number" id="withdrawal-amount" placeholder="e.g., 200">
+                </div>
+                <p style="text-align:center; font-size:0.9rem; margin: -5px 0 10px;">Withdrawal Fee: ₹1 per ₹10. Min withdrawal ₹10.</p>
+                <button id="withdrawal-btn" class="btn">Request Withdrawal</button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- PAGE: PROFILE / SETTINGS -->
+    <main id="page-profile" class="page">
+         <div class="content-container">
+            <h1 class="page-title">Profile Settings</h1>
+            <form id="profile-form">
+                <div class="form-group">
+                    <label for="profile-name">Name</label>
+                    <input type="text" id="profile-name" required>
+                </div>
+                 <div class="form-group">
+                    <label for="profile-phone">Phone</label>
+                    <input type="tel" id="profile-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="profile-email">Email</label>
+                    <input type="email" id="profile-email" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="profile-upi">UPI ID</label>
+                    <input type="text" id="profile-upi" placeholder="yourname@upi" required>
+                </div>
+                 <div class="form-group">
+                    <label for="profile-password">New Password (optional)</label>
+                    <input type="password" id="profile-password" placeholder="Leave blank to keep current">
+                </div>
+                <button type="submit" class="btn">Update Profile</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- PAGE: LOGIN -->
+    <main id="page-login" class="page">
+        <div class="content-container">
+            <h1 class="page-title">Login</h1>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <p class="link-text">Don't have an account? <a href="#" id="goto-register">Register here</a></p>
+        </div>
+    </main>
+
+    <!-- PAGE: REGISTER -->
+    <main id="page-register" class="page">
+         <div class="content-container">
+            <h1 class="page-title">Create Account</h1>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-role">Account Type</label>
+                    <select id="register-role">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Register</button>
+            </form>
+            <p class="link-text">Already have an account? <a href="#" id="goto-login">Login here</a></p>
+        </div>
+    </main>
+
+    <!-- PAGE: ADMIN DASHBOARD -->
+    <main id="page-admin" class="page">
+        <div class="content-container">
+            <h1 class="page-title">Admin Dashboard</h1>
+            
+            <h3 style="color: var(--gold);">Pending Top-up Requests</h3>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>User</th><th>Amount</th><th>Tnx ID</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="admin-topup-list"></tbody>
+                </table>
+            </div>
+
+            <hr style="border-color: var(--gold); opacity: 0.5;">
+
+            <h3 style="color: var(--gold);">Pending Withdrawal Requests</h3>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>User</th><th>Amount</th><th>UPI ID</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="admin-withdrawal-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <!-- PAGE: ADMIN USER MANAGEMENT -->
+    <main id="page-users" class="page">
+        <div class="content-container" style="max-width: 90%;">
+            <h1 class="page-title">User Management</h1>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>User</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="admin-user-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- ============================================== -->
+    <!-- ============== MODAL POPUPS ================== -->
+    <!-- ============================================== -->
+    
+    <!-- Result Modal Popup -->
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="result-icon-container">
+                <svg class="result-icon win-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.7.27a.75.75 0 00-1.4 0L8.43 5.92a.75.75 0 01-.56.41l-6.23.9a.75.75 0 00-.42 1.28l4.5 4.39a.75.75 0 01.22.66l-1.07 6.2a.75.75 0 001.09.79l5.57-2.93a.75.75 0 01.7 0l5.57 2.93a.75.75 0 001.09-.79l-1.07-6.2a.75.75 0 01.22-.66l4.5-4.39a.75.75 0 00-.42-1.28l-6.23-.9a.75.75 0 01-.56-.41L12.7.27z"></path></svg>
+                <svg class="result-icon loss-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-2.625 6c-.54 0-.975.435-.975.975s.435.975.975.975.975-.435.975-.975S9.915 8.25 9.375 8.25zm5.25 0c-.54 0-.975.435-.975.975s.435.975.975.975.975-.435.975-.975-.435-.975-.975-.975zM12 18a6.75 6.75 0 006-3.75H6A6.75 6.75 0 0012 18z" clip-rule="evenodd"></path></svg>
+            </div>
+            <h2 id="modal-title"></h2>
+            <p id="modal-text"></p>
+        </div>
+    </div>
+    
+    <!-- Payment Modal Popup -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="page-title">Complete Your Top-up</h2>
+            <p>Scan the QR code or use the UPI ID below to pay.</p>
+            <img id="payment-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=your-upi-id@oksbi" alt="QR Code">
+            <div id="payment-details">
+                <p>Amount: <span id="payment-modal-amount"></span></p>
+                <p>UPI ID: your-upi-id@oksbi</p>
+            </div>
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="transaction-id">Enter Transaction ID</label>
+                    <input type="text" id="transaction-id" required placeholder="12-digit UPI reference number">
+                </div>
+                <button type="submit" class="btn">Submit Request</button>
+                <button type="button" id="payment-cancel-btn" class="btn" style="background-color:#999; margin-top:10px;">Cancel</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Admin Top-up Modal -->
+    <div id="admin-topup-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="page-title">Top-up User</h2>
+            <p>Add funds directly to <strong id="admin-topup-username"></strong>'s account.</p>
+            <form id="admin-topup-form">
+                <input type="hidden" id="admin-topup-userid">
+                <div class="form-group">
+                    <label for="admin-topup-amount">Amount (₹)</label>
+                    <input type="number" id="admin-topup-amount" required placeholder="e.g., 500">
+                </div>
+                <button type="submit" class="btn">Confirm Top-up</button>
+                <button type="button" id="admin-topup-cancel-btn" class="btn" style="background-color:#999; margin-top:10px;">Cancel</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Login Success Ticket -->
+    <div id="login-success-ticket" class="modal-overlay">
+        <div class="ticket-content">
+            <div class="ticket-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="ticket-title">Login Successful</h2>
+            <p class="ticket-text">Welcome back! Preparing the game...</p>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- ============== BOTTOM NAV BAR ================ -->
+    <!-- ============================================== -->
+    <nav class="bottom-nav">
+        <a href="#game" class="nav-item user-nav" data-page="game"><i class="fas fa-dice"></i> Game</a>
+        <a href="#wallet" class="nav-item user-nav" data-page="wallet"><i class="fas fa-wallet"></i> Wallet</a>
+        <a href="#profile" class="nav-item user-nav" data-page="profile"><i class="fas fa-user-cog"></i> Profile</a>
+        <a href="#admin" class="nav-item admin-nav" data-page="admin"><i class="fas fa-user-shield"></i> Admin</a>
+        <a href="#users" class="nav-item admin-nav" data-page="users"><i class="fas fa-users-cog"></i> Users</a>
+        <a href="#login" class="nav-item" id="auth-link" data-page="login"><i class="fas fa-sign-in-alt"></i> Login</a>
+    </nav>
+
+
+    <!-- JS Library for confetti effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ================== FIREBASE CONFIGURATION ==================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAjvI_Vl4trHwZAosaGLdEYQ87jJHeGYwc",
+            authDomain: "studio-ahutj.firebaseapp.com",
+            databaseURL: "https://studio-ahutj-default-rtdb.firebaseio.com",
+            projectId: "studio-ahutj",
+            storageBucket: "studio-ahutj.firebasestorage.app",
+            messagingSenderId: "636752463109",
+            appId: "1:636752463109:web:da78d4100720a39a20a36c"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const gameStateRef = db.ref('gameState'); 
+
+        // ==================== GLOBAL STATE & CONFIG ====================
+        const AppState = {
+            currentUser: null, 
+            currentUserAuth: null, 
+        };
+        
+        let serverTimeOffset = 0;
+        db.ref('.info/serverTimeOffset').on('value', snap => {
+            serverTimeOffset = snap.val();
+        });
+        const estimatedServerTime = () => Date.now() + serverTimeOffset;
+
+        // --- Game Config ---
+        const GAME_CONFIG = {
+            SYMBOLS: [
+                { id: 'heart',   emoji: '❤️' }, { id: 'spade',   emoji: '♠️' },
+                { id: 'diamond', emoji: '♦️' }, { id: 'club',    emoji: '♣️' },
+                { id: 'face',    emoji: '👑' }, { id: 'flag',    emoji: '🚩' }
+            ],
+            BETTING_DURATION: 25,
+            RESULT_VIEW_DURATION: 3, // How long to show results after animation
+            BETTING_LOCKED_TIME: 5,
+            ANIMATION_DURATION: 1500 // 1.5 seconds, MUST match CSS animation
+        };
+
+        // --- Game State (Client-side) ---
+        let gameState = {
+            currentBets: {}, selectedChipValue: 100, serverState: null,
+            lastProcessedPeriodId: null, isGameInitialized: false, uiUpdateInterval: null,
+            isBettingLocked: false, hasCommittedBets: false, isTransitioning: false
+        };
+
+        // ==================== DOM ELEMENT REFERENCES ====================
+        const pages = document.querySelectorAll('.page');
+        const navItems = document.querySelectorAll('.nav-item');
+        const authLink = document.getElementById('auth-link');
+        const userNavItems = document.querySelectorAll('.user-nav');
+        const adminNavItems = document.querySelectorAll('.admin-nav');
+        const walletBalanceEl = document.getElementById('wallet-balance');
+        const periodIdDisplayEl = document.getElementById('period-id-display');
+        const timerEl = document.getElementById('timer');
+        const statusMessageEl = document.getElementById('status-message');
+        const diceTrayEl = document.getElementById('dice-tray');
+        const bettingGridEl = document.getElementById('betting-grid');
+        const chipSelectorEl = document.querySelector('.chip-selector');
+        const clearBetsBtn = document.getElementById('clear-bets-btn');
+        const gameDiceEls = () => diceTrayEl.querySelectorAll('.dice');
+        const resultModalEl = document.getElementById('result-modal');
+        const resultModalContentEl = resultModalEl.querySelector('.modal-content');
+        const resultModalTitleEl = document.getElementById('modal-title');
+        const resultModalTextEl = document.getElementById('modal-text');
+        const walletBalanceDisplay = document.getElementById('wallet-balance-display');
+        const topupAmountInput = document.getElementById('topup-amount');
+        const withdrawalAmountInput = document.getElementById('withdrawal-amount');
+        const profileForm = document.getElementById('profile-form');
+        const profileNameInput = document.getElementById('profile-name');
+        const profilePhoneInput = document.getElementById('profile-phone');
+        const profileEmailInput = document.getElementById('profile-email');
+        const profileUpiInput = document.getElementById('profile-upi');
+        const profilePasswordInput = document.getElementById('profile-password');
+        const adminTopupList = document.getElementById('admin-topup-list');
+        const adminWithdrawalList = document.getElementById('admin-withdrawal-list');
+        const adminUserList = document.getElementById('admin-user-list');
+        const paymentModal = document.getElementById('payment-modal');
+        const paymentModalAmount = document.getElementById('payment-modal-amount');
+        const transactionIdInput = document.getElementById('transaction-id');
+        const adminTopupModal = document.getElementById('admin-topup-modal');
+        const adminTopupForm = document.getElementById('admin-topup-form');
+        const loginSuccessTicket = document.getElementById('login-success-ticket');
+        const withdrawalSection = document.getElementById('withdrawal-section'); 
+
+        // ==================== PAGE NAVIGATION & UI UPDATES ====================
+        const showPage = (pageId) => {
+            pages.forEach(page => page.classList.remove('active'));
+            const pageToShow = document.getElementById(`page-${pageId}`);
+            if (pageToShow) pageToShow.classList.add('active');
+
+            navItems.forEach(item => {
+                item.classList.toggle('active', item.dataset.page === pageId);
+            });
+            
+            if (pageId === 'game' && AppState.currentUser) {
+                if (!gameState.isGameInitialized) {
+                    initializeGame();
+                }
+            }
+        };
+        const updateUI = () => {
+            if (AppState.currentUser) {
+                authLink.innerHTML = `<i class="fas fa-sign-out-alt"></i> Logout`;
+                authLink.dataset.page = 'logout';
+                userNavItems.forEach(item => item.style.display = 'flex');
+                adminNavItems.forEach(item => {
+                    item.style.display = AppState.currentUser.role === 'admin' ? 'flex' : 'none';
+                });
+                
+                if (withdrawalSection) {
+                    withdrawalSection.style.display = AppState.currentUser.role === 'admin' ? 'none' : 'block';
+                }
+
+                const balance = AppState.currentUser.balance || 0;
+                const balanceText = `₹${balance.toLocaleString()}`;
+                walletBalanceEl.textContent = balanceText;
+                walletBalanceDisplay.textContent = balanceText;
+
+            } else {
+                authLink.innerHTML = `<i class="fas fa-sign-in-alt"></i> Login`;
+                authLink.dataset.page = 'login';
+                userNavItems.forEach(item => item.style.display = 'none');
+                adminNavItems.forEach(item => item.style.display = 'none');
+                if (withdrawalSection) withdrawalSection.style.display = 'block'; 
+                showPage('login');
+            }
+        };
+        const renderProfilePage = () => {
+            const user = AppState.currentUser;
+            if (!user) return;
+            profileNameInput.value = user.name || '';
+            profilePhoneInput.value = user.phone || '';
+            profileEmailInput.value = user.email || '';
+            profileUpiInput.value = user.upi || '';
+            profilePasswordInput.value = '';
+        };
+
+        // ==================== AUTH, PROFILE, WALLET, ADMIN ====================
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                AppState.currentUserAuth = user;
+                db.ref('users/' + user.uid).on('value', (snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        AppState.currentUser = { uid: user.uid, ...userData };
+                        updateUI();
+                        if (!document.querySelector('.page.active') || document.getElementById('page-login').classList.contains('active')) {
+                           showPage('game');
+                        }
+                    } else {
+                        auth.signOut();
+                    }
+                });
+            } else {
+                if(AppState.currentUserAuth) db.ref('users/' + AppState.currentUserAuth.uid).off();
+                AppState.currentUser = null;
+                AppState.currentUserAuth = null;
+                updateUI();
+            }
+        });
+        const handleLogin = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    db.ref('users/' + userCredential.user.uid).get().then(snapshot => {
+                        const userData = snapshot.val();
+                        if (userData && userData.isBanned) {
+                            alert('Your account has been suspended. Please contact support.');
+                            auth.signOut();
+                        } else {
+                           document.getElementById('login-form').reset();
+                           loginSuccessTicket.classList.add('visible');
+                           setTimeout(() => {
+                               loginSuccessTicket.classList.remove('visible');
+                               showPage('game');
+                           }, 2500);
+                        }
+                    });
+                })
+                .catch(error => alert(error.message));
+        };
+        const handleRegister = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('register-role').value;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    db.ref('users/' + user.uid).set({
+                        name: name, email: email, role: role, balance: 1000, 
+                        phone: '', upi: '', isBanned: false,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        alert('Registration successful! Please log in.');
+                        document.getElementById('register-form').reset();
+                        showPage('login');
+                    });
+                })
+                .catch(error => alert(error.message));
+        };
+        const handleLogout = () => auth.signOut().catch(error => alert(error.message));
+        const handleProfileUpdate = (e) => {
+            e.preventDefault();
+            if(!AppState.currentUser) return;
+            const updates = {
+                name: profileNameInput.value,
+                phone: profilePhoneInput.value,
+                upi: profileUpiInput.value,
+            };
+            db.ref('users/' + AppState.currentUser.uid).update(updates)
+                .then(() => {
+                    alert('Profile updated successfully!');
+                    const newPassword = profilePasswordInput.value;
+                    if(newPassword) {
+                        AppState.currentUserAuth.updatePassword(newPassword)
+                            .then(() => alert('Password updated successfully!'))
+                            .catch(error => alert(`Password update failed: ${error.message}`));
+                    }
+                })
+                .catch(error => alert(`Profile update failed: ${error.message}`));
+        };
+        const handleTopupRequest = () => {
+            const amount = parseInt(topupAmountInput.value, 10);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+            paymentModalAmount.textContent = `₹${amount}`;
+            paymentModal.classList.add('visible');
+        };
+        const handleTopupSubmit = (e) => {
+            e.preventDefault();
+            const amount = parseInt(paymentModalAmount.textContent.replace('₹', ''), 10);
+            const transactionId = transactionIdInput.value;
+            if (!transactionId) {
+                alert('Please enter the transaction ID.');
+                return;
+            }
+            const newRequestRef = db.ref('topupRequests').push();
+            newRequestRef.set({
+                userId: AppState.currentUser.uid,
+                userEmail: AppState.currentUser.email,
+                amount: amount,
+                transactionId: transactionId,
+                status: 'pending',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                paymentModal.classList.remove('visible');
+                document.getElementById('payment-form').reset();
+                topupAmountInput.value = '';
+                alert('Top-up request submitted! It will be reviewed by an admin.');
+            }).catch(e => alert(e.message));
+        };
+        const handleWithdrawalRequest = () => {
+            const amount = parseInt(withdrawalAmountInput.value, 10);
+            if (isNaN(amount) || amount < 10) {
+                alert('Minimum withdrawal amount is ₹10.');
+                return;
+            }
+            if (!AppState.currentUser.upi) {
+                alert('Please update your UPI ID in your profile before making a withdrawal request.');
+                showPage('profile');
+                return;
+            }
+            const fee = Math.floor(amount / 10);
+            const totalDeduction = amount + fee;
+            const userBalanceRef = db.ref('users/' + AppState.currentUser.uid + '/balance');
+            userBalanceRef.transaction(currentBalance => {
+                if (currentBalance >= totalDeduction) {
+                    return currentBalance - totalDeduction;
+                }
+                return; 
+            }, (error, committed, snapshot) => {
+                if (error) {
+                    alert('Withdrawal failed. Please try again.');
+                } else if (committed) {
+                    const newRequestRef = db.ref('withdrawalRequests').push();
+                    newRequestRef.set({
+                        userId: AppState.currentUser.uid,
+                        userEmail: AppState.currentUser.email,
+                        amount: amount,
+                        fee: fee,
+                        upi: AppState.currentUser.upi,
+                        status: 'pending',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    withdrawalAmountInput.value = '';
+                    alert(`Withdrawal request for ₹${amount} submitted! Your balance has been updated.`);
+                } else {
+                    alert(`Insufficient balance. You need ₹${totalDeduction} (including fee) to withdraw ₹${amount}.`);
+                }
+            });
+        };
+        const renderAdminDashboard = () => {
+            db.ref('topupRequests').orderByChild('status').equalTo('pending').on('value', snapshot => {
+                adminTopupList.innerHTML = '';
+                if(snapshot.exists()){
+                    snapshot.forEach(childSnapshot => {
+                        const req = childSnapshot.val();
+                        const reqId = childSnapshot.key;
+                        adminTopupList.innerHTML += `<tr><td>${req.userEmail.split('@')[0]}</td><td>₹${req.amount}</td><td>${req.transactionId}</td><td><button class="btn action-btn approve-btn" onclick="app.approveRequest('topup', '${reqId}')">Approve</button><button class="btn action-btn reject-btn" onclick="app.rejectRequest('topup', '${reqId}')">Reject</button></td></tr>`;
+                    });
+                } else {
+                    adminTopupList.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>';
+                }
+            });
+            db.ref('withdrawalRequests').orderByChild('status').equalTo('pending').on('value', snapshot => {
+                adminWithdrawalList.innerHTML = '';
+                if(snapshot.exists()){
+                    snapshot.forEach(childSnapshot => {
+                        const req = childSnapshot.val();
+                        const reqId = childSnapshot.key;
+                        adminWithdrawalList.innerHTML += `<tr><td>${req.userEmail.split('@')[0]}</td><td>₹${req.amount} (Fee: ₹${req.fee})</td><td>${req.upi}</td><td><button class="btn action-btn approve-btn" onclick="app.approveRequest('withdrawal', '${reqId}')">Approve</button><button class="btn action-btn reject-btn" onclick="app.rejectRequest('withdrawal', '${reqId}')">Reject</button></td></tr>`;
+                    });
+                } else {
+                    adminWithdrawalList.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>';
+                }
+            });
+        };
+        const renderUserManagementPage = () => {
+             db.ref('users').on('value', snapshot => {
+                adminUserList.innerHTML = '';
+                if(snapshot.exists()){
+                    snapshot.forEach(childSnapshot => {
+                        const user = childSnapshot.val();
+                        const userId = childSnapshot.key;
+                        if(userId === AppState.currentUser.uid) return;
+                        const status = user.isBanned ? '<span style="color:#ef4444; font-weight:bold;">Banned</span>' : '<span style="color:#22c55e; font-weight:bold;">Active</span>';
+                        const banBtn = user.isBanned ? `<button class="btn action-btn unban-btn" onclick="app.toggleUserBan('${userId}', false)">Unban</button>` : `<button class="btn action-btn ban-btn" onclick="app.toggleUserBan('${userId}', true)">Ban</button>`;
+                        adminUserList.innerHTML += `<tr><td>${user.name}<br><small>${user.email}</small></td><td>₹${(user.balance || 0).toLocaleString()}</td><td>${status}</td><td>${banBtn}<button class="btn action-btn topup-action-btn" onclick="app.openAdminTopupModal('${userId}', '${user.name}')">Top-up</button><button class="btn action-btn delete-btn" onclick="app.deleteUser('${userId}')">Delete</button></td></tr>`;
+                    });
+                } else {
+                    adminUserList.innerHTML = '<tr><td colspan="4">No users found.</td></tr>';
+                }
+            });
+        };
+        window.app = {
+            approveRequest: (type, reqId) => {
+                const requestRef = db.ref(`${type}Requests/${reqId}`);
+                requestRef.get().then(snapshot => {
+                    if (!snapshot.exists()) return;
+                    const req = snapshot.val();
+                    if(type === 'topup'){
+                        const userRef = db.ref(`users/${req.userId}/balance`);
+                        userRef.transaction(currentBalance => (currentBalance || 0) + req.amount);
+                    }
+                    requestRef.update({ status: 'approved' });
+                    alert(`Request approved.`);
+                });
+            },
+            rejectRequest: (type, reqId) => {
+                const requestRef = db.ref(`${type}Requests/${reqId}`);
+                requestRef.get().then(snapshot => {
+                    if (!snapshot.exists()) return;
+                    const req = snapshot.val();
+                    if(type === 'withdrawal') {
+                        const userRef = db.ref(`users/${req.userId}/balance`);
+                        userRef.transaction(currentBalance => (currentBalance || 0) + req.amount + req.fee);
+                    }
+                    requestRef.update({ status: 'rejected' });
+                    alert(`Request rejected.`);
+                });
+            },
+            toggleUserBan: (userId, shouldBeBanned) => {
+                db.ref(`users/${userId}`).update({ isBanned: shouldBeBanned });
+            },
+            deleteUser: (userId) => {
+                if(confirm('Are you sure you want to delete this user? This removes their database record permanently but does not delete their auth entry (for security reasons). They will not be able to log in.')) {
+                    db.ref(`users/${userId}`).remove()
+                        .then(() => alert('User data deleted successfully.'))
+                        .catch(e => alert(e.message));
+                }
+            },
+            openAdminTopupModal: (userId, userName) => {
+                document.getElementById('admin-topup-userid').value = userId;
+                document.getElementById('admin-topup-username').textContent = userName;
+                adminTopupModal.classList.add('visible');
+            }
+        };
+
+        // ==========================================================
+        // ==================== REAL-TIME GAME LOGIC ================
+        // ==========================================================
+        
+        const initializeGame = () => {
+            bettingGridEl.innerHTML = '';
+            GAME_CONFIG.SYMBOLS.forEach(symbol => {
+                gameState.currentBets[symbol.id] = 0;
+                const spot = document.createElement('div');
+                spot.className = 'bet-spot';
+                spot.dataset.symbol = symbol.id;
+                spot.innerHTML = `<div class="bet-symbol">${symbol.emoji}</div><div class="bet-amount">0</div>`;
+                spot.addEventListener('click', () => placeBet(symbol.id));
+                bettingGridEl.appendChild(spot);
+            });
+
+            gameStateRef.on('value', snapshot => {
+                const serverState = snapshot.val();
+                if (serverState && serverState.status && serverState.roundEndTime) {
+                    handleServerStateUpdate(serverState);
+                } else {
+                    console.warn("Game state is missing or invalid. Forcing initialization.");
+                    initServerGameState();
+                }
+            });
+
+            if (gameState.uiUpdateInterval) clearInterval(gameState.uiUpdateInterval);
+            gameState.uiUpdateInterval = setInterval(gameTick, 250);
+
+            gameState.isGameInitialized = true;
+        };
+
+        const initServerGameState = () => {
+            const periodId = Date.now();
+            gameStateRef.set({
+                periodId: periodId, 
+                lastResult: ['?','?','?','?','?','?'],
+                status: 'betting',
+                roundEndTime: estimatedServerTime() + (GAME_CONFIG.BETTING_DURATION * 1000)
+            }).catch(e => console.error("Failed to initialize game state:", e));
+        };
+
+        const commitBetsToServer = () => {
+            if (!AppState.currentUser || gameState.hasCommittedBets) return;
+            
+            const totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+
+            if (totalBetValue > 0) {
+                const userBalanceRef = db.ref(`users/${AppState.currentUser.uid}/balance`);
+                userBalanceRef.transaction(currentBalance => {
+                    if (currentBalance >= totalBetValue) {
+                        return currentBalance - totalBetValue;
+                    }
+                    return;
+                }, (error, committed) => {
+                    if (error) {
+                        AppState.currentUser.balance += totalBetValue;
+                        resetLocalBets();
+                        alert("There was an error placing your bets. They have been cleared.");
+                    } else if (!committed) {
+                        AppState.currentUser.balance += totalBetValue;
+                        resetLocalBets();
+                        alert("Not enough balance to place bets. They have been cleared.");
+                    }
+                });
+            }
+            gameState.hasCommittedBets = true;
+        };
+        
+        const gameTick = () => {
+            if (!AppState.currentUser || !gameState.serverState) return;
+
+            if (gameState.isTransitioning) return;
+            
+            const { roundEndTime, status } = gameState.serverState;
+            const now = estimatedServerTime();
+            
+            if (status === 'betting') {
+                const timeLeft = Math.ceil((roundEndTime - now) / 1000);
+                gameState.isBettingLocked = timeLeft <= GAME_CONFIG.BETTING_LOCKED_TIME;
+                
+                timerEl.textContent = Math.max(0, timeLeft);
+                timerEl.classList.toggle('locked', gameState.isBettingLocked);
+                statusMessageEl.textContent = gameState.isBettingLocked ? 'Bets Locked!' : 'Place Your Bets!';
+                document.querySelectorAll('.bet-spot').forEach(spot => spot.classList.toggle('locked', gameState.isBettingLocked));
+                clearBetsBtn.disabled = gameState.isBettingLocked;
+                
+                if (timeLeft <= 0) {
+                    gameState.isTransitioning = true;
+                    if (!gameState.hasCommittedBets) commitBetsToServer();
+                    processRoundEnd();
+                }
+            } else if (status === 'viewing_result') {
+                // The timer now includes animation time + view time
+                const timeLeft = Math.ceil((roundEndTime - now) / 1000);
+                const displayTime = Math.max(0, timeLeft - (GAME_CONFIG.ANIMATION_DURATION / 1000));
+                
+                timerEl.textContent = Math.ceil(displayTime);
+                statusMessageEl.textContent = `Next round in ${Math.ceil(displayTime)}s`;
+                timerEl.classList.add('locked');
+                document.querySelectorAll('.bet-spot').forEach(spot => spot.classList.add('locked'));
+                clearBetsBtn.disabled = true;
+                
+                if (timeLeft <= 0) {
+                    gameState.isTransitioning = true;
+                    startNewRound();
+                }
+            }
+        };
+
+        const handleServerStateUpdate = (serverState) => {
+            gameState.serverState = serverState;
+            periodIdDisplayEl.textContent = serverState.periodId;
+            
+            // This is the core logic for revealing results after the animation.
+            if (gameState.lastProcessedPeriodId !== serverState.periodId && serverState.status === 'viewing_result') {
+                gameState.lastProcessedPeriodId = serverState.periodId;
+                const resultSymbols = serverState.lastResult;
+
+                // 1. Start the rolling animation on all clients.
+                diceTrayEl.classList.add('rolling');
+
+                // 2. Wait for the animation to finish before revealing results.
+                setTimeout(() => {
+                    // 3. Reveal the results on the dice.
+                    gameDiceEls().forEach((diceEl, index) => {
+                        const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === resultSymbols[index]);
+                        diceEl.textContent = symbolData ? symbolData.emoji : '?';
+                        diceEl.style.color = ''; // Make sure color is reset from transparent
+                    });
+                    
+                    // 4. Remove the rolling class (good practice).
+                    diceTrayEl.classList.remove('rolling');
+                    
+                    // 5. Calculate winnings and show the result modal.
+                    calculateWinningsAndShowModal(resultSymbols);
+                    
+                }, GAME_CONFIG.ANIMATION_DURATION); // Wait must match CSS animation duration.
+            }
+        };
+
+        const processRoundEnd = () => {
+            gameStateRef.transaction(currentData => {
+                if (currentData && currentData.status === 'betting' && currentData.periodId === gameState.serverState.periodId ) {
+                    const resultSymbols = Array.from({length: 6}, () => GAME_CONFIG.SYMBOLS[Math.floor(Math.random() * GAME_CONFIG.SYMBOLS.length)].id);
+                    return {
+                        ...currentData,
+                        status: 'viewing_result',
+                        lastResult: resultSymbols,
+                        // The total duration for the result phase is animation + viewing time
+                        roundEndTime: estimatedServerTime() + GAME_CONFIG.ANIMATION_DURATION + (GAME_CONFIG.RESULT_VIEW_DURATION * 1000)
+                    };
+                }
+                return; // Abort if conditions not met
+            }, (error, committed) => {
+                if (error) {
+                    console.error("ProcessRoundEnd transaction failed:", error);
+                    gameState.isTransitioning = false; // Unlock on error
+                }
+            });
+        };
+
+        const startNewRound = () => {
+            gameStateRef.transaction(currentData => {
+                if (currentData && currentData.status === 'viewing_result' && currentData.periodId === gameState.serverState.periodId) {
+                    const newPeriodId = Date.now();
+                    return {
+                        ...currentData,
+                        periodId: newPeriodId,
+                        status: 'betting',
+                        roundEndTime: estimatedServerTime() + (GAME_CONFIG.BETTING_DURATION * 1000)
+                    };
+                }
+                return; 
+            }, (error, committed) => {
+                if (error) gameState.isTransitioning = false;
+                if (committed) {
+                    resetLocalBets();
+                    gameDiceEls().forEach(d => {
+                        d.textContent = '?';
+                        d.style.color = ''; // Reset color from transparent
+                    });
+                }
+            });
+        };
+        
+        const calculateWinningsAndShowModal = (resultSymbols) => {
+            if (!AppState.currentUser || AppState.currentUser.role === 'admin') return;
+
+            const resultCounts = {};
+            resultSymbols.forEach(symbolId => resultCounts[symbolId] = (resultCounts[symbolId] || 0) + 1);
+
+            let totalPayout = 0, winningBetsPrincipal = 0;
+            let totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+
+            for (const symbolId in gameState.currentBets) {
+                const betAmount = gameState.currentBets[symbolId];
+                if (betAmount > 0 && resultCounts[symbolId] > 0) {
+                    totalPayout += betAmount * resultCounts[symbolId];
+                    winningBetsPrincipal += betAmount;
+                }
+            }
+            
+            const amountCredited = totalPayout + winningBetsPrincipal;
+            
+            if (amountCredited > 0) {
+                db.ref(`users/${AppState.currentUser.uid}/balance`).transaction(bal => (bal || 0) + amountCredited);
+            }
+
+            if (totalBetValue > 0) {
+                resultModalContentEl.classList.remove('result-win', 'result-loss');
+                if (amountCredited > 0) {
+                    resultModalTitleEl.textContent = 'You Win!';
+                    resultModalTextEl.innerHTML = `Won: ₹${totalPayout.toLocaleString()}<br>Returned: ₹${winningBetsPrincipal.toLocaleString()}<br><b>Total Credit: ₹${amountCredited.toLocaleString()}</b>`;
+                    resultModalContentEl.classList.add('result-win');
+                    if (window.confetti) confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+                } else {
+                    resultModalTitleEl.textContent = 'You Lose!';
+                    resultModalTextEl.textContent = `You lost ₹${totalBetValue.toLocaleString()}. Better luck next time.`;
+                    resultModalContentEl.classList.add('result-loss');
+                }
+                resultModalEl.classList.add('visible');
+                setTimeout(() => {
+                    resultModalEl.classList.remove('visible');
+                }, GAME_CONFIG.RESULT_VIEW_DURATION * 1000 - 200);
+            }
+        };
+
+        const resetLocalBets = () => {
+            GAME_CONFIG.SYMBOLS.forEach(symbol => gameState.currentBets[symbol.id] = 0);
+            gameState.hasCommittedBets = false;
+            gameState.isTransitioning = false;
+            updateGameDisplay();
+        };
+
+        const placeBet = (symbolId) => {
+            if (gameState.isBettingLocked || !AppState.currentUser || AppState.currentUser.role === 'admin') {
+                return;
+            }
+            if (AppState.currentUser.balance < gameState.selectedChipValue) {
+                alert("Insufficient balance for this bet!"); return;
+            }
+            AppState.currentUser.balance -= gameState.selectedChipValue; 
+            gameState.currentBets[symbolId] += gameState.selectedChipValue;
+            updateGameDisplay();
+        };
+
+        const updateGameDisplay = () => {
+            if (!AppState.currentUser) return;
+            walletBalanceEl.textContent = `₹${(AppState.currentUser.balance || 0).toLocaleString()}`;
+            for (const symbolId in gameState.currentBets) {
+                const spotEl = bettingGridEl.querySelector(`[data-symbol="${symbolId}"]`);
+                if(spotEl){
+                    const amountEl = spotEl.querySelector('.bet-amount');
+                    const betValue = gameState.currentBets[symbolId];
+                    amountEl.textContent = betValue > 0 ? betValue.toLocaleString() : '0';
+                    amountEl.classList.toggle('visible', betValue > 0);
+                }
+            }
+        };
+
+        // ==================== EVENT LISTENERS ====================
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = item.dataset.page;
+                if (page === 'logout' || (page === 'login' && AppState.currentUser)) { 
+                    handleLogout(); 
+                } else {
+                    if (page === 'profile') renderProfilePage();
+                    if (page === 'admin') renderAdminDashboard();
+                    if (page === 'users') renderUserManagementPage();
+                    showPage(page);
+                }
+            });
+        });
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('register-form').addEventListener('submit', handleRegister);
+        document.getElementById('goto-register').addEventListener('click', (e) => { e.preventDefault(); showPage('register'); });
+        document.getElementById('goto-login').addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
+        profileForm.addEventListener('submit', handleProfileUpdate);
+        document.getElementById('topup-btn').addEventListener('click', handleTopupRequest);
+        document.getElementById('withdrawal-btn').addEventListener('click', handleWithdrawalRequest);
+        document.getElementById('payment-form').addEventListener('submit', handleTopupSubmit);
+        document.getElementById('payment-cancel-btn').addEventListener('click', () => paymentModal.classList.remove('visible'));
+        adminTopupForm.addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            const userId = document.getElementById('admin-topup-userid').value; 
+            const amount = parseInt(document.getElementById('admin-topup-amount').value, 10); 
+            if(isNaN(amount) || amount <= 0) { 
+                alert('Please enter a valid amount.'); 
+                return; 
+            } 
+            db.ref(`users/${userId}/balance`).transaction(bal => (bal || 0) + amount)
+                .then(() => { 
+                    alert('Top-up successful!'); 
+                    adminTopupModal.classList.remove('visible'); 
+                    adminTopupForm.reset(); 
+                }); 
+        });
+        document.getElementById('admin-topup-cancel-btn').addEventListener('click', () => adminTopupModal.classList.remove('visible'));
+        chipSelectorEl.addEventListener('click', (e) => {
+            if (e.target.classList.contains('chip')) {
+                chipSelectorEl.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                gameState.selectedChipValue = parseInt(e.target.dataset.value, 10);
+            }
+        });
+        clearBetsBtn.addEventListener('click', () => {
+            if (gameState.isBettingLocked || !AppState.currentUser) return;
+            let totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+            AppState.currentUser.balance += totalBetValue;
+            resetLocalBets();
+        });
+    });
+    </script>
+</body>
+</html>
