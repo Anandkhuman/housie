@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sintha lagao</title>
+    <title>Sintha Lagao</title>
     
     <!-- Google Fonts for the theme -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,7 +70,7 @@
         .page-title {
             font-family: 'Cinzel Decorative', cursive;
             color: var(--gold);
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             margin: 0;
             text-shadow: 2px 2px 4px var(--deep-red);
             text-align: center;
@@ -314,7 +314,7 @@
                     <label for="register-role">Account Type</label>
                     <select id="register-role">
                         <option value="user">User</option>
-                        
+                        <option value="admin">Admin</option>
                     </select>
                 </div>
                 <button type="submit" class="btn">Register</button>
@@ -953,6 +953,16 @@
         const handleServerStateUpdate = (serverState) => {
             gameState.serverState = serverState;
             periodIdDisplayEl.textContent = serverState.periodId;
+
+            // CHANGE #1: Always show the last result during the betting phase.
+            if (serverState.status === 'betting' && Array.isArray(serverState.lastResult)) {
+                gameDiceEls().forEach((diceEl, index) => {
+                    const symbolId = serverState.lastResult[index];
+                    const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
+                    diceEl.textContent = symbolData ? symbolData.emoji : '?';
+                    diceEl.style.color = ''; // Ensure text is visible
+                });
+            }
             
             // This is the core logic for revealing results after the animation.
             if (gameState.lastProcessedPeriodId !== serverState.periodId && serverState.status === 'viewing_result') {
@@ -998,10 +1008,6 @@
                 if (error) {
                     console.error("ProcessRoundEnd transaction failed:", error);
                 }
-                // *** FIX: Unlock the transition lock ***
-                // Whether the transaction succeeded or failed, we must unlock the client's
-                // transition lock to allow the gameTick to process the new (or old) state.
-                // Without this, the game freezes after the first round.
                 gameState.isTransitioning = false;
             });
         };
@@ -1020,14 +1026,11 @@
                 return; 
             }, (error, committed) => {
                 if (error) {
-                     gameState.isTransitioning = false; // Also unlock on error here
+                     gameState.isTransitioning = false;
                 }
                 if (committed) {
-                    resetLocalBets(); // This function already resets the transition lock
-                    gameDiceEls().forEach(d => {
-                        d.textContent = '?';
-                        d.style.color = ''; // Reset color from transparent
-                    });
+                    resetLocalBets();
+                    // CHANGE #2: Removed the code block that reset dice to '?'
                 }
             });
         };
