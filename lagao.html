@@ -177,6 +177,8 @@
     </style>
 </head>
 <body>
+    <!-- Audio element for the game countdown sound -->
+    <audio id="game-audio" loop src="https://raw.githubusercontent.com/Anandkhuman/housie/main/lagao.mp3" preload="auto"></audio>
 
     <!-- ============================================== -->
     <!-- ============== PAGE CONTAINERS =============== -->
@@ -506,7 +508,7 @@
                 { id: 'diamond', emoji: '♦️' }, { id: 'club',    emoji: '♣️' },
                 { id: 'face',    emoji: '👑' }, { id: 'flag',    emoji: '🚩' }
             ],
-            BETTING_DURATION: 25,
+            BETTING_DURATION: 35,
             RESULT_VIEW_DURATION: 3, // How long to show results after animation
             BETTING_LOCKED_TIME: 5,
             ANIMATION_DURATION: 1500 // 1.5 seconds, MUST match CSS animation
@@ -557,6 +559,7 @@
         const adminTopupForm = document.getElementById('admin-topup-form');
         const loginSuccessTicket = document.getElementById('login-success-ticket');
         const withdrawalSection = document.getElementById('withdrawal-section'); 
+        const gameAudio = document.getElementById('game-audio');
 
         // ==================== PAGE NAVIGATION & UI UPDATES ====================
         const showPage = (pageId) => {
@@ -876,6 +879,27 @@
         // ==================== REAL-TIME GAME LOGIC ================
         // ==========================================================
         
+        // --- Audio Controls ---
+        const playAudio = () => {
+            // Ensure audio is paused before playing to avoid errors and restart it
+            if (gameAudio.paused) {
+                const playPromise = gameAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        // Autoplay was prevented by the browser. User interaction may be required.
+                        console.warn("Audio playback was prevented. User may need to click on the page.");
+                    });
+                }
+            }
+        };
+
+        const pauseAudio = () => {
+            if (!gameAudio.paused) {
+                gameAudio.pause();
+                gameAudio.currentTime = 0; // Reset audio to the beginning for the next round
+            }
+        };
+        
         const initializeGame = () => {
             bettingGridEl.innerHTML = '';
             GAME_CONFIG.SYMBOLS.forEach(symbol => {
@@ -983,10 +1007,15 @@
         };
 
         const handleServerStateUpdate = (serverState) => {
+            // Check if the state is transitioning TO 'betting' to start the audio
+            if (gameState.serverState?.status !== 'betting' && serverState.status === 'betting') {
+                playAudio();
+            }
+
             gameState.serverState = serverState;
             periodIdDisplayEl.textContent = serverState.periodId;
 
-            // CHANGE #1: Always show the last result during the betting phase.
+            // Always show the last result during the betting phase.
             if (serverState.status === 'betting' && Array.isArray(serverState.lastResult)) {
                 gameDiceEls().forEach((diceEl, index) => {
                     const symbolId = serverState.lastResult[index];
@@ -1062,12 +1091,13 @@
                 }
                 if (committed) {
                     resetLocalBets();
-                    // CHANGE #2: Removed the code block that reset dice to '?'
                 }
             });
         };
         
         const calculateWinningsAndShowModal = (resultSymbols) => {
+            pauseAudio(); // Stop the countdown audio as soon as results are processed
+
             if (!AppState.currentUser || AppState.currentUser.role === 'admin') return;
 
             const resultCounts = {};
