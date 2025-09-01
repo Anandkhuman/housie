@@ -62,6 +62,32 @@
             color: rgba(255, 255, 255, 0.8);
             font-weight: 300;
         }
+        
+        /* ======== MODIFICATION: Style for file inputs ======== */
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+        .form-group input[type="file"]::file-selector-button {
+            margin-right: 10px;
+            border: none;
+            background: #FFD700;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: #1B2735;
+            cursor: pointer;
+            transition: background .2s ease-in-out;
+        }
+        .form-group input[type="file"]::file-selector-button:hover {
+            background: #ffed4a;
+        }
+        /* ======================================================= */
 
         .form-group input,
         .greeting-input,
@@ -77,8 +103,7 @@
         }
 
         .form-group input::placeholder,
-        .greeting-input::placeholder,
-        .image-input::placeholder { /* NEW: Added image-input */
+        .greeting-input::placeholder { /* NEW: Added image-input */
             color: rgba(255, 255, 255, 0.5);
         }
         
@@ -340,7 +365,7 @@
         .image-container { margin: 0 0 30px 0; position: relative; }
         .message { font-size: clamp(1.5rem, 2.7vw, 1.5rem); max-width: 600px; line-height: 1.8; color: rgba(255, 255, 255, 0.85); }
         @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.4); } 50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6); } }
-        #person-image { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 3px solid #FFD700; animation: glow-pulse 3s infinite ease-in-out; }
+        #person-image { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 3px solid #FFD700; animation: glow-pulse 3s infinite ease-in-out; }
         #countdown { margin-top: 40px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .time-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px; border-radius: 10px; backdrop-filter: blur(5px); min-width: 65px; }
         .time-box span { display: block; font-size: 1.5rem; font-weight: bold; }
@@ -366,19 +391,19 @@
                 <label for="birthdate">Birthday Date</label>
                 <input type="date" id="birthdate" required>
             </div>
-            <!-- ==== MODIFIED: IMAGE SECTION ==== -->
+            
+            <!-- ==== MODIFIED: IMAGE UPLOAD SECTION ==== -->
             <div class="form-group">
-                <label>Image Links</label>
+                <label>Upload Images</label>
                 <div id="images-container">
                     <div class="input-wrapper">
-                         <input type="url" class="image-input" placeholder="Image Link 1: https://..." required>
+                         <input type="file" class="image-input" accept="image/*" required>
                     </div>
                 </div>
                 <button type="button" id="add-image-btn">+ Add Another Image</button>
             </div>
             <!-- ================================ -->
 
-            <!-- ==== MODIFIED: GREETING MESSAGE SECTION ==== -->
             <div class="form-group">
                 <label>Your Greeting Messages</label>
                 <div id="greetings-container">
@@ -388,9 +413,7 @@
                 </div>
                 <button type="button" id="add-message-btn">+ Add Another Message</button>
             </div>
-            <!-- ============================================= -->
-
-            <!-- ==== MODIFIED: BUTTON HTML FOR ANIMATION ==== -->
+            
             <button class="generate-btn" onclick="generateLink()">
                 <span class="btn-text">Generate Surprise Link</span>
                 <div class="loader"></div>
@@ -399,9 +422,7 @@
                     <path class="checkmark-tick" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                 </svg>
             </button>
-            <!-- ============================================== -->
-
-            <!-- ==== RESULT CONTAINER ==== -->
+            
             <div id="result-container">
                 <p>Success! Share this link:</p>
                 <div class="link-wrapper">
@@ -412,12 +433,11 @@
                 </div>
                 <span id="copy-feedback"></span>
             </div>
-            <!-- ========================= -->
         </div>
     </div>
 
     <div style="position: relative; top: -20px; font-size: 0.85rem; color: rgba(255, 255, 255, 0.5);">
-        <p>Inspired by a project from <a href="#" target="_blank" rel="noopener noreferrer" style="color: #FFD700; text-decoration: none;">Sintha team</a></p>
+        <p>Inspired by a project from <a href="https://github.com/Anandkhuman" target="_blank" rel="noopener noreferrer" style="color: #FFD700; text-decoration: none;">Anand Khuman</a></p>
     </div>
     
     <div id="surprise-container">
@@ -484,7 +504,6 @@
                 loadWishData(nameKey);
             } else {
                 document.getElementById('surprise-container').style.display = 'none';
-                // Add event listeners for generator buttons
                 document.getElementById('add-message-btn').addEventListener('click', addMessageBox);
                 document.getElementById('add-image-btn').addEventListener('click', addImageBox);
             }
@@ -503,7 +522,7 @@
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-btn';
-            removeBtn.innerHTML = '&times;'; // The 'x' icon
+            removeBtn.innerHTML = '&times;';
             removeBtn.title = 'Remove message';
             removeBtn.onclick = () => wrapper.remove();
             
@@ -512,15 +531,16 @@
             container.appendChild(wrapper);
         }
 
+        // ==== MODIFIED: addImageBox for file uploads ====
         function addImageBox() {
             const container = document.getElementById('images-container');
             const wrapper = document.createElement('div');
             wrapper.className = 'input-wrapper';
             
             const newInput = document.createElement('input');
-            newInput.type = 'url';
+            newInput.type = 'file'; // Changed from 'url' to 'file'
             newInput.className = 'image-input';
-            newInput.placeholder = `Image Link ${container.children.length + 1}: https://...`;
+            newInput.accept = 'image/*'; // Recommend image files
             newInput.required = true;
 
             const removeBtn = document.createElement('button');
@@ -535,17 +555,23 @@
             container.appendChild(wrapper);
         }
 
-        // ==== MODIFIED: generateLink function with animation controls ====
-        function generateLink() {
+        // Helper function to read a file as a Base64 Data URL
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // ==== MODIFIED: generateLink function to handle file uploads ====
+        async function generateLink() {
             const generateBtn = document.querySelector('.generate-btn');
             const name = document.getElementById('name').value;
             const birthdate = document.getElementById('birthdate').value;
             
             const imageInputs = document.querySelectorAll('#images-container .image-input');
-            const imageUrls = Array.from(imageInputs)
-                                   .map(input => input.value.trim())
-                                   .filter(value => value);
-
             const greetingInputs = document.querySelectorAll('#greetings-container .greeting-input');
             const greetings = Array.from(greetingInputs)
                                 .map(input => input.value.trim())
@@ -556,8 +582,12 @@
                 return;
             }
 
-            if (imageUrls.length === 0) {
-                alert('Please provide at least one image link.');
+            const filesToUpload = Array.from(imageInputs)
+                                       .filter(input => input.files && input.files.length > 0)
+                                       .map(input => input.files[0]);
+
+            if (filesToUpload.length === 0) {
+                alert('Please upload at least one image.');
                 return;
             }
             
@@ -570,51 +600,52 @@
             generateBtn.disabled = true;
             generateBtn.classList.add('loading');
 
-            const nameKey = name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-            if(!nameKey) {
-                alert('Please enter a valid name.');
-                // Reset button on validation fail
-                generateBtn.disabled = false;
+            try {
+                // Convert all selected files to Base64 Data URLs
+                const fileReadPromises = filesToUpload.map(readFileAsDataURL);
+                const imageUrls = await Promise.all(fileReadPromises);
+
+                const nameKey = name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                if(!nameKey) {
+                    throw new Error('Please enter a valid name.');
+                }
+
+                const wishData = {
+                    name: name.trim(),
+                    birthdate: birthdate,
+                    imageUrls: imageUrls, // Store the Base64 data URLs
+                    greetings: greetings,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                await database.ref('wishes/' + nameKey).set(wishData);
+
+                // Success!
                 generateBtn.classList.remove('loading');
-                return;
-            }
+                generateBtn.classList.add('success');
 
-            const wishData = {
-                name: name.trim(),
-                birthdate: birthdate,
-                imageUrls: imageUrls,
-                greetings: greetings,
-                createdAt: firebase.database.ServerValue.TIMESTAMP
-            };
+                const actualUrl = `${window.location.origin}${window.location.pathname}?name=${nameKey}`;
+                const resultContainer = document.getElementById('result-container');
+                const linkElement = document.getElementById('generated-link');
+                
+                linkElement.textContent = actualUrl;
+                linkElement.href = actualUrl;
+                resultContainer.style.display = 'block';
 
-            database.ref('wishes/' + nameKey).set(wishData)
-                .then(() => {
-                    // Switch to success animation
-                    generateBtn.classList.remove('loading');
-                    generateBtn.classList.add('success');
-
-                    const actualUrl = `${window.location.origin}${window.location.pathname}?name=${nameKey}`;
-                    const resultContainer = document.getElementById('result-container');
-                    const linkElement = document.getElementById('generated-link');
-                    
-                    linkElement.textContent = actualUrl;
-                    linkElement.href = actualUrl;
-                    resultContainer.style.display = 'block';
-
-                    // Reset button after a delay
-                    setTimeout(() => {
-                        generateBtn.classList.remove('success');
-                        generateBtn.disabled = false;
-                    }, 2500);
-                })
-                .catch(error => {
-                    console.error("Error saving data:", error);
-                    alert("An error occurred. Please check your Firebase setup and try again.");
-                    // Reset button on error
-                    generateBtn.classList.remove('loading');
+                setTimeout(() => {
+                    generateBtn.classList.remove('success');
                     generateBtn.disabled = false;
-                });
+                }, 2500);
+
+            } catch (error) {
+                console.error("Error during link generation:", error);
+                alert("An error occurred. Please check the console and try again.");
+                // Reset button on error
+                generateBtn.classList.remove('loading');
+                generateBtn.disabled = false;
+            }
         }
+
 
         function copyLinkToClipboard() {
             const linkElement = document.getElementById('generated-link');
@@ -640,6 +671,7 @@
         }
         
         // --- 4. SURPRISE PAGE FUNCTIONS ---
+        // (No changes needed in this section)
         function showMessage(heading, text) {
             document.getElementById('surprise-container').style.display = 'none';
             const messageOverlay = document.getElementById('message-overlay');
@@ -676,15 +708,13 @@
             document.getElementById('main-heading').textContent = `Happy Birthday`;
             document.getElementById('sub-heading').textContent = data.name;
             
-            // Handle old and new image formats
-            const images = data.imageUrls || (data.imageUrl ? [data.imageUrl] : []);
+            const images = data.imageUrls || [];
             if (images.length > 0) {
                 document.getElementById('person-image').src = images[0];
             }
             document.getElementById('person-image').alt = `A photo of ${data.name}`;
             
-            // Handle old and new greeting formats
-            const messages = data.greetings || (data.greeting ? [data.greeting] : []);
+            const messages = data.greetings || [];
             const messageElement = document.querySelector('.message');
             if (messages.length > 0) {
                 messageElement.textContent = messages[0];
@@ -706,7 +736,6 @@
             setInterval(showNextMessage, 6500);
         }
 
-        // NEW: Function to cycle through images with animation
         function cycleImages(imageUrls) {
             const imageElement = document.getElementById('person-image');
             let currentIndex = 0;
@@ -717,14 +746,15 @@
                     gsap.to(imageElement, { opacity: 1, scale: 1, duration: 0.7, ease: 'power2.out' });
                 }});
             }
-            setInterval(showNextImage, 8000); // Cycle slightly slower than messages
+            setInterval(showNextImage, 8000);
         }
 
         // --- 5. ANIMATION & INTERACTIVITY LOGIC ---
+        // (No changes needed in this section)
         function initializeSurpriseAnimations(data) {
             const birthdayDateString = data.birthdate;
-            const greetings = data.greetings || (data.greeting ? [data.greeting] : []);
-            const imageUrls = data.imageUrls || (data.imageUrl ? [data.imageUrl] : []);
+            const greetings = data.greetings || [];
+            const imageUrls = data.imageUrls || [];
 
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -794,7 +824,7 @@
                 tl.from(['.image-container', '.message', '#countdown'], { scale: 0.5, opacity: 0, duration: 1.2, stagger: 0.2, ease: 'elastic.out(1, 0.75)' }, "-=0.8")
                   .add(() => {
                       if (greetings && greetings.length > 1) { cycleMessages(greetings); }
-                      if (imageUrls && imageUrls.length > 1) { cycleImages(imageUrls); } // Start cycling images
+                      if (imageUrls && imageUrls.length > 1) { cycleImages(imageUrls); }
                   });
             }, { once: true });
         }
