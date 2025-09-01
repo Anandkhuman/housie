@@ -21,7 +21,7 @@
             --gold: #FFD700;
             --deep-red: #8B0000;
             --dark-red: #4a0404;
-            --table-green: #006400;
+            --table-green: #00ffff;
             --light-gold: #fffbeb;
             --dark-gray: #333;
         }
@@ -98,7 +98,21 @@
         .bet-spot { position: relative; background: var(--table-green); border: 3px solid var(--gold); border-radius: 10px; height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s, transform 0.2s; }
         .bet-spot:hover:not(.locked) { background-color: #008000; transform: translateY(-3px); }
         .bet-spot.locked { cursor: not-allowed; opacity: 0.7; }
-        .bet-symbol { font-size: 3rem; line-height: 1; }
+        .bet-symbol { /* Removed font-size for image replacement */ }
+        /* ===== NEW STYLES for image symbols ===== */
+        .bet-symbol img, .dice img {
+            display: block;
+            object-fit: contain;
+        }
+        .bet-symbol img {
+            width: 60px;
+            height: 60px;
+        }
+        .dice img {
+            width: 40px;
+            height: 40px;
+        }
+        /* ===== END NEW STYLES ===== */
         .bet-amount { position: absolute; top: -10px; right: -10px; background-color: var(--deep-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px black; transform: scale(0); transition: transform 0.2s ease-out; }
         .bet-amount.visible { transform: scale(1); }
         .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; }
@@ -118,7 +132,7 @@
         .link-text { text-align: center; margin-top: 15px; }
         .link-text a { color: var(--gold); text-decoration: none; font-weight: bold; }
         
-        .wallet-info { background-color: var(--table-green); padding: 20px; border-radius: 10px; text-align: center; border: 2px solid var(--gold); }
+        .wallet-info { background-color: green ; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid var(--gold); }
         .wallet-balance-display { font-size: 0.8rem; color: var(--gold); font-weight: bold; margin: 0; }
         .wallet-label { font-size: 1rem; color: #eee; }
         .wallet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
@@ -166,17 +180,106 @@
         #payment-qr-code { max-width: 200px; margin: 15px auto; }
         #payment-details p { margin: 5px 0; font-weight: bold; }
 
-        /* ==================== LOGIN SUCCESS TICKET ANIMATION ==================== */
-        .ticket-content { position: relative; background: linear-gradient(145deg, #22c55e, #16a34a); color: white; padding: 40px 30px; border-radius: 20px; width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-left: 10px dashed rgba(0,0,0,0.2); transform: scale(0.7); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s; }
-        .modal-overlay.visible .ticket-content { transform: scale(1); opacity: 1; }
-        .ticket-content::before, .ticket-content::after { content: ''; position: absolute; width: 40px; height: 40px; background-color: rgba(0,0,0,0.7); border-radius: 50%; left: -30px; }
-        .ticket-content::before { top: -20px; }
-        .ticket-content::after { bottom: -20px; }
-        .ticket-icon { font-size: 5rem; line-height: 1; color: white; }
-        .ticket-icon .fa-check-circle { animation: pop-in 0.5s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; transform: scale(0); }
-        @keyframes pop-in { to { transform: scale(1); } }
-        .ticket-title { font-family: 'Cinzel Decorative', cursive; margin: 15px 0 5px; font-size: 1.8rem; }
-        .ticket-text { margin: 0; font-size: 0.9rem; opacity: 0.8; }
+        /* ==================== LOGIN LOADING & SUCCESS ANIMATION ==================== */
+        .animation-container {
+            /* This is now a simple, transparent container for the animation elements */
+            text-align: center;
+            color: white;
+            transform: scale(0.7);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s;
+        }
+
+        .modal-overlay.visible .animation-container {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .animation-title {
+            font-family: 'Cinzel Decorative', cursive;
+            margin: 15px 0 5px;
+            font-size: 1.8rem;
+            color: var(--gold);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .animation-text {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* --- Core Animation Styles (Unchanged) --- */
+        .login-animation {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 4;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s 0.2s, transform 0.4s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 4;
+            stroke-miterlimit: 10;
+            stroke: #fff;
+            fill: none;
+        }
+        
+        .animation-container.success .checkmark__circle {
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+        }
+        
+        .animation-container.success .checkmark__check {
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+
+        /* --- State Changes on .success class --- */
+        .animation-container.success .loader {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .animation-container.success .checkmark {
+            opacity: 1;
+            transform: scale(1);
+        }
     </style>
 </head>
 <body>
@@ -485,14 +588,18 @@
         </div>
     </div>
 
-    <!-- Login Success Ticket -->
+    <!-- Login Animation Modal -->
     <div id="login-success-ticket" class="modal-overlay">
-        <div class="ticket-content">
-            <div class="ticket-icon">
-                <i class="fas fa-check-circle"></i>
+        <div class="animation-container">
+            <div class="login-animation">
+                <div class="loader"></div>
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
             </div>
-            <h2 class="ticket-title">Login Successful</h2>
-            <p class="ticket-text">Welcome back! Preparing the game...</p>
+            <h2 class="animation-title">Authenticating...</h2>
+            <p class="animation-text">Please wait.</p>
         </div>
     </div>
 
@@ -572,9 +679,12 @@
 
         const GAME_CONFIG = {
             SYMBOLS: [
-                { id: 'heart',   emoji: '❤️' }, { id: 'spade',   emoji: '♠️' },
-                { id: 'diamond', emoji: '♦️' }, { id: 'club',    emoji: '♣️' },
-                { id: 'face',    emoji: '👑' }, { id: 'flag',    emoji: '🚩' }
+                { id: 'club',   image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/1.png' },
+                { id: 'face',   image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/2.png' },
+                { id: 'spade', image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/3.png' },
+                { id: 'diamond',    image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/4.png' },
+                { id: 'flag',    image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/5.png' },
+                { id: 'heart',    image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/6.png' }
             ],
             BETTING_DURATION: 35,
             RESULT_VIEW_DURATION: 3,
@@ -716,10 +826,23 @@
                 updateUI();
             }
         });
+        
         const handleLogin = (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            
+            const animationModal = document.getElementById('login-success-ticket');
+            const animationContainer = animationModal.querySelector('.animation-container');
+            const animationTitle = animationModal.querySelector('.animation-title');
+            const animationText = animationModal.querySelector('.animation-text');
+
+            // 1. Show the modal in its loading state
+            animationContainer.classList.remove('success');
+            animationTitle.textContent = 'Authenticating...';
+            animationText.textContent = 'Please wait.';
+            animationModal.classList.add('visible');
+
             auth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     db.ref('users/' + userCredential.user.uid).get().then(snapshot => {
@@ -727,18 +850,35 @@
                         if (userData && userData.isBanned) {
                             alert('Your account has been suspended. Please contact support.');
                             auth.signOut();
+                            animationModal.classList.remove('visible'); // Hide on failure
                         } else {
                            document.getElementById('login-form').reset();
-                           loginSuccessTicket.classList.add('visible');
+                           
+                           // 2. Transition to success state after a delay
                            setTimeout(() => {
-                               loginSuccessTicket.classList.remove('visible');
+                               animationContainer.classList.add('success');
+                               animationTitle.textContent = 'Login Successful';
+                               animationText.textContent = 'Welcome back! Preparing the game...';
+                           }, 1000); // 1 second for loading spinner animation
+
+                           // 3. Hide the modal after the full animation
+                           setTimeout(() => {
+                               animationModal.classList.remove('visible');
+                               // After hiding, reset its state for the next time it's used
+                               setTimeout(() => {
+                                   animationContainer.classList.remove('success');
+                               }, 500); // Wait for modal fade-out transition
                                showPage(userData.role === 'admin' ? 'admin' : 'game');
-                           }, 2500);
+                           }, 3500); // Total visible duration
                         }
                     });
                 })
-                .catch(error => alert(error.message));
+                .catch(error => {
+                    alert(error.message);
+                    animationModal.classList.remove('visible'); // Hide on error
+                });
         };
+
         const handleRegister = (e) => {
             e.preventDefault();
             const name = document.getElementById('register-name').value;
@@ -1110,7 +1250,7 @@
                 const spot = document.createElement('div');
                 spot.className = 'bet-spot';
                 spot.dataset.symbol = symbol.id;
-                spot.innerHTML = `<div class="bet-symbol">${symbol.emoji}</div><div class="bet-amount">0</div>`;
+                spot.innerHTML = `<div class="bet-symbol"><img src="${symbol.image}" alt="${symbol.id}"></div><div class="bet-amount">0</div>`;
                 spot.addEventListener('click', () => placeBet(symbol.id));
                 bettingGridEl.appendChild(spot);
             });
@@ -1217,7 +1357,7 @@
                 gameDiceEls().forEach((diceEl, index) => {
                     const symbolId = serverState.lastResult[index];
                     const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
-                    diceEl.textContent = symbolData ? symbolData.emoji : '?';
+                    diceEl.innerHTML = symbolData ? `<img src="${symbolData.image}" alt="${symbolData.id}">` : '?';
                     diceEl.style.color = '';
                 });
             }
@@ -1231,7 +1371,7 @@
                 setTimeout(() => {
                     gameDiceEls().forEach((diceEl, index) => {
                         const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === resultSymbols[index]);
-                        diceEl.textContent = symbolData ? symbolData.emoji : '?';
+                        diceEl.innerHTML = symbolData ? `<img src="${symbolData.image}" alt="${symbolData.id}">` : '?';
                         diceEl.style.color = '';
                     });
                     
