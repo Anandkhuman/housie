@@ -216,12 +216,12 @@
     .link-text a { color: var(--gold); text-decoration: none; font-weight: bold; }
     
     .wallet-info { background-color: green ; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid var(--gold); }
-    .wallet-balance-display { font-size: 0.8rem; color: var(--gold); font-weight: bold; margin: 0; }
+    .wallet-balance-display { font-size: 2.5rem; color: var(--gold); font-weight: bold; margin: 0; }
     .wallet-label { font-size: 1rem; color: #eee; }
     .wallet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
 
     .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .data-table th, .data-table td { padding: 8px; border: 1px solid var(--gold); text-align: left; font-size: 0.7rem; }
+    .data-table th, .data-table td { padding: 8px; border: 1px solid var(--gold); text-align: left; font-size: 0.9rem; }
     .data-table th { background-color: var(--deep-red); }
     .data-table td { word-break: break-all; }
     .action-btn { padding: 5px 8px; font-size: 0.8rem; margin: 2px; border-radius: 5px; width: auto; display: inline-block; }
@@ -408,6 +408,7 @@
         .user-history-sections {
             grid-template-columns: 1fr;
         }
+        .data-table th, .data-table td { font-size: 0.8rem; }
     }
 </style>
 
@@ -420,7 +421,6 @@
 <!-- ============================================== -->
 
 <!-- PAGE: GAME -->
-
 <main id="page-game" class="page">
     <div id="game-container" class="content-container">
         <header class="game-header">
@@ -451,38 +451,35 @@
             <button id="clear-bets-btn" class="clear-btn">Clear Bets</button>
         </footer>
     </div>
-<!-- ================= BETTING HISTORY SECTION ================= -->
-<div id="bet-history-container" class="content-container" style="margin-top: 20px;">
-    <h2 class="page-title" style="font-size: 1.2rem; margin-bottom: 15px; border:none;">My Betting History</h2>
-    <div id="bet-history-list">
-        <!-- History items will be injected here by JavaScript -->
-        <p style="text-align:center; opacity:0.7;">Loading betting history...</p>
-    </div>
-</div>
-
-<!-- ================= LIVE BETTING STATUS (ADMIN ONLY) ================= -->
-<div id="live-betting-status" class="content-container" style="display: none; margin-top: 20px;">
-    <h2 class="page-title" style="font-size: 1.2rem; border:none;">Live Betting Status</h2>
-    
-    <div class="live-status-section">
-        <h3 class="live-status-subtitle">Dice Totals</h3>
-        <div id="dice-summary-list">
-            <p style="text-align:center; opacity:0.7;">Waiting for bets...</p>
+    <!-- ================= BETTING HISTORY SECTION ================= -->
+    <div id="bet-history-container" class="content-container" style="margin-top: 20px;">
+        <h2 class="page-title" style="font-size: 1.2rem; margin-bottom: 15px; border:none;">My Betting History</h2>
+        <div id="bet-history-list">
+            <p style="text-align:center; opacity:0.7;">Loading betting history...</p>
         </div>
     </div>
 
-    <div class="live-status-section" style="margin-top: 15px;">
-        <h3 class="live-status-subtitle">User Bets</h3>
-        <div id="user-bets-list">
-             <p style="text-align:center; opacity:0.7;">No users are currently betting.</p>
+    <!-- ================= LIVE BETTING STATUS (ADMIN ONLY) ================= -->
+    <div id="live-betting-status" class="content-container" style="display: none; margin-top: 20px;">
+        <h2 class="page-title" style="font-size: 1.2rem; border:none;">Live Betting Status</h2>
+        
+        <div class="live-status-section">
+            <h3 class="live-status-subtitle">Dice Totals</h3>
+            <div id="dice-summary-list">
+                <p style="text-align:center; opacity:0.7; grid-column: 1 / -1;">Waiting for bets...</p>
+            </div>
+        </div>
+
+        <div class="live-status-section" style="margin-top: 15px;">
+            <h3 class="live-status-subtitle">User Bets</h3>
+            <div id="user-bets-list">
+                 <p style="text-align:center; opacity:0.7;">No users are currently betting.</p>
+            </div>
         </div>
     </div>
-</div>
-
 </main>
 
 <!-- PAGE: WALLET -->
-
 <main id="page-wallet" class="page">
     <div class="content-container">
         <h1 class="page-title">My Wallet</h1>
@@ -512,7 +509,6 @@
 </main>
 
 <!-- PAGE: HISTORY -->
-
 <main id="page-history" class="page">
     <div class="content-container">
         <h1 class="page-title">Transaction History</h1>
@@ -530,7 +526,6 @@
 </main>
 
 <!-- PAGE: PROFILE / SETTINGS -->
-
 <main id="page-profile" class="page">
      <div class="content-container">
         <h1 class="page-title">Profile Settings</h1>
@@ -561,7 +556,6 @@
 </main>
 
 <!-- PAGE: LOGIN -->
-
 <main id="page-login" class="page">
     <div class="content-container">
         <h1 class="page-title">Login</h1>
@@ -582,7 +576,6 @@
 </main>
 
 <!-- PAGE: REGISTER -->
-
 <main id="page-register" class="page">
      <div class="content-container">
         <h1 class="page-title">Create Account</h1>
@@ -616,7 +609,6 @@
 </main>
 
 <!-- PAGE: FORGOT PASSWORD -->
-
 <main id="page-forgot-password" class="page">
     <div class="content-container">
         <h1 class="page-title">Reset Password</h1>
@@ -633,58 +625,56 @@
 </main>
 
 <!-- PAGE: ADMIN DASHBOARD -->
-
 <main id="page-admin" class="page">
     <div class="content-container">
         <h1 class="page-title">Admin Dashboard</h1>
 
-<h3 style="color: var(--gold);">Pending Top-up Requests</h3>
-    <div style="overflow-x:auto;">
-        <table class="data-table">
-            <thead>
-                <tr><th>User</th><th>Amount</th><th>Tnx ID</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="admin-topup-list"></tbody>
-        </table>
+        <h3 style="color: var(--gold);">Pending Top-up Requests</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>User</th><th>Amount</th><th>Tnx ID</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="admin-topup-list"></tbody>
+            </table>
+        </div>
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+
+        <h3 style="color: var(--gold);">Pending Withdrawal Requests</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>User</th><th>Amount</th><th>UPI ID</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="admin-withdrawal-list"></tbody>
+            </table>
+        </div>
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+
+        <h3 style="color: var(--gold);">Payment Settings</h3>
+        <form id="payment-settings-form">
+            <div class="form-group">
+                <label for="admin-upi-id">Receiving UPI ID</label>
+                <input type="text" id="admin-upi-id" placeholder="your-upi@oksbi" required>
+            </div>
+            <button type="submit" class="btn">Update UPI</button>
+        </form>
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+        <h3 style="color: var(--gold);">Audio Settings</h3>
+        <div class="audio-control-container">
+            <span>Background Music</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="music-toggle-checkbox">
+                <span class="slider round"></span>
+            </label>
+        </div>
     </div>
-
-<hr style="border-color: var(--gold); opacity: 0.5;">
-
-<h3 style="color: var(--gold);">Pending Withdrawal Requests</h3>
-<div style="overflow-x:auto;">
-    <table class="data-table">
-        <thead>
-            <tr><th>User</th><th>Amount</th><th>UPI ID</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="admin-withdrawal-list"></tbody>
-    </table>
-</div>
-
-<hr style="border-color: var(--gold); opacity: 0.5;">
-
-<h3 style="color: var(--gold);">Payment Settings</h3>
-<form id="payment-settings-form">
-    <div class="form-group">
-        <label for="admin-upi-id">Receiving UPI ID</label>
-        <input type="text" id="admin-upi-id" placeholder="your-upi@oksbi" required>
-    </div>
-    <button type="submit" class="btn">Update UPI</button>
-</form>
-
-<hr style="border-color: var(--gold); opacity: 0.5;">
-<h3 style="color: var(--gold);">Audio Settings</h3>
-<div class="audio-control-container">
-    <span>Background Music</span>
-    <label class="toggle-switch">
-        <input type="checkbox" id="music-toggle-checkbox">
-        <span class="slider round"></span>
-    </label>
-</div>
-</div>
 </main>
 
 <!-- PAGE: ADMIN USER MANAGEMENT -->
-
 <main id="page-users" class="page">
     <div class="content-container" style="max-width: 90%;">
         <h1 class="page-title">User Management</h1>
@@ -920,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             renderBetHistory(); 
         }
-        manageAdminLiveView();
+        manageAdminLiveView(); // Check if admin view should be shown/hidden
     };
 
     const updateUI = () => {
@@ -938,6 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.style.display = AppState.currentUser.role === 'admin' ? 'flex' : 'none';
             });
 
+            // Hide wallet page for admins as they don't have a playable balance
             if (AppState.currentUser.role === 'admin') {
                 const walletNavItem = document.querySelector('.nav-item[data-page="wallet"]');
                 if (walletNavItem) walletNavItem.style.display = 'none';
@@ -1358,7 +1349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let historyHtml = '';
-        rounds.reverse().forEach(round => {
+        rounds.slice().reverse().forEach(round => { // Use slice() to avoid modifying original array
             const period = round.periodId ? round.periodId.toString().slice(-6) : 'N/A';
             if (!round.bets) return; 
 
@@ -1416,7 +1407,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!AppState.currentUser || AppState.currentUser.role === 'admin') return;
 
         if (betHistoryRef) betHistoryRef.off();
-        betHistoryRef = db.ref(`userTransactions/${AppState.currentUser.uid}/betHistory`).orderByChild('timestamp');
+        betHistoryRef = db.ref(`userTransactions/${AppState.currentUser.uid}/betHistory`).orderByChild('timestamp').limitToLast(20);
 
         betHistoryRef.on('value', snapshot => {
             const historyListEl = document.getElementById('bet-history-list');
@@ -1430,6 +1421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Make admin functions globally accessible for onclick attributes
     window.app = {
         approveRequest: (type, reqId) => {
             const requestRef = db.ref(`${type}Requests/${reqId}`);
@@ -1490,6 +1482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========== LIVE BETTING LOGIC (ADMIN & USER) ===========================
     // =========================================================================
 
+    // Stops listening to the live bets for a period.
     const stopListeningToLiveBets = () => {
         if (liveBetsRef) {
             liveBetsRef.off();
@@ -1498,6 +1491,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // This function decides whether to show the admin live betting panel and attach listeners.
     const manageAdminLiveView = () => {
         const liveStatusContainer = document.getElementById('live-betting-status');
         const isAdmin = AppState.currentUser?.role === 'admin';
@@ -1507,18 +1501,21 @@ document.addEventListener('DOMContentLoaded', () => {
             liveStatusContainer.style.display = 'block';
             const currentPeriodId = gameState.serverState?.periodId;
             if (currentPeriodId) {
+                // If the game period has changed, switch the listener to the new period.
                 if (currentLiveBetPeriod !== currentPeriodId) {
                     listenToLiveBets(currentPeriodId);
                 }
             }
         } else {
+            // Hide the panel and stop listening if not admin or not on the game page.
             liveStatusContainer.style.display = 'none';
             stopListeningToLiveBets();
         }
     };
 
+    // Attaches a listener to a specific period's live bets and renders the data.
     const listenToLiveBets = (periodId) => {
-        stopListeningToLiveBets(); 
+        stopListeningToLiveBets(); // Ensure no old listeners are running.
         
         currentLiveBetPeriod = periodId;
         const diceSummaryList = document.getElementById('dice-summary-list');
@@ -1538,12 +1535,14 @@ document.addEventListener('DOMContentLoaded', () => {
             GAME_CONFIG.SYMBOLS.forEach(s => diceTotals[s.id] = 0);
             let userBetsHtml = '';
 
+            // Iterate over each user who has placed a bet.
             Object.values(allBets).forEach(userData => {
                 const username = userData.username;
                 const userBets = userData.bets;
                 let userChipsHtml = '';
                 let hasBets = false;
 
+                // Iterate over each bet from the user.
                 for(const symbolId in userBets) {
                     const amount = userBets[symbolId];
                     if (amount > 0) {
@@ -1571,6 +1570,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            // Build and render the summary of total amounts bet on each dice symbol.
             let diceSummaryHtml = '';
             GAME_CONFIG.SYMBOLS.forEach(symbol => {
                 const total = diceTotals[symbol.id];
@@ -1587,6 +1587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // When a user places a bet, this function writes their bet data to Firebase for the admin to see.
     const updateLiveBetsOnServer = () => {
         if (!AppState.currentUser || AppState.currentUser.role === 'admin' || !gameState.serverState?.periodId) return;
 
@@ -1601,6 +1602,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 bets: gameState.currentBets
             });
         } else {
+            // If user clears all bets, remove their entry from live bets.
             userBetRef.remove();
         }
     };
@@ -1735,6 +1737,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.serverState?.status !== 'betting' && serverState.status === 'betting') {
             playAudio();
         }
+
+        // --- FIX: Ensure new round starts for all clients ---
+        // If the server state indicates a new betting round has begun (periodId changed),
+        // we must reset the local game state. This is crucial for clients that "lost the race"
+        // to initiate the new round, as their 'isTransitioning' flag would otherwise get stuck
+        // on 'true', freezing their game tick and timer. This makes the server the single
+        // source of truth for round resets.
+        if (gameState.serverState && gameState.serverState.periodId !== serverState.periodId && serverState.status === 'betting') {
+            resetLocalBets();
+        }
+        // --- END FIX ---
 
         gameState.serverState = serverState;
         periodIdDisplayEl.textContent = serverState.periodId;
@@ -1993,9 +2006,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
-
 <script>
-  (function(){function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}document'addEventListener';document['addEventListener']('keydown',function(_0x2){if(_0x2['key']==='F12'){_0x2'preventDefault';}if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']'includes')||(_0x2['ctrlKey']&&['U','S']'includes')){_0x2'preventDefault';}});})();</script>
+  (function(){function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}document'addEventListener';document['addEventListener']('keydown',function(_0x2){if(_0x2['key']==='F12'){_0x2'preventDefault';}if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']'includes')||(_0x2['ctrlKey']&&['U','S']'includes')){_0x2'preventDefault';}});})();
+</script>
 
 </body>
 </html>
