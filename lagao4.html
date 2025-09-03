@@ -129,8 +129,8 @@
     .clear-btn { background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
     .clear-btn:disabled { background-color: #999; cursor: not-allowed; }
 
-    /* ==================== NEW BET HISTORY STYLES ==================== */
-    #bet-history-list {
+    /* ==================== UPDATED BET HISTORY STYLES ==================== */
+    #bet-history-list, #user-history-bets {
         max-height: 350px;
         overflow-y: auto;
         display: flex;
@@ -140,7 +140,7 @@
     }
     .history-item {
         display: grid;
-        grid-template-columns: 0.8fr 1.2fr 1.2fr 1fr;
+        grid-template-columns: 0.8fr 1.1fr 1.3fr 1fr;
         align-items: center;
         gap: 5px;
         background-color: rgba(0, 0, 0, 0.2);
@@ -149,32 +149,51 @@
         border-left: 4px solid var(--gold);
         font-size: 0.9rem;
     }
-    .history-item div {
+    .history-item > div {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
     }
-    .history-item img {
-        width: 30px;
-        height: 30px;
-    }
     .history-label {
         font-size: 0.7rem;
         opacity: 0.7;
         text-transform: uppercase;
+        margin-bottom: 2px;
     }
-    .history-result-symbol {
-         display: flex;
-         align-items: center;
-         gap: 4px;
+    .history-bet-symbol {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 2px;
+        font-weight: bold;
     }
-    .history-result-symbol.loss-symbol {
-        font-size: 2.5rem;
-        color: #f87171;
-        line-height: 1;
-        font-weight: 300;
+    .history-bet-symbol img {
+        width: 35px;
+        height: 35px;
+        background-color: white;
+        border-radius: 5px;
+    }
+    .history-dice-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    .history-dice-tray {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 3px;
+        max-width: 90px; /* Forces a 3x2 grid for dice */
+    }
+    .history-dice-tray img {
+        width: 24px;
+        height: 24px;
+        border-radius: 5px;
+        background-color: white;
     }
     .history-amount {
         font-weight: bold;
@@ -184,9 +203,9 @@
     .history-amount.loss { color: #f87171; }
 
     /* Simple scrollbar styling */
-    #bet-history-list::-webkit-scrollbar { width: 5px; }
-    #bet-history-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-    #bet-history-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
+    #bet-history-list::-webkit-scrollbar, #user-history-bets::-webkit-scrollbar, #user-history-transactions::-webkit-scrollbar { width: 5px; }
+    #bet-history-list::-webkit-scrollbar-track, #user-history-bets::-webkit-scrollbar-track, #user-history-transactions::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+    #bet-history-list::-webkit-scrollbar-thumb, #user-history-bets::-webkit-scrollbar-thumb, #user-history-transactions::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
     
     /* ==================== FORM & UI STYLES ==================== */
     .form-group { margin-bottom: 15px; }
@@ -267,6 +286,56 @@
     @keyframes stroke { 100% { stroke-dashoffset: 0; } }
     .animation-container.success .loader { opacity: 0; transform: scale(0); }
     .animation-container.success .checkmark { opacity: 1; transform: scale(1); }
+    
+    /* ==================== NEW USER HISTORY MODAL STYLES ==================== */
+    #user-history-modal .modal-content {
+        width: 95%;
+        max-width: 800px;
+        text-align: left;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+    }
+    #user-history-modal-title {
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .user-history-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .close-modal-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.8rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .user-history-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    .history-section-title {
+        color: var(--gold);
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    #user-history-transactions {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    /* Responsive for smaller screens */
+    @media (max-width: 768px) {
+        .user-history-sections {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 </head>
 <body>
@@ -309,12 +378,12 @@
         </footer>
     </div>
     
-    <!-- ================= NEW BETTING HISTORY SECTION ================= -->
+    <!-- ================= BETTING HISTORY SECTION ================= -->
     <div id="bet-history-container" class="content-container" style="margin-top: 20px;">
         <h2 class="page-title" style="font-size: 1.2rem; margin-bottom: 15px; border:none;">My Betting History</h2>
         <div id="bet-history-list">
             <!-- History items will be injected here by JavaScript -->
-            <p style="text-align:center; opacity:0.7;">No bets placed in recent rounds.</p>
+            <p style="text-align:center; opacity:0.7;">Loading betting history...</p>
         </div>
     </div>
 
@@ -349,7 +418,7 @@
     </div>
 </main>
 
-<!-- PAGE: HISTORY (NEW) -->
+<!-- PAGE: HISTORY -->
 <main id="page-history" class="page">
     <div class="content-container">
         <h1 class="page-title">Transaction History</h1>
@@ -449,7 +518,7 @@
     </div>
 </main>
 
-<!-- PAGE: FORGOT PASSWORD (NEWLY ADDED) -->
+<!-- PAGE: FORGOT PASSWORD -->
 <main id="page-forgot-password" class="page">
     <div class="content-container">
         <h1 class="page-title">Reset Password</h1>
@@ -598,6 +667,33 @@
         </div>
         <h2 class="animation-title">Authenticating...</h2>
         <p class="animation-text">Please wait.</p>
+    </div>
+</div>
+
+<!-- NEW: USER HISTORY MODAL -->
+<div id="user-history-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="user-history-modal-header">
+            <h2 id="user-history-modal-title" class="page-title" style="border:none; margin:0;">User History</h2>
+            <button id="user-history-close-btn" class="close-modal-btn">&times;</button>
+        </div>
+        <hr style="border-color: var(--gold); opacity: 0.5; width:100%; margin-bottom: 15px;">
+        <div class="user-history-sections">
+            <div class="transaction-history-section">
+                <h3 class="history-section-title">Transaction History</h3>
+                <div id="user-history-transactions">
+                    <!-- Transaction table will be injected here -->
+                    <p>Loading transactions...</p>
+                </div>
+            </div>
+            <div class="betting-history-section">
+                <h3 class="history-section-title">Betting History</h3>
+                <div id="user-history-bets">
+                    <!-- Betting history items will be injected here -->
+                    <p>Loading betting history...</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -751,7 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!gameState.isGameInitialized) {
                 initializeGame();
             }
-            renderBetHistory(); // Render bet history when game page is shown
+            renderBetHistory(); 
         }
     };
 
@@ -832,7 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } else {
             if(AppState.currentUserAuth) db.ref('users/' + AppState.currentUserAuth.uid).off();
-            if (betHistoryRef) { // Detach bet history listener on logout
+            if (betHistoryRef) { 
                 betHistoryRef.off();
                 betHistoryRef = null;
             }
@@ -1085,7 +1181,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(userId === AppState.currentUser.uid) return;
                     const status = user.isBanned ? '<span style="color:#ef4444; font-weight:bold;">Banned</span>' : '<span style="color:#22c55e; font-weight:bold;">Active</span>';
                     const banBtn = user.isBanned ? `<button class="btn action-btn unban-btn" onclick="app.toggleUserBan('${userId}', false)">Unban</button>` : `<button class="btn action-btn ban-btn" onclick="app.toggleUserBan('${userId}', true)">Ban</button>`;
-                    adminUserList.innerHTML += `<tr><td>${user.name}<br><small>${user.email}</small></td><td>₹${(user.balance || 0).toLocaleString()}</td><td>${status}</td><td>${banBtn}<button class="btn action-btn topup-action-btn" onclick="app.openAdminTopupModal('${userId}', '${user.name}')">Top-up</button><button class="btn action-btn delete-btn" onclick="app.deleteUser('${userId}')">Delete</button></td></tr>`;
+                    adminUserList.innerHTML += `
+                        <tr>
+                            <td>${user.name}<br><small>${user.email}</small></td>
+                            <td>₹${(user.balance || 0).toLocaleString()}</td>
+                            <td>${status}</td>
+                            <td style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                <button class="btn action-btn" style="background-color:#0ea5e9; color:white;" onclick="app.showUserHistory('${userId}', '${user.name.replace(/'/g, "\\'")}')">Transactions</button>
+                                ${banBtn}
+                                <button class="btn action-btn topup-action-btn" onclick="app.openAdminTopupModal('${userId}', '${user.name.replace(/'/g, "\\'")}')">Top-up</button>
+                                <button class="btn action-btn delete-btn" onclick="app.deleteUser('${userId}')">Delete</button>
+                            </td>
+                        </tr>`;
                 });
             } else {
                 adminUserList.innerHTML = '<tr><td colspan="4">No users found.</td></tr>';
@@ -1173,77 +1280,87 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // =========================================================================
-    // ======================= CORRECTED FUNCTION START ========================
+    // =========== REUSABLE FUNCTION TO GENERATE BET HISTORY HTML ==============
     // =========================================================================
+    const generateBetHistoryHtml = (rounds) => {
+        if (!rounds || rounds.length === 0) {
+            return `<p style="text-align:center; opacity:0.7;">No betting history found.</p>`;
+        }
+
+        let historyHtml = '';
+        rounds.reverse().forEach(round => {
+            const period = round.periodId.toString().slice(-6);
+            if (!round.bets) return;
+
+            // Generate the dice result HTML for this entire round
+            let diceResultHtml = `<div><span class="history-label">Round Result</span><span>-</span></div>`;
+            if (round.diceResult && Array.isArray(round.diceResult)) {
+                diceResultHtml = `
+                    <div class="history-dice-container">
+                        <span class="history-label">Round Result</span>
+                        <div class="history-dice-tray">
+                            ${round.diceResult.map(diceId => {
+                                const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === diceId);
+                                return symbolData ? `<img src="${symbolData.image}" alt="${diceId}" title="${diceId}">` : '';
+                            }).join('')}
+                        </div>
+                    </div>`;
+            }
+
+            // Create a history item for each bet made in this round
+            for (const symbolId in round.bets) {
+                const bet = round.bets[symbolId];
+                const betSymbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
+                if (!betSymbolData) continue;
+                
+                const betAmount = bet.amount;
+                const profit = bet.profit;
+                const isWin = profit > 0;
+                const amountClass = isWin ? 'win' : 'loss';
+                const amountText = isWin ? `+${profit.toLocaleString()}` : `${profit.toLocaleString()}`;
+                
+                historyHtml += `
+                    <div class="history-item">
+                        <div>
+                            <span class="history-label">Period</span>
+                            <span>${period}</span>
+                        </div>
+                        <div>
+                            <span class="history-label">Bet</span>
+                            <div class="history-bet-symbol">
+                               <img src="${betSymbolData.image}" alt="${symbolId}">
+                               <span>₹${betAmount.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        ${diceResultHtml}
+                        <div>
+                            <span class="history-label">Profit/Loss</span>
+                            <span class="history-amount ${amountClass}">₹${amountText}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        return historyHtml;
+    };
+
     const renderBetHistory = () => {
         if (!AppState.currentUser || AppState.currentUser.role === 'admin') return;
-        const historyListEl = document.getElementById('bet-history-list');
-        
+
         if (betHistoryRef) betHistoryRef.off();
-        
-        // THE FIX: The '.limitToLast(1)' was removed to fetch ALL bet history records.
         betHistoryRef = db.ref(`userTransactions/${AppState.currentUser.uid}/betHistory`).orderByChild('timestamp');
 
         betHistoryRef.on('value', snapshot => {
-            if (!snapshot.exists()) {
-                historyListEl.innerHTML = `<p style="text-align:center; opacity:0.7;">No betting history found.</p>`;
-                return;
+            const historyListEl = document.getElementById('bet-history-list');
+            const rounds = [];
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    rounds.push(childSnapshot.val());
+                });
             }
-            let historyHtml = '';
-            const rounds = []; // Create an array to hold the data
-            
-            // Get all round data from the snapshot and put it into the array
-            snapshot.forEach(childSnapshot => rounds.push(childSnapshot.val()));
-
-            // Reverse the array in JavaScript to show the most recent bets at the top of the list
-            rounds.reverse().forEach(round => {
-                const period = round.periodId.toString().slice(-6);
-                if (!round.bets) return; // Skip if a round has no bets for some reason
-
-                for (const symbolId in round.bets) {
-                    const bet = round.bets[symbolId];
-                    const betSymbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
-                    if (!betSymbolData) continue;
-                    
-                    const betAmount = bet.amount;
-                    const profit = bet.profit;
-                    const isWin = profit > 0;
-                    const amountClass = isWin ? 'win' : 'loss';
-                    const amountText = isWin ? `+${profit.toLocaleString()}` : `-${betAmount.toLocaleString()}`;
-                    
-                    const resultSymbolHtml = isWin
-                        // Improved: Calculate and show the win multiplier
-                        ? `<div class="history-result-symbol"><img src="${betSymbolData.image}" alt="${symbolId}"><span style="font-size:0.9rem; opacity:0.8;">&times;${profit/betAmount}</span></div>`
-                        : `<div class="history-result-symbol loss-symbol">&times;</div>`;
-
-                    historyHtml += `
-                        <div class="history-item">
-                            <div>
-                                <span class="history-label">Period</span>
-                                <span>${period}</span>
-                            </div>
-                            <div>
-                                <img src="${betSymbolData.image}" alt="${symbolId}">
-                                <span>₹${betAmount}</span>
-                            </div>
-                            <div>
-                                <span class="history-label">Result</span>
-                                ${resultSymbolHtml}
-                            </div>
-                            <div>
-                                <span class="history-amount ${amountClass}">₹${amountText}</span>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-            historyListEl.innerHTML = historyHtml;
+            historyListEl.innerHTML = generateBetHistoryHtml(rounds);
         });
     };
-    // =========================================================================
-    // ======================== CORRECTED FUNCTION END =========================
-    // =========================================================================
-
 
     window.app = {
         approveRequest: (type, reqId) => {
@@ -1298,6 +1415,73 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('admin-topup-userid').value = userId;
             document.getElementById('admin-topup-username').textContent = userName;
             adminTopupModal.classList.add('visible');
+        },
+        showUserHistory: async (userId, userName) => {
+            const modal = document.getElementById('user-history-modal');
+            const titleEl = document.getElementById('user-history-modal-title');
+            const transactionsEl = document.getElementById('user-history-transactions');
+            const betsEl = document.getElementById('user-history-bets');
+
+            titleEl.textContent = `History for ${userName}`;
+            transactionsEl.innerHTML = `<p style="text-align:center;">Loading transactions...</p>`;
+            betsEl.innerHTML = `<p style="text-align:center;">Loading betting history...</p>`;
+            modal.classList.add('visible');
+
+            // Fetch and render betting history
+            const betHistorySnapshot = await db.ref(`userTransactions/${userId}/betHistory`).orderByChild('timestamp').get();
+            const betRounds = [];
+            if (betHistorySnapshot.exists()) {
+                betHistorySnapshot.forEach(snap => betRounds.push(snap.val()));
+            }
+            betsEl.innerHTML = generateBetHistoryHtml(betRounds);
+
+            // Fetch and render transaction history
+            const txSnapshot = await db.ref(`userTransactions/${userId}/all`).orderByChild('timestamp').get();
+            if (!txSnapshot.exists()) {
+                transactionsEl.innerHTML = `<p style="text-align:center;">No transactions found.</p>`;
+                return;
+            }
+
+            const transactions = [];
+            txSnapshot.forEach(snap => {
+                transactions.push({ id: snap.key, ...snap.val() });
+            });
+            transactions.reverse(); // Newest first
+
+            let txHtml = `
+                <table class="data-table">
+                    <thead><tr><th>Date</th><th>Type</th><th>Amt</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>`;
+            
+            transactions.forEach(tx => {
+                const date = new Date(tx.timestamp).toLocaleDateString();
+                const type = tx.type; // 'Top-up' or 'Withdrawal'
+                const amount = tx.amount.toLocaleString();
+                const status = tx.status;
+                const statusClass = status === 'approved' ? 'approve-btn' : (status === 'rejected' ? 'reject-btn' : '');
+                let actions = '-';
+
+                if (status === 'pending') {
+                    const reqType = type === 'Top-up' ? 'topup' : 'withdrawal';
+                    actions = `
+                        <button class="btn action-btn approve-btn" onclick="app.approveRequest('${reqType}', '${tx.id}')">✔️</button>
+                        <button class="btn action-btn reject-btn" onclick="app.rejectRequest('${reqType}', '${tx.id}')">❌</button>
+                    `;
+                }
+
+                txHtml += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${type}</td>
+                        <td>₹${amount}</td>
+                        <td><span class="action-btn ${statusClass}" style="cursor:default;">${status}</span></td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            });
+
+            txHtml += `</tbody></table>`;
+            transactionsEl.innerHTML = txHtml;
         }
     };
 
@@ -1504,60 +1688,61 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultCounts = {};
         resultSymbols.forEach(symbolId => resultCounts[symbolId] = (resultCounts[symbolId] || 0) + 1);
 
-        let totalPayout = 0, winningBetsPrincipal = 0;
+        let totalPayout = 0;
         let totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+        const betResults = {}; 
 
         for (const symbolId in gameState.currentBets) {
             const betAmount = gameState.currentBets[symbolId];
-            if (betAmount > 0 && resultCounts[symbolId] > 0) {
-                totalPayout += betAmount * resultCounts[symbolId];
-                winningBetsPrincipal += betAmount;
+            if (betAmount > 0) {
+                const count = resultCounts[symbolId] || 0;
+                if (count >= 2) {
+                    const payout = betAmount * count;
+                    totalPayout += payout;
+                    betResults[symbolId] = { amount: betAmount, profit: payout - betAmount };
+                } else {
+                    betResults[symbolId] = { amount: betAmount, profit: -betAmount };
+                }
             }
         }
         
-        const amountCredited = totalPayout + winningBetsPrincipal;
-        if (amountCredited > 0) {
-            db.ref(`users/${AppState.currentUser.uid}/balance`).transaction(bal => (bal || 0) + amountCredited);
+        if (totalPayout > 0) {
+            db.ref(`users/${AppState.currentUser.uid}/balance`).transaction(bal => (bal || 0) + totalPayout);
         }
         
         if (totalBetValue > 0) {
-            // Save bet history to database
             const historyEntry = {
                 periodId: gameState.serverState.periodId,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                bets: {}
+                bets: {},
+                diceResult: resultSymbols
             };
-            for (const symbolId in gameState.currentBets) {
-                const betAmount = gameState.currentBets[symbolId];
-                if (betAmount > 0) {
-                    const count = resultCounts[symbolId] || 0;
-                    historyEntry.bets[symbolId] = {
-                        amount: betAmount,
-                        profit: betAmount * count
-                    };
-                }
+            for(const symbolId in betResults) {
+                historyEntry.bets[symbolId] = betResults[symbolId];
             }
             db.ref(`userTransactions/${AppState.currentUser.uid}/betHistory`).push(historyEntry);
 
-            // Show win/loss modal
+            const netProfit = totalPayout - totalBetValue;
+
             resultModalContentEl.classList.remove('result-win', 'result-loss');
-            if (amountCredited > 0) {
+            if (netProfit > 0) {
                 resultModalTitleEl.textContent = 'You Win!';
-                resultModalTextEl.innerHTML = `Won: ₹${totalPayout.toLocaleString()}<br>Returned: ₹${winningBetsPrincipal.toLocaleString()}<br><b>Total Credit: ₹${amountCredited.toLocaleString()}</b>`;
+                resultModalTextEl.innerHTML = `Congratulations! You won a net total of <b>₹${netProfit.toLocaleString()}</b>.`;
                 resultModalContentEl.classList.add('result-win');
                 if (window.confetti) confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
             } else {
                 resultModalTitleEl.textContent = 'You Lose!';
-                resultModalTextEl.textContent = `You lost ₹${totalBetValue.toLocaleString()}. Better luck next time.`;
+                resultModalTextEl.textContent = `You lost ₹${Math.abs(netProfit).toLocaleString()}. Better luck next time.`;
                 resultModalContentEl.classList.add('result-loss');
             }
+
             resultModalEl.classList.add('visible');
             setTimeout(() => {
                 resultModalEl.classList.remove('visible');
             }, GAME_CONFIG.RESULT_VIEW_DURATION * 1000 - 200);
         }
     };
-
+    
     const resetLocalBets = () => {
         GAME_CONFIG.SYMBOLS.forEach(symbol => gameState.currentBets[symbol.id] = 0);
         gameState.hasCommittedBets = false;
@@ -1617,6 +1802,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('withdrawal-btn').addEventListener('click', handleWithdrawalRequest);
     document.getElementById('payment-form').addEventListener('submit', handleTopupSubmit);
     document.getElementById('payment-cancel-btn').addEventListener('click', () => paymentModal.classList.remove('visible'));
+    document.getElementById('user-history-close-btn').addEventListener('click', () => document.getElementById('user-history-modal').classList.remove('visible'));
     document.getElementById('payment-settings-form').addEventListener('submit', (e) => {
         e.preventDefault();
         if (AppState.currentUser?.role !== 'admin') return;
