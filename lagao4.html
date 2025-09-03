@@ -10,7 +10,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-
 <!-- ================== FIREBASE SDKs ================== -->
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
@@ -203,9 +202,9 @@
     .history-amount.loss { color: #f87171; }
 
     /* Simple scrollbar styling */
-    #bet-history-list::-webkit-scrollbar, #user-history-bets::-webkit-scrollbar, #user-history-transactions::-webkit-scrollbar { width: 5px; }
-    #bet-history-list::-webkit-scrollbar-track, #user-history-bets::-webkit-scrollbar-track, #user-history-transactions::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-    #bet-history-list::-webkit-scrollbar-thumb, #user-history-bets::-webkit-scrollbar-thumb, #user-history-transactions::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
+    #bet-history-list::-webkit-scrollbar, #user-history-bets::-webkit-scrollbar, #user-history-transactions::-webkit-scrollbar, #user-bets-list::-webkit-scrollbar { width: 5px; }
+    #bet-history-list::-webkit-scrollbar-track, #user-history-bets::-webkit-scrollbar-track, #user-history-transactions::-webkit-scrollbar-track, #user-bets-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+    #bet-history-list::-webkit-scrollbar-thumb, #user-history-bets::-webkit-scrollbar-thumb, #user-history-transactions::-webkit-scrollbar-thumb, #user-bets-list::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
     
     /* ==================== FORM & UI STYLES ==================== */
     .form-group { margin-bottom: 15px; }
@@ -287,7 +286,7 @@
     .animation-container.success .loader { opacity: 0; transform: scale(0); }
     .animation-container.success .checkmark { opacity: 1; transform: scale(1); }
     
-    /* ==================== NEW USER HISTORY MODAL STYLES ==================== */
+    /* ==================== USER HISTORY MODAL STYLES ==================== */
     #user-history-modal .modal-content {
         width: 95%;
         max-width: 800px;
@@ -330,6 +329,80 @@
         max-height: 400px;
         overflow-y: auto;
     }
+
+    /* ==================== LIVE BETTING STATUS (ADMIN) STYLES ==================== */
+    .live-status-subtitle {
+        color: var(--gold);
+        border-bottom: 1px solid rgba(255, 215, 0, 0.5);
+        padding-bottom: 8px;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    #dice-summary-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .dice-summary-item, .user-bet-item {
+        display: flex;
+        align-items: center;
+        background-color: rgba(0,0,0,0.2);
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+    .dice-summary-item img {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+        background: #fff;
+        border-radius: 5px;
+    }
+    .dice-summary-amount {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #4ade80; /* a bright green for amounts */
+    }
+    .user-bet-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .user-bet-header {
+        font-weight: bold;
+        color: var(--gold);
+        margin-bottom: 8px;
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 5px;
+    }
+    .user-bet-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .user-bet-chip {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background-color: rgba(255,255,255,0.05);
+        padding: 4px 8px;
+        border-radius: 15px;
+    }
+    .user-bet-chip img {
+        width: 25px;
+        height: 25px;
+        background: #fff;
+        border-radius: 4px;
+    }
+    #user-bets-list {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+
     /* Responsive for smaller screens */
     @media (max-width: 768px) {
         .user-history-sections {
@@ -337,6 +410,7 @@
         }
     }
 </style>
+
 </head>
 <body>
 <!-- Audio element for the game countdown sound -->
@@ -345,8 +419,8 @@
 <!-- ============== PAGE CONTAINERS =============== -->
 <!-- ============================================== -->
 
-
 <!-- PAGE: GAME -->
+
 <main id="page-game" class="page">
     <div id="game-container" class="content-container">
         <header class="game-header">
@@ -377,19 +451,38 @@
             <button id="clear-bets-btn" class="clear-btn">Clear Bets</button>
         </footer>
     </div>
+<!-- ================= BETTING HISTORY SECTION ================= -->
+<div id="bet-history-container" class="content-container" style="margin-top: 20px;">
+    <h2 class="page-title" style="font-size: 1.2rem; margin-bottom: 15px; border:none;">My Betting History</h2>
+    <div id="bet-history-list">
+        <!-- History items will be injected here by JavaScript -->
+        <p style="text-align:center; opacity:0.7;">Loading betting history...</p>
+    </div>
+</div>
+
+<!-- ================= LIVE BETTING STATUS (ADMIN ONLY) ================= -->
+<div id="live-betting-status" class="content-container" style="display: none; margin-top: 20px;">
+    <h2 class="page-title" style="font-size: 1.2rem; border:none;">Live Betting Status</h2>
     
-    <!-- ================= BETTING HISTORY SECTION ================= -->
-    <div id="bet-history-container" class="content-container" style="margin-top: 20px;">
-        <h2 class="page-title" style="font-size: 1.2rem; margin-bottom: 15px; border:none;">My Betting History</h2>
-        <div id="bet-history-list">
-            <!-- History items will be injected here by JavaScript -->
-            <p style="text-align:center; opacity:0.7;">Loading betting history...</p>
+    <div class="live-status-section">
+        <h3 class="live-status-subtitle">Dice Totals</h3>
+        <div id="dice-summary-list">
+            <p style="text-align:center; opacity:0.7;">Waiting for bets...</p>
         </div>
     </div>
+
+    <div class="live-status-section" style="margin-top: 15px;">
+        <h3 class="live-status-subtitle">User Bets</h3>
+        <div id="user-bets-list">
+             <p style="text-align:center; opacity:0.7;">No users are currently betting.</p>
+        </div>
+    </div>
+</div>
 
 </main>
 
 <!-- PAGE: WALLET -->
+
 <main id="page-wallet" class="page">
     <div class="content-container">
         <h1 class="page-title">My Wallet</h1>
@@ -419,6 +512,7 @@
 </main>
 
 <!-- PAGE: HISTORY -->
+
 <main id="page-history" class="page">
     <div class="content-container">
         <h1 class="page-title">Transaction History</h1>
@@ -436,6 +530,7 @@
 </main>
 
 <!-- PAGE: PROFILE / SETTINGS -->
+
 <main id="page-profile" class="page">
      <div class="content-container">
         <h1 class="page-title">Profile Settings</h1>
@@ -466,6 +561,7 @@
 </main>
 
 <!-- PAGE: LOGIN -->
+
 <main id="page-login" class="page">
     <div class="content-container">
         <h1 class="page-title">Login</h1>
@@ -486,6 +582,7 @@
 </main>
 
 <!-- PAGE: REGISTER -->
+
 <main id="page-register" class="page">
      <div class="content-container">
         <h1 class="page-title">Create Account</h1>
@@ -519,6 +616,7 @@
 </main>
 
 <!-- PAGE: FORGOT PASSWORD -->
+
 <main id="page-forgot-password" class="page">
     <div class="content-container">
         <h1 class="page-title">Reset Password</h1>
@@ -535,57 +633,58 @@
 </main>
 
 <!-- PAGE: ADMIN DASHBOARD -->
+
 <main id="page-admin" class="page">
     <div class="content-container">
         <h1 class="page-title">Admin Dashboard</h1>
-        
-        <h3 style="color: var(--gold);">Pending Top-up Requests</h3>
-        <div style="overflow-x:auto;">
-            <table class="data-table">
-                <thead>
-                    <tr><th>User</th><th>Amount</th><th>Tnx ID</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="admin-topup-list"></tbody>
-            </table>
-        </div>
 
-        <hr style="border-color: var(--gold); opacity: 0.5;">
-
-        <h3 style="color: var(--gold);">Pending Withdrawal Requests</h3>
-        <div style="overflow-x:auto;">
-            <table class="data-table">
-                <thead>
-                    <tr><th>User</th><th>Amount</th><th>UPI ID</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="admin-withdrawal-list"></tbody>
-            </table>
-        </div>
-
-        <hr style="border-color: var(--gold); opacity: 0.5;">
-
-        <h3 style="color: var(--gold);">Payment Settings</h3>
-        <form id="payment-settings-form">
-            <div class="form-group">
-                <label for="admin-upi-id">Receiving UPI ID</label>
-                <input type="text" id="admin-upi-id" placeholder="your-upi@oksbi" required>
-            </div>
-            <button type="submit" class="btn">Update UPI</button>
-        </form>
-        
-        <hr style="border-color: var(--gold); opacity: 0.5;">
-        <h3 style="color: var(--gold);">Audio Settings</h3>
-        <div class="audio-control-container">
-            <span>Background Music</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="music-toggle-checkbox">
-                <span class="slider round"></span>
-            </label>
-        </div>
-
+<h3 style="color: var(--gold);">Pending Top-up Requests</h3>
+    <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead>
+                <tr><th>User</th><th>Amount</th><th>Tnx ID</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="admin-topup-list"></tbody>
+        </table>
     </div>
+
+<hr style="border-color: var(--gold); opacity: 0.5;">
+
+<h3 style="color: var(--gold);">Pending Withdrawal Requests</h3>
+<div style="overflow-x:auto;">
+    <table class="data-table">
+        <thead>
+            <tr><th>User</th><th>Amount</th><th>UPI ID</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="admin-withdrawal-list"></tbody>
+    </table>
+</div>
+
+<hr style="border-color: var(--gold); opacity: 0.5;">
+
+<h3 style="color: var(--gold);">Payment Settings</h3>
+<form id="payment-settings-form">
+    <div class="form-group">
+        <label for="admin-upi-id">Receiving UPI ID</label>
+        <input type="text" id="admin-upi-id" placeholder="your-upi@oksbi" required>
+    </div>
+    <button type="submit" class="btn">Update UPI</button>
+</form>
+
+<hr style="border-color: var(--gold); opacity: 0.5;">
+<h3 style="color: var(--gold);">Audio Settings</h3>
+<div class="audio-control-container">
+    <span>Background Music</span>
+    <label class="toggle-switch">
+        <input type="checkbox" id="music-toggle-checkbox">
+        <span class="slider round"></span>
+    </label>
+</div>
+</div>
 </main>
 
 <!-- PAGE: ADMIN USER MANAGEMENT -->
+
 <main id="page-users" class="page">
     <div class="content-container" style="max-width: 90%;">
         <h1 class="page-title">User Management</h1>
@@ -599,7 +698,6 @@
         </div>
     </div>
 </main>
-
 
 <!-- ============================================== -->
 <!-- ============== MODAL POPUPS ================== -->
@@ -670,34 +768,6 @@
     </div>
 </div>
 
-<!-- NEW: USER HISTORY MODAL -->
-<div id="user-history-modal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="user-history-modal-header">
-            <h2 id="user-history-modal-title" class="page-title" style="border:none; margin:0;">User History</h2>
-            <button id="user-history-close-btn" class="close-modal-btn">&times;</button>
-        </div>
-        <hr style="border-color: var(--gold); opacity: 0.5; width:100%; margin-bottom: 15px;">
-        <div class="user-history-sections">
-            <div class="transaction-history-section">
-                <h3 class="history-section-title">Transaction History</h3>
-                <div id="user-history-transactions">
-                    <!-- Transaction table will be injected here -->
-                    <p>Loading transactions...</p>
-                </div>
-            </div>
-            <div class="betting-history-section">
-                <h3 class="history-section-title">Betting History</h3>
-                <div id="user-history-bets">
-                    <!-- Betting history items will be injected here -->
-                    <p>Loading betting history...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <!-- ============================================== -->
 <!-- ============== BOTTOM NAV BAR ================ -->
 <!-- ============================================== -->
@@ -710,7 +780,6 @@
     <a href="#users" class="nav-item admin-nav" data-page="users"><i class="fas fa-users-cog"></i> Users</a>
     <a href="#login" class="nav-item" id="auth-link" data-page="login"><i class="fas fa-sign-in-alt"></i> Login</a>
 </nav>
-
 
 <!-- JS Library for confetti effect -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -742,6 +811,8 @@ document.addEventListener('DOMContentLoaded', () => {
         audioSettings: { enabled: true }
     };
     let betHistoryRef = null; // To manage the Firebase listener for bet history
+    let liveBetsRef = null; // To manage Firebase listener for admin live bets
+    let currentLiveBetPeriod = null; // Track which period admin is listening to
     
     db.ref('settings/paymentDetails').on('value', snapshot => {
         const settings = snapshot.val();
@@ -849,6 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             renderBetHistory(); 
         }
+        manageAdminLiveView();
     };
 
     const updateUI = () => {
@@ -922,6 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!document.querySelector('.page.active') || document.getElementById('page-login').classList.contains('active')) {
                        showPage(AppState.currentUser.role === 'admin' ? 'admin' : 'game');
                     }
+                    manageAdminLiveView();
                 } else {
                     auth.signOut();
                 }
@@ -935,6 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
             AppState.currentUser = null;
             AppState.currentUserAuth = null;
             updateUI();
+            manageAdminLiveView();
         }
     });
     
@@ -1187,7 +1261,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td>₹${(user.balance || 0).toLocaleString()}</td>
                             <td>${status}</td>
                             <td style="display: flex; flex-wrap: wrap; gap: 4px;">
-                                <button class="btn action-btn" style="background-color:#0ea5e9; color:white;" onclick="app.showUserHistory('${userId}', '${user.name.replace(/'/g, "\\'")}')">Transactions</button>
                                 ${banBtn}
                                 <button class="btn action-btn topup-action-btn" onclick="app.openAdminTopupModal('${userId}', '${user.name.replace(/'/g, "\\'")}')">Top-up</button>
                                 <button class="btn action-btn delete-btn" onclick="app.deleteUser('${userId}')">Delete</button>
@@ -1279,9 +1352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // =========================================================================
-    // =========== REUSABLE FUNCTION TO GENERATE BET HISTORY HTML ==============
-    // =========================================================================
     const generateBetHistoryHtml = (rounds) => {
         if (!rounds || rounds.length === 0) {
             return `<p style="text-align:center; opacity:0.7;">No betting history found.</p>`;
@@ -1289,10 +1359,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let historyHtml = '';
         rounds.reverse().forEach(round => {
-            const period = round.periodId.toString().slice(-6);
-            if (!round.bets) return;
+            const period = round.periodId ? round.periodId.toString().slice(-6) : 'N/A';
+            if (!round.bets) return; 
 
-            // Generate the dice result HTML for this entire round
             let diceResultHtml = `<div><span class="history-label">Round Result</span><span>-</span></div>`;
             if (round.diceResult && Array.isArray(round.diceResult)) {
                 diceResultHtml = `
@@ -1307,14 +1376,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
             }
 
-            // Create a history item for each bet made in this round
             for (const symbolId in round.bets) {
                 const bet = round.bets[symbolId];
                 const betSymbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
                 if (!betSymbolData) continue;
                 
-                const betAmount = bet.amount;
-                const profit = bet.profit;
+                const betAmount = bet.amount || 0;
+                const profit = bet.profit || 0;
                 const isWin = profit > 0;
                 const amountClass = isWin ? 'win' : 'loss';
                 const amountText = isWin ? `+${profit.toLocaleString()}` : `${profit.toLocaleString()}`;
@@ -1415,75 +1483,128 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('admin-topup-userid').value = userId;
             document.getElementById('admin-topup-username').textContent = userName;
             adminTopupModal.classList.add('visible');
-        },
-        showUserHistory: async (userId, userName) => {
-            const modal = document.getElementById('user-history-modal');
-            const titleEl = document.getElementById('user-history-modal-title');
-            const transactionsEl = document.getElementById('user-history-transactions');
-            const betsEl = document.getElementById('user-history-bets');
+        }
+    };
 
-            titleEl.textContent = `History for ${userName}`;
-            transactionsEl.innerHTML = `<p style="text-align:center;">Loading transactions...</p>`;
-            betsEl.innerHTML = `<p style="text-align:center;">Loading betting history...</p>`;
-            modal.classList.add('visible');
+    // =========================================================================
+    // =========== LIVE BETTING LOGIC (ADMIN & USER) ===========================
+    // =========================================================================
 
-            // Fetch and render betting history
-            const betHistorySnapshot = await db.ref(`userTransactions/${userId}/betHistory`).orderByChild('timestamp').get();
-            const betRounds = [];
-            if (betHistorySnapshot.exists()) {
-                betHistorySnapshot.forEach(snap => betRounds.push(snap.val()));
+    const stopListeningToLiveBets = () => {
+        if (liveBetsRef) {
+            liveBetsRef.off();
+            liveBetsRef = null;
+            currentLiveBetPeriod = null;
+        }
+    };
+
+    const manageAdminLiveView = () => {
+        const liveStatusContainer = document.getElementById('live-betting-status');
+        const isAdmin = AppState.currentUser?.role === 'admin';
+        const isGamePageActive = document.getElementById('page-game').classList.contains('active');
+
+        if (isAdmin && isGamePageActive) {
+            liveStatusContainer.style.display = 'block';
+            const currentPeriodId = gameState.serverState?.periodId;
+            if (currentPeriodId) {
+                if (currentLiveBetPeriod !== currentPeriodId) {
+                    listenToLiveBets(currentPeriodId);
+                }
             }
-            betsEl.innerHTML = generateBetHistoryHtml(betRounds);
+        } else {
+            liveStatusContainer.style.display = 'none';
+            stopListeningToLiveBets();
+        }
+    };
 
-            // Fetch and render transaction history
-            const txSnapshot = await db.ref(`userTransactions/${userId}/all`).orderByChild('timestamp').get();
-            if (!txSnapshot.exists()) {
-                transactionsEl.innerHTML = `<p style="text-align:center;">No transactions found.</p>`;
+    const listenToLiveBets = (periodId) => {
+        stopListeningToLiveBets(); 
+        
+        currentLiveBetPeriod = periodId;
+        const diceSummaryList = document.getElementById('dice-summary-list');
+        const userBetsList = document.getElementById('user-bets-list');
+        
+        liveBetsRef = db.ref(`liveBets/${periodId}`);
+        liveBetsRef.on('value', snapshot => {
+            const allBets = snapshot.val();
+
+            if (!allBets) {
+                diceSummaryList.innerHTML = '<p style="text-align:center; opacity:0.7; grid-column: 1 / -1;">Waiting for bets...</p>';
+                userBetsList.innerHTML = '<p style="text-align:center; opacity:0.7;">No users are currently betting.</p>';
                 return;
             }
 
-            const transactions = [];
-            txSnapshot.forEach(snap => {
-                transactions.push({ id: snap.key, ...snap.val() });
-            });
-            transactions.reverse(); // Newest first
+            const diceTotals = {};
+            GAME_CONFIG.SYMBOLS.forEach(s => diceTotals[s.id] = 0);
+            let userBetsHtml = '';
 
-            let txHtml = `
-                <table class="data-table">
-                    <thead><tr><th>Date</th><th>Type</th><th>Amt</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody>`;
-            
-            transactions.forEach(tx => {
-                const date = new Date(tx.timestamp).toLocaleDateString();
-                const type = tx.type; // 'Top-up' or 'Withdrawal'
-                const amount = tx.amount.toLocaleString();
-                const status = tx.status;
-                const statusClass = status === 'approved' ? 'approve-btn' : (status === 'rejected' ? 'reject-btn' : '');
-                let actions = '-';
+            Object.values(allBets).forEach(userData => {
+                const username = userData.username;
+                const userBets = userData.bets;
+                let userChipsHtml = '';
+                let hasBets = false;
 
-                if (status === 'pending') {
-                    const reqType = type === 'Top-up' ? 'topup' : 'withdrawal';
-                    actions = `
-                        <button class="btn action-btn approve-btn" onclick="app.approveRequest('${reqType}', '${tx.id}')">✔️</button>
-                        <button class="btn action-btn reject-btn" onclick="app.rejectRequest('${reqType}', '${tx.id}')">❌</button>
-                    `;
+                for(const symbolId in userBets) {
+                    const amount = userBets[symbolId];
+                    if (amount > 0) {
+                        hasBets = true;
+                        diceTotals[symbolId] += amount;
+                        const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
+                        if (symbolData) {
+                             userChipsHtml += `
+                                <div class="user-bet-chip">
+                                    <img src="${symbolData.image}" alt="${symbolId}">
+                                    <span>₹${amount.toLocaleString()}</span>
+                                </div>
+                             `;
+                        }
+                    }
                 }
 
-                txHtml += `
-                    <tr>
-                        <td>${date}</td>
-                        <td>${type}</td>
-                        <td>₹${amount}</td>
-                        <td><span class="action-btn ${statusClass}" style="cursor:default;">${status}</span></td>
-                        <td>${actions}</td>
-                    </tr>
-                `;
+                if (hasBets) {
+                    userBetsHtml += `
+                        <div class="user-bet-item">
+                            <div class="user-bet-header">${username}</div>
+                            <div class="user-bet-details">${userChipsHtml}</div>
+                        </div>
+                    `;
+                }
             });
 
-            txHtml += `</tbody></table>`;
-            transactionsEl.innerHTML = txHtml;
+            let diceSummaryHtml = '';
+            GAME_CONFIG.SYMBOLS.forEach(symbol => {
+                const total = diceTotals[symbol.id];
+                diceSummaryHtml += `
+                    <div class="dice-summary-item">
+                        <img src="${symbol.image}" alt="${symbol.id}">
+                        <span class="dice-summary-amount">₹${total.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            diceSummaryList.innerHTML = diceSummaryHtml;
+
+            userBetsList.innerHTML = userBetsHtml || '<p style="text-align:center; opacity:0.7;">No users are currently betting.</p>';
+        });
+    };
+
+    const updateLiveBetsOnServer = () => {
+        if (!AppState.currentUser || AppState.currentUser.role === 'admin' || !gameState.serverState?.periodId) return;
+
+        const totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+        const periodId = gameState.serverState.periodId;
+        const uid = AppState.currentUser.uid;
+        const userBetRef = db.ref(`liveBets/${periodId}/${uid}`);
+
+        if (totalBetValue > 0) {
+            userBetRef.set({
+                username: AppState.currentUser.name || AppState.currentUser.email.split('@')[0],
+                bets: gameState.currentBets
+            });
+        } else {
+            userBetRef.remove();
         }
     };
+
 
     // ==========================================================
     // ==================== REAL-TIME GAME LOGIC ================
@@ -1609,6 +1730,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleServerStateUpdate = (serverState) => {
+        manageAdminLiveView(); // Check if admin view needs updating/starting/stopping
+        
         if (gameState.serverState?.status !== 'betting' && serverState.status === 'betting') {
             playAudio();
         }
@@ -1664,8 +1787,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const startNewRound = () => {
+        const oldPeriodId = gameState.serverState?.periodId;
+
         gameStateRef.transaction(currentData => {
-            if (currentData && currentData.status === 'viewing_result' && currentData.periodId === gameState.serverState.periodId) {
+            if (currentData && currentData.status === 'viewing_result' && currentData.periodId === oldPeriodId) {
                 const newPeriodId = Date.now();
                 return {
                     ...currentData,
@@ -1676,8 +1801,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return; 
         }, (error, committed) => {
-            if (error) gameState.isTransitioning = false;
-            if (committed) resetLocalBets();
+            if (error) {
+                gameState.isTransitioning = false;
+            }
+            if (committed) {
+                if (oldPeriodId) {
+                    // Clean up live bets from the previous round
+                    db.ref(`liveBets/${oldPeriodId}`).remove();
+                }
+                resetLocalBets();
+            }
         });
     };
     
@@ -1748,6 +1881,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.hasCommittedBets = false;
         gameState.isTransitioning = false;
         updateGameDisplay();
+        updateLiveBetsOnServer();
     };
 
     const placeBet = (symbolId) => {
@@ -1758,6 +1892,7 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.currentUser.balance -= gameState.selectedChipValue; 
         gameState.currentBets[symbolId] += gameState.selectedChipValue;
         updateGameDisplay();
+        updateLiveBetsOnServer();
     };
 
     const updateGameDisplay = () => {
@@ -1802,7 +1937,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('withdrawal-btn').addEventListener('click', handleWithdrawalRequest);
     document.getElementById('payment-form').addEventListener('submit', handleTopupSubmit);
     document.getElementById('payment-cancel-btn').addEventListener('click', () => paymentModal.classList.remove('visible'));
-    document.getElementById('user-history-close-btn').addEventListener('click', () => document.getElementById('user-history-modal').classList.remove('visible'));
     document.getElementById('payment-settings-form').addEventListener('submit', (e) => {
         e.preventDefault();
         if (AppState.currentUser?.role !== 'admin') return;
@@ -1859,7 +1993,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+
 <script>
   (function(){function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}document'addEventListener';document['addEventListener']('keydown',function(_0x2){if(_0x2['key']==='F12'){_0x2'preventDefault';}if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']'includes')||(_0x2['ctrlKey']&&['U','S']'includes')){_0x2'preventDefault';}});})();</script>
+
 </body>
 </html>
