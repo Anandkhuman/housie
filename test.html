@@ -3398,7 +3398,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     const allTicketNumbers = r1.concat(r2, r3);
 
                     if (checkPattern(allTicketNumbers) && !housefullWinnerTicketIds.includes(ticket.id)) {
-                        // **FIXED LOGIC**: Count claimed prize categories, not winning tickets.
                         const claimedPrizesCount = Object.keys(updatedWinners).filter(key => key.includes("Full House")).length;
                         
                         if ((dividend.name === "First Full House" && claimedPrizesCount === 0) ||
@@ -3425,7 +3424,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
 
         // Sheet-based dividends are checked separately after ticket-based ones
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
-             for (const ownerPhone in ticketsByOwner) {
+            for (const ownerPhone in ticketsByOwner) {
                 const ownerTickets = ticketsByOwner[ownerPhone];
                 const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
                     const sheetNum = Math.floor((ticket.id - 1) / 6);
@@ -3440,16 +3439,43 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => t.numbers.flat().includes(lastCalledNumber))) {
                             winnersThisTurn.push({ name: ownerTickets[0].owner_name, phone: ownerPhone, ticketId: `Sheet ${parseInt(sheetNum) + 1}`, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP, dividendName: dividend.name });
                         }
-                    } else if (dividend.name === 'Half Sheet Bonus' && sheetTickets.length >= 3) {
-                         for (let i = 0; i < sheetTickets.length - 2; i++) {
-                            for (let j = i + 1; j < sheetTickets.length - 1; j++) {
-                                for (let k = j + 1; k < sheetTickets.length; k++) {
-                                    const combo = [sheetTickets[i], sheetTickets[j], sheetTickets[k]];
-                                    if(combo.every(t => countMarked(t) >= 2) && combo.some(t => t.numbers.flat().includes(lastCalledNumber))){
-                                        winnersThisTurn.push({ name: ownerTickets[0].owner_name, phone: ownerPhone, ticketId: `Half Sheet in Sheet ${parseInt(sheetNum) + 1}`, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP, dividendName: dividend.name });
-                                        i = j = k = sheetTickets.length; // Break outer loops
-                                    }
-                                }
+                    } else if (dividend.name === 'Half Sheet Bonus') {
+                        const sheetTicketIds = new Set(sheetTickets.map(t => t.id));
+                        const sheetStartId = parseInt(sheetNum) * 6 + 1;
+                        
+                        const firstHalfIds = [sheetStartId, sheetStartId + 1, sheetStartId + 2];
+                        const secondHalfIds = [sheetStartId + 3, sheetStartId + 4, sheetStartId + 5];
+
+                        let winnerFoundInSheet = false;
+
+                        // Check first half
+                        if (firstHalfIds.every(id => sheetTicketIds.has(id))) {
+                            const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => t.numbers.flat().includes(lastCalledNumber))) {
+                                winnersThisTurn.push({
+                                    name: ownerTickets[0].owner_name,
+                                    phone: ownerPhone,
+                                    ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
+                                    winningNumber: lastCalledNumber,
+                                    won_at: firebase.database.ServerValue.TIMESTAMP,
+                                    dividendName: dividend.name
+                                });
+                                winnerFoundInSheet = true;
+                            }
+                        }
+
+                        // Check second half, only if the first half didn't win for this owner in this sheet
+                        if (!winnerFoundInSheet && secondHalfIds.every(id => sheetTicketIds.has(id))) {
+                            const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => t.numbers.flat().includes(lastCalledNumber))) {
+                                winnersThisTurn.push({
+                                    name: ownerTickets[0].owner_name,
+                                    phone: ownerPhone,
+                                    ticketId: `Half Sheet (${secondHalfIds.join(',')})`,
+                                    winningNumber: lastCalledNumber,
+                                    won_at: firebase.database.ServerValue.TIMESTAMP,
+                                    dividendName: dividend.name
+                                });
                             }
                         }
                     }
