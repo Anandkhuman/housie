@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sintha — Game Website Enquiry</title>
+
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. Base & Variables
+       ========================================================================== */
+    :root{
+      --bg1: #0f1724;
+      --bg2: #071226;
+      --glass: rgba(255,255,255,0.06);
+      --accent-start: #7c3aed;
+      --accent-end: #06b6d4;
+      --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+      --card-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      --glass-border: rgba(255,255,255,0.06);
+      --text-primary: #e6eef6;
+      --text-secondary: #9fb3c9;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
+
+    body{
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent),
+                  radial-gradient(900px 500px at 90% 90%, rgba(6,182,212,0.06), transparent),
+                  var(--bg1);
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color: var(--text-secondary);
+    }
+    
+    h1, h2, h3 { color: var(--text-primary); }
+
+    /* ==========================================================================
+       2. Layout & Structure (Mobile First)
+       ========================================================================== */
+    #heroCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+    .wrapper{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px 16px;
+    }
+
+    .container{
+      position: relative;
+      width:100%;
+      max-width: 500px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius: var(--radius-lg);
+      padding:24px;
+      backdrop-filter:blur(10px) saturate(120%);
+      border:1px solid var(--glass-border);
+      box-shadow:var(--card-shadow);
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:28px;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: -2px;
+      border-radius: inherit;
+      background: radial-gradient(300px at var(--x, 50%) var(--y, 50%), var(--accent-start), transparent 70%);
+      opacity: 0.2;
+      transition: opacity 0.4s ease;
+    }
+    .container:hover::before { opacity: 0.35; }
+
+
+    .panel{ order: 2; padding:12px; border-radius:var(--radius-md); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); display:flex;flex-direction:column;gap:16px;align-items:flex-start; }
+    .right{ order: 1; display:flex; flex-direction:column; gap:18px; }
+
+    /* ==========================================================================
+       3. Components
+       ========================================================================== */
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{ width:56px;height:56px;border-radius:var(--radius-md);background:var(--accent-gradient);display:grid;place-items:center;color:white;font-weight:800;font-size:20px;box-shadow:0 6px 20px rgba(124,58,237,0.2); }
+    h1{margin:0;font-size:22px;line-height:1.2;color:var(--text-primary)}
+    p.lead{margin:4px 0 0;color:var(--text-secondary)}
+    .typed-line{color:#cfe9f5;font-weight:600;min-height:21px;}
+
+    /* Form Styles */
+    form.contact{width:100%;display:flex;flex-direction:column;gap:14px;margin-top:8px}
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .input, textarea, select {
+      width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text-primary);outline:none;font-size:14px;transition: box-shadow 0.2s; font-family: inherit;
+    }
+    textarea{min-height:90px;resize:vertical}
+    .input:focus, textarea:focus, select:focus {
+      border-color: rgba(124,58,237,0.5);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+    }
+    select {
+      -webkit-appearance: none; -moz-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239fb3c9' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center; background-size: 16px;
+    }
+    select option { background-color: var(--bg2); color: var(--text-primary); }
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;border-radius:10px;border:0;background:var(--accent-gradient);color:white;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(6,182,212,0.08);transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(6,182,212,0.15); }
+    
+    /* Right Panel: Agents List */
+    .right-header { text-align: center; }
+    .right-header h2 { margin: 0 0 4px 0; font-size: 20px; }
+    .agents-grid{display:grid;grid-template-columns:1fr;gap:16px}
+    .agent{ display:flex;gap:12px;align-items:center;padding:12px;border-radius:var(--radius-md);background:linear-gradient(180deg,rgba(255,255,255,0.015),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03);transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s;cursor:pointer;overflow:hidden }
+    .agent:hover{ transform:translateY(-8px) scale(1.02); box-shadow:0 18px 40px rgba(2,6,23,0.6); border-color: rgba(124,58,237,0.3); }
+    .agent .avatar{width:64px;height:64px;border-radius:var(--radius-md);flex-shrink:0;overflow:hidden;box-shadow:0 6px 18px rgba(2,6,23,0.5)}
+    .agent img{width:100%;height:100%;object-fit:cover;display:block; transition: transform 0.3s ease;}
+    .agent:hover .avatar img { transform: scale(1.05); }
+    .meta{display:flex;flex-direction:column}
+    .meta .name{font-weight:700;color:var(--text-primary)}
+    .meta .phone{font-size:13px;color:var(--text-secondary);margin-top:6px}
+
+    .footer{display:flex;flex-direction: column; align-items: flex-start; gap: 8px; padding-top:12px;border-top:1px dashed rgba(255,255,255,0.02);color:var(--text-secondary);font-size:13px}
+    
+    /* --- Modal Styles --- */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(5px); }
+    .modal.active { opacity: 1; pointer-events: auto; }
+    .modal-content { background: var(--bg2); border-radius: 16px; padding: 24px; width: 90%; max-width: 400px; box-shadow: var(--card-shadow); color: var(--text-primary); text-align: center; transform: scale(0.95); transition: transform 0.3s ease; }
+    .modal.active .modal-content { transform: scale(1); }
+    
+    .modal-agent-detail { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .modal-avatar-large { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.4); margin-bottom: 12px; }
+    .modal-agent-name { font-size: 22px; font-weight: 700; margin: 0; color: var(--text-primary); }
+    .modal-agent-phone { font-size: 16px; color: var(--text-secondary); }
+    .modal-agent-about { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-top: 12px; }
+    
+    .action-btn-group { display: flex; gap: 12px; margin-top: 16px; width: 100%; }
+    .action-btn {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+        flex: 1; padding: 12px 8px; border-radius: 10px; background: rgba(255,255,255,0.05);
+        color: var(--text-secondary); text-decoration: none; font-size: 12px; font-weight: 600;
+        border: none; font-family: inherit;
+        transition: background 0.2s, color 0.2s, transform 0.2s; cursor: pointer;
+    }
+    .action-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); transform: translateY(-2px); }
+    .action-btn i { font-size: 20px; margin-bottom: 4px; }
+    .action-btn.whatsapp { color: #25D366; }
+    .action-btn.call { color: #34B7F1; }
+
+    .close-btn { margin-top: 24px; display: inline-block; padding: 8px 14px; background: var(--accent-start); border-radius: 8px; cursor: pointer; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+    
+    /* --- NEW: Image Viewer Modal Styles --- */
+    .agent .avatar img, .modal-avatar-large {
+        cursor: zoom-in;
+    }
+    #imageViewerModal {
+        z-index: 1000; /* Ensure it's on top of other modals */
+    }
+    #imageViewerModal .modal-content {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+        width: auto;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
+    }
+    .fullscreen-image {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 12px;
+        display: block;
+        object-fit: contain;
+    }
+    .close-image-viewer {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: #fff;
+        font-size: 35px;
+        font-weight: bold;
+        cursor: pointer;
+        background: rgba(0,0,0,0.4);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: transform 0.2s;
+        z-index: 1001; /* Ensure it's above the image */
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .close-image-viewer:hover { transform: scale(1.1); }
+
+    /* ==========================================================================
+       4. Responsive Design (Tablet and up)
+       ========================================================================== */
+    @media (min-width:768px){
+      .wrapper { padding: 48px 32px; }
+      .container { max-width: 900px; }
+      .agents-grid{grid-template-columns:repeat(2,1fr)}
+      .footer { flex-direction: row; justify-content: space-between; align-items: center; }
+    }
+
+    @media (min-width:1024px){
+      .container{ grid-template-columns:420px 1fr; max-width: 1200px; padding: 28px; }
+      .panel{ order: 1; }
+      .right{ order: 2; }
+      .right-header { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="heroCanvas"></canvas>
+
+  <div class="wrapper">
+    <div class="container" data-aos="fade-up" data-aos-duration="900">
+
+      <div class="panel">
+        <div class="brand">
+          <div class="logo">S</div>
+          <div>
+            <h1>Get a Quote for Your Game</h1>
+            <p class="lead">Select a game and send us an enquiry on WhatsApp.</p>
+          </div>
+        </div>
+        <div class="typed-line" id="typed"></div>
+        <form class="contact" id="contactForm" data-aos="fade-right" data-aos-duration="800" data-aos-delay="150" novalidate>
+          <div class="form-group">
+            <label for="interest" class="visually-hidden">I'm interested in</label>
+            <select id="interest" name="interest" class="input" required>
+              <option value="" disabled selected>I'm interested in...</option>
+              <option value="Tambola / Housie Website">Tambola / Housie Website</option>
+              <option value="Jhandi Munda Website">Jhandi Munda Website</option>
+              <option value="Other Game Project">Other Game Project</option>
+              <option value="General Enquiry">General Enquiry</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="name" class="visually-hidden">Your Name</label>
+            <input class="input" id="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label for="email" class="visually-hidden">Your Email</label>
+            <input class="input" id="email" placeholder="Your email (optional)" type="email" />
+          </div>
+          <div class="form-group">
+            <label for="message" class="visually-hidden">Your Message</label>
+            <textarea id="message" class="input" placeholder="Tell us more about your project..."></textarea>
+          </div>
+          <div>
+            <button type="submit" class="btn" id="submitBtn">
+                <i class="fab fa-whatsapp"></i>
+              <span>Choose Expert & Send Message</span>
+            </button>
+          </div>
+        </form>
+        <div class="footer">
+          <div>© <strong>Sintha</strong> Team</div>
+          <div>Game Development Studio</div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="right-header" data-aos="fade-down">
+          <h2>Meet Our Experts Sintha Team</h2>
+          <p class="lead">Click a card to see contact options.</p>
+        </div>
+        <div class="agents-grid" id="agentsGrid">
+          <!-- agent cards inserted by JS -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Agent List Modal (For Form Submission) -->
+  <div class="modal" id="teamModal">
+    <div class="modal-content" style="max-width: 500px;">
+      <h3 style="margin-top:0;">Choose who to message</h3>
+      <p style="margin-top:-10px; margin-bottom: 20px; color: var(--text-secondary);">Your enquiry will be sent to the team member you select.</p>
+      <div id="modalTeam">
+        <!-- JS injects team list here -->
+      </div>
+      <div class="close-btn" data-close-modal>Close</div>
+    </div>
+  </div>
+
+  <!-- Agent Detail Modal (For Grid Click) -->
+  <div class="modal" id="agentDetailModal">
+    <div class="modal-content">
+      <div class="modal-agent-detail">
+        <img src="" alt="Agent Avatar" class="modal-avatar-large" id="modal-avatar">
+        <h3 class="modal-agent-name" id="modal-name">Agent Name</h3>
+        <p class="modal-agent-phone" id="modal-phone">+00 00000 00000</p>
+        <p class="modal-agent-about" id="modal-about">Agent bio goes here.</p>
+
+        <div class="action-btn-group">
+          <a href="#" class="action-btn whatsapp" id="modal-wa-btn" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+            WhatsApp
+          </a>
+          <a href="#" class="action-btn call" id="modal-call-btn">
+            <i class="fas fa-phone"></i>
+            Call
+          </a>
+          <button class="action-btn" id="modal-copy-btn">
+            <i class="fas fa-copy"></i>
+            Copy
+          </button>
+        </div>
+      </div>
+      <div class="close-btn" data-close-modal>Close</div>
+    </div>
+  </div>
+  
+  <!-- NEW: Full Image Viewer Modal -->
+  <div class="modal" id="imageViewerModal">
+    <div class="modal-content">
+      <span class="close-image-viewer" data-close-modal>&times;</span>
+      <img class="fullscreen-image" id="fullscreenImage" src="" alt="Full size agent image">
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+  <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      const agents = [
+         { name: "Anand Khuman", phone: "+919366193440", image: "https://github.com/Anandkhuman/Photo/raw/main/anand4.jpg", about: "Lead Developer with 8+ years of experience specializing in real-time gaming applications and secure backend architecture." },
+         { name: "Pari Thokchom", phone: "+918415934211", image: "https://github.com/Anandkhuman/Photo/raw/main/pari.jpg", about: "Project Manager and UI/UX expert, ensuring every game is not only functional but also intuitive and engaging for players." },
+         { name: "Kenedy khuman", phone: "+916009063472", image: "https://github.com/Anandkhuman/Photo/raw/main/kenedy.jpg", about: "Frontend Specialist focused on creating smooth, responsive, and visually stunning game interfaces with modern web technologies." },
+         { name: "Sadananda Mangang", phone: "+916009020876", image: "https://github.com/Anandkhuman/Photo/raw/main/sadananda1.jpg", about: "Business Development head. Contact Sadananda for partnerships, sales inquiries, and project cost estimations." }
+      ];
+
+      AOS.init({ once: true });
+
+      if (document.getElementById('typed')) {
+        new Typed('#typed', { strings: ['Custom game features.', 'Secure payment gateways.', 'Ready to launch your platform?'], typeSpeed:40,backSpeed:18,backDelay:1500,loop:true });
+      }
+
+      const contactForm = document.getElementById('contactForm');
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!contactForm.checkValidity()) { contactForm.reportValidity(); return; }
+        const interest = document.getElementById('interest').value;
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+        let msg = `*New Game Website Enquiry* 🚀\n\n*Interested In:* ${interest}\n*Name:* ${name}\n`;
+        if (email) msg += `*Email:* ${email}\n`;
+        if (message) msg += `*Message:* ${message}\n`;
+        openEnquiryModal(encodeURIComponent(msg));
+      });
+
+      const grid = document.getElementById('agentsGrid');
+      const imageViewerModal = document.getElementById('imageViewerModal');
+      const fullscreenImage = document.getElementById('fullscreenImage');
+
+      function showFullscreenImage(src) {
+        fullscreenImage.src = src;
+        imageViewerModal.classList.add('active');
+      }
+
+      agents.forEach((agent, idx) => {
+        const div = document.createElement('div');
+        div.className = 'agent';
+        div.setAttribute('data-aos','fade-up');
+        div.setAttribute('data-aos-delay', String(80 * idx));
+        div.innerHTML = `<div class="avatar"><img src="${agent.image}" alt="${agent.name}" loading="lazy"></div><div class="meta"><div class="name">${agent.name}</div><div class="phone">${agent.phone}</div></div>`;
+        
+        // Open detail modal when clicking the whole card
+        div.addEventListener('click', () => openAgentDetailModal(agent));
+        
+        // NEW: Open image viewer when clicking just the avatar image
+        const avatarImg = div.querySelector('.avatar img');
+        avatarImg.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the card's click event from firing
+            showFullscreenImage(agent.image);
+        });
+
+        grid.appendChild(div);
+      });
+      
+      // NEW: Add click listener for the avatar in the detail modal
+      document.getElementById('modal-avatar').addEventListener('click', (e) => {
+          showFullscreenImage(e.target.src);
+      });
+
+      const teamModal = document.getElementById('teamModal');
+      const agentDetailModal = document.getElementById('agentDetailModal');
+      const modals = document.querySelectorAll('.modal');
+
+      function openEnquiryModal(encodedMessage) {
+        const modalTeam = document.getElementById('modalTeam');
+        modalTeam.innerHTML = ''; // Clear previous content
+        agents.forEach(a => {
+            const cleanPhone = a.phone.replace(/[^+\d]/g, '');
+            const waLink = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+            const item = document.createElement('div');
+            item.style = 'display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 10px; margin-bottom: 10px;';
+            item.innerHTML = `<div style="display:flex;align-items:center; text-align: left;"><img src="${a.image}" alt="${a.name}" style="width: 42px; height: 42px; border-radius: 8px; margin-right: 12px; object-fit: cover;"><div><div style="font-weight:600">${a.name}</div><div style="font-size:13px;color:var(--text-secondary)">${a.phone}</div></div></div><a href="${waLink}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #25D366; color: white; border-radius: 8px; text-decoration: none; font-size: 22px; transition: transform 0.2s;"><i class="fab fa-whatsapp"></i></a>`;
+            modalTeam.appendChild(item);
+        });
+        teamModal.classList.add('active');
+      }
+
+      function openAgentDetailModal(agent) {
+        const cleanPhone = agent.phone.replace(/[^+\d]/g, '');
+        document.getElementById('modal-avatar').src = agent.image;
+        document.getElementById('modal-name').textContent = agent.name;
+        document.getElementById('modal-phone').textContent = agent.phone;
+        document.getElementById('modal-about').textContent = agent.about; // Set about text
+        document.getElementById('modal-wa-btn').href = `https://wa.me/${cleanPhone}?text=Hello%20${encodeURIComponent(agent.name)}`;
+        document.getElementById('modal-call-btn').href = `tel:${cleanPhone}`;
+        agentDetailModal.dataset.phone = agent.phone;
+        agentDetailModal.classList.add('active');
+      }
+
+      modals.forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target.matches('.modal') || e.target.closest('[data-close-modal]')) {
+                modal.classList.remove('active');
+            }
+        });
+      });
+      
+      const copyBtn = document.getElementById('modal-copy-btn');
+      copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(agentDetailModal.dataset.phone).then(() => {
+              copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+              setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2000);
+          });
+      });
+
+      // NEW: Add Escape key functionality to close any active modal
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal.active').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+      });
+
+      const canvas = document.getElementById('heroCanvas');
+      if (canvas) {
+        const renderer = new THREE.WebGLRenderer({canvas, alpha:true});
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 1000);
+        camera.position.z = 70; const particleCount = 1600; const positions = new Float32Array(particleCount * 3); const colors = new Float32Array(particleCount * 3); const c1 = new THREE.Color(0x7c3aed); const c2 = new THREE.Color(0x06b6d4); for(let i=0;i<particleCount;i++){ const i3 = i*3; positions[i3] = (Math.random()-0.5) * 220; positions[i3+1] = (Math.random()-0.5) * 120; positions[i3+2] = (Math.random()-0.5) * 60; const col = c1.clone().lerp(c2, Math.random()*0.8); colors[i3] = col.r; colors[i3+1] = col.g; colors[i3+2] = col.b; } const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.BufferAttribute(positions,3)); geometry.setAttribute('color', new THREE.BufferAttribute(colors,3)); const material = new THREE.PointsMaterial({size:0.9, transparent:true, opacity:0.6, vertexColors: true}); const particles = new THREE.Points(geometry, material); scene.add(particles); gsap.to(particles.rotation, {z: Math.PI*0.06, x: -0.08, duration:40, repeat:-1, ease:'none'}); const resize = () => { const dpr = Math.min(window.devicePixelRatio || 1, 2); renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); }; window.addEventListener('resize', resize); resize(); const animate = () => { requestAnimationFrame(animate); const t = Date.now() * 0.0002; particles.position.x = Math.sin(t) * 6; particles.position.y = Math.cos(t*0.9) * 4; renderer.render(scene, camera); }; animate();
+      }
+      const container = document.querySelector('.container');
+      document.addEventListener('mousemove', (e)=>{ const rect = container.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; container.style.setProperty('--x', `${x}px`); container.style.setProperty('--y', `${y}px`); const rotX = (e.clientY / innerHeight - 0.5) * 2; const rotY = (e.clientX / innerWidth - 0.5) * 2; gsap.to(container, {rotationY: rotY * 3, rotationX: -rotX * 2, transformOrigin:'center', ease:'power1', duration:0.8}); });
+
+    });
+  </script>
+</body>
+</html>
