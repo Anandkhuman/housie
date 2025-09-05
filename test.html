@@ -1148,6 +1148,16 @@
         </section>
 
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
+            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">TICKET SEARCH & VIEW</h2>
+            <div class="search-container" style="padding: 0 1rem 1rem 1rem; margin-bottom: 0;">
+                <input type="text" class="searchInp" id="runGameSearchInp" placeholder="Enter name, phone, or ticket ID" style="background: var(--primary-bg-dash); color: var(--light-text-dash); border-color: var(--accent-color-dash);">
+                <button class="search-btn" id="runGameSearchBtn" style="background: var(--accent-color-dash);"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="ticketDisplayArea" id="runGameTicketDisplayArea" style="padding: 0 1rem 1rem 1rem; max-height: 40vh; overflow-y: auto;">
+            </div>
+        </section>
+
+        <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
             <table class="dividend-table" id="runGameDividendTable" style="color: var(--light-text-dash);">
                 <thead><tr><th style="color: var(--accent-color-dash);">Dividend</th><th style="color: var(--accent-color-dash);">Winner</th></tr></thead>
@@ -1223,7 +1233,7 @@
         <div style="padding: 1rem 1.5rem; text-align: center; color: var(--text-secondary); line-height: 1.6;">
                
             <p style="margin-bottom: 1.5rem;">
-                <b>Sintha Team</b> offers fully developed Tambola / Housie games and Jandi Munda / Lagao websites.
+                <b>Sintha Team</b> offers fully developed Housie and Lagao website.
                 If you would like to organize games and purchase a custom website, please contact us for more information.
             </p>
          
@@ -1507,6 +1517,8 @@ function bindEventListeners() {
     document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
     document.getElementById('saveOwnerChangesBtn').addEventListener('click', saveTicketOwnerChanges);
     document.getElementById('closeFirstVisitPopupBtn').addEventListener('click', closePopups);
+    document.getElementById('runGameSearchBtn').addEventListener('click', searchTicketInRunGame);
+    document.getElementById('runGameSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketInRunGame(); });
 }
 
 function showPopup(id) {
@@ -2009,7 +2021,7 @@ function clearSearchResult(phone) {
 }
 
 function updateDisplayedTicketPublic() {
-    document.querySelectorAll('#ticketDisplayArea .ticket-view, #bookedTicketsDisplay .ticket-view').forEach(ticketView => {
+    document.querySelectorAll('#ticketDisplayArea .ticket-view, #bookedTicketsDisplay .ticket-view, #runGameTicketDisplayArea .ticket-view').forEach(ticketView => {
         ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
             const num = parseInt(cell.dataset.num, 10);
             if (num > 0) {
@@ -2206,17 +2218,35 @@ function showAllWinningTicketsForDividend(dividendName) {
         
         allTicketsHTML += `<h4 style="color: #01579b; margin-top: 1rem; text-align: center; border-bottom: 1px solid #b3e5fc; padding-bottom: 0.5rem;">${winner.name} (${typeof ticketId === 'number' ? `Tkt #${ticketId}` : ticketId})</h4>`;
         
+        let ticketsToDisplay = [];
+
         if (typeof ticketId === 'string' && ticketId.toLowerCase().includes('sheet')) {
-            const sheetNumberMatch = ticketId.match(/\d+/);
-            if (!sheetNumberMatch) return;
-            
-            const sheetIndex = parseInt(sheetNumberMatch[0], 10) - 1;
-            const ownerTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === winner.phone);
-            const winningSheetTickets = ownerTickets.filter(t => Math.floor((t.id - 1) / 6) === sheetIndex);
-            
-            if(winningSheetTickets.length === 0) return;
-            
-            winningSheetTickets.sort((a, b) => a.id - b.id).forEach(ticket => {
+            if (ticketId.toLowerCase().includes('full sheet')) {
+                const sheetNumberMatch = ticketId.match(/\d+/);
+                if (sheetNumberMatch) {
+                    const sheetIndex = parseInt(sheetNumberMatch[0], 10) - 1;
+                    ticketsToDisplay = allTicketsData.filter(t => 
+                        t.is_sold && 
+                        t.owner_phone === winner.phone && 
+                        Math.floor((t.id - 1) / 6) === sheetIndex
+                    );
+                }
+            } else if (ticketId.toLowerCase().includes('half sheet')) {
+                const ticketIdsMatch = ticketId.match(/\(([^)]+)\)/);
+                if (ticketIdsMatch && ticketIdsMatch[1]) {
+                    const halfSheetTicketIds = ticketIdsMatch[1].split(',').map(Number);
+                    ticketsToDisplay = allTicketsData.filter(t => halfSheetTicketIds.includes(t.id));
+                }
+            }
+        } else {
+            const singleTicket = allTicketsData.find(t => t.id === ticketId);
+            if (singleTicket) {
+                ticketsToDisplay.push(singleTicket);
+            }
+        }
+
+        if (ticketsToDisplay.length > 0) {
+            ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
                 const gridHTML = ticket.numbers.flat().map(n => {
                     const isCalled = n > 0 && currentCalledNumbers.includes(n);
                     const isWinningStrike = n === winningNumber;
@@ -2228,21 +2258,6 @@ function showAllWinningTicketsForDividend(dividendName) {
                                     <div class="ticket-grid">${gridHTML}</div>
                                </div>`;
             });
-
-        } else {
-            const ticket = allTicketsData.find(t => t.id === ticketId);
-            if (!ticket) return;
-
-            const gridHTML = ticket.numbers.flat().map(n => {
-                const isCalled = n > 0 && currentCalledNumbers.includes(n);
-                const isWinningStrike = n === winningNumber;
-                const classes = `ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''} ${isWinningStrike ? 'winning-strike' : ''}`;
-                return `<div class="${classes}" data-num="${n}">${n > 0 ? n : ''}</div>`;
-            }).join('');
-
-            allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin-bottom: 1rem;">
-                                <div class="ticket-grid">${gridHTML}</div>
-                             </div>`;
         }
     });
 
@@ -3778,6 +3793,49 @@ function updateRunGameUI(gameState) {
     if(document.getElementById('runGameWindowDiv').classList.contains('active')){
         const isRunning = gameState.isGameRunning || false;
         document.getElementById('callStatusInp').value = isRunning ? 'on' : 'off';
+    }
+}
+
+function searchTicketInRunGame() {
+    const displayArea = document.getElementById('runGameTicketDisplayArea');
+    const searchTerm = document.getElementById('runGameSearchInp').value.trim();
+    if (!searchTerm) {
+        displayArea.innerHTML = '';
+        return;
+    }
+    
+    let ticketsToDisplay = [];
+    const searchNumber = parseInt(searchTerm, 10);
+
+    if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
+        const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
+        if (initialTicket) {
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+        }
+    } else {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+        );
+    }
+
+    if (ticketsToDisplay.length > 0) {
+        let ticketsHTML = '';
+        const ownerName = ticketsToDisplay[0].owner_name; 
+
+        ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+            const gridHTML = ticket.numbers.flat().map(n =>
+                `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+            ).join('');
+            ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin-bottom: 0.5rem;">
+                        <div class="ticket-header">Ticket #${ticket.id}: ${ownerName}</div>
+                        <div class="ticket-grid">${gridHTML}</div>
+                    </div>`;
+        });
+        displayArea.innerHTML = ticketsHTML;
+        updateDisplayedTicketPublic();
+    } else {
+        displayArea.innerHTML = '<p style="text-align:center; color: var(--muted-color-dash);">No tickets found.</p>';
     }
 }
 
