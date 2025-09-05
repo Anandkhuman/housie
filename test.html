@@ -1233,7 +1233,7 @@
         <div style="padding: 1rem 1.5rem; text-align: center; color: var(--text-secondary); line-height: 1.6;">
                
             <p style="margin-bottom: 1.5rem;">
-                <b>Sintha Team</b> offers fully developed Housie and Lagao websites.
+                <b>Sintha Team</b> offers fully developed Tambola / Housie games and Jandi Munda / Lagao websites.
                 If you would like to organize games and purchase a custom website, please contact us for more information.
             </p>
          
@@ -1875,9 +1875,13 @@ function renderVisualTicketBookingPage() {
             let gridHTML = '';
 
             if (ticket) {
-                 gridHTML = (ticket.numbers || []).flat().map(n =>
-                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
-                ).join('');
+                if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                    gridHTML = ticket.numbers.flat().map(n =>
+                        `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                    ).join('');
+                } else {
+                    gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                }
             } else {
                 gridHTML = '<p style="text-align:center; padding: 1rem;">Data missing</p>';
             }
@@ -1997,9 +2001,15 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
         
         let ticketsHTML = '';
         ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-            const gridHTML = (ticket.numbers || []).flat().map(n =>
-                `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
-            ).join('');
+            let gridHTML;
+            if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                 gridHTML = ticket.numbers.flat().map(n =>
+                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                ).join('');
+            } else {
+                gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+            }
+            
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
                         <div class="ticket-header">Ticket #${ticket.id}: ${ticket.owner_name}</div>
                         <div class="ticket-grid">${gridHTML}</div>
@@ -2184,10 +2194,15 @@ function renderSheetWiseBookedList() {
                             <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
                         </div>`;
                 }
-
-                const gridHTML = (ticket.numbers || []).flat().map(n =>
-                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
-                ).join('');
+                
+                let gridHTML;
+                if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                    gridHTML = ticket.numbers.flat().map(n =>
+                        `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                    ).join('');
+                } else {
+                    gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                }
 
                 ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
             }
@@ -2249,13 +2264,18 @@ function showAllWinningTicketsForDividend(dividendName) {
 
         if (ticketsToDisplay.length > 0) {
             ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-                // Add a guard (ticket.numbers || []) to prevent errors if numbers array is missing
-                const gridHTML = (ticket.numbers || []).flat().map(n => {
-                    const isCalled = n > 0 && currentCalledNumbers.includes(n);
-                    const isWinningStrike = n === winningNumber;
-                    const classes = `ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''} ${isWinningStrike ? 'winning-strike' : ''}`;
-                    return `<div class="${classes}" data-num="${n}">${n > 0 ? n : ''}</div>`;
-                }).join('');
+                let gridHTML;
+                if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                    gridHTML = ticket.numbers.flat().map(n => {
+                        const isCalled = n > 0 && currentCalledNumbers.includes(n);
+                        const isWinningStrike = n === winningNumber;
+                        const classes = `ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''} ${isWinningStrike ? 'winning-strike' : ''}`;
+                        return `<div class="${classes}" data-num="${n}">${n > 0 ? n : ''}</div>`;
+                    }).join('');
+                } else {
+                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                }
+
 
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
                                     <div class="ticket-header">Ticket #${ticket.id}</div>
@@ -3381,7 +3401,9 @@ function checkAllWinners(calledNumbers, currentWinners) {
         let winnersThisTurn = [];
         
         for (const ticket of soldTickets) {
-            if (!ticket.numbers) continue; // Safety check
+            // [FIX] More robust check for ticket.numbers to prevent crashes
+            if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
+            
             let isWinner = false;
             let winningPatternNumbers = [];
             const checkPattern = (numbers) => {
@@ -3831,10 +3853,15 @@ function searchTicketInRunGame() {
         const ownerName = ticketsToDisplay[0].owner_name; 
 
         ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-            // Add a guard (ticket.numbers || []) to prevent errors if numbers array is missing
-            const gridHTML = (ticket.numbers || []).flat().map(n =>
-                `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
-            ).join('');
+            let gridHTML;
+            if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                gridHTML = ticket.numbers.flat().map(n =>
+                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                ).join('');
+            } else {
+                 gridHTML = '<p style="text-align:center; padding: 1rem; color: #ffcccc;">Visual ticket data missing.</p>';
+            }
+
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin-bottom: 0.5rem;">
                         <div class="ticket-header">Ticket #${ticket.id}: ${ownerName}</div>
                         <div class="ticket-grid">${gridHTML}</div>
