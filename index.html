@@ -1173,26 +1173,38 @@
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" style="color: var(--light-text-dash);">Game Poster Generator</h3>
         
-        <div id="poster-bg-controls" style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px;">
-            <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center;">Change BG:</span>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
-            <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex-grow: 0;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
-        </div>
+        <div id="poster-bg-controls" 
+     style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; gap: 5px; padding-bottom: 5px;">
+    <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center; flex: 0 0 auto;">Change BG:</span>
+    
+    <!-- Buttons from 1 to 25 -->
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
+</div>
+
 
         <div id="posterContent">
             <!-- Poster content will be generated here by JS -->
@@ -3746,4 +3758,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
