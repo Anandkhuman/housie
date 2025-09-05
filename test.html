@@ -1,143 +1,151 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola Audio ZIP Downloader</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
-            text-align: center;
-        }
-        .container {
-            padding: 40px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 500px;
-        }
-        h1 { color: #333; }
-        p { color: #666; }
-        .warning {
-            background-color: #fffbe6;
-            color: #8a6d3b;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ffeeba;
-            margin-bottom: 20px;
-        }
-        #downloadBtn {
-            background-color: #28a745; color: white; border: none;
-            padding: 15px 30px; font-size: 18px; font-weight: bold;
-            border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
-        }
-        #downloadBtn:hover { background-color: #218838; }
-        #downloadBtn:disabled { background-color: #cccccc; cursor: not-allowed; }
-        #status {
-            margin-top: 25px; font-size: 16px; color: #555;
-            font-weight: bold; min-height: 24px;
-        }
-        .error { color: #dc3545; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tambola audio download buttons (1–90)</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{margin:18px;background:#f7f9fc;color:#0b1220}
+    h1{font-size:20px;margin:0 0 12px}
+    .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+    .card{background:#fff;border-radius:10px;padding:10px;box-shadow:0 6px 18px rgba(15,23,42,0.06);display:flex;flex-direction:column;gap:8px;align-items:center}
+    .download-btn{display:inline-block;padding:8px 10px;border-radius:8px;border:0;text-decoration:none;background:#2563eb;color:#fff;font-weight:600;cursor:pointer}
+    .play-btn{padding:6px 8px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
+    small{color:#6b7280}
+    .search{padding:8px;border-radius:8px;border:1px solid #ddd;width:220px}
+    footer{margin-top:14px;font-size:13px;color:#374151}
+  </style>
 </head>
 <body>
+  <h1>Tambola audio download buttons (1–90)</h1>
+  <div class="controls">
+    <input id="search" class="search" placeholder="Filter number (e.g. 7 or 12-20)" />
+    <button id="filterClear" class="play-btn">Clear filter</button>
+    <button id="downloadAll" class="download-btn">Download All (One by One)</button>
+    <label style="margin-left:auto"><input id="showPreview" type="checkbox" /> Show preview controls</label>
+  </div>
 
-    <div class="container">
-        <h1>Tambola Audio Downloader</h1>
-        <p>Click to fetch all 90 audio files and download them in a single <strong>audio.zip</strong> file.</p>
-        
-        <div class="warning">
-            <strong>First Time?</strong> If the download fails or the ZIP is empty, you likely need a CORS browser extension. See the page source code comments for more info.
-        </div>
+  <div id="grid" class="grid" aria-live="polite"></div>
 
-        <button id="downloadBtn">Download All as audio.zip</button>
-        <div id="status"></div>
-    </div>
+  <footer>
+    Files are linked from 
+    <code>https://housiuniverse4596.com/tambolaCallMp3/</code>. 
+    Use the “Download All (One by One)” button to trigger downloads of all 90 MP3s individually.
+  </footer>
 
-    <script>
-        const baseUrl = 'https://housiuniverse4596.com/tambolaCallMp3/';
-        const totalFiles = 90;
-        const zipFileName = 'audio.zip';
+  <script>
+    const base = 'https://housiuniverse4596.com/tambolaCallMp3/';
+    const grid = document.getElementById('grid');
+    const search = document.getElementById('search');
+    const filterClear = document.getElementById('filterClear');
+    const showPreview = document.getElementById('showPreview');
+    const downloadAll = document.getElementById('downloadAll');
 
-        const downloadBtn = document.getElementById('downloadBtn');
-        const statusDiv = document.getElementById('status');
-        let filesDownloaded = 0;
+    function createCard(n) {
+      const url = `${base}${n}.mp3`;
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.num = n;
 
-        const startZipDownload = async () => {
-            downloadBtn.disabled = true;
-            statusDiv.textContent = 'Initializing...';
-            statusDiv.className = '';
-            filesDownloaded = 0;
+      const title = document.createElement('div');
+      title.innerHTML = `<strong>Number ${n}</strong>`;
 
-            const zip = new JSZip();
-            const fetchPromises = [];
+      const actions = document.createElement('div');
+      actions.style.display = 'flex';
+      actions.style.gap = '8px';
 
-            for (let i = 1; i <= totalFiles; i++) {
-                const fileName = `${i}.mp3`;
-                const fileUrl = `${baseUrl}${fileName}`;
-                
-                const promise = fetch(fileUrl)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status} for ${fileName}`);
-                        }
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        zip.file(fileName, blob);
-                        filesDownloaded++;
-                        statusDiv.textContent = `Fetched ${filesDownloaded} of ${totalFiles} files...`;
-                    });
-                
-                fetchPromises.push(promise);
-            }
+      const dl = document.createElement('a');
+      dl.className = 'download-btn';
+      dl.href = url;
+      dl.setAttribute('download', `${n}.mp3`);
+      dl.textContent = 'Download';
+      dl.title = `Download ${n}.mp3`;
 
-            try {
-                // Wait for all fetches to complete.
-                await Promise.all(fetchPromises);
-                
-                if (filesDownloaded === 0) {
-                    throw new Error("No files were successfully downloaded. This is almost certainly a CORS issue.");
-                }
+      const play = document.createElement('button');
+      play.className = 'play-btn';
+      play.type = 'button';
+      play.textContent = 'Play';
+      play.addEventListener('click', () => {
+        let a = card.querySelector('audio');
+        if (!a) {
+          a = document.createElement('audio');
+          a.controls = true;
+          a.src = url;
+          a.style.width = '100%';
+          card.appendChild(a);
+        }
+        if (a.paused) a.play(); else a.pause();
+      });
 
-                statusDiv.textContent = `All ${filesDownloaded} files fetched. Generating ZIP file...`;
+      actions.appendChild(dl);
+      actions.appendChild(play);
 
-                const zipContent = await zip.generateAsync({ type: "blob" });
+      card.appendChild(title);
+      card.appendChild(actions);
 
-                // Create a link and trigger the download
-                const url = URL.createObjectURL(zipContent);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', zipFileName);
-                document.body.appendChild(link);
-                link.click();
-                link.parentNode.removeChild(link);
-                URL.revokeObjectURL(url);
+      return card;
+    }
 
-                statusDiv.textContent = `Success! ${zipFileName} is downloading.`;
-                statusDiv.className = 'success';
+    function populate() {
+      grid.innerHTML = '';
+      for (let i = 1; i <= 90; i++) {
+        grid.appendChild(createCard(i));
+      }
+    }
 
-            } catch (error) {
-                console.error('An error occurred:', error);
-                statusDiv.textContent = 'Download failed! Check the browser console (F12) for errors.';
-                statusDiv.className = 'error';
-                alert("Download failed!\n\nThis is very likely due to a server security policy (CORS).\n\nTo fix this:\n1. Open the Developer Tools (F12) and check the Console tab for errors.\n2. Install a 'CORS Unblock' extension for your browser.\n3. Enable the extension and try again.");
-            } finally {
-                downloadBtn.disabled = false;
-            }
-        };
+    populate();
 
-        downloadBtn.addEventListener('click', startZipDownload);
-    </script>
+    function applyFilter() {
+      const v = search.value.trim();
+      if (!v) {
+        [...grid.children].forEach(c => c.style.display = 'flex');
+        return;
+      }
+      const rangeMatch = v.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (rangeMatch) {
+        const a = Number(rangeMatch[1]);
+        const b = Number(rangeMatch[2]);
+        [...grid.children].forEach(c => {
+          const n = Number(c.dataset.num);
+          c.style.display = (n >= Math.min(a,b) && n <= Math.max(a,b)) ? 'flex' : 'none';
+        });
+        return;
+      }
+      [...grid.children].forEach(c => {
+        const n = c.dataset.num;
+        c.style.display = n.includes(v) ? 'flex' : 'none';
+      });
+    }
 
+    search.addEventListener('input', applyFilter);
+    filterClear.addEventListener('click', () => { search.value = ''; applyFilter(); search.focus(); });
+
+    showPreview.addEventListener('change', (e) => {
+      const withAudio = e.target.checked;
+      [...grid.children].forEach(card => {
+        const audio = card.querySelector('audio');
+        if (audio) audio.style.display = withAudio ? 'block' : 'none';
+      });
+    });
+
+    // Download all one by one
+    downloadAll.addEventListener('click', () => {
+      for (let i = 1; i <= 90; i++) {
+        const link = document.createElement('a');
+        link.href = `${base}${i}.mp3`;
+        link.setAttribute('download', `${i}.mp3`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    });
+
+    // Accessibility: "/" to focus search
+    window.addEventListener('keydown', (ev) => {
+      if (ev.key === '/') { ev.preventDefault(); search.focus(); }
+    });
+  </script>
 </body>
 </html>
