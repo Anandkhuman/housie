@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambola Audio ZIP Downloader</title>
     
-    <!-- We need the JSZip library to create the zip file -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -26,14 +25,8 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             max-width: 500px;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        p {
-            color: #666;
-            margin-bottom: 30px;
-        }
+        h1 { color: #333; }
+        p { color: #666; }
         .warning {
             background-color: #fffbe6;
             color: #8a6d3b;
@@ -43,43 +36,27 @@
             margin-bottom: 20px;
         }
         #downloadBtn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
+            background-color: #28a745; color: white; border: none;
+            padding: 15px 30px; font-size: 18px; font-weight: bold;
+            border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
         }
-        #downloadBtn:hover {
-            background-color: #218838;
-        }
-        #downloadBtn:active {
-            transform: scale(0.98);
-        }
-        #downloadBtn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
+        #downloadBtn:hover { background-color: #218838; }
+        #downloadBtn:disabled { background-color: #cccccc; cursor: not-allowed; }
         #status {
-            margin-top: 25px;
-            font-size: 16px;
-            color: #555;
-            min-height: 24px;
-            font-weight: bold;
+            margin-top: 25px; font-size: 16px; color: #555;
+            font-weight: bold; min-height: 24px;
         }
+        .error { color: #dc3545; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>Tambola Audio Downloader</h1>
-        <p>Click the button below to fetch all 90 audio files and download them together in a single <strong>audio.zip</strong> file.</p>
+        <p>Click to fetch all 90 audio files and download them in a single <strong>audio.zip</strong> file.</p>
         
         <div class="warning">
-            <strong>Note:</strong> This process can take a few moments and depends on your internet speed. Please be patient.
+            <strong>First Time?</strong> If the download fails or the ZIP is empty, you likely need a CORS browser extension. See the page source code comments for more info.
         </div>
 
         <button id="downloadBtn">Download All as audio.zip</button>
@@ -87,100 +64,78 @@
     </div>
 
     <script>
-        // --- Configuration ---
         const baseUrl = 'https://housiuniverse4596.com/tambolaCallMp3/';
         const totalFiles = 90;
         const zipFileName = 'audio.zip';
 
-        // --- DOM Elements ---
         const downloadBtn = document.getElementById('downloadBtn');
         const statusDiv = document.getElementById('status');
+        let filesDownloaded = 0;
 
-        // --- Main function to handle the download and zipping process ---
         const startZipDownload = async () => {
-            // Disable the button to prevent multiple clicks
             downloadBtn.disabled = true;
             statusDiv.textContent = 'Initializing...';
+            statusDiv.className = '';
+            filesDownloaded = 0;
+
+            const zip = new JSZip();
+            const fetchPromises = [];
+
+            for (let i = 1; i <= totalFiles; i++) {
+                const fileName = `${i}.mp3`;
+                const fileUrl = `${baseUrl}${fileName}`;
+                
+                const promise = fetch(fileUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status} for ${fileName}`);
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        zip.file(fileName, blob);
+                        filesDownloaded++;
+                        statusDiv.textContent = `Fetched ${filesDownloaded} of ${totalFiles} files...`;
+                    });
+                
+                fetchPromises.push(promise);
+            }
 
             try {
-                // Create a new instance of JSZip
-                const zip = new JSZip();
-                const fetchPromises = [];
-
-                // Loop to create fetch requests for all files
-                for (let i = 1; i <= totalFiles; i++) {
-                    const fileName = `${i}.mp3`;
-                    const fileUrl = `${baseUrl}${fileName}`;
-                    
-                    statusDiv.textContent = `Preparing to fetch file ${i}/${totalFiles}...`;
-
-                    const promise = fetch(fileUrl)
-                        .then(response => {
-                            // Check if the request was successful
-                            if (!response.ok) {
-                                throw new Error(`Failed to fetch ${fileName}. Status: ${response.status}`);
-                            }
-                            return response.blob(); // Get the file content as a 'blob'
-                        })
-                        .then(blob => {
-                            // Add the fetched file to the zip folder
-                            zip.file(fileName, blob);
-                            console.log(`Added ${fileName} to zip.`);
-                            statusDiv.textContent = `Fetched ${fileName} (${i}/${totalFiles})`;
-                        })
-                        .catch(error => {
-                            // Log errors for individual files but continue
-                            console.error(error);
-                            statusDiv.textContent = `Error fetching ${fileName}. Skipping.`;
-                        });
-                    
-                    fetchPromises.push(promise);
+                // Wait for all fetches to complete.
+                await Promise.all(fetchPromises);
+                
+                if (filesDownloaded === 0) {
+                    throw new Error("No files were successfully downloaded. This is almost certainly a CORS issue.");
                 }
 
-                // Wait for all the fetch operations to complete
-                await Promise.all(fetchPromises);
+                statusDiv.textContent = `All ${filesDownloaded} files fetched. Generating ZIP file...`;
 
-                statusDiv.textContent = 'All files fetched. Generating ZIP file...';
+                const zipContent = await zip.generateAsync({ type: "blob" });
 
-                // Generate the ZIP file content asynchronously
-                const zipContent = await zip.generateAsync({
-                    type: "blob",
-                    compression: "DEFLATE",
-                    compressionOptions: {
-                        level: 9 // Max compression
-                    }
-                });
-
-                // Create a temporary URL for the generated ZIP blob
+                // Create a link and trigger the download
                 const url = URL.createObjectURL(zipContent);
-
-                // Create a temporary anchor element to trigger the download
                 const link = document.createElement('a');
                 link.href = url;
                 link.setAttribute('download', zipFileName);
-                
-                // Add link to the page, click it, and then remove it
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
-
-                // Clean up the temporary URL
+                link.parentNode.removeChild(link);
                 URL.revokeObjectURL(url);
 
                 statusDiv.textContent = `Success! ${zipFileName} is downloading.`;
+                statusDiv.className = 'success';
 
             } catch (error) {
-                // Catch any critical errors
-                console.error('A critical error occurred:', error);
-                statusDiv.textContent = 'A critical error occurred. Check browser console (F12) for details.';
-                alert('Download failed. This is likely due to a server security policy (CORS) that prevents fetching the files. See the developer console (F12) for more details.');
+                console.error('An error occurred:', error);
+                statusDiv.textContent = 'Download failed! Check the browser console (F12) for errors.';
+                statusDiv.className = 'error';
+                alert("Download failed!\n\nThis is very likely due to a server security policy (CORS).\n\nTo fix this:\n1. Open the Developer Tools (F12) and check the Console tab for errors.\n2. Install a 'CORS Unblock' extension for your browser.\n3. Enable the extension and try again.");
             } finally {
-                // Re-enable the button
                 downloadBtn.disabled = false;
             }
         };
 
-        // Attach the event listener to the button
         downloadBtn.addEventListener('click', startZipDownload);
     </script>
 
