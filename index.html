@@ -1232,7 +1232,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database(); // Use Realtime Database
 
-const audioBaseUrl = "https://housiuniverse4596.com/tambolaCallMp3/";
+const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
 function playSound(src) {
     const sound = new Audio(src);
     sound.play().catch(error => {
@@ -1240,18 +1240,18 @@ function playSound(src) {
 }
 
 const dividendSoundMap = {
-    "First Full House": "First%20Full%20House.mp3",
-    "Second Full House": "Second%20Full%20House.mp3",
-    "Third Full House": "Third%20Full%20House.mp3",
-    "Top Line": "Top%20Line.mp3",
-    "Middle Line": "Middle%20Line.mp3",
-    "Bottom Line": "Bottom%20Line.mp3",
+    "First Full House": "FirstFullHouse.mp3",
+    "Second Full House": "SecondFullHouse.mp3",
+    "Third Full House": "ThirdFullHouse.mp3",
+    "Top Line": "TopLine.mp3",
+    "Middle Line": "MiddleLine.mp3",
+    "Bottom Line": "BottomLine.mp3",
     "Corners (4)": "Corner.mp3",
     "Quick 7": "Quick7.mp3",
-    "Full Sheet Bonus": "Full%20Sheet%20Bonus.mp3",
-    "Half Sheet Bonus": "Half%20Sheet%20Bonus.mp3",
+    "Full Sheet Bonus": "FullSheetBonus.mp3",
+    "Half Sheet Bonus": "HalfSheetBonus.mp3",
     "Star": "Star.mp3",
-    "Early 5": "Early%205.mp3",
+    "Early 5": "Early5.mp3",
    };
 
 let currentView = 'publicView';
@@ -1770,7 +1770,7 @@ function updateCountdownTimers(targetDateString) {
             clearInterval(countdownInterval);
             countdownText = 'Game is in Progress!';
             if (!gameLiveSoundPlayed) {
-                playSound(audioBaseUrl + "GAME%20IS%20LIVE.mp3");
+                playSound(audioBaseUrl + "GAMEISLIVE.mp3");
                 gameLiveSoundPlayed = true;
             }
         } else {
@@ -3212,7 +3212,7 @@ async function toggleGameRunner() {
                 return currentData;
             });
             
-            playSound(audioBaseUrl + "game%20has%20started.mp3");
+            playSound(audioBaseUrl + "gamehasstarted.mp3");
 
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
             const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
@@ -3758,5 +3758,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
