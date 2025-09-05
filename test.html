@@ -1233,7 +1233,7 @@
         <div style="padding: 1rem 1.5rem; text-align: center; color: var(--text-secondary); line-height: 1.6;">
                
             <p style="margin-bottom: 1.5rem;">
-                <b>Sintha Team</b> offers fully developed Housie and Lagao website.
+                <b>Sintha Team</b> offers fully developed Housie and Lagao websites.
                 If you would like to organize games and purchase a custom website, please contact us for more information.
             </p>
          
@@ -1874,8 +1874,8 @@ function renderVisualTicketBookingPage() {
             let headerHTML = `<div class="ticket-header">Ticket #${j}</div>`;
             let gridHTML = '';
 
-            if (ticket && ticket.numbers) {
-                 gridHTML = ticket.numbers.flat().map(n =>
+            if (ticket) {
+                 gridHTML = (ticket.numbers || []).flat().map(n =>
                     `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
                 ).join('');
             } else {
@@ -1997,7 +1997,7 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
         
         let ticketsHTML = '';
         ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-            const gridHTML = ticket.numbers.flat().map(n =>
+            const gridHTML = (ticket.numbers || []).flat().map(n =>
                 `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
             ).join('');
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
@@ -2171,7 +2171,7 @@ function renderSheetWiseBookedList() {
             ticketView.className = 'ticket-view';
             ticketView.setAttribute('data-ticket-id', j);
 
-            if (!ticket || !ticket.numbers) {
+            if (!ticket) {
                 ticketView.innerHTML = `<div class="ticket-header">Ticket #${j} Data Missing</div>`;
             } else {
                  let headerHTML;
@@ -2185,7 +2185,7 @@ function renderSheetWiseBookedList() {
                         </div>`;
                 }
 
-                const gridHTML = ticket.numbers.flat().map(n =>
+                const gridHTML = (ticket.numbers || []).flat().map(n =>
                     `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
                 ).join('');
 
@@ -2220,6 +2220,7 @@ function showAllWinningTicketsForDividend(dividendName) {
         
         let ticketsToDisplay = [];
 
+        // Find the winning ticket(s) based on the ticketId format (number, "Full Sheet", or "Half Sheet")
         if (typeof ticketId === 'string' && ticketId.toLowerCase().includes('sheet')) {
             if (ticketId.toLowerCase().includes('full sheet')) {
                 const sheetNumberMatch = ticketId.match(/\d+/);
@@ -2239,7 +2240,8 @@ function showAllWinningTicketsForDividend(dividendName) {
                 }
             }
         } else {
-            const singleTicket = allTicketsData.find(t => t.id === ticketId);
+            // Use loose equality (==) to handle cases where ID might be a number or string
+            const singleTicket = allTicketsData.find(t => t.id == ticketId);
             if (singleTicket) {
                 ticketsToDisplay.push(singleTicket);
             }
@@ -2247,17 +2249,21 @@ function showAllWinningTicketsForDividend(dividendName) {
 
         if (ticketsToDisplay.length > 0) {
             ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-                const gridHTML = ticket.numbers.flat().map(n => {
+                // Add a guard (ticket.numbers || []) to prevent errors if numbers array is missing
+                const gridHTML = (ticket.numbers || []).flat().map(n => {
                     const isCalled = n > 0 && currentCalledNumbers.includes(n);
                     const isWinningStrike = n === winningNumber;
                     const classes = `ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''} ${isWinningStrike ? 'winning-strike' : ''}`;
                     return `<div class="${classes}" data-num="${n}">${n > 0 ? n : ''}</div>`;
                 }).join('');
+
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
                                     <div class="ticket-header">Ticket #${ticket.id}</div>
                                     <div class="ticket-grid">${gridHTML}</div>
                                </div>`;
             });
+        } else {
+             allTicketsHTML += `<p style="text-align:center; color:#e74c3c; padding:1rem;">Could not find the visual ticket data for this winner.</p>`;
         }
     });
 
@@ -3359,7 +3365,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     
     const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
-    const countMarked = (ticket) => ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
     const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
         if (ticket.owner_phone) {
@@ -3375,6 +3381,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
         let winnersThisTurn = [];
         
         for (const ticket of soldTickets) {
+            if (!ticket.numbers) continue; // Safety check
             let isWinner = false;
             let winningPatternNumbers = [];
             const checkPattern = (numbers) => {
@@ -3427,7 +3434,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         const count = parseInt(dividend.name.match(/\d+/)[0], 10);
                         if (countMarked(ticket) === count) {
                             isWinner = true;
-                            winningPatternNumbers = ticket.numbers.flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
+                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
                         }
                     }
                     break;
@@ -3451,7 +3458,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 for (const sheetNum in ticketsBySheet) {
                     const sheetTickets = ticketsBySheet[sheetNum];
                     if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
-                        if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => t.numbers.flat().includes(lastCalledNumber))) {
+                        if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                             winnersThisTurn.push({ name: ownerTickets[0].owner_name, phone: ownerPhone, ticketId: `Sheet ${parseInt(sheetNum) + 1}`, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP, dividendName: dividend.name });
                         }
                     } else if (dividend.name === 'Half Sheet Bonus') {
@@ -3466,7 +3473,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         // Check first half
                         if (firstHalfIds.every(id => sheetTicketIds.has(id))) {
                             const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
-                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => t.numbers.flat().includes(lastCalledNumber))) {
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
                                     name: ownerTickets[0].owner_name,
                                     phone: ownerPhone,
@@ -3482,7 +3489,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         // Check second half, only if the first half didn't win for this owner in this sheet
                         if (!winnerFoundInSheet && secondHalfIds.every(id => sheetTicketIds.has(id))) {
                             const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
-                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => t.numbers.flat().includes(lastCalledNumber))) {
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
                                     name: ownerTickets[0].owner_name,
                                     phone: ownerPhone,
@@ -3824,7 +3831,8 @@ function searchTicketInRunGame() {
         const ownerName = ticketsToDisplay[0].owner_name; 
 
         ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-            const gridHTML = ticket.numbers.flat().map(n =>
+            // Add a guard (ticket.numbers || []) to prevent errors if numbers array is missing
+            const gridHTML = (ticket.numbers || []).flat().map(n =>
                 `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
             ).join('');
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin-bottom: 0.5rem;">
