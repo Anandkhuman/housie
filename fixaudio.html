@@ -13,9 +13,9 @@
     .card{background:#fff;border-radius:10px;padding:10px;box-shadow:0 6px 18px rgba(15,23,42,0.06);display:flex;flex-direction:column;gap:8px;align-items:center}
     .download-btn{display:inline-block;padding:8px 10px;border-radius:8px;border:0;text-decoration:none;background:#2563eb;color:#fff;font-weight:600;cursor:pointer}
     .play-btn{padding:6px 8px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
+    small{color:#6b7280}
     .search{padding:8px;border-radius:8px;border:1px solid #ddd;width:220px}
     footer{margin-top:14px;font-size:13px;color:#374151}
-    #progress{margin-top:10px;font-size:14px;color:#374151}
   </style>
 </head>
 <body>
@@ -28,27 +28,24 @@
   </div>
 
   <div id="grid" class="grid" aria-live="polite"></div>
-  <div id="progress"></div>
 
   <footer>
     Files are linked from 
     <code>https://housiuniverse4596.com/tambolaCallMp3/</code>. 
-    The “Download All (ZIP)” button fetches all 90 MP3s through a proxy (for CORS) and bundles them into one ZIP file.
+    Use the “Download All (ZIP)” button to fetch and bundle all 90 MP3s.
   </footer>
 
-  <!-- Load JSZip and FileSaver -->
+  <!-- Load JSZip and FileSaver for ZIP functionality -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <script>
     const base = 'https://housiuniverse4596.com/tambolaCallMp3/';
-    const proxy = 'https://cors-anywhere.herokuapp.com/'; // development-only CORS proxy
     const grid = document.getElementById('grid');
     const search = document.getElementById('search');
     const filterClear = document.getElementById('filterClear');
     const showPreview = document.getElementById('showPreview');
     const downloadAll = document.getElementById('downloadAll');
-    const progress = document.getElementById('progress');
 
     function createCard(n) {
       const url = `${base}${n}.mp3`;
@@ -137,28 +134,23 @@
       });
     });
 
-    // Download all as ZIP using proxy
+    // Download all as ZIP using JSZip
     downloadAll.addEventListener('click', async () => {
       const zip = new JSZip();
       const folder = zip.folder("TambolaMP3s");
-      progress.textContent = "Starting download of 90 files...";
-
       for (let i = 1; i <= 90; i++) {
-        const url = `${proxy}${base}${i}.mp3`;
+        const url = `${base}${i}.mp3`;
         try {
           const response = await fetch(url);
           const blob = await response.blob();
           folder.file(`${i}.mp3`, blob);
-          progress.textContent = `Added: ${i}.mp3 (${i}/90)`;
+          console.log(`Added: ${i}.mp3`);
         } catch (e) {
           console.error(`Failed to fetch ${i}.mp3`, e);
-          progress.textContent = `Failed to fetch ${i}.mp3`;
         }
       }
-      progress.textContent = "Creating ZIP, please wait...";
       const content = await zip.generateAsync({type:"blob"});
       saveAs(content, "Tambola_Audios.zip");
-      progress.textContent = "ZIP ready! Saved as Tambola_Audios.zip";
     });
 
     // Accessibility: "/" to focus search
