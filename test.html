@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1338,7 +1337,7 @@
     <div class="gameDiv">
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-            <div class="titleBtn" style="margin-bottom: 0.5rem;"></div>
+            <div class="titleBtn" style="margin-bottom: 0.5rem;">Direct Book Request</div>
             <div class="bookInpDiv">
                 <input class="tableInp" id="publicBookerNameInp" placeholder="Your Name">
                 <input class="tableInp" id="publicBookerPhoneInp" placeholder="Your Phone">
@@ -1624,43 +1623,31 @@ async function triggerGlobalNotification(message, type = 'info') {
     }
 }
 
-// =================================================================
-// START: FIX FOR DATA NOT LOADING ON INITIAL VISIT
-// =================================================================
 auth.onAuthStateChanged(async (user) => {
-    // Set up listeners ONCE, the very first time this function runs.
-    if (!authInitialized) {
-        authInitialized = true;
-        setupRealtimeListeners();
-    }
-
     currentUser = user;
     if (user) {
         try {
-            // Await the user's role before doing anything else
             const userSnapshot = await db.ref('users/' + user.uid).once('value');
             const userData = userSnapshot.val();
             currentUserRole = userData ? userData.role : null;
             if (!currentUserRole) throw new Error("User role not found in database.");
-            
             updateUIAfterLogin();
-            handleRouting(); // Route AFTER role is confirmed.
         } catch (error) {
             console.error("Authentication state error:", error.message, "Logging out.");
             showNotification(`Auth Error: ${error.message}`, 'error');
-            logout(); // This will re-trigger the listener with user=null.
+            logout();
         }
     } else {
-        // Handle the logged-out state
         currentUserRole = null;
         updateUIAfterLogout();
-        handleRouting(); // Route AFTER role is confirmed to be null.
     }
-});
-// =================================================================
-// END: FIX FOR DATA NOT LOADING ON INITIAL VISIT
-// =================================================================
 
+    if (!authInitialized) {
+        authInitialized = true;
+        setupRealtimeListeners();
+    }
+    handleRouting();
+});
 
 async function loginUser(expectedRole) {
     const emailEl = document.getElementById('loginEmailInp');
