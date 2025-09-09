@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,11 +40,6 @@
         --light-text-dash: #ffffee;
     }
 
-    @keyframes move-grid {
-        0% { background-position: 0 0; }
-        100% { background-position: 0 200px; }
-    }
-
     @keyframes pulse-highlight {
         0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
         70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
@@ -71,8 +65,8 @@
     }
 
     body.dashboard-view-active {
-        background-image: url("https://www.transparenttextures.com/patterns/subtle-stripes.png");
-        background-color: #1d2b38;
+      
+        background-color: #1d2b40;
         font-family: sans-serif;
         color: var(--light-text-dash);
     }
@@ -113,6 +107,93 @@
         transition: transform var(--transition-speed) var(--transition-ease);
     }
     .overlay-popup.active .popup-content { transform: scale(1); }
+
+    /* --- NEW STYLES for the top-down notification --- */
+    .top-down-notification-popup {
+        height: auto;
+        align-items: flex-start;
+        justify-content: center;
+        background: transparent;
+        backdrop-filter: none;
+        pointer-events: none;
+        padding-top: 10px;
+        z-index: 10000; /* Make sure it's on top */
+        /* Animation setup */
+        transform: translateY(-150%);
+        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .top-down-notification-popup.active {
+        transform: translateY(0);
+    }
+
+    .top-down-notification-popup .popup-content {
+        max-width: 800px;
+        width: 95%;
+        margin: 0 auto;
+        transform: none !important;
+        pointer-events: auto;
+        box-shadow: 0 5px 25px rgba(0, 246, 255, 0.3);
+        padding: 1rem 1.5rem;
+        max-height: none;
+        overflow-y: visible;
+        border-radius: 12px;
+    }
+
+    .top-down-notification-popup .notification-body {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .top-down-notification-popup .notification-logo img {
+        max-width: 80px !important;
+        height: auto;
+    }
+
+    .top-down-notification-popup .notification-text-content {
+        flex-grow: 1;
+        color: var(--text-secondary);
+    }
+    .top-down-notification-popup .notification-text-content .popup-title {
+        margin: 0 0 0.5rem 0;
+        text-align: left;
+        font-size: 1.2rem;
+    }
+    .top-down-notification-popup .notification-text-content p {
+        margin: 0;
+        line-height: 1.5;
+        font-size: 0.9rem;
+    }
+
+    .top-down-notification-popup .notification-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .top-down-notification-popup .notification-actions .login-btn {
+        width: auto;
+        padding: 0.5rem 1rem;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+        .top-down-notification-popup .notification-body {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        .top-down-notification-popup .notification-text-content .popup-title {
+            text-align: center;
+        }
+        .top-down-notification-popup .notification-actions {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
@@ -207,28 +288,65 @@
     .notification.info { background-color: #3498db; }
 
     .neon-view {
-        background-image:
-            linear-gradient(to top, rgba(16,12,42,1) 0%, rgba(16,12,42,0) 40%),
-            repeating-linear-gradient(to bottom, transparent, transparent 99px, var(--accent-secondary) 100px),
-            radial-gradient(ellipse at 50% -10%, var(--accent-primary), transparent 60%);
-        background-size: 100% 100%, 100% 100px, 100% 100%;
-        animation: move-grid 4s linear infinite;
+        /* NO BACKGROUND ANIMATION - Cleaned up */
     }
     
-    .css-grid {
-        width: 100%; height: 200%;
-        background-image: repeating-linear-gradient(to right, transparent, transparent 99px, var(--accent-primary) 100px);
-        background-size: 100px 100px; transform: rotateX(80deg);
+    .page-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+        width: 95%;
+        /* MODIFIED: Adjusted padding for new fixed header/nav */
+        padding-top: 60px; /* Space for the new top header */
+        padding-bottom: 60px; /* Space for the new bottom nav bar */
     }
-    .page-wrapper { max-width: 1400px; margin: 0 auto; padding: 0em; position: relative; z-index: 1; width: 95%; }
-    .main-header, .panel {
-        background: var(--primary-surface); border: 1px solid var(--accent-primary);
-        border-radius: 8px; margin-bottom: 0.8rem; /* REDUCED MARGIN */
+    .panel {
+        background: var(--primary-surface); 
+        border: 1px solid var(--accent-primary);
+        border-radius: 8px; 
+        margin-bottom: 0.1rem;
+        
         box-shadow: 0 0 15px rgba(0, 246, 255, 0.2), inset 0 0 8px rgba(0, 246, 255, 0.1);
-        opacity: 0; transform: translateY(20px);
+        opacity: 0; 
+        transform: translateY(20px);
         padding: 1rem;
     }
-    .main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; padding: 0.8rem 1rem; text-align: center; }
+    
+    /* NEW: Top Header Style */
+    .top-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 998;
+        background: var(--primary-surface);
+        border-bottom: 2px solid var(--accent-primary);
+        box-shadow: 0 5px 15px rgba(0, 246, 255, 0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        opacity: 0;
+        transform: translateY(-100%); /* Animation start state */
+    }
+
+    /* NEW: Bottom Navigation Bar Style */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+        background: var(--primary-surface);
+        border-top: 2px solid var(--accent-primary);
+        box-shadow: 0 -5px 15px rgba(0, 246, 255, 0.2);
+        opacity: 0; 
+        transform: translateY(100%); /* Start off-screen for slide-up animation */
+        padding: 0.3rem 0;
+    }
+
     .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; /* REDUCED GAP */ }
 
     @media (min-width: 992px) {
@@ -246,16 +364,48 @@
     .logo-container { font-size: 1.8rem; color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-primary); animation: pulse-glow 3s infinite ease-in-out; }
     @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     .webTitle { font-size: 1.5rem; font-weight: 700; }
-    .icon-bar { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
-    .icon-btn {
-        display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-        background: transparent; border: 1px solid var(--accent-primary); color: var(--accent-primary);
-        border-radius: 4px; padding: 0.6rem 0.8rem;
-        font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none;
-        transition: background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease, transform var(--transition-speed) ease;
-        flex-grow: 1;
+    
+    /* MODIFIED: Icon bar container */
+    .icon-bar { 
+        display: flex; 
+        gap: 0.2rem;
+        justify-content: space-around; 
+        flex-wrap: nowrap; 
+        width: 100%;
     }
-    .icon-btn:hover { background: rgba(0, 246, 255, 0.1); box-shadow: 0 0 10px var(--accent-primary); transform: translateY(-2px); }
+    
+    /* MODIFIED: Icon buttons for vertical layout */
+    .icon-btn {
+        display: flex;
+        flex-direction: column; /* Stack icon and title vertically */
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem; /* Vertical gap */
+        background: transparent;
+        border: none; /* Cleaner for nav bar */
+        color: var(--accent-primary);
+        border-radius: 4px;
+        padding: 0.4rem 0.2rem;
+        font-size: 0.75rem; /* Smaller title text */
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color var(--transition-speed) ease, color 0.3s, transform 0.3s;
+        flex-grow: 1;
+        flex-basis: 0; /* Ensures even distribution */
+        text-align: center;
+    }
+    .icon-btn:hover {
+        background: rgba(0, 246, 255, 0.1);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+    
+    /* NEW: Style for the icon inside the button */
+    .icon-btn i {
+        font-size: 1.4rem; /* Larger icon */
+    }
+    
     .timer-status-bar { width: 100%; padding: 0.5rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 1rem; }
     .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
     .info-item i { font-size: 1rem; color: var(--accent-primary); }
@@ -330,7 +480,7 @@
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
-    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(0.6rem, 2.5vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(1rem, 2.2vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -388,17 +538,95 @@
     }
     #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
     #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 60vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
-    #bookingGridContainer .ticket-view { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    #bookingGridContainer .ticket-view.sold { cursor: not-allowed; opacity: 0.5; }
-    #bookingGridContainer .ticket-view.selected { transform: scale(1.03); box-shadow: 0 0 15px var(--called-color), inset 0 0 10px rgba(255, 242, 0, 0.2); border-color: var(--called-color); }
-    #bookingFormContainer { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem; }
-    .selection-indicator { text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--called-color); padding: 0.6rem; margin-top: 1rem; border-radius: 4px; background: rgba(255, 242, 0, 0.1); border: 2px dashed var(--called-color); min-height: 40px; display: flex; align-items: center; justify-content: center; transition: border-color 0.3s ease; }
+    
+    /* --- START: User Request Modifications --- */
+    
+    /* 1 & 2: Put inputs/button on one line and reduce gap to indicator */
+    #bookingFormContainer {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        grid-template-areas:
+            "name phone button"
+            "indicator indicator indicator";
+        gap: 0.2rem;
+        margin-bottom: 0.4rem;
+    }
+    #bookerName { grid-area: name; margin-bottom: 0; }
+    #bookerPhone { grid-area: phone; margin-bottom: 0; }
+    #requestBookingBtn { grid-area: button; width: auto; margin: 0; }
+    #publicSelectionIndicator { grid-area: indicator; margin-top: 0.2rem; }
+    
+    @media (max-width: 600px) {
+        #bookingFormContainer {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "name"
+                "phone"
+                "button"
+                "indicator";
+        }
+    }
+    
+    /* 3: Different colors for available vs booked tickets */
+    #bookingGridContainer .ticket-view.sold {
+        cursor: not-allowed;
+        opacity: 1; /* Replace opacity with color change */
+        background-color: #ffebee; /* Light Pink for "booked" */
+        border-color: #ef9a9a; /* Softer Pink Border */
+    }
+    #bookingGridContainer .ticket-view.sold .ticket-header {
+        background-color: #ffcdd2; /* Matching Pink Header */
+        color: #c62828; /* Dark Pink Text */
+    }
+    #bookingGridContainer .ticket-view.sold .ticket-header span,
+    #bookingGridContainer .ticket-view.sold .ticket-header div {
+        color: #c62828 !important;
+    }
+    #bookingGridContainer .ticket-view.sold .ticket-num.empty {
+        background-color: #ffebee;
+    }
+
+    /* Optional: Make available tickets more vibrant */
+    #bookingGridContainer .ticket-view:not(.sold) {
+        background-color: #e3f2fd; /* Slightly different light blue */
+        border-color: #90caf9;
+    }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-header {
+        background-color: #bbdefb;
+        color: #1565c0;
+    }
+     #bookingGridContainer .ticket-view:not(.sold) .ticket-header span,
+     #bookingGridContainer .ticket-view:not(.sold) .ticket-header div {
+        color: #1565c0 !important;
+     }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-num.empty {
+        background-color: #e3f2fd;
+    }
+
+    /* --- END: User Request Modifications --- */
+
+    .selection-indicator {
+        text-align: center;
+        font-size: 0.85rem; /* Smaller font */
+        font-weight: 600;
+        color: var(--called-color);
+        padding: 0.5rem 0.8rem; /* Adjusted padding */
+        margin-top: 1rem;
+        border-radius: 4px;
+        background: rgba(255, 242, 0, 0.1);
+        border: 2px dashed var(--called-color);
+        min-height: 36px; /* Reduced min-height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.3s ease;
+    }
     #bookedTicketsDisplay { max-height: 80vh; overflow-y: auto; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 1rem; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
     .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
     .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
     .book-now-btn-small:hover { filter: brightness(1.2); }
-    .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 1.5rem; }
+    .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 0.2rem; }
     .dashboard-view .gameSettingDiv:first-child { margin-top: 1rem; }
     .dashboard-view .titleBtn { width: 100%; border: 0; padding: 10px; color: var(--light-text-dash); background: rgba(255, 255, 255, 0.05); border-radius: 6px 6px 0 0; font-weight: bold; text-align: center; font-size: 1rem; }
     .dashboard-view .clickBtn { padding: 8px; color: var(--light-text-dash); border-radius: 6px; border: 0; margin: 2px; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.85rem; }
@@ -767,22 +995,15 @@
 <div id="notification-container"></div>
 
 <div id="publicView" class="view neon-view active">
-    <div class="css-grid-container"><div class="css-grid"></div></div>
-    <div class="page-wrapper">
-        <header class="main-header">
-            <div class="title-container">
-                <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">Sintha Team</h1>
-            </div>
-            <div class="icon-bar" id="public-icon-bar">
-                <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
-                <a href="#book" id="navigateToBooking" class="icon-btn"><i class="fas fa-ticket-alt"></i><span>Book Tickets</span></a>
-                <button class="icon-btn" id="showAgentsBtn"><i class="fas fa-users"></i><span>Agent List</span></button>
-                <button class="icon-btn" id="publicLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
-                <button class="icon-btn" id="publicLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
-            </div>
-        </header>
+    <!-- NEW: TOP HEADER -->
+    <header class="top-header">
+        <div class="title-container">
+            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
+            <h1 class="webTitle">Sintha Housie</h1>
+        </div>
+    </header>
 
+    <div class="page-wrapper">
         <div class="panel">
             <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
             </div>
@@ -825,27 +1046,31 @@
             </aside>
         </main>
     </div>
+
+    <!-- NEW: BOTTOM NAVIGATION BAR -->
+    <nav class="bottom-nav">
+        <div class="icon-bar" id="public-icon-bar">
+            <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
+            <a href="#book" id="navigateToBooking" class="icon-btn"><i class="fas fa-ticket-alt"></i><span>Book</span></a>
+            <button class="icon-btn" id="showAgentsBtn"><i class="fas fa-users"></i><span>Agents</span></button>
+            <button class="icon-btn" id="publicLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
+            <button class="icon-btn" id="publicLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+        </div>
+    </nav>
 </div>
 
 <div id="ticketBookingView" class="view neon-view">
-    <div class="css-grid-container"><div class="css-grid"></div></div>
-    <div class="page-wrapper">
-        <header class="main-header">
-             <div class="title-container">
-                <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-                <h1 class="webTitle">Sintha Team</h1>
-            </div>
-             <div class="icon-bar" id="booking-icon-bar">
-                <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game Board</span></a>
-                <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Direct Book</span></button>
-                <button class="icon-btn" id="showAgentListBtn-booking"><i class="fas fa-users"></i><span>Agent List</span></button>
-                <button class="icon-btn" id="bookingLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
-                <button class="icon-btn" id="bookingLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
-            </div>
-        </header>
+    <!-- NEW: TOP HEADER -->
+    <header class="top-header">
+         <div class="title-container">
+            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
+            <h1 class="webTitle">Sintha Housie</h1>
+        </div>
+    </header>
 
+    <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1rem;">
+            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
             </div>
         </div>
 
@@ -854,13 +1079,25 @@
             <div id="bookingFormContainer">
                  <input type="text" id="bookerName" placeholder="Your Name">
                  <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
-                 <button class="login-btn" id="requestBookingBtn" style="margin-top:0.5rem;">Request Booking via Agent</button>
+                 <button class="login-btn" id="requestBookingBtn">Request Booking via Agent</button>
+                 <div id="publicSelectionIndicator" class="selection-indicator"></div>
             </div>
-	        <div id="publicSelectionIndicator" class="selection-indicator"></div>
+	        
             <div id="bookingGridContainer">
             </div>
         </section>
     </div>
+
+    <!-- NEW: BOTTOM NAVIGATION BAR -->
+    <nav class="bottom-nav">
+         <div class="icon-bar" id="booking-icon-bar">
+            <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game</span></a>
+            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Direct Book</span></button>
+            <button class="icon-btn" id="showAgentListBtn-booking"><i class="fas fa-users"></i><span>Agents</span></button>
+            <button class="icon-btn" id="bookingLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
+            <button class="icon-btn" id="bookingLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+        </div>
+    </nav>
 </div>
 <div id="adminDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
@@ -1217,24 +1454,29 @@
     </div>
 </div>
 
-<!-- First Visit Popup -->
-<div class="overlay-popup" id="firstVisitPopup">
+<!-- First Visit Popup (Top-Down Notification Style) -->
+<div class="overlay-popup top-down-notification-popup" id="firstVisitPopup">
     <div class="popup-content">
-        <h3 class="popup-title">Sintha Team!</h3>
-        <div style="padding: 1rem 1.5rem; text-align: center; color: var(--text-secondary); line-height: 1.6;">
-               
-            <p style="margin-bottom: 1.5rem;">
-                <b>Sintha Team</b> offers fully developed Tambola or Housie games and Jandi Munda or Lagao websites.
-                If you would like to organize games and purchase a custom website, please contact us for more information.
-            </p>
-         
-            <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <div class="notification-body">
+            <div class="notification-logo">
+                <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
+            </div>
+            <div class="notification-text-content">
+                <h3 class="popup-title">Welcome to Sintha Team!</h3>
+                <p>
+                    <b>Sintha Team</b> offers fully developed Tambola or Housie games and Jandi Munda or Lagao websites.
+                    If you would like to organize games and purchase a custom website, please contact us for more information.
+                </p>
+            </div>
+            <div class="notification-actions">
                  <a href="https://sinthahousie.in/contact" target="_blank" class="login-btn" style="text-decoration: none;">Contact Us</a>
                  <button class="login-btn secondary" id="closeFirstVisitPopupBtn">Not Now</button>
             </div>
         </div>
     </div>
 </div>
+
 
 <script>
 const firebaseConfig = {
@@ -1521,7 +1763,7 @@ function showPopup(id) {
 function closePopups() {
     document.querySelectorAll('.overlay-popup, .gamePopDiv').forEach(p => {
         p.classList.remove('active');
-        setTimeout(() => { p.style.display = 'none'; }, 400);
+        setTimeout(() => { p.style.display = 'none'; }, 650); /* MODIFIED: Increased timeout for new animation */
     });
 }
 
@@ -3821,7 +4063,8 @@ function updateRunGameUI(gameState) {
 document.addEventListener('DOMContentLoaded', () => {
     generateNumberBoard();
     bindEventListeners();
-    gsap.to('.main-header, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+    // MODIFIED: Animate new header/nav elements
+    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
     // Show the welcome popup on every page load/refresh
     setTimeout(() => {
