@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sinthahousie</title>
+    <title>Sintha Housie</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -143,7 +144,7 @@
     .top-down-notification-popup .notification-body {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 0.2rem;
     }
 
     .top-down-notification-popup .notification-logo img {
@@ -988,6 +989,48 @@
         filter: brightness(1.1);
         box-shadow: 0 4px 8px rgba(0,0,0,0.4);
     }
+    
+    /* --- Compact Booking Popup --- */
+    .gamePopDiv .ticketBlockDiv {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem; /* Space between sheet rows */
+    }
+
+    .compact-sheet-row {
+        display: flex;
+        align-items: center;
+        gap: 6px; /* Gap between checkbox and buttons */
+        padding: 4px;
+        border-radius: 4px;
+        background-color: var(--secondary-bg-dash);
+    }
+
+    .compact-sheet-row .sheet-tick-box {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--accent-color-dash);
+        flex-shrink: 0;
+    }
+
+    .compact-sheet-row .ticket-buttons-group {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+        flex-grow: 1;
+    }
+
+    .gamePopDiv .ticketBlockBtn {
+        font-size: 0.8rem;
+        padding: 0;
+        height: 35px;
+        width: 100%;
+        aspect-ratio: unset;
+        min-width: 35px;
+        border-width: 1px;
+        line-height: 35px; /* Vertically center text */
+    }
 </style>
 </head>
 <body>
@@ -1337,7 +1380,7 @@
     <div class="gameDiv">
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-            <div class="titleBtn" style="margin-bottom: 0.5rem;">Direct Book Request</div>
+            <div class="titleBtn" style="margin-bottom: 0.5rem;"></div>
             <div class="bookInpDiv">
                 <input class="tableInp" id="publicBookerNameInp" placeholder="Your Name">
                 <input class="tableInp" id="publicBookerPhoneInp" placeholder="Your Phone">
@@ -1368,17 +1411,7 @@
                 </tr>
             </tbody>
         </table>
-        <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
-            <tbody>
-                <tr>
-                    <td>MANUAL CALL</td>
-                    <td style="display: flex; gap: 5px;">
-                        <input type="number" class="tableInp" id="manualCallInp" placeholder="Num" style="flex-grow: 1;">
-                        <button class="actionBtn" onclick="manualCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">CALL</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
             <div class="number-board" id="runGamePopupBoard">
@@ -1725,6 +1758,7 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
+    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -3128,7 +3162,7 @@ function changePosterBackground(source) {
 }
 
 function showPosterModal() {
-    const title = "SINTHA TEAM HOUSIE";
+    const title = "SINTHA HOUSIE";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -3213,7 +3247,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "Sintha Team Housie Game!";
+        const websiteName = "Sintha Housie Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -3298,20 +3332,18 @@ function updateDashboardBookingPopup() {
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
-        const sheetWrapper = document.createElement('div');
-        sheetWrapper.style.cssText = "background: var(--secondary-bg-dash); border-radius: 6px; padding: 0.8rem; margin-bottom: 0.5rem; border-left: 3px solid var(--accent-color-dash);";
-        const sheetHeader = document.createElement('div');
-        sheetHeader.style.cssText = "font-size: 1rem; font-weight: 700; color: var(--accent-color-dash); margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--primary-bg-dash); display: flex; justify-content: space-between; align-items: center;";
-        sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tkt ${startTicket}-${endTicket})</span>
-            <label class="full-sheet-selector" style="color: var(--light-text-dash); font-size: 0.8rem;">
-                <input type="checkbox" onchange="selectFullSheetDashboard(this, ${startTicket}, ${endTicket})"> Full
-            </label>
-        `;
-        sheetWrapper.appendChild(sheetHeader);
-        const sheetContent = document.createElement('div');
-        sheetContent.style.cssText = "display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem;";
-        sheetWrapper.appendChild(sheetContent);
+
+        const sheetRow = document.createElement('div');
+        sheetRow.className = 'compact-sheet-row';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'sheet-tick-box';
+        checkbox.onchange = () => selectFullSheetDashboard(checkbox, startTicket, endTicket);
+        sheetRow.appendChild(checkbox);
+
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'ticket-buttons-group';
 
         for (let j = startTicket; j <= endTicket; j++) {
             const ticket = ticketsMap.get(j);
@@ -3327,9 +3359,11 @@ function updateDashboardBookingPopup() {
                     updateDashboardSelectionIndicator();
                 };
             }
-            sheetContent.appendChild(btn);
+            buttonGroup.appendChild(btn);
         }
-        container.appendChild(sheetWrapper);
+        
+        sheetRow.appendChild(buttonGroup);
+        container.appendChild(sheetRow);
     }
 }
 
@@ -3404,19 +3438,18 @@ function renderPublicBookingGrid() {
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
-        const sheetWrapper = document.createElement('div');
-        sheetWrapper.style.cssText = "background: var(--secondary-bg-dash); border-radius: 6px; padding: 0.8rem; margin-bottom: 0.5rem; border-left: 3px solid var(--accent-secondary);";
-        const sheetHeader = document.createElement('div');
-        sheetHeader.style.cssText = "font-size: 1rem; font-weight: 700; color: var(--accent-secondary); margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--primary-bg-dash); display: flex; justify-content: space-between; align-items: center;";
-        sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tkt ${startTicket}-${endTicket})</span>
-            <label class="full-sheet-selector" style="color: var(--light-text-dash); font-size: 0.8rem;">
-                <input type="checkbox" onchange="selectFullSheetPublic(this, ${startTicket}, ${endTicket})"> Full
-            </label>`;
-        sheetWrapper.appendChild(sheetHeader);
-        const sheetContent = document.createElement('div');
-        sheetContent.style.cssText = "display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem;";
-        sheetWrapper.appendChild(sheetContent);
+        
+        const sheetRow = document.createElement('div');
+        sheetRow.className = 'compact-sheet-row';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'sheet-tick-box';
+        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, endTicket);
+        sheetRow.appendChild(checkbox);
+        
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'ticket-buttons-group';
 
         for (let j = startTicket; j <= endTicket; j++) {
             const ticket = ticketsMap.get(j);
@@ -3429,9 +3462,11 @@ function renderPublicBookingGrid() {
             } else {
                 btn.onclick = () => togglePublicPopupTicketSelection(j);
             }
-            sheetContent.appendChild(btn);
+            buttonGroup.appendChild(btn);
         }
-        container.appendChild(sheetWrapper);
+
+        sheetRow.appendChild(buttonGroup);
+        container.appendChild(sheetRow);
     }
 }
 
