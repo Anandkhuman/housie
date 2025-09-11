@@ -1411,7 +1411,17 @@
                 </tr>
             </tbody>
         </table>
-    
+    <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+            <tbody>
+                <tr>
+                    <td>MANUAL CALL</td>
+                    <td style="display: flex; gap: 5px;">
+                        <input type="number" class="tableInp" id="manualCallInp" placeholder="Num" style="flex-grow: 1;">
+                        <button class="actionBtn" onclick="manualCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">CALL</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
             <div class="number-board" id="runGamePopupBoard">
@@ -1981,26 +1991,87 @@ function updateUIAfterLogout() {
     document.querySelectorAll('.dashboard-link').forEach(link => link.remove());
 }
 
+// ===================================================================
+// ===== MODIFIED FUNCTION: START ====================================
+// This function replaces the old validation logic with a new
+// descriptive logic to handle any combination of ticket selections.
+// ===================================================================
 function checkSheetSelection(selectedIds) {
     const count = selectedIds.length;
-    if (count === 0) return { valid: false, message: "" };
-    if (count !== 3 && count !== 6) return { valid: false, message: `${count} Ticket(s) Selected. Select 3 (Half) or 6 (Full) Sheet.` };
-
-    selectedIds.sort((a, b) => a - b);
-    const firstId = selectedIds[0];
-    const sheetNumber = Math.floor((firstId - 1) / 6);
-    const sheetStartId = sheetNumber * 6 + 1;
-    const sheetEndId = sheetStartId + 5;
-
-    const allInSameSheet = selectedIds.every(id => id >= sheetStartId && id <= sheetEndId);
-    if (!allInSameSheet) return { valid: false, message: "All tickets must be from the same sheet (e.g., 1-6)." };
-    if (count === 6) {
-        const isRealFullSheet = selectedIds.every((id, index) => id === sheetStartId + index);
-        return isRealFullSheet ? { valid: true, message: `Full Sheet ${sheetNumber + 1} Selected` } : { valid: false, message: `Select all tickets from ${sheetStartId} to ${sheetEndId}.` };
+    if (count === 0) {
+        return { valid: false, message: "" };
     }
-    if (count === 3) return { valid: true, message: `Half Sheet (in Sheet ${sheetNumber + 1}) Selected` };
-    return { valid: false, message: "" };
+
+    // Group selected ticket IDs by the sheet they belong to
+    const sheets = {};
+    for (const id of selectedIds) {
+        const sheetNum = Math.floor((id - 1) / 6);
+        if (!sheets[sheetNum]) {
+            sheets[sheetNum] = [];
+        }
+        sheets[sheetNum].push(id);
+    }
+
+    let fullSheetCount = 0;
+    let halfSheetCount = 0;
+    let randomCount = 0;
+
+    // Analyze each sheet's selection
+    for (const sheetNum in sheets) {
+        const ticketsInSheet = sheets[sheetNum].sort((a, b) => a - b);
+        const len = ticketsInSheet.length;
+        const sheetStartId = parseInt(sheetNum) * 6 + 1;
+
+        if (len === 6) {
+            // A selection of 6 tickets within the same sheet is always a full sheet.
+            fullSheetCount++;
+        } else if (len === 3) {
+            const firstId = ticketsInSheet[0];
+            // Check if it's the first three tickets of the sheet (e.g., 1, 2, 3)
+            const isFirstHalf = (firstId === sheetStartId) &&
+                (ticketsInSheet[1] === sheetStartId + 1) &&
+                (ticketsInSheet[2] === sheetStartId + 2);
+            // Check if it's the last three tickets of the sheet (e.g., 4, 5, 6)
+            const isLastHalf = (firstId === sheetStartId + 3) &&
+                (ticketsInSheet[1] === sheetStartId + 4) &&
+                (ticketsInSheet[2] === sheetStartId + 5);
+
+            if (isFirstHalf || isLastHalf) {
+                halfSheetCount++;
+            } else {
+                // 3 tickets from the same sheet, but not a perfect half-sheet pattern
+                randomCount += 3;
+            }
+        } else {
+            // Any other number of tickets in a sheet (1, 2, 4, 5) is considered random
+            randomCount += len;
+        }
+    }
+
+    // Build the descriptive message from the counts
+    const parts = [];
+    if (fullSheetCount > 0) {
+        parts.push(`${fullSheetCount} Full Sheet${fullSheetCount > 1 ? 's' : ''}`);
+    }
+    if (halfSheetCount > 0) {
+        parts.push(`${halfSheetCount} Half Sheet${halfSheetCount > 1 ? 's' : ''}`);
+    }
+    if (randomCount > 0) {
+        parts.push(`${randomCount} Random Ticket${randomCount > 1 ? 's' : ''}`);
+    }
+
+    if (parts.length === 0) {
+        // This case should not be reached if count > 0, but as a fallback
+        return { valid: false, message: "Select your tickets." };
+    }
+
+    const message = parts.join(' & ') + ' Selected';
+    // Any selection is considered 'valid' for description purposes
+    return { valid: true, message: message };
 }
+// ===================================================================
+// ===== MODIFIED FUNCTION: END ======================================
+// ===================================================================
 
 function generateNumberBoard() {
     const publicBoard = document.getElementById('numberBoard');
