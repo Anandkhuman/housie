@@ -192,6 +192,7 @@
     .results-area { margin-bottom: 2rem; background-color: var(--secondary-bg-dash); padding: 1rem; border-radius: 5px; border-left: 4px solid var(--accent-color-dash); }
     .results-area h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1.5rem; color: var(--accent-color-dash); }
     .result-block { background-color: var(--primary-bg-dash); padding: 1rem; margin-bottom: 1rem; border-radius: 5px; border-left: 3px solid var(--muted-color-dash); }
+    .result-block:last-child { margin-bottom: 0; }
     .result-block h4 { color: var(--accent-color-dash); margin-top:0; margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--secondary-bg-dash); font-size: 1.2rem; }
     .result-item { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--secondary-bg-dash); }
     .result-item:last-child { border-bottom: none; }
@@ -256,6 +257,72 @@
         background-color: #27ae60;
         transform: translateY(-2px);
     }
+
+    /* --- NEW: HISTORY STYLES --- */
+    #history-list .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem;
+        border-bottom: 1px solid var(--primary-bg-dash);
+        cursor: pointer; /* Make item look clickable */
+    }
+    #history-list .history-item:hover {
+        background-color: var(--primary-bg-dash);
+    }
+    #history-list .history-item:last-child {
+        border-bottom: none;
+    }
+    #history-list .history-info {
+        flex-grow: 1;
+        /* Make the info div non-clickable for pointer events so the parent div receives the click */
+        pointer-events: none; 
+    }
+    #history-list .history-info .date {
+        font-weight: 600;
+        color: var(--light-text-dash);
+    }
+    #history-list .history-info .details {
+        font-size: 0.85rem;
+        color: var(--muted-color-dash);
+    }
+    #history-list .delete-history-btn {
+        background: none;
+        border: none;
+        color: var(--error-color);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.2s, transform 0.2s;
+    }
+    #history-list .delete-history-btn:hover {
+        color: #c0392b;
+        transform: scale(1.1);
+    }
+    #clear-all-history-btn:hover {
+        background-color: #c0392b !important;
+    }
+
+    /* --- NEW: SETTLEMENT STYLES --- */
+    .settlement-block {
+        background-color: var(--primary-bg-dash);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 5px;
+        border-left: 3px solid var(--warning-color);
+    }
+    .settlement-block:last-child { margin-bottom: 0; }
+    .results-area h3:has(+ .settlement-block) {
+        color: var(--warning-color);
+    }
+    .settlement-instruction {
+        font-size: 1rem;
+        padding: 0.5rem 0;
+        color: var(--light-text-dash);
+    }
+    .settlement-instruction strong {
+        color: var(--accent-color-dash);
+    }
 </style>
 </head>
 <body>
@@ -263,15 +330,12 @@
 <audio id="background-music" src="https://raw.githubusercontent.com/Anandkhuman/housie/main/bg.mp3" loop playsinline></audio>
 
 <div id="login-container">
-    <!-- Verification Animation (shown by default) -->
     <div id="verification-container">
         <svg class="smooth-spinner" viewBox="0 0 50 50">
           <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
         </svg>
         <p class="verification-text">Admin Verification in Process...</p>
     </div>
-
-    <!-- Success Animation (hidden by default) -->
     <div id="success-container" style="display: none;">
         <div class="success-animation">
             <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
@@ -281,8 +345,6 @@
         </div>
         <p class="verification-text">Verification Successful</p>
     </div>
-
-    <!-- Original Login Box (hidden by default) -->
     <div class="login-box">
         <h1><i class="fas fa-chart-line"></i> Business Info</h1>
         <p>Admin authentication required to access this page.</p>
@@ -299,34 +361,44 @@
 
 <div id="main-container">
     <header class="header">
-       
+        <h1>Admin Settlement Panel</h1>
         <div>
             <span id="admin-name" style="margin-right: 1rem;"></span>
             <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </header>
 
+    <div id="history-view" class="calc-card" style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+            <h2 style="border-bottom: none; margin-bottom: 0;"><i class="fas fa-history"></i> Calculation History</h2>
+            <button id="clear-all-history-btn" style="width: auto; margin:0; padding: 0.5rem 1rem; background-color: var(--error-color); border-radius: 5px; border:none; color:white; font-weight: 600; cursor:pointer;">Clear All</button>
+        </div>
+        <div id="history-list" class="assignment-list" style="max-height: 400px; padding: 0;">
+            <p style="padding: 1rem; text-align: center; color: var(--muted-color-dash);">No history found.</p>
+        </div>
+    </div>
+
     <div id="calculator-view">
          <div class="calc-card">
             <h2><i class="fas fa-handshake"></i> Final Settlement Calculator</h2>
             <div class="form-group inline">
                 <div>
-                    <label for="free-half-sheet-settlement">Free Tickets per Half Sheet</label>
+                    <label for="free-half-sheet-settlement">Free Tickets per Half Sheet (3)</label>
                     <input type="number" id="free-half-sheet-settlement" placeholder="e.g., 1" value="0">
                 </div>
                 <div>
-                    <label for="free-full-sheet-settlement">Free Tickets per Full Sheet</label>
+                    <label for="free-full-sheet-settlement">Free Tickets per Full Sheet (6)</label>
                     <input type="number" id="free-full-sheet-settlement" placeholder="e.g., 2" value="0">
                 </div>
             </div>
             <div class="assignment-section">
                 <h3><i class="fas fa-user-tie"></i> Agent Inclusion & Assignment</h3>
-                <p class="info-text">Uncheck an agent to exclude them.</p>
+                <p class="info-text">Uncheck an agent to exclude them from calculations.</p>
                 <div id="agent-assignment-list" class="assignment-list"></div>
             </div>
             <div class="assignment-section">
                 <h3><i class="fas fa-trophy"></i> Prize Payout Inclusion & Assignment</h3>
-                <p class="info-text">Uncheck your own ticket winner to exclude them.</p>
+                <p class="info-text">Uncheck a winner to exclude their prize from calculations.</p>
                 <div id="winner-assignment-list" class="assignment-list"></div>
             </div>
             <button class="calculate-btn" id="calc-settlement-btn">Calculate & View Report</button>
@@ -339,7 +411,6 @@
 
 </div>
 
-<!-- NEW: Confirmation Modal -->
 <div id="confirmation-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h2>Confirmation Required</h2>
@@ -364,32 +435,24 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    let allUsers = [], allTickets = [], gameSettings = {}, gameWinners = {}, currentUser = null;
+    let allUsers = [], allTickets = [], gameSettings = {}, gameWinners = {}, currentUser = null, calculationHistory = {};
     let isDataReady = { users: false, tickets: false, settings: false, winners: false };
 
     const loginContainer = document.getElementById('login-container');
     const mainContainer = document.getElementById('main-container');
     const calcView = document.getElementById('calculator-view');
     const resultsView = document.getElementById('results-view');
+    const historyView = document.getElementById('history-view');
     const bgMusic = document.getElementById('background-music');
-
     const verificationContainer = document.getElementById('verification-container');
     const successContainer = document.getElementById('success-container');
     const loginBox = document.querySelector('.login-box');
-
-    // NEW: Get references to the modal elements
     const confirmationModal = document.getElementById('confirmation-modal');
     const confirmProceedBtn = document.getElementById('confirm-proceed-btn');
 
     function tryToPlayMusic() {
         if (bgMusic && bgMusic.paused) {
-            const playPromise = bgMusic.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.warn("Music play failed, even after interaction:", error);
-                    // In a real-world scenario, you might show a muted icon the user can click.
-                });
-            }
+            bgMusic.play().catch(error => console.warn("Music play failed:", error));
         }
     }
 
@@ -399,45 +462,30 @@
             if (userData && userData.role === 'admin') {
                 currentUser = { uid: user.uid, ...userData };
                 document.getElementById('admin-name').textContent = `Welcome, ${userData.name}`;
-                
                 verificationContainer.style.display = 'flex';
                 loginBox.style.display = 'none';
-
                 setTimeout(() => {
                     verificationContainer.style.display = 'none';
                     successContainer.style.display = 'flex';
-
-                    // CHANGED: Instead of showing the dashboard, show the confirmation modal.
-                    setTimeout(() => {
-                        confirmationModal.style.display = 'flex'; 
-                    }, 1500); 
-
+                    setTimeout(() => confirmationModal.style.display = 'flex', 1500);
                 }, 2000);
-
             } else {
                 auth.signOut();
             }
         } else {
             verificationContainer.style.display = 'none';
             successContainer.style.display = 'none';
-            loginBox.style.display = 'block'; 
-            
+            loginBox.style.display = 'block';
             document.body.classList.remove('admin-dashboard-active');
-             if (bgMusic) {
-                bgMusic.pause();
-                bgMusic.currentTime = 0;
-            }
+            if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
             showLogin();
         }
     });
 
-    // NEW: Add event listener for the confirmation button
     confirmProceedBtn.addEventListener('click', () => {
-        confirmationModal.style.display = 'none'; // Hide the modal
-
-        // Now, perform the actions that were previously automatic
+        confirmationModal.style.display = 'none';
         document.body.classList.add('admin-dashboard-active');
-        tryToPlayMusic(); // This will work now because it's triggered by a user click
+        tryToPlayMusic();
         showMainContent();
         fetchData();
     });
@@ -460,119 +508,34 @@
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => {
-        if (bgMusic) {
-            bgMusic.pause();
-            bgMusic.currentTime = 0;
-        }
+        if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
         auth.signOut();
     });
 
-    function showLogin() { 
-        mainContainer.style.display = 'none'; 
-        loginContainer.style.display = 'flex'; 
-    }
-    function showMainContent() { 
-        loginContainer.style.display = 'none'; 
-        mainContainer.style.display = 'block'; 
-    }
+    function showLogin() { mainContainer.style.display = 'none'; loginContainer.style.display = 'flex'; }
+    function showMainContent() { loginContainer.style.display = 'none'; mainContainer.style.display = 'block'; }
 
     function fetchData() {
         db.ref('users').on('value', s => { allUsers = Object.entries(s.val()||{}).map(([uid,d])=>({uid,...d})); isDataReady.users = true; checkAndRender(); });
         db.ref('tickets').on('value', s => { allTickets = Object.values(s.val()||{}); isDataReady.tickets = true; checkAndRender(); });
         db.ref('settings/gameConfig').on('value', s => { gameSettings = s.val()||{}; isDataReady.settings = true; checkAndRender(); });
         db.ref('gameState/currentState/winners').on('value', s => { gameWinners = s.val()||{}; isDataReady.winners = true; checkAndRender(); });
+        db.ref('calculationHistory').on('value', s => { calculationHistory = s.val() || {}; renderHistory(); });
     }
     
     function checkAndRender() { if (Object.values(isDataReady).every(Boolean)) populateAssignmentLists(); }
 
     function populateAssignmentLists() {
-        const admins = allUsers.filter(u => u.role === 'admin');
-        const agents = allUsers.filter(u => u.role === 'agent');
-        const agentListContainer = document.getElementById('agent-assignment-list');
-        const winnerListContainer = document.getElementById('winner-assignment-list');
-        
-        agentListContainer.innerHTML = '';
-        winnerListContainer.innerHTML = '';
-
-        if (admins.length === 0) return;
-        const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
-
-        agentListContainer.innerHTML = agents.map(agent => `
-            <div class="assignment-item">
-                <div class="toggle-group"><input type="checkbox" class="include-checkbox agent-checkbox" data-agent-uid="${agent.uid}" checked><div class="details"><span class="name">${agent.name}</span></div></div>
-                <select class="admin-selector" data-agent-uid="${agent.uid}">${adminOptionsHtml}</select>
-            </div>`).join('');
-        
-        const allWinners = [];
-        const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
-
-        dividendOrder.forEach(dividendName => {
-            if (gameWinners[dividendName]) {
-                const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
-                if (prizeInfo) {
-                    gameWinners[dividendName].forEach(winner => {
-                        if (typeof winner.ticketId === 'number') {
-                            const ticket = allTickets.find(t => t.id === winner.ticketId);
-                            if (ticket) {
-                                allWinners.push({
-                                    ...winner,
-                                    ticket,
-                                    prizeName: dividendName,
-                                    prizeAmount: prizeInfo.amount / gameWinners[dividendName].length
-                                });
-                            }
-                        } else if (typeof winner.ticketId === 'string') {
-                            const mockTicket = {
-                                id: winner.ticketId,
-                                owner_name: winner.name
-                            };
-                            allWinners.push({
-                                ...winner,
-                                ticket: mockTicket,
-                                prizeName: dividendName,
-                                prizeAmount: prizeInfo.amount / gameWinners[dividendName].length
-                            });
-                        }
-                    });
-                }
-            }
-        });
-
-        winnerListContainer.innerHTML = allWinners.map(winner => `
-            <div class="assignment-item">
-                <div class="toggle-group">
-                    <input type="checkbox" class="include-checkbox prize-checkbox" data-prize-amount="${winner.prizeAmount}" data-ticket-id="${winner.ticketId}" checked>
-                    <div class="details">
-                        <span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span>
-                        <span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString()}</span>
-                    </div>
-                </div>
-                <select class="admin-selector">${adminOptionsHtml}</select>
-            </div>`).join('');
-        
-        document.querySelectorAll('.include-checkbox').forEach(cb => cb.addEventListener('change', e => e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked)));
-        
-        document.querySelectorAll('.agent-checkbox').forEach(agentCb => agentCb.addEventListener('change', e => {
-            const agentUid = e.target.dataset.agentUid;
-            const isChecked = e.target.checked;
-            const ticketIdsSoldByAgent = allTickets.filter(t => t.agent_uid === agentUid).map(t => t.id);
-            document.querySelectorAll('.prize-checkbox').forEach(prizeCb => {
-                const prizeTicketId = parseInt(prizeCb.dataset.ticketId, 10);
-                if (!isNaN(prizeTicketId) && ticketIdsSoldByAgent.includes(prizeTicketId)) {
-                    prizeCb.checked = isChecked;
-                    prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked);
-                }
-            });
-        }));
+        // ... (function logic unchanged, left out for brevity)
     }
-    
+
     document.getElementById('calc-settlement-btn').addEventListener('click', () => {
         const ticketPrice = gameSettings.ticketPrice || 0;
         const commissionRate = gameSettings.agentCommission || 0;
         const admins = allUsers.filter(u => u.role === 'admin');
         const agents = allUsers.filter(u => u.role === 'agent');
-        const freePerHalf = parseInt(document.getElementById('free-half-sheet-settlement').value) || 0;
-        const freePerFull = parseInt(document.getElementById('free-full-sheet-settlement').value) || 0;
+        const freePerHalf = parseInt(document.getElementById('free-half-sheet-settlement').value, 10) || 0;
+        const freePerFull = parseInt(document.getElementById('free-full-sheet-settlement').value, 10) || 0;
         
         const includedAgentUids = Array.from(document.querySelectorAll('#agent-assignment-list .include-checkbox:checked')).map(cb => cb.dataset.agentUid);
         const initialSoldTickets = allTickets.filter(t => t.is_sold && t.owner_phone && (allUsers.find(u => u.uid === t.agent_uid)?.role === 'admin' || includedAgentUids.includes(t.agent_uid)));
@@ -581,11 +544,12 @@
         const bookings = processedTickets.reduce((acc, t) => { acc[t.owner_phone] = (acc[t.owner_phone] || []).concat(t); return acc; }, {});
         for (const phone in bookings) {
             let ticketsInBooking = bookings[phone];
-            const sheets = ticketsInBooking.reduce((acc, t) => { const s = Math.floor((t.id-1)/6); acc[s] = (acc[s]||0)+1; return acc; }, {});
+            const sheets = ticketsInBooking.reduce((acc, t) => { const s = Math.floor((t.id - 1) / 6); acc[s] = (acc[s] || 0) + 1; return acc; }, {});
             let freeCount = 0;
             for (const sheet in sheets) {
-                freeCount += (Math.floor(sheets[sheet]/6) * freePerFull) + (Math.floor((sheets[sheet]%6)/3) * freePerHalf);
+                freeCount += (Math.floor(sheets[sheet] / 6) * freePerFull) + (Math.floor((sheets[sheet] % 6) / 3) * freePerHalf);
             }
+            ticketsInBooking.sort((a,b) => a.id - b.id); // Sort tickets to make free ones predictable
             for(let i=0; i < ticketsInBooking.length && i < freeCount; i++) {
                 ticketsInBooking[i].isFree = true;
             }
@@ -638,66 +602,167 @@
         };
         summary.netProfit = summary.totalCollection - (summary.totalPrizesPaid + summary.totalCommissionsPaid);
 
+        const historyEntry = {
+            timestamp: Date.now(),
+            calculatedBy: currentUser.name,
+            results: {
+                summary: summary,
+                admins: adminBalances,
+                agents: agentSettlements
+            }
+        };
+        db.ref('calculationHistory').push(historyEntry);
+
         renderResults(summary, adminBalances, agentSettlements);
     });
 
     function renderResults(summary, admins, agents) {
-        resultsView.innerHTML = `
-            <h1>Settlement Report</h1>
-            <div class="results-area">
-                <h3>Business Summary</h3>
-                <div class="result-block">
-                    <div class="result-item"><span>Total Paid Tickets</span><span>${summary.totalSoldTickets}</span></div>
-                    <div class="result-item"><span>Total Free Tickets Given</span><span>${summary.totalFreeTickets}</span></div>
-                    <div class="result-item"><span>(+) Total Collection</span><span>₹ ${summary.totalCollection.toLocaleString()}</span></div>
-                    <div class="result-item deduction"><span>(-) Total Prizes Paid</span><span>₹ ${Math.round(summary.totalPrizesPaid).toLocaleString()}</span></div>
-                    <div class="result-item deduction"><span>(-) Total Commissions</span><span>₹ ${Math.round(summary.totalCommissionsPaid).toLocaleString()}</span></div>
-                    <div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit / Loss</span><span>₹ ${Math.round(summary.netProfit).toLocaleString()}</span></div>
-                </div>
-            </div>
-            <div class="results-area">
-                <h3>Admin Balances</h3>
-                ${admins.map(admin => {
-                    const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid;
-                    return `
-                    <div class="result-block">
-                        <h4>${admin.name}</h4>
-                        <div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div>
-                        <div class="result-item"><span>Free Tickets</span><span>${admin.freeTicketsGenerated}</span></div>
-                        <div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString()}</span></div>
-                        <div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString()}</span></div>
-                        <div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString()}</span></div>
-                        <div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance</span><span>₹ ${Math.round(finalBalance).toLocaleString()}</span></div>
-                    </div>`;
-                }).join('')}
-            </div>
-            <div class="results-area">
-                <h3>Agent Settlements</h3>
-                ${agents.map(agent => `
-                    <div class="result-block">
-                        <h4>${agent.name}</h4>
-                        <div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div>
-                        <div class="result-item"><span>Free Tickets</span><span>${agent.freeTicketsGenerated}</span></div>
-                        <div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString()}</span></div>
-                        <div class="result-item deduction"><span>Commission Earned</span><span>₹ ${agent.commission.toLocaleString()}</span></div>
-                        <div class="result-item total">
-                            <span>Net Transfer to ${agent.transferToAdminName}</span>
-                            <span>₹ ${agent.netTransfer > 0 ? agent.netTransfer.toLocaleString() : 0}</span>
-                        </div>
-                    </div>`).join('')}
-            </div>
-            <button class="calculate-btn" id="back-to-calc-btn">Back to Calculator</button>
-        `;
-        
-        document.getElementById('back-to-calc-btn').addEventListener('click', () => {
-            resultsView.style.display = 'none';
-            calcView.style.display = 'block';
-        });
+        let resultsHtml = `<h1>Settlement Report</h1>`;
 
+        // Business Summary
+        resultsHtml += `<div class="results-area"><h3>Business Summary</h3><div class="result-block"><div class="result-item"><span>Total Paid Tickets</span><span>${summary.totalSoldTickets}</span></div><div class="result-item"><span>Total Free Tickets Given</span><span>${summary.totalFreeTickets}</span></div><div class="result-item"><span>(+) Total Collection</span><span>₹ ${summary.totalCollection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Prizes Paid</span><span>₹ ${Math.round(summary.totalPrizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Commissions</span><span>₹ ${Math.round(summary.totalCommissionsPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit / Loss</span><span>₹ ${Math.round(summary.netProfit).toLocaleString('en-IN')}</span></div></div></div>`;
+        
+        // Admin Balances
+        resultsHtml += `<div class="results-area"><h3>Admin Balances</h3>${admins.map(admin => { const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid; return `<div class="result-block"><h4>${admin.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${admin.freeTicketsGenerated}</span></div><div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString('en-IN')}</span></div><div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance in Hand</span><span>₹ ${Math.round(finalBalance).toLocaleString('en-IN')}</span></div></div>`; }).join('')}</div>`;
+
+        // Profit Distribution
+        const numAdmins = admins.length > 0 ? admins.length : 1;
+        const profitPerAdmin = summary.netProfit / numAdmins;
+        if (admins.length > 0) { resultsHtml += `<div class="results-area"><h3>Profit Distribution</h3><div class="result-block"><div class="result-item total"><span>Profit Share per Admin</span><span>₹ ${Math.round(profitPerAdmin).toLocaleString('en-IN')}</span></div>${admins.map(admin => `<div class="result-item"><span>${admin.name}'s Share</span><span>₹ ${Math.round(profitPerAdmin).toLocaleString('en-IN')}</span></div>`).join('')}</div></div>`; }
+
+        // Settlement Calculation
+        if (admins.length > 1) {
+            const payers = []; const receivers = [];
+            admins.forEach(admin => {
+                const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid;
+                const diff = finalBalance - profitPerAdmin;
+                if (diff > 0.1) { payers.push({ name: admin.name, amount: diff }); }
+                else if (diff < -0.1) { receivers.push({ name: admin.name, amount: -diff }); }
+            });
+            const transactions = []; let payerIndex = 0; let receiverIndex = 0;
+            payers.sort((a, b) => b.amount - a.amount); receivers.sort((a, b) => b.amount - a.amount);
+            while (payerIndex < payers.length && receiverIndex < receivers.length) {
+                const payer = payers[payerIndex]; const receiver = receivers[receiverIndex]; const transferAmount = Math.min(payer.amount, receiver.amount);
+                if (transferAmount > 0.1) {
+                    transactions.push(`<strong>${payer.name}</strong> gives <strong>₹ ${Math.round(transferAmount).toLocaleString('en-IN')}</strong> to <strong>${receiver.name}</strong>`);
+                    payer.amount -= transferAmount; receiver.amount -= transferAmount;
+                }
+                if (payer.amount < 0.1) { payerIndex++; }
+                if (receiver.amount < 0.1) { receiverIndex++; }
+            }
+            resultsHtml += `<div class="results-area"><h3>Settlement Actions (ꯂꯣꯊꯣꯛ-ꯂꯣꯁꯤꯟ)</h3><div class="settlement-block">${transactions.length > 0 ? transactions.map(t => `<p class="settlement-instruction">${t}</p>`).join('') : '<p class="settlement-instruction">All balances are already settled.</p>'}</div></div>`;
+        }
+
+        // Agent Settlements
+        resultsHtml += `<div class="results-area"><h3>Agent Settlements</h3>${agents.map(agent => `<div class="result-block"><h4>${agent.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${agent.freeTicketsGenerated}</span></div><div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>Commission Earned</span><span>₹ ${Math.round(agent.commission).toLocaleString('en-IN')}</span></div><div class="result-item total"><span>Net Transfer to ${agent.transferToAdminName}</span><span>₹ ${agent.netTransfer > 0 ? Math.round(agent.netTransfer).toLocaleString('en-IN') : 0}</span></div></div>`).join('')}</div>`;
+
+        resultsHtml += `<button class="calculate-btn" id="back-to-calc-btn">Back to Calculator</button>`;
+        resultsView.innerHTML = resultsHtml;
+        
+        document.getElementById('back-to-calc-btn').addEventListener('click', () => { 
+            resultsView.style.display = 'none'; 
+            calcView.style.display = 'block'; 
+            historyView.style.display = 'block'; // MODIFIED: Show history view again
+        });
         calcView.style.display = 'none';
+        historyView.style.display = 'none'; // MODIFIED: Hide history view when showing results
         resultsView.style.display = 'block';
         window.scrollTo(0, 0);
     }
+    
+    // --- HISTORY FUNCTIONS ---
+    function renderHistory() {
+        const historyList = document.getElementById('history-list');
+        const sortedKeys = Object.keys(calculationHistory).sort((a, b) => calculationHistory[b].timestamp - calculationHistory[a].timestamp);
+
+        if (sortedKeys.length > 0) {
+            historyList.innerHTML = sortedKeys.map(key => {
+                const entry = calculationHistory[key];
+                const date = new Date(entry.timestamp).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+                // MODIFIED: Added data-key to the main item div to make it clickable
+                return `<div class="history-item" data-key="${key}">
+                            <div class="history-info">
+                                <div class="date">${date}</div>
+                                <div class="details">Profit: ₹ ${Math.round(entry.results.summary.netProfit).toLocaleString('en-IN')} | By: ${entry.calculatedBy}</div>
+                            </div>
+                            <button class="delete-history-btn" data-key="${key}"><i class="fas fa-trash-alt"></i></button>
+                        </div>`;
+            }).join('');
+        } else {
+            historyList.innerHTML = '<p style="padding: 1rem; text-align: center; color: var(--muted-color-dash);">No history found.</p>';
+        }
+    }
+
+    // MODIFIED: Replaced individual listeners with a single, more efficient event delegate
+    document.getElementById('history-list').addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-history-btn');
+        if (deleteBtn) {
+            e.stopPropagation(); // Prevent the main item click from firing
+            const key = deleteBtn.dataset.key;
+            if (confirm('Are you sure you want to delete this history entry?')) {
+                db.ref('calculationHistory/' + key).remove();
+            }
+            return;
+        }
+
+        const historyItem = e.target.closest('.history-item');
+        if (historyItem) {
+            const key = historyItem.dataset.key;
+            const entry = calculationHistory[key];
+            if (entry && entry.results) {
+                // Call renderResults with the data from the clicked history item
+                renderResults(entry.results.summary, entry.results.admins, entry.results.agents);
+            }
+        }
+    });
+
+    document.getElementById('clear-all-history-btn').addEventListener('click', () => {
+        if (confirm('ARE YOU SURE you want to delete ALL calculation history? This cannot be undone.')) {
+            db.ref('calculationHistory').remove();
+        }
+    });
+
+    // Initial population of assignment lists
+    function populateAssignmentLists() {
+        const admins = allUsers.filter(u => u.role === 'admin');
+        const agents = allUsers.filter(u => u.role === 'agent');
+        const agentListContainer = document.getElementById('agent-assignment-list');
+        const winnerListContainer = document.getElementById('winner-assignment-list');
+        agentListContainer.innerHTML = ''; winnerListContainer.innerHTML = '';
+        if (admins.length === 0) return;
+        const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
+        agentListContainer.innerHTML = agents.map(agent => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox agent-checkbox" data-agent-uid="${agent.uid}" checked><div class="details"><span class="name">${agent.name}</span></div></div><select class="admin-selector" data-agent-uid="${agent.uid}">${adminOptionsHtml}</select></div>`).join('');
+        const allWinners = [];
+        const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
+        dividendOrder.forEach(dividendName => {
+            if (gameWinners[dividendName]) {
+                const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
+                if (prizeInfo) {
+                    gameWinners[dividendName].forEach(winner => {
+                        const winnerPrize = prizeInfo.amount / gameWinners[dividendName].length;
+                        if (typeof winner.ticketId === 'number') {
+                            const ticket = allTickets.find(t => t.id === winner.ticketId);
+                            if (ticket) { allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: winnerPrize }); }
+                        } else if (typeof winner.ticketId === 'string') {
+                            allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name }, prizeName: dividendName, prizeAmount: winnerPrize });
+                        }
+                    });
+                }
+            }
+        });
+        winnerListContainer.innerHTML = allWinners.map(winner => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox prize-checkbox" data-prize-amount="${winner.prizeAmount}" data-ticket-id="${winner.ticketId}" checked><div class="details"><span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span><span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString('en-IN')}</span></div></div><select class="admin-selector">${adminOptionsHtml}</select></div>`).join('');
+        document.querySelectorAll('.include-checkbox').forEach(cb => cb.addEventListener('change', e => e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked)));
+        document.querySelectorAll('.agent-checkbox').forEach(agentCb => agentCb.addEventListener('change', e => {
+            const agentUid = e.target.dataset.agentUid;
+            const isChecked = e.target.checked;
+            const ticketIdsSoldByAgent = allTickets.filter(t => t.agent_uid === agentUid).map(t => t.id);
+            document.querySelectorAll('.prize-checkbox').forEach(prizeCb => {
+                const prizeTicketId = parseInt(prizeCb.dataset.ticketId, 10);
+                if (!isNaN(prizeTicketId) && ticketIdsSoldByAgent.includes(prizeTicketId)) { prizeCb.checked = isChecked; prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked); }
+            });
+        }));
+    }
+
 </script>
 </body>
 </html>
