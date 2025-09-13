@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sintha Developer Dashboard</title>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+    <!-- Prism.js for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-okaidia.min.css">
+
+    <!-- All CSS Styles -->
+    <style>
+        /* --- General Styles & Variables --- */
+        :root {
+            --primary-color: #0a7ea4;
+            --secondary-color: #043f52;
+            --background-color: #f4f7f6;
+            --text-color: #333;
+            --white-color: #fff;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-grey: #f0f0f0;
+            --border-color: #ddd;
+            --primary-color-light: #e7f5f9;
+            --success-color-light: #eafaf1;
+            --warning-color-light: #fef5e7;
+            --danger-color-light: #fdecea;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); }
+        .hidden { display: none !important; }
+        
+        /* --- Animation Keyframes --- */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes jiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+
+        /* --- Admin Verification View --- */
+        #verification-view {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--secondary-color); color: var(--white-color);
+            display: flex; justify-content: center; align-items: center; z-index: 2000;
+            flex-direction: column; transition: opacity 0.5s ease-out;
+        }
+        #verification-view .spinner-container .fa-spinner { font-size: 4rem; margin-bottom: 25px; }
+        #verification-view .checkmark-container { display: none; }
+        #verification-view.success .spinner-container { display: none; }
+        #verification-view.success .checkmark-container { display: block; }
+
+        /* --- Login View --- */
+        #login-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
+        #login-form { width: 100%; max-width: 350px; background: var(--white-color); padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        #login-view h2, #login-view p, .input-group, #login-button { opacity: 0; transform: translateY(20px); }
+        #login-view.animate h2, #login-view.animate p, #login-view.animate .input-group, #login-view.animate #login-button { animation: fadeUp 0.5s ease-out forwards; }
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #ccc; }
+        .input-group input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 16px; }
+        #login-button { width: 100%; padding: 12px; background-color: var(--primary-color); color: var(--white-color); border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        #login-button:hover { background-color: var(--secondary-color); }
+        .error-message { color: var(--danger-color); text-align: center; margin-top: 10px; height: 20px; }
+
+        /* --- Success Animation --- */
+        .animation-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .checkmark { width: 100px; height: 100px; border-radius: 50%; display: block; stroke-width: 3; stroke: var(--white-color); stroke-miterlimit: 10; box-shadow: inset 0px 0px 0px var(--success-color); animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both; }
+        #verification-view .checkmark { animation: scale .3s ease-in-out .9s both; box-shadow: none; }
+        .checkmark-circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--success-color); fill: none; animation: stroke .6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+        .checkmark-check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke .3s cubic-bezier(0.65, 0, 0.45, 1) .8s forwards; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px var(--success-color); } }
+
+        /* --- Dashboard Header --- */
+        .dashboard-header {
+            position: relative; /* Added to create a stacking context */
+            z-index: 1000;      /* Added to ensure it's on top of page content */
+            background-color: var(--white-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            opacity: 0;
+        }
+        .dashboard-header.animate { animation: fadeDown 0.6s ease-out forwards; }
+        .admin-info { display: flex; align-items: center; }
+        .admin-image { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
+        .contact-info { text-align: right; display: flex; align-items: center; gap: 20px; }
+        
+        /* --- Notification System --- */
+        .notification-area { position: relative; }
+        .notification-bell { font-size: 1.5rem; color: #555; cursor: pointer; }
+        .notification-bell.active { animation: jiggle 0.5s ease-in-out; }
+        .notification-badge { position: absolute; top: -5px; right: -8px; background-color: var(--danger-color); color: var(--white-color); border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid var(--white-color); }
+        .notification-panel { position: absolute; top: 120%; right: 0; width: 300px; max-height: 400px; overflow-y: auto; background-color: var(--white-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid var(--border-color); z-index: 100; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease-out; }
+        .notification-panel.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .notification-header { padding: 10px 15px; font-weight: bold; border-bottom: 1px solid var(--light-grey); }
+        .notification-item { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid var(--light-grey); }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-whatsapp-btn { font-size: 1.5rem; color: var(--success-color); margin-left: 15px; cursor: pointer; }
+
+        /* --- Toast Notification Popup System --- */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2100; /* MODIFIED: Increased z-index to ensure it's on top of everything */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .notification-popup {
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: var(--white-color);
+            font-weight: 500;
+            background-color: var(--success-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.4s ease-out;
+            min-width: 250px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notification-popup.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .notification-popup.error {
+            background-color: var(--danger-color);
+        }
+        .notification-popup i {
+            margin-right: 10px;
+        }
+
+        /* --- Dashboard Body --- */
+        .container { padding: 20px; }
+        .menu-selector { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; opacity: 0; }
+        .menu-selector.animate { animation: fadeUp 0.6s ease-out forwards; animation-delay: 0.2s; }
+        .menu-tab, .add-btn { padding: 10px 15px; border: 1px solid var(--border-color); background-color: var(--light-grey); border-radius: 5px; cursor: pointer; font-weight: bold; transition: transform 0.2s, box-shadow 0.2s; }
+        .menu-tab.active { background-color: var(--primary-color); color: var(--white-color); border-color: var(--primary-color); }
+        .menu-tab:hover, .add-btn:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .add-btn { margin-left: auto; background-color: var(--success-color-light); color: var(--success-color); border-color: var(--success-color-light); }
+        .data-section { display: none; }
+        .data-section.active { display: block; }
+        .website-list { list-style: none; padding: 0; }
+        .website-list-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: var(--white-color); 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 10px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            font-weight: 500; 
+            opacity: 0; 
+            cursor: pointer; /* MODIFIED: Entire item is clickable */
+        }
+        .website-list-item.animate { animation: fadeUp 0.5s ease-out forwards; }
+        .website-list-item:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            color: var(--primary-color); /* MODIFIED: Highlight text color on hover */
+        }
+        .website-info { display: flex; align-items: center; }
+        .serial-number { font-weight: bold; color: var(--primary-color); margin-right: 15px; min-width: 25px; text-align: right; }
+        .no-results { text-align: center; color: #888; }
+        .list-item-actions { display: flex; gap: 15px; align-items: center; }
+        .list-item-actions i { font-size: 1rem; cursor: pointer; transition: transform 0.2s, opacity 0.2s; }
+        .list-item-actions i:hover { transform: scale(1.2); opacity: 0.8; color: var(--text-color); }
+        .list-item-edit { color: var(--warning-color); }
+        .list-item-delete { color: var(--danger-color); }
+
+        /* --- Search Bar --- */
+        .search-container { position: relative; margin-bottom: 20px; opacity: 0; }
+        .search-container.animate { animation: fadeUp 0.6s ease-out forwards; animation-delay: 0.3s; }
+        #search-input { width: 100%; padding: 12px 40px 12px 15px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 16px; }
+        .search-container .fa-search { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); color: #aaa; }
+        input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; height: 1em; width: 1em; background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>") center/1em no-repeat; cursor: pointer; }
+
+        /* --- Modal Styles --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1500; /* MODIFIED: Increased z-index */
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6); 
+        }
+        .modal.show { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease-out; }
+        .modal-content { background-color: var(--white-color); margin: 20px; padding: 25px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 10px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal.show .modal-content { animation: fadeUp 0.4s ease-out; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--light-grey); padding-bottom: 15px; margin-bottom: 20px; }
+        .close-button { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        #modal-form { display: flex; flex-direction: column; }
+        #modal-form label { margin-top: 15px; margin-bottom: 5px; font-weight: bold; color: #555;}
+        #modal-form input, #modal-form select, #modal-form textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; }
+        #modal-form button { margin-top: 20px; padding: 12px; background-color: var(--primary-color); color: var(--white-color); border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        .details-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px 15px; }
+        .details-section, .details-actions { margin-bottom: 20px; opacity: 0; }
+        .details-actions { margin-top: 25px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .details-section.animate, .details-actions.animate { animation: fadeUp 0.5s ease-out forwards; }
+        .details-actions button { border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 45px; height: 45px; font-size: 18px; transition: transform 0.2s ease-out; }
+        .details-actions button:hover { transform: translateY(-2px); }
+        .btn-visit { background-color: var(--primary-color-light); color: var(--primary-color); }
+        .btn-whatsapp { background-color: var(--success-color-light); color: var(--success-color); animation: whatsapp-pulse 2s infinite; }
+        .btn-edit { background-color: var(--warning-color-light); color: var(--warning-color); }
+        .btn-delete { background-color: var(--danger-color-light); color: var(--danger-color); }
+        @keyframes whatsapp-pulse { 0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); } 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); } }
+
+        /* --- Code Block --- */
+        .code-block { position: relative; }
+        .code-block pre { margin: 0; border-radius: 8px !important; white-space: pre-wrap !important; word-break: break-all; max-height: 150px; overflow-y: auto; }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: #444; color: #fff; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer; transition: background-color 0.2s; font-size: 14px; z-index: 10; }
+        .copy-btn.copied { background-color: var(--success-color); }
+    </style>
+</head>
+<body>
+    <div id="notification-container"></div>
+
+    <div id="verification-view">
+        <div class="spinner-container"><i class="fas fa-spinner fa-spin"></i></div>
+        <div class="checkmark-container"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div>
+        <h2 id="verification-text">Verifying Admin Access...</h2>
+    </div>
+
+    <div id="login-view" class="hidden">
+        <div class="login-container">
+            <h2>Sintha Developer</h2><p>Admin Panel Login</p>
+            <form id="login-form"><div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="email" placeholder="Email" required></div><div class="input-group"><i class="fas fa-lock"></i><input type="password" id="password" placeholder="Password" required></div><button type="submit" id="login-button">Login</button><p id="error-message" class="error-message"></p></form>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="hidden">
+        <header class="dashboard-header">
+            <div class="admin-info">
+               <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png"
+ alt="Admin" class="admin-image">
+                <div><h1>Sintha Developer</h1><p>Full-Stack Web & App Developer</p></div>
+            </div>
+            <div class="contact-info">
+                <div class="notification-area">
+                    <i class="fas fa-bell notification-bell"></i>
+                    <span class="notification-badge hidden">0</span>
+                    <div class="notification-panel">
+                        <div class="notification-header">Expiring Soon</div>
+                        <div id="notification-list"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="container">
+            <div class="menu-selector">
+                <button id="show-tambola" class="menu-tab active">Tambola</button><button id="show-lagao" class="menu-tab">Lagao</button>
+                <button id="add-new-button" class="add-btn"><i class="fas fa-plus"></i> Add New</button>
+            </div>
+            <div class="search-container">
+                <input type="search" id="search-input" placeholder="Search for a website..."><i class="fas fa-search"></i>
+            </div>
+            <div id="tambola-section" class="data-section active"><h2>Tambola Websites</h2><ul id="tambola-list" class="website-list"></ul></div>
+            <div id="lagao-section" class="data-section"><h2>Lagao Websites</h2><ul id="lagao-list" class="website-list"></ul></div>
+        </main>
+    </div>
+
+    <div id="animation-container" class="animation-container hidden"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div>
+
+    <div id="data-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modal-title">Add New Website</h2><span class="close-button" data-modal-id="data-modal">&times;</span></div><form id="modal-form"><input type="hidden" id="record-id"><input type="hidden" id="record-category"><label>Category</label><select id="category" required><option value="tambola">Tambola</option><option value="lagao">Lagao</option></select><label>Website Name</label><input type="text" id="websiteName" placeholder="e.g., My Tambola Game" required><label>Website URL</label><input type="url" id="websiteUrl" placeholder="https://example.com" required><label>Registration Date</label><input type="date" id="regDate" required><label>Renew Date</label><input type="date" id="renewDate" required><label>Buyer Name</label><input type="text" id="buyerName" placeholder="John Doe" required><label>Buyer Mobile (with country code)</label><input type="tel" id="buyerMobile" placeholder="919876543210" required><label>Buyer Email</label><input type="email" id="buyerEmail" placeholder="buyer@example.com"><label>About</label><textarea id="about" rows="3" placeholder="Short description of the website"></textarea><label>Important Text</label><textarea id="importantText" rows="3" placeholder="Any important notes or credentials"></textarea><button type="submit" id="save-button">Save Data</button></form></div></div>
+    
+    <div id="details-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="details-title">Website Details</h2><span class="close-button" data-modal-id="details-modal">&times;</span></div><div id="details-body"></div></div></div>
+
+    <!-- JAVASCRIPT & FIREBASE SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-json.min.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
+            authDomain: "sinthahousie-1dd3b.firebaseapp.com",
+            databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
+            projectId: "sinthahousie-1dd3b",
+            storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
+            messagingSenderId: "76567991256",
+            appId: "1:76567991256:web:c58b127b8d86d8a1c598ad"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let countdownInterval = null;
+
+        // DOM Elements
+        const verificationView = document.getElementById('verification-view');
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const addNewButton = document.getElementById('add-new-button');
+        const dataModal = document.getElementById('data-modal');
+        const detailsModal = document.getElementById('details-modal');
+        const modalForm = document.getElementById('modal-form');
+        const notificationBell = document.querySelector('.notification-bell');
+        const notificationPanel = document.querySelector('.notification-panel');
+        const notificationBadge = document.querySelector('.notification-badge');
+        const notificationList = document.getElementById('notification-list');
+        const searchInput = document.getElementById('search-input');
+
+        // Function to show toast notifications
+        function showNotification(message, type = 'success', duration = 3000) {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            notification.className = `notification-popup ${type}`;
+            const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            notification.innerHTML = `<i class="fas ${iconClass}"></i> ${message}`;
+            
+            container.appendChild(notification);
+            
+            // Animate in
+            requestAnimationFrame(() => {
+                notification.classList.add('show');
+            });
+
+            // Auto-remove after duration
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.addEventListener('transitionend', () => notification.remove(), { once: true });
+            }, duration);
+        }
+
+        // Auth Logic
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                verificationView.classList.add('success');
+                verificationView.querySelector('h2').textContent = 'Access Granted';
+                setTimeout(() => {
+                    verificationView.classList.add('hidden');
+                    dashboardView.classList.remove('hidden');
+                    document.querySelector('.dashboard-header').classList.add('animate');
+                    document.querySelector('.menu-selector').classList.add('animate');
+                    document.querySelector('.search-container').classList.add('animate');
+                    loadWebsiteData('tambola');
+                    loadWebsiteData('lagao');
+                    initializeNotificationListener();
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    verificationView.classList.add('hidden');
+                    loginView.classList.remove('hidden');
+                    loginView.classList.add('animate');
+                    const loginElements = loginView.querySelectorAll('h2, p, .input-group, #login-button');
+                    loginElements.forEach((el, index) => { el.style.animationDelay = `${index * 100}ms`; });
+                }, 1500);
+            }
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const animationContainer = document.getElementById('animation-container');
+            auth.signInWithEmailAndPassword(loginForm.email.value, loginForm.password.value)
+                .then(() => {
+                    loginView.classList.add('hidden');
+                    animationContainer.classList.remove('hidden');
+                    setTimeout(() => animationContainer.classList.add('hidden'), 2000);
+                })
+                .catch(error => loginForm.querySelector('.error-message').textContent = 'Invalid email or password.');
+        });
+
+        // Notification Logic
+        notificationBell.addEventListener('click', () => notificationPanel.classList.toggle('show'));
+        
+        function initializeNotificationListener() {
+            db.ref('websites').on('value', snapshot => {
+                const expiringWebsites = []; const now = new Date();
+                snapshot.forEach(categorySnapshot => {
+                    categorySnapshot.forEach(websiteSnapshot => {
+                        const website = websiteSnapshot.val();
+                        const renewDate = new Date(website.renewDate); renewDate.setMonth(renewDate.getMonth() + 1);
+                        const timeLeft = renewDate.getTime() - now.getTime(); const daysLeft = Math.ceil(timeLeft / 86400000);
+                        if (daysLeft >= 0 && daysLeft <= 5) { expiringWebsites.push({ ...website, daysLeft }); }
+                    });
+                });
+                updateNotificationUI(expiringWebsites);
+            });
+        }
+
+        function updateNotificationUI(expiringWebsites) {
+            if (expiringWebsites.length > 0) {
+                notificationBadge.textContent = expiringWebsites.length;
+                notificationBadge.classList.remove('hidden');
+                notificationBell.classList.add('active');
+                setTimeout(() => notificationBell.classList.remove('active'), 500);
+                notificationList.innerHTML = '';
+                expiringWebsites.forEach(site => {
+                    const daysText = site.daysLeft === 0 ? 'today' : `in ${site.daysLeft} day${site.daysLeft > 1 ? 's' : ''}`;
+                    const item = document.createElement('div'); item.className = 'notification-item';
+                    item.innerHTML = `<div class="notification-info"><strong>${site.websiteName}</strong><span>Expires ${daysText}</span></div><i class="fab fa-whatsapp notification-whatsapp-btn" title="Send Reminder"></i>`;
+                    item.querySelector('.notification-whatsapp-btn').addEventListener('click', () => {
+                        const validityDate = new Date(site.renewDate); validityDate.setMonth(validityDate.getMonth() + 1);
+                        sendWhatsAppMessage(site, validityDate.toISOString().split('T')[0]);
+                    });
+                    notificationList.appendChild(item);
+                });
+            } else {
+                notificationBadge.classList.add('hidden');
+                notificationList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888;">No notifications</div>`;
+            }
+        }
+
+        // Dashboard Logic
+        document.getElementById('show-tambola').addEventListener('click', () => switchTab('tambola'));
+        document.getElementById('show-lagao').addEventListener('click', () => switchTab('lagao'));
+        function switchTab(activeTab) {
+            searchInput.value = ''; filterList();
+            document.getElementById('tambola-section').classList.toggle('active', activeTab === 'tambola');
+            document.getElementById('lagao-section').classList.toggle('active', activeTab === 'lagao');
+            document.getElementById('show-tambola').classList.toggle('active', activeTab === 'tambola');
+            document.getElementById('show-lagao').classList.toggle('active', activeTab === 'lagao');
+        }
+
+        function loadWebsiteData(category) {
+            const listElement = document.getElementById(`${category}-list`);
+            const websitesRef = db.ref(`websites/${category}`);
+            websitesRef.on('value', (snapshot) => {
+                listElement.innerHTML = '';
+                if (!snapshot.exists()) {
+                    listElement.innerHTML = `<li class="website-list-item animate no-results" style="justify-content:center;color:#888;">No data available.</li>`; return;
+                }
+                let serialNumber = 1;
+                snapshot.forEach(childSnapshot => {
+                    const id = childSnapshot.key; const data = childSnapshot.val();
+                    const listItem = document.createElement('li'); listItem.className = 'website-list-item';
+                    listItem.innerHTML = `
+                        <div class="website-info">
+                            <span class="serial-number">${serialNumber}.</span>
+                            <span>${data.websiteName}</span>
+                        </div>
+                        <div class="list-item-actions">
+                            <i class="fas fa-pencil list-item-edit" title="Edit"></i>
+                            <i class="fas fa-trash list-item-delete" title="Delete"></i>
+                        </div>`;
+                    
+                    // MODIFIED: Click entire list item to show details, but ignore clicks on action icons.
+                    listItem.addEventListener('click', (event) => {
+                        // If the click target (or its parent) is the action container, do nothing.
+                        if (event.target.closest('.list-item-actions')) {
+                            return;
+                        }
+                        showDetailsModal(category, id, data);
+                    });
+                    
+                    listItem.querySelector('.list-item-edit').addEventListener('click', () => openEditModal(category, id, data));
+                    listItem.querySelector('.list-item-delete').addEventListener('click', () => deleteRecord(category, id, data.websiteName));
+
+                    listElement.appendChild(listItem);
+                    setTimeout(() => listItem.classList.add('animate'), serialNumber * 100);
+                    serialNumber++;
+                });
+            });
+        }
+        
+        // Search Logic
+        searchInput.addEventListener('input', filterList);
+        function filterList() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeList = document.querySelector('.data-section.active .website-list');
+            if (!activeList) return;
+            const existingNoResults = activeList.querySelector('.no-results');
+            if(existingNoResults) existingNoResults.remove();
+            const items = activeList.querySelectorAll('.website-list-item');
+            let visibleCount = 0;
+            items.forEach(item => {
+                if (item.textContent.toLowerCase().includes(searchTerm)) {
+                    item.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            if(visibleCount === 0 && items.length > 0) {
+                 activeList.insertAdjacentHTML('beforeend', `<li class="website-list-item animate no-results" style="justify-content:center;color:#888;">No results found.</li>`);
+            }
+        }
+        
+        // Modal Logic
+        function closeModal(modal) {
+            modal.classList.remove('show');
+            if (modal.id === 'details-modal' && countdownInterval) { clearInterval(countdownInterval); }
+            const animatedItems = modal.querySelectorAll('.animate');
+            animatedItems.forEach(item => item.classList.remove('animate'));
+        }
+        document.querySelectorAll('.close-button').forEach(btn => btn.addEventListener('click', (e) => closeModal(document.getElementById(e.target.dataset.modalId))));
+        window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) closeModal(e.target); });
+        
+        addNewButton.addEventListener('click', () => {
+            modalForm.reset();
+            modalForm['record-id'].value = '';
+            modalForm['record-category'].value = '';
+            document.getElementById('modal-title').textContent = 'Add New Website';
+            dataModal.classList.add('show');
+        });
+
+        function openEditModal(category, id, data) {
+            closeModal(detailsModal);
+            document.getElementById('modal-title').textContent = 'Edit Website';
+            modalForm.reset();
+            modalForm['record-id'].value = id;
+            modalForm['record-category'].value = category;
+            modalForm.category.value = category;
+            modalForm.websiteName.value = data.websiteName || '';
+            modalForm.websiteUrl.value = data.websiteUrl || '';
+            modalForm.regDate.value = data.regDate || '';
+            modalForm.renewDate.value = data.renewDate || '';
+            modalForm.buyerName.value = data.buyerName || '';
+            modalForm.buyerMobile.value = data.buyerMobile || '';
+            modalForm.buyerEmail.value = data.buyerEmail || '';
+            modalForm.about.value = data.about || '';
+            modalForm.importantText.value = data.importantText || '';
+            dataModal.classList.add('show');
+        }
+
+        function showDetailsModal(category, id, data) {
+            const detailsBody = document.getElementById('details-body');
+            document.getElementById('details-title').textContent = data.websiteName;
+            const renewDate = new Date(data.renewDate); renewDate.setMonth(renewDate.getMonth() + 1);
+            const validityDate = renewDate.toISOString().split('T')[0];
+            const notesText = data.importantText || 'N/A';
+            detailsBody.innerHTML = `
+                <div class="details-section"><h4>Website Information</h4><dl class="details-grid"><dt>Registered:</dt><dd>${data.regDate}</dd><dt>Renewed:</dt><dd>${data.renewDate}</dd><dt>Valid Till:</dt><dd>${validityDate}</dd><dt>Time Left:</dt><dd id="countdown-timer">Calculating...</dd></dl></div>
+                <div class="details-section"><h4>Buyer Info</h4><dl class="details-grid"><dt>Name:</dt><dd>${data.buyerName}</dd><dt>Mobile:</dt><dd>${data.buyerMobile}</dd><dt>Email:</dt><dd>${data.buyerEmail || 'N/A'}</dd><dt>About:</dt><dd>${data.about || 'N/A'}</dd></dl></div>
+                <div class="details-section"><h4>Notes</h4><div class="code-block"><button class="copy-btn" title="Copy"><i class="far fa-copy"></i></button><pre><code id="notes-content" class="language-json">${notesText}</code></pre></div></div>
+                <div class="details-actions"><button title="Visit" class="btn-visit"><i class="fas fa-globe"></i></button><button title="WhatsApp" class="btn-whatsapp"><i class="fa-brands fa-whatsapp"></i></button><button title="Edit" class="btn-edit"><i class="fas fa-edit"></i></button><button title="Delete" class="btn-delete"><i class="fas fa-trash"></i></button></div>`;
+            
+            const timerElement = document.getElementById('countdown-timer'); const expiryDate = renewDate;
+            function updateCountdown() {
+                const now = new Date().getTime(); const distance = expiryDate - now;
+                if (distance < 0) { clearInterval(countdownInterval); timerElement.textContent = "Expired"; return; }
+                const days = Math.floor(distance / 86400000); const hours = Math.floor((distance % 86400000) / 3600000); const minutes = Math.floor((distance % 3600000) / 60000); const seconds = Math.floor((distance % 60000) / 1000);
+                timerElement.textContent = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+            }
+            if (countdownInterval) clearInterval(countdownInterval); updateCountdown(); countdownInterval = setInterval(updateCountdown, 1000);
+
+            detailsBody.querySelector('.btn-visit').addEventListener('click', () => window.open(data.websiteUrl, '_blank'));
+            detailsBody.querySelector('.btn-whatsapp').addEventListener('click', () => sendWhatsAppMessage(data, validityDate));
+            detailsBody.querySelector('.btn-edit').addEventListener('click', () => openEditModal(category, id, data));
+            detailsBody.querySelector('.btn-delete').addEventListener('click', () => deleteRecord(category, id, data.websiteName));
+            
+            const copyBtn = detailsBody.querySelector('.copy-btn');
+            copyBtn.addEventListener('click', () => {
+                const textToCopy = document.getElementById('notes-content').textContent;
+                if (textToCopy && textToCopy.trim() !== 'N/A') { 
+                    navigator.clipboard.writeText(textToCopy).then(() => { 
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i>'; 
+                        copyBtn.classList.add('copied');
+                        showNotification('Notes copied to clipboard!');
+                        setTimeout(() => { 
+                            copyBtn.innerHTML = '<i class="far fa-copy"></i>'; 
+                            copyBtn.classList.remove('copied'); 
+                        }, 2000); 
+                    }).catch(err => {
+                        showNotification('Failed to copy text.', 'error');
+                        console.error('Could not copy text: ', err);
+                    });
+                } else {
+                     showNotification('There are no notes to copy.', 'error');
+                }
+            });
+
+            Prism.highlightAll();
+            detailsModal.classList.add('show');
+
+            const itemsToAnimate = detailsModal.querySelectorAll('.details-section, .details-actions');
+            itemsToAnimate.forEach((item, index) => setTimeout(() => item.classList.add('animate'), index * 120));
+        }
+
+        // CRUD Operations
+        modalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = modalForm['record-id'].value;
+            const category = modalForm.category.value;
+            const data = {
+                websiteName: modalForm.websiteName.value, websiteUrl: modalForm.websiteUrl.value,
+                regDate: modalForm.regDate.value, renewDate: modalForm.renewDate.value,
+                buyerName: modalForm.buyerName.value, buyerMobile: modalForm.buyerMobile.value,
+                buyerEmail: modalForm.buyerEmail.value, about: modalForm.about.value,
+                importantText: modalForm.importantText.value
+            };
+            if (id) {
+                const originalCategory = modalForm['record-category'].value;
+                if (originalCategory !== category) {
+                    db.ref(`websites/${originalCategory}/${id}`).remove();
+                    db.ref(`websites/${category}/${id}`).set(data);
+                } else {
+                    db.ref(`websites/${category}/${id}`).update(data);
+                }
+            } else {
+                db.ref(`websites/${category}`).push(data);
+            }
+            closeModal(dataModal);
+        });
+
+        function deleteRecord(category, id, websiteName) {
+            if (confirm(`Delete record for "${websiteName}"?`)) { db.ref(`websites/${category}/${id}`).remove().then(() => { closeModal(detailsModal); }); }
+        }
+
+        function sendWhatsAppMessage(data, validityDate) {
+            const message = `Hello ${data.buyerName},\n\nThis is a reminder from Sintha Developer. Your website "${data.websiteName}" has a validity until ${validityDate}.\n\nPlease contact us for renewal.\n\nThank you!`;
+            window.open(`https://api.whatsapp.com/send?phone=${data.buyerMobile}&text=${encodeURIComponent(message)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
