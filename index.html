@@ -20,7 +20,6 @@
 
 
 <style>
-    /* --- create by Sintha Team --- */
     :root {
         --bg-color: #100c2A;
         --primary-surface: #19153a;
@@ -34,10 +33,10 @@
         --font-family-neon: 'Roboto', sans-serif;
         --transition-speed: 0.4s;
         --transition-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        --primary-bg-dash: #2c3e50; /* Wet Asphalt */
-        --secondary-bg-dash: #34495e; /* Midnight Blue */
-        --accent-color-dash: #1abc9c; /* Green Sea */
-        --muted-color-dash: #7f8c8d;  /* Asbestos */
+        --primary-bg-dash: #2c3e50;
+        --secondary-bg-dash: #34495e;
+        --accent-color-dash: #1abc9c;
+        --muted-color-dash: #7f8c8d;
         --light-text-dash: #ffffee;
     }
 
@@ -62,7 +61,7 @@
         background-color: var(--bg-color);
         overflow-x: hidden;
         transition: background-color 0.3s, color 0.3s;
-        font-size: 14px; /* Base small font size */
+        font-size: 14px;
     }
 
     body.dashboard-view-active {
@@ -109,7 +108,6 @@
     }
     .overlay-popup.active .popup-content { transform: scale(1); }
 
-    /* --- NEW STYLES for the top-down notification --- */
     .top-down-notification-popup {
         height: auto;
         align-items: flex-start;
@@ -118,8 +116,7 @@
         backdrop-filter: none;
         pointer-events: none;
         padding-top: 10px;
-        z-index: 10000; /* Make sure it's on top */
-        /* Animation setup */
+        z-index: 10000;
         transform: translateY(-150%);
         transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
@@ -209,7 +206,6 @@
         color: var(--accent-primary); text-shadow: 0 0 8px var(--accent-primary);
     }
 
-    /* UNIFIED INPUT DESIGN */
     input[type="text"],
     input[type="email"],
     input[type="password"],
@@ -289,7 +285,6 @@
     .notification.info { background-color: #3498db; }
 
     .neon-view {
-        /* NO BACKGROUND ANIMATION - Cleaned up */
     }
     
     .page-wrapper {
@@ -298,9 +293,8 @@
         position: relative;
         z-index: 1;
         width: 95%;
-        /* MODIFIED: Adjusted padding for new fixed header/nav */
-        padding-top: 60px; /* Space for the new top header */
-        padding-bottom: 60px; /* Space for the new bottom nav bar */
+        padding-top: 60px;
+        padding-bottom: 60px;
     }
     .panel {
         background: var(--primary-surface); 
@@ -314,7 +308,6 @@
         padding: 1rem;
     }
     
-    /* NEW: Top Header Style */
     .top-header {
         position: fixed;
         top: 0;
@@ -329,10 +322,9 @@
         align-items: center;
         padding: 0.8rem 1rem;
         opacity: 0;
-        transform: translateY(-100%); /* Animation start state */
+        transform: translateY(-100%);
     }
 
-    /* NEW: Bottom Navigation Bar Style */
     .bottom-nav {
         position: fixed;
         bottom: 0;
@@ -344,11 +336,11 @@
         border-top: 2px solid var(--accent-primary);
         box-shadow: 0 -5px 15px rgba(0, 246, 255, 0.2);
         opacity: 0; 
-        transform: translateY(100%); /* Start off-screen for slide-up animation */
+        transform: translateY(100%);
         padding: 0.3rem 0;
     }
 
-    .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; /* REDUCED GAP */ }
+    .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
 
     @media (min-width: 992px) {
         .game-layout {
@@ -366,7 +358,6 @@
     @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     .webTitle { font-size: 1.5rem; font-weight: 700; }
     
-    /* MODIFIED: Icon bar container */
     .icon-bar { 
         display: flex; 
         gap: 0.2rem;
@@ -375,25 +366,24 @@
         width: 100%;
     }
     
-    /* MODIFIED: Icon buttons for vertical layout */
     .icon-btn {
         display: flex;
-        flex-direction: column; /* Stack icon and title vertically */
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.2rem; /* Vertical gap */
+        gap: 0.2rem;
         background: transparent;
-        border: none; /* Cleaner for nav bar */
+        border: none;
         color: var(--accent-primary);
         border-radius: 4px;
         padding: 0.4rem 0.2rem;
-        font-size: 0.75rem; /* Smaller title text */
+        font-size: 0.75rem;
         font-weight: 500;
         cursor: pointer;
         text-decoration: none;
         transition: background-color var(--transition-speed) ease, color 0.3s, transform 0.3s;
         flex-grow: 1;
-        flex-basis: 0; /* Ensures even distribution */
+        flex-basis: 0;
         text-align: center;
     }
     .icon-btn:hover {
@@ -402,9 +392,8 @@
         transform: translateY(-2px);
     }
     
-    /* NEW: Style for the icon inside the button */
     .icon-btn i {
-        font-size: 1.4rem; /* Larger icon */
+        font-size: 1.4rem;
     }
     
     .timer-status-bar { width: 100%; padding: 0.2rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.5rem; }
@@ -420,7 +409,7 @@
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
-    .info-column { display: flex; flex-direction: column; gap: 0.8rem; /* REDUCED GAP */ }
+    .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
     .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
     .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     
@@ -516,7 +505,6 @@
         transform: scale(1.1);
     }
 
-    /* Professional Dividend List */
     .dividend-table { width: 100%; border-collapse: collapse; }
     .dividend-table th, .dividend-table td { padding: 0.8rem; text-align: left; border-top: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; }
     .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.95rem; }
@@ -540,9 +528,6 @@
     #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
     #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 60vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
     
-    /* --- START: User Request Modifications --- */
-    
-    /* 1 & 2: Put inputs/button on one line and reduce gap to indicator */
     #bookingFormContainer {
         display: grid;
         grid-template-columns: 1fr 1fr auto;
@@ -568,16 +553,15 @@
         }
     }
     
-    /* 3: Different colors for available vs booked tickets */
     #bookingGridContainer .ticket-view.sold {
         cursor: not-allowed;
-        opacity: 1; /* Replace opacity with color change */
-        background-color: #ffebee; /* Light Pink for "booked" */
-        border-color: #ef9a9a; /* Softer Pink Border */
+        opacity: 1;
+        background-color: #ffebee;
+        border-color: #ef9a9a;
     }
     #bookingGridContainer .ticket-view.sold .ticket-header {
-        background-color: #ffcdd2; /* Matching Pink Header */
-        color: #c62828; /* Dark Pink Text */
+        background-color: #ffcdd2;
+        color: #c62828;
     }
     #bookingGridContainer .ticket-view.sold .ticket-header span,
     #bookingGridContainer .ticket-view.sold .ticket-header div {
@@ -587,9 +571,8 @@
         background-color: #ffebee;
     }
 
-    /* Optional: Make available tickets more vibrant */
     #bookingGridContainer .ticket-view:not(.sold) {
-        background-color: #e3f2fd; /* Slightly different light blue */
+        background-color: #e3f2fd;
         border-color: #90caf9;
     }
     #bookingGridContainer .ticket-view:not(.sold) .ticket-header {
@@ -604,19 +587,17 @@
         background-color: #e3f2fd;
     }
 
-    /* --- END: User Request Modifications --- */
-
     .selection-indicator {
         text-align: center;
-        font-size: 0.85rem; /* Smaller font */
+        font-size: 0.85rem;
         font-weight: 600;
         color: var(--called-color);
-        padding: 0.5rem 0.8rem; /* Adjusted padding */
+        padding: 0.5rem 0.8rem;
         margin-top: 1rem;
         border-radius: 4px;
         background: rgba(255, 242, 0, 0.1);
         border: 2px dashed var(--called-color);
-        min-height: 36px; /* Reduced min-height */
+        min-height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -665,10 +646,9 @@
     .dashboard-view .numBlockDiv .num-cell { font-size: 1rem; color: var(--text-dark); background: #fff;}
     .dashboard-view .numBlockDiv .num-cell.called { background: var(--accent-color-dash); color: white; }
     
-    /* Booking Popup Ticket Button Styles */
     .ticketBlockBtn {
         font-size: 0.9rem; padding: 4px;
-        background: white; /* Available */
+        background: white;
         font-weight: bold;
         border: 2px solid silver;
         color: #000;
@@ -676,14 +656,14 @@
         transition: background-color 0.2s, color 0.2s, border-color 0.2s;
     }
     .ticketBlockBtn:disabled {
-        background: #fff200; /* Booked */
+        background: #fff200;
         color: #333;
         cursor: not-allowed;
         text-decoration: line-through;
         border-color: #fbc02d;
     }
     .ticketBlockBtn.selected {
-        background: var(--accent-color-dash) !important; /* Selected */
+        background: var(--accent-color-dash) !important;
         color: var(--light-text-dash) !important;
         border-color: var(--light-text-dash) !important;
     }
@@ -712,7 +692,7 @@
         border-radius: 8px;
         display: flex;
         flex-direction: column;
-        overflow: hidden; /* Prevent parent from scrolling */
+        overflow: hidden;
     }
 
     .gamePopDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
@@ -720,7 +700,6 @@
     #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
     #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
 
-    /* New Booking Popup Layout Styles */
     .booking-popup-header {
         flex-shrink: 0;
         z-index: 5;
@@ -730,11 +709,11 @@
     }
     
     .gamePopDiv .ticketBlockDiv {
-        flex-grow: 1; /* Key property */
-        overflow-y: auto; /* Enable vertical scrolling */
+        flex-grow: 1;
+        overflow-y: auto;
         margin: 0;
         width: 100%;
-        max-height: none; /* Override previous max-height */
+        max-height: none;
         padding: 8px;
     }
 
@@ -937,7 +916,6 @@
         text-decoration: underline;
     }
 
-    /* --- NEW STYLES for unified popup inputs and buttons --- */
     .gamePopDiv .tableInp, .gamePopDiv .tableInp1 {
         width: 100%;
         font-size: 0.9rem;
@@ -958,7 +936,6 @@
         outline: none;
     }
 
-    /* Custom arrow for select dropdown in popups */
     .gamePopDiv select.tableInp {
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -967,13 +944,12 @@
         background-repeat: no-repeat;
         background-position: right 1rem center;
         background-size: 1em;
-        padding-right: 2.5rem; /* Make space for the arrow */
+        padding-right: 2.5rem;
     }
 
-    /* Enhanced Manual Call Button in Run Game Popup */
     .runGameTable button.actionBtn {
         margin: 0 !important;
-        height: auto; /* Let padding define height */
+        height: auto;
         font-size: 1rem;
 	    border-radius: 10px;
         font-weight: 700;
@@ -990,17 +966,16 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.4);
     }
     
-    /* --- Compact Booking Popup --- */
     .gamePopDiv .ticketBlockDiv {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem; /* Space between sheet rows */
+        gap: 0.5rem;
     }
 
     .compact-sheet-row {
         display: flex;
         align-items: center;
-        gap: 6px; /* Gap between checkbox and buttons */
+        gap: 6px;
         padding: 4px;
         border-radius: 4px;
         background-color: var(--secondary-bg-dash);
@@ -1029,7 +1004,7 @@
         aspect-ratio: unset;
         min-width: 35px;
         border-width: 1px;
-        line-height: 35px; /* Vertically center text */
+        line-height: 35px;
     }
 </style>
 </head>
@@ -1038,7 +1013,6 @@
 <div id="notification-container"></div>
 
 <div id="publicView" class="view neon-view active">
-    <!-- NEW: TOP HEADER -->
     <header class="top-header">
         <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
@@ -1090,7 +1064,6 @@
         </main>
     </div>
 
-    <!-- NEW: BOTTOM NAVIGATION BAR -->
     <nav class="bottom-nav">
         <div class="icon-bar" id="public-icon-bar">
             <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
@@ -1103,7 +1076,6 @@
 </div>
 
 <div id="ticketBookingView" class="view neon-view">
-    <!-- NEW: TOP HEADER -->
     <header class="top-header">
          <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
@@ -1131,7 +1103,6 @@
         </section>
     </div>
 
-    <!-- NEW: BOTTOM NAVIGATION BAR -->
     <nav class="bottom-nav">
          <div class="icon-bar" id="booking-icon-bar">
             <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game</span></a>
@@ -1411,22 +1382,33 @@
                 </tr>
             </tbody>
         </table>
-    <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+        <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
             <tbody>
                 <tr>
-                    <td>MANUAL CALL</td>
+                    <td>NEXT CALL NUMBER</td>
                     <td style="display: flex; gap: 5px;">
-                        <input type="number" class="tableInp" id="manualCallInp" placeholder="Num" style="flex-grow: 1;">
-                        <button class="actionBtn" onclick="manualCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">CALL</button>
+                        <input type="number" class="tableInp" id="nextCallInp" placeholder="Num" style="flex-grow: 1;">
+                        <button class="actionBtn" onclick="setNextCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">SET</button>
                     </td>
                 </tr>
             </tbody>
         </table>
+          <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
+            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
+            <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
+                <input type="text" class="searchInp" id="adminTicketSearchInp" placeholder="Enter name, phone, or ticket ID" style="background: var(--primary-bg-dash); color: var(--light-text-dash); border-color: var(--accent-color-dash);">
+                <button class="search-btn" id="adminSearchTicketBtn" style="background: var(--accent-color-dash);"><i class="fas fa-search"></i></button>
+                <button class="search-btn" id="adminClearSearchBtn" title="Clear All Search Results" style="padding: 0 0.8rem; background: var(--muted-color-dash);"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="ticketDisplayArea" id="adminTicketDisplayArea" style="padding: 0 1rem 1rem 1rem; max-height: 400px; overflow-y: auto;"></div>
+        </section>
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
             <div class="number-board" id="runGamePopupBoard">
             </div>
         </section>
+
+      
 
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
@@ -1436,7 +1418,7 @@
             </table>
         </section>
 
-	<div style="font-weight:bold;font-size:18px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
+	<div style="font-weight:bold;font-size:14px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
 
       </div>
 </div>
@@ -1457,7 +1439,6 @@
      style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; gap: 5px; padding-bottom: 5px;">
     <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center; flex: 0 0 auto;">Change BG:</span>
     
-    <!-- Buttons from 1 to 25 -->
     <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
     <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
     <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
@@ -1487,7 +1468,6 @@
 
 
         <div id="posterContent">
-            <!-- Poster content will be generated here by JS -->
         </div>
 
         <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
@@ -1497,7 +1477,6 @@
     </div>
 </div>
 
-<!-- First Visit Popup (Top-Down Notification Style) -->
 <div class="overlay-popup top-down-notification-popup" id="firstVisitPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1535,7 +1514,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.database(); // Use Realtime Database
+const db = firebase.database();
 
 const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
 function playSound(src) {
@@ -1583,6 +1562,8 @@ let publicPopupSelectedTickets = [];
 let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
+let nextManualCallNumber = null;
+let adminDisplayedSearchPhones = new Set();
 
 
 const allPossibleDividends = [
@@ -1768,7 +1749,6 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -1794,6 +1774,12 @@ function bindEventListeners() {
     document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
     document.getElementById('saveOwnerChangesBtn').addEventListener('click', saveTicketOwnerChanges);
     document.getElementById('closeFirstVisitPopupBtn').addEventListener('click', closePopups);
+    document.getElementById('adminSearchTicketBtn').addEventListener('click', searchTicketAdmin);
+    document.getElementById('adminTicketSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketAdmin(); });
+    document.getElementById('adminClearSearchBtn').addEventListener('click', () => {
+        document.getElementById('adminTicketDisplayArea').innerHTML = '';
+        adminDisplayedSearchPhones.clear();
+    });
 }
 
 function showPopup(id) {
@@ -1807,7 +1793,7 @@ function showPopup(id) {
 function closePopups() {
     document.querySelectorAll('.overlay-popup, .gamePopDiv').forEach(p => {
         p.classList.remove('active');
-        setTimeout(() => { p.style.display = 'none'; }, 650); /* MODIFIED: Increased timeout for new animation */
+        setTimeout(() => { p.style.display = 'none'; }, 650);
     });
 }
 
@@ -1859,12 +1845,9 @@ function setupRealtimeListeners() {
         const newWinners = data.winners || {};
 
         if (isInitialWinnerLoad) {
-            // On the very first data load, just populate the known state.
-            // This prevents a storm of notifications on page refresh.
             knownWinners = newWinners;
             isInitialWinnerLoad = false;
         } else {
-            // For all subsequent updates, check for *new* winners compared to the known state.
             for (const dividendName in newWinners) {
                 const newWinnerArray = newWinners[dividendName] || [];
                 const oldWinnerArray = knownWinners[dividendName] || [];
@@ -1884,7 +1867,6 @@ function setupRealtimeListeners() {
                     }
                 }
             }
-            // After checking, update the known state for the next update.
             knownWinners = newWinners;
         }
 
@@ -1938,6 +1920,7 @@ function updateGameRelatedUIs(gameState) {
     updateDisplayedTicketPublic();
     if (currentUserRole === 'admin') {
         updateRunGameUI(gameState);
+        updateAdminDisplayedTickets();
     }
 }
 
@@ -1991,18 +1974,12 @@ function updateUIAfterLogout() {
     document.querySelectorAll('.dashboard-link').forEach(link => link.remove());
 }
 
-// ===================================================================
-// ===== MODIFIED FUNCTION: START ====================================
-// This function replaces the old validation logic with a new
-// descriptive logic to handle any combination of ticket selections.
-// ===================================================================
 function checkSheetSelection(selectedIds) {
     const count = selectedIds.length;
     if (count === 0) {
         return { valid: false, message: "" };
     }
 
-    // Group selected ticket IDs by the sheet they belong to
     const sheets = {};
     for (const id of selectedIds) {
         const sheetNum = Math.floor((id - 1) / 6);
@@ -2016,22 +1993,18 @@ function checkSheetSelection(selectedIds) {
     let halfSheetCount = 0;
     let randomCount = 0;
 
-    // Analyze each sheet's selection
     for (const sheetNum in sheets) {
         const ticketsInSheet = sheets[sheetNum].sort((a, b) => a - b);
         const len = ticketsInSheet.length;
         const sheetStartId = parseInt(sheetNum) * 6 + 1;
 
         if (len === 6) {
-            // A selection of 6 tickets within the same sheet is always a full sheet.
             fullSheetCount++;
         } else if (len === 3) {
             const firstId = ticketsInSheet[0];
-            // Check if it's the first three tickets of the sheet (e.g., 1, 2, 3)
             const isFirstHalf = (firstId === sheetStartId) &&
                 (ticketsInSheet[1] === sheetStartId + 1) &&
                 (ticketsInSheet[2] === sheetStartId + 2);
-            // Check if it's the last three tickets of the sheet (e.g., 4, 5, 6)
             const isLastHalf = (firstId === sheetStartId + 3) &&
                 (ticketsInSheet[1] === sheetStartId + 4) &&
                 (ticketsInSheet[2] === sheetStartId + 5);
@@ -2039,16 +2012,13 @@ function checkSheetSelection(selectedIds) {
             if (isFirstHalf || isLastHalf) {
                 halfSheetCount++;
             } else {
-                // 3 tickets from the same sheet, but not a perfect half-sheet pattern
                 randomCount += 3;
             }
         } else {
-            // Any other number of tickets in a sheet (1, 2, 4, 5) is considered random
             randomCount += len;
         }
     }
 
-    // Build the descriptive message from the counts
     const parts = [];
     if (fullSheetCount > 0) {
         parts.push(`${fullSheetCount} Full Sheet${fullSheetCount > 1 ? 's' : ''}`);
@@ -2061,18 +2031,12 @@ function checkSheetSelection(selectedIds) {
     }
 
     if (parts.length === 0) {
-        // This case should not be reached if count > 0, but as a fallback
         return { valid: false, message: "Select your tickets." };
     }
 
     const message = parts.join(' & ') + ' Selected';
-    // Any selection is considered 'valid' for description purposes
     return { valid: true, message: message };
 }
-// ===================================================================
-// ===== MODIFIED FUNCTION: END ======================================
-// ===================================================================
-
 function generateNumberBoard() {
     const publicBoard = document.getElementById('numberBoard');
     const adminPopupBoard = document.getElementById('runGamePopupBoard');
@@ -2571,7 +2535,6 @@ function showAllWinningTicketsForDividend(dividendName) {
         
         let ticketsToDisplay = [];
 
-        // Find the winning ticket(s) based on the ticketId format (number, "Full Sheet", or "Half Sheet")
         if (typeof ticketId === 'string' && ticketId.toLowerCase().includes('sheet')) {
             if (ticketId.toLowerCase().includes('full sheet')) {
                 const ticketIdsMatch = ticketId.match(/\(([^)]+)\)/);
@@ -2587,7 +2550,6 @@ function showAllWinningTicketsForDividend(dividendName) {
                 }
             }
         } else {
-            // Use loose equality (==) to handle cases where ID might be a number or string
             const singleTicket = allTicketsData.find(t => t.id == ticketId);
             if (singleTicket) {
                 ticketsToDisplay.push(singleTicket);
@@ -3161,10 +3123,10 @@ async function performDelete(identifier, deleteAll) {
         let ticketsToReset = [];
         let successMessage = '';
 
-        if (deleteAll) { // identifier is ownerPhone
+        if (deleteAll) {
             ticketsToReset = allTicketsData.filter(t => t.is_sold && t.owner_phone === identifier);
             successMessage = `Deleted all ${ticketsToReset.length} tickets for the owner.`;
-        } else { // identifier is ticketId
+        } else {
             const singleTicket = allTicketsData.find(t => t.id === identifier);
             if (singleTicket) ticketsToReset.push(singleTicket);
             successMessage = `Ticket #${identifier} has been deleted and is now available.`;
@@ -3627,39 +3589,23 @@ async function toggleGameRunner() {
     }
 }
 
-async function manualCallNumber() {
-    const inputEl = document.getElementById('manualCallInp');
-    const numberToCall = parseInt(inputEl.value, 10);
+function setNextCallNumber() {
+    const inputEl = document.getElementById('nextCallInp');
+    const numberToSet = parseInt(inputEl.value, 10);
 
-    if (isNaN(numberToCall) || numberToCall < 1 || numberToCall > 90) {
+    if (isNaN(numberToSet) || numberToSet < 1 || numberToSet > 90) {
         showNotification('Please enter a valid number between 1 and 90.', 'error');
         return;
     }
 
-    if (currentCalledNumbers.includes(numberToCall)) {
-        showNotification(`Number ${numberToCall} has already been called.`, 'error');
+    if (currentCalledNumbers.includes(numberToSet)) {
+        showNotification(`Number ${numberToSet} has already been called.`, 'error');
         return;
     }
-
-    const gameStateRef = db.ref('gameState/currentState');
-    try {
-        await gameStateRef.transaction(gameState => {
-            if (!gameState) {
-                gameState = { isGameRunning: false, calledNumbers: [], winners: {} };
-            }
-            const called = gameState.calledNumbers || [];
-            if (!called.includes(numberToCall)) {
-                gameState.calledNumbers = [...called, numberToCall];
-                gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
-            }
-            return gameState;
-        });
-        showNotification(`Manually called number ${numberToCall}.`, 'success');
-        inputEl.value = ''; // Clear the input after calling
-    } catch (e) {
-        console.error("Manual call failed:", e);
-        showNotification('Error calling number: ' + e.message, 'error');
-    }
+    
+    nextManualCallNumber = numberToSet;
+    showNotification(`Next call will be ${numberToSet}.`, 'success');
+    inputEl.value = ''; 
 }
 
 function callNextNumber() {
@@ -3685,8 +3631,21 @@ function callNextNumber() {
             return gameState;
         }
 
+        let newNumber;
         const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
-        const newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+        
+        if (nextManualCallNumber && availableNumbers.includes(nextManualCallNumber)) {
+            newNumber = nextManualCallNumber;
+            nextManualCallNumber = null;
+        } else {
+            if (availableNumbers.length === 0) {
+                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+                 gameState.isGameRunning = false;
+                 return gameState;
+            }
+            newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+        }
+
         gameState.calledNumbers = [...called, newNumber];
         gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
 
@@ -3734,7 +3693,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
         let winnersThisTurn = [];
         
         for (const ticket of soldTickets) {
-            // [FIX] More robust check for ticket.numbers to prevent crashes
             if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
             
             let isWinner = false;
@@ -3799,7 +3757,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
             }
         }
 
-        // Sheet-based dividends are checked separately after ticket-based ones
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
             for (const ownerPhone in ticketsByOwner) {
                 const ownerTickets = ticketsByOwner[ownerPhone];
@@ -3816,7 +3773,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                             const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a,b)=>a-b);
                             winnersThisTurn.push({ 
-                                name: ownerTickets[0].owner_name, 
+                                name: sheetTickets[0].owner_name, 
                                 phone: ownerPhone, 
                                 ticketId: `Full Sheet (${fullSheetTicketIds.join(',')})`, 
                                 winningNumber: lastCalledNumber, 
@@ -3833,12 +3790,11 @@ function checkAllWinners(calledNumbers, currentWinners) {
 
                         let winnerFoundInSheet = false;
 
-                        // Check first half
                         if (firstHalfIds.every(id => sheetTicketIds.has(id))) {
                             const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
-                                    name: ownerTickets[0].owner_name,
+                                    name: halfSheetTickets[0].owner_name,
                                     phone: ownerPhone,
                                     ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
                                     winningNumber: lastCalledNumber,
@@ -3849,12 +3805,11 @@ function checkAllWinners(calledNumbers, currentWinners) {
                             }
                         }
 
-                        // Check second half, only if the first half didn't win for this owner in this sheet
                         if (!winnerFoundInSheet && secondHalfIds.every(id => sheetTicketIds.has(id))) {
                             const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
-                                    name: ownerTickets[0].owner_name,
+                                    name: halfSheetTickets[0].owner_name,
                                     phone: ownerPhone,
                                     ticketId: `Half Sheet (${secondHalfIds.join(',')})`,
                                     winningNumber: lastCalledNumber,
@@ -4150,7 +4105,7 @@ async function downloadWinnersPDF() {
         doc.text(row[1], 80, y);
         doc.text(row[2], 150, y);
         y += 7;
-        if (y > 280) { // Page break
+        if (y > 280) {
             doc.addPage();
             y = 15;
         }
@@ -4166,16 +4121,100 @@ function updateRunGameUI(gameState) {
     }
 }
 
+function searchTicketAdmin() {
+    const searchTerm = document.getElementById('adminTicketSearchInp').value.trim();
+    if (!searchTerm) return;
+    
+    let ticketsToDisplay = [];
+    const searchNumber = parseInt(searchTerm, 10);
+
+    if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
+        const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
+        if (initialTicket) {
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+        }
+    } else {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+        );
+    }
+    
+    if (ticketsToDisplay.length > 0) {
+        const ownerPhone = ticketsToDisplay[0].owner_phone;
+        const ownerName = ticketsToDisplay[0].owner_name;
+
+        if (adminDisplayedSearchPhones.has(ownerPhone)) {
+            showNotification(`${ownerName}'s tickets are already displayed.`, 'info');
+            return;
+        }
+        adminDisplayedSearchPhones.add(ownerPhone);
+
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'sheet-view';
+        groupWrapper.dataset.phone = ownerPhone;
+        
+        let ticketsHTML = '';
+        ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+            let gridHTML;
+            if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                 gridHTML = ticket.numbers.flat().map(n =>
+                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                ).join('');
+            } else {
+                gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
+            }
+            
+            ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
+                        <div class="ticket-header">Ticket #${ticket.id}</div>
+                        <div class="ticket-grid">${gridHTML}</div>
+                    </div>`;
+        });
+        
+        groupWrapper.innerHTML = `
+            <div class="sheet-header" style="position: relative; padding-right: 30px;">
+                <span>${ownerName} - ${ownerPhone}</span>
+                <button class="clear-search-btn" style="background: #e74c3c;" onclick="clearAdminSearchResult('${ownerPhone}')" title="Clear this result">&times;</button>
+            </div>
+            <div class="sheet-content">${ticketsHTML}</div>`;
+            
+        document.getElementById('adminTicketDisplayArea').prepend(groupWrapper);
+        updateAdminDisplayedTickets();
+    } else {
+        showNotification('No tickets found for that search term.', 'error');
+    }
+}
+
+function clearAdminSearchResult(phone) {
+    const group = document.querySelector(`#adminTicketDisplayArea .sheet-view[data-phone="${phone}"]`);
+    if (group) group.remove();
+    adminDisplayedSearchPhones.delete(phone);
+}
+
+function updateAdminDisplayedTickets() {
+    document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
+        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
+            const num = parseInt(cell.dataset.num, 10);
+            if (num > 0) {
+                const isCalled = currentCalledNumbers.includes(num);
+                cell.classList.toggle('ticked', isCalled);
+                cell.classList.remove('last-called-highlight');
+                if (num === lastAnnouncedNumber) {
+                    cell.classList.add('last-called-highlight');
+                }
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     generateNumberBoard();
     bindEventListeners();
-    // MODIFIED: Animate new header/nav elements
     gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
-    // Show the welcome popup on every page load/refresh
     setTimeout(() => {
         showPopup('firstVisitPopup');
-    }, 1500); // 1.5 second delay
+    }, 1500);
 });
 </script>
 
