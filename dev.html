@@ -56,7 +56,7 @@
         /* --- Login View --- */
         #login-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
         #login-form { width: 100%; max-width: 350px; background: var(--white-color); padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        #login-view h2, #login-view p, .input-group, #login-button { opacity: 0; transform: translateY(20px); }
+        #login-view h2, #login-view p, .input-group, #login-button { opacity: 0; transform: translateY(20px); text-align: center;}
         #login-view.animate h2, #login-view.animate p, #login-view.animate .input-group, #login-view.animate #login-button { animation: fadeUp 0.5s ease-out forwards; }
         .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #ccc; }
         .input-group input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 16px; }
@@ -242,7 +242,7 @@
 
     <div id="login-view" class="hidden">
         <div class="login-container">
-            <h2>Sintha Developer</h2><p>Admin Panel Login</p>
+            <h2>Admin Panel Login</h2>
             <form id="login-form"><div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="email" placeholder="Email" required></div><div class="input-group"><i class="fas fa-lock"></i><input type="password" id="password" placeholder="Password" required></div><button type="submit" id="login-button">Login</button><p id="error-message" class="error-message"></p></form>
         </div>
     </div>
