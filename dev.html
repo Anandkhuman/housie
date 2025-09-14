@@ -210,6 +210,7 @@
         #modal-form { display: flex; flex-direction: column; }
         #modal-form label { margin-top: 15px; margin-bottom: 5px; font-weight: bold; color: #555;}
         #modal-form input, #modal-form select, #modal-form textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; }
+        #modal-form input:disabled { background-color: #f0f0f0; color: #888; }
         #modal-form button { margin-top: 20px; padding: 12px; background-color: var(--primary-color); color: var(--white-color); border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
         .details-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px 15px; }
         .details-section, .details-actions { margin-bottom: 20px; opacity: 0; }
@@ -272,14 +273,23 @@
             <div class="search-container">
                 <input type="search" id="search-input" placeholder="Search for a website..."><i class="fas fa-search"></i>
             </div>
-            <div id="tambola-section" class="data-section active"><ul id="tambola-list" class="website-list"></ul></div>
-            <div id="lagao-section" class="data-section"><ul id="lagao-list" class="website-list"></ul></div>
+            <div id="tambola-section" class="data-section active"><h2>Tambola Websites</h2><ul id="tambola-list" class="website-list"></ul></div>
+            <div id="lagao-section" class="data-section"><h2>Lagao Websites</h2><ul id="lagao-list" class="website-list"></ul></div>
         </main>
     </div>
 
     <div id="animation-container" class="animation-container hidden"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div>
 
-    <div id="data-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modal-title">Add New Website</h2><span class="close-button" data-modal-id="data-modal">&times;</span></div><form id="modal-form"><input type="hidden" id="record-id"><input type="hidden" id="record-category"><label>Category</label><select id="category" required><option value="tambola">Tambola</option><option value="lagao">Lagao</option></select><label>Website Name</label><input type="text" id="websiteName" placeholder="e.g., My Tambola Game" required><label>Website URL</label><input type="url" id="websiteUrl" placeholder="https://example.com" required><label>Registration Date</label><input type="date" id="regDate" required><label>Renew Date</label><input type="date" id="renewDate" required><label>Buyer Name</label><input type="text" id="buyerName" placeholder="John Doe" required><label>Buyer Mobile (with country code)</label><input type="tel" id="buyerMobile" placeholder="919876543210" required><label>Buyer Email</label><input type="email" id="buyerEmail" placeholder="buyer@example.com"><label>About</label><textarea id="about" rows="3" placeholder="Short description of the website"></textarea><label>Important Text</label><textarea id="importantText" rows="3" placeholder="Any important notes or credentials"></textarea><button type="submit" id="save-button">Save Data</button></form></div></div>
+    <div id="data-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modal-title">Add New Website</h2><span class="close-button" data-modal-id="data-modal">&times;</span></div><form id="modal-form"><input type="hidden" id="record-id"><input type="hidden" id="record-category"><label>Category</label><select id="category" required><option value="tambola">Tambola</option><option value="lagao">Lagao</option></select><label>Website Name</label><input type="text" id="websiteName" placeholder="e.g., My Tambola Game" required><label>Website URL</label><input type="url" id="websiteUrl" placeholder="https://example.com" required><label>Registration Date</label><input type="date" id="regDate" required><label>Renew Date</label><input type="date" id="renewDate" required>
+    
+    <!-- === MODIFIED FINANCIAL FIELDS === -->
+    <label>Maintenance Charges</label><input type="number" id="maintenanceCharges" value="1700" placeholder="e.g., 1700" required>
+    <label>Paid Amount</label><input type="number" id="paidAmount" value="0" placeholder="e.g., 1000" required>
+    <label>Due Amount</label><input type="number" id="dueAmount" value="0" placeholder="e.g., 500" required> <!-- MODIFIED: This is now an input -->
+    <label>Profit Amount</label><input type="number" id="profitAmount" placeholder="Calculated automatically" disabled>
+    <!-- === END OF MODIFIED FIELDS === -->
+    
+    <label>Buyer Name</label><input type="text" id="buyerName" placeholder="John Doe" required><label>Buyer Mobile (with country code)</label><input type="tel" id="buyerMobile" placeholder="919876543210" required><label>Buyer Email</label><input type="email" id="buyerEmail" placeholder="buyer@example.com"><label>About</label><textarea id="about" rows="3" placeholder="Short description of the website"></textarea><label>Important Text</label><textarea id="importantText" rows="3" placeholder="Any important notes or credentials"></textarea><button type="submit" id="save-button">Save Data</button></form></div></div>
     
     <div id="details-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="details-title">Website Details</h2><span class="close-button" data-modal-id="details-modal">&times;</span></div><div id="details-body"></div></div></div>
 
@@ -321,6 +331,32 @@
         const notificationBadge = document.querySelector('.notification-badge');
         const notificationList = document.getElementById('notification-list');
         const searchInput = document.getElementById('search-input');
+        
+        // MODIFIED: Financial Input Elements
+        const maintenanceChargesInput = document.getElementById('maintenanceCharges');
+        const paidAmountInput = document.getElementById('paidAmount');
+        const dueAmountInput = document.getElementById('dueAmount');
+        const profitAmountInput = document.getElementById('profitAmount');
+
+        // MODIFIED: Financial Calculation Logic based on user request
+        function calculateFinancials() {
+            const maintenance = parseFloat(maintenanceChargesInput.value) || 0;
+            const paid = parseFloat(paidAmountInput.value) || 0;
+            const due = parseFloat(dueAmountInput.value) || 0; // Due is now an input
+            
+            // New profit formula: Profit = Paid - Maintenance - Due
+            const profit = paid - maintenance - due;
+            
+            // Only update the calculated profit field
+            profitAmountInput.value = profit.toFixed(2);
+        }
+
+        // MODIFIED: Add event listeners to all financial inputs that affect the calculation
+        if(maintenanceChargesInput && paidAmountInput && dueAmountInput) {
+            maintenanceChargesInput.addEventListener('input', calculateFinancials);
+            paidAmountInput.addEventListener('input', calculateFinancials);
+            dueAmountInput.addEventListener('input', calculateFinancials); // Add listener for the new input
+        }
 
         // Function to show toast notifications
         function showNotification(message, type = 'success', duration = 3000) {
@@ -458,12 +494,8 @@
                             <i class="fas fa-trash list-item-delete" title="Delete"></i>
                         </div>`;
                     
-                    // MODIFIED: Click entire list item to show details, but ignore clicks on action icons.
                     listItem.addEventListener('click', (event) => {
-                        // If the click target (or its parent) is the action container, do nothing.
-                        if (event.target.closest('.list-item-actions')) {
-                            return;
-                        }
+                        if (event.target.closest('.list-item-actions')) return;
                         showDetailsModal(category, id, data);
                     });
                     
@@ -515,6 +547,13 @@
             modalForm['record-id'].value = '';
             modalForm['record-category'].value = '';
             document.getElementById('modal-title').textContent = 'Add New Website';
+            
+            // MODIFIED: Set defaults for new entry, including due amount
+            maintenanceChargesInput.value = '1700';
+            paidAmountInput.value = '0';
+            dueAmountInput.value = '0'; // Set default for due amount
+            calculateFinancials(); // Calculate fields for the default values
+
             dataModal.classList.add('show');
         });
 
@@ -529,12 +568,21 @@
             modalForm.websiteUrl.value = data.websiteUrl || '';
             modalForm.regDate.value = data.regDate || '';
             modalForm.renewDate.value = data.renewDate || '';
+
+            // MODIFIED: Populate all financial fields, including due amount
+            modalForm.maintenanceCharges.value = data.maintenanceCharges || '1700';
+            modalForm.paidAmount.value = data.paidAmount || '0';
+            modalForm.dueAmount.value = data.dueAmount || '0'; // Add this line
+
             modalForm.buyerName.value = data.buyerName || '';
             modalForm.buyerMobile.value = data.buyerMobile || '';
             modalForm.buyerEmail.value = data.buyerEmail || '';
             modalForm.about.value = data.about || '';
             modalForm.importantText.value = data.importantText || '';
             dataModal.classList.add('show');
+
+            // Recalculate fields on modal open
+            calculateFinancials();
         }
 
         function showDetailsModal(category, id, data) {
@@ -545,6 +593,17 @@
             const notesText = data.importantText || 'N/A';
             detailsBody.innerHTML = `
                 <div class="details-section"><h4>Website Information</h4><dl class="details-grid"><dt>Registered:</dt><dd>${data.regDate}</dd><dt>Renewed:</dt><dd>${data.renewDate}</dd><dt>Valid Till:</dt><dd>${validityDate}</dd><dt>Time Left:</dt><dd id="countdown-timer">Calculating...</dd></dl></div>
+                
+                <div class="details-section">
+                    <h4>Payment Details</h4>
+                    <dl class="details-grid">
+                        <dt>Charges:</dt><dd>₹ ${data.maintenanceCharges || '0.00'}</dd>
+                        <dt>Paid:</dt><dd style="font-weight: bold; color: var(--success-color);">₹ ${data.paidAmount || '0.00'}</dd>
+                        <dt>Due:</dt><dd style="font-weight: bold; color: var(--danger-color);">₹ ${data.dueAmount || '0.00'}</dd>
+                        <dt>Profit:</dt><dd style="font-weight: bold; color: var(--primary-color);">₹ ${data.profitAmount || '0.00'}</dd>
+                    </dl>
+                </div>
+
                 <div class="details-section"><h4>Buyer Info</h4><dl class="details-grid"><dt>Name:</dt><dd>${data.buyerName}</dd><dt>Mobile:</dt><dd>${data.buyerMobile}</dd><dt>Email:</dt><dd>${data.buyerEmail || 'N/A'}</dd><dt>About:</dt><dd>${data.about || 'N/A'}</dd></dl></div>
                 <div class="details-section"><h4>Notes</h4><div class="code-block"><button class="copy-btn" title="Copy"><i class="far fa-copy"></i></button><pre><code id="notes-content" class="language-json">${notesText}</code></pre></div></div>
                 <div class="details-actions"><button title="Visit" class="btn-visit"><i class="fas fa-globe"></i></button><button title="WhatsApp" class="btn-whatsapp"><i class="fa-brands fa-whatsapp"></i></button><button title="Edit" class="btn-edit"><i class="fas fa-edit"></i></button><button title="Delete" class="btn-delete"><i class="fas fa-trash"></i></button></div>`;
@@ -599,6 +658,13 @@
             const data = {
                 websiteName: modalForm.websiteName.value, websiteUrl: modalForm.websiteUrl.value,
                 regDate: modalForm.regDate.value, renewDate: modalForm.renewDate.value,
+
+                // Include financial data on save
+                maintenanceCharges: modalForm.maintenanceCharges.value,
+                paidAmount: modalForm.paidAmount.value,
+                dueAmount: modalForm.dueAmount.value,
+                profitAmount: modalForm.profitAmount.value,
+
                 buyerName: modalForm.buyerName.value, buyerMobile: modalForm.buyerMobile.value,
                 buyerEmail: modalForm.buyerEmail.value, about: modalForm.about.value,
                 importantText: modalForm.importantText.value
