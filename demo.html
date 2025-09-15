@@ -1106,7 +1106,7 @@
     <nav class="bottom-nav">
          <div class="icon-bar" id="booking-icon-bar">
             <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game</span></a>
-            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Direct Book</span></button>
+            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Check Available</span></button>
             <button class="icon-btn" id="showAgentListBtn-booking"><i class="fas fa-users"></i><span>Agents</span></button>
             <button class="icon-btn" id="bookingLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
             <button class="icon-btn" id="bookingLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
@@ -1454,8 +1454,10 @@
     <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
     <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
     <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
-</div>
+   </div>
 
+ <input type="file" id="posterBgUploadInput" accept="image/*" style="display: none;" onchange="handlePosterImageUpload(event)">
+    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="document.getElementById('posterBgUploadInput').click()" title="Upload custom background"><i class="fas fa-upload"></i> Upload</button>
 
         <div id="posterContent">
         </div>
@@ -3171,13 +3173,43 @@ async function deleteUser(uid, name) {
     }
 }
 
+function handlePosterImageUpload(event) {
+    const fileInput = event.target;
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Please upload a valid image file (JPG, PNG, GIF, WEBP).', 'error');
+            fileInput.value = ''; // Reset the input
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            // e.target.result contains the Base64 data URL
+            const base64Image = e.target.result;
+            changePosterBackground(base64Image);
+        };
+
+        reader.onerror = function() {
+            showNotification('Failed to read the image file.', 'error');
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
 function changePosterBackground(source) {
     const posterContent = document.getElementById('posterContent');
     if (posterContent) {
         let newImageUrl;
-        if (source.startsWith('http')) {
+        // Check for full URL or Base64 data URI
+        if (source.startsWith('http') || source.startsWith('data:image')) {
             newImageUrl = source;
         } else {
+            // Fallback for keyword search on Unsplash
             newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
         }
         posterContent.style.backgroundImage = `url('${newImageUrl}')`;
