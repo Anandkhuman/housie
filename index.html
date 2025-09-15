@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sintha Housie</title>
+    <title>SINTHA HOUSIE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1006,6 +1006,35 @@
         border-width: 1px;
         line-height: 35px;
     }
+
+     .actionBtn1 {
+    background: var(--primary-bg-dash, #2c2c2c);
+    color: var(--light-text-dash, #fff);
+    border: 1px solid var(--muted-color-dash, #555);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+/* Hover effect */
+.actionBtn1:hover {
+    background: var(--accent-color-dash, #3a86ff);
+    color: #fff;
+    border-color: var(--accent-color-dash, #3a86ff);
+    transform: translateY(-1px);
+}
+
+/* Active/selected BG highlight */
+.actionBtn1.active {
+    background: var(--accent-color-dash, #3a86ff);
+    color: #fff;
+    border-color: var(--accent-color-dash, #3a86ff);
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
 </style>
 </head>
 <body>
@@ -1016,7 +1045,7 @@
     <header class="top-header">
         <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">Sintha Housie</h1>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
@@ -1079,7 +1108,7 @@
     <header class="top-header">
          <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">Sintha Housie</h1>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
@@ -1106,7 +1135,7 @@
     <nav class="bottom-nav">
          <div class="icon-bar" id="booking-icon-bar">
             <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game</span></a>
-            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Direct Book</span></button>
+            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Check Available</span></button>
             <button class="icon-btn" id="showAgentListBtn-booking"><i class="fas fa-users"></i><span>Agents</span></button>
             <button class="icon-btn" id="bookingLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
             <button class="icon-btn" id="bookingLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
@@ -1382,7 +1411,8 @@
                 </tr>
             </tbody>
         </table>
-        <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+       
+              <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
             <tbody>
                 <tr>
                     <td>NEXT CALL NUMBER</td>
@@ -1393,6 +1423,7 @@
                 </tr>
             </tbody>
         </table>
+       
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -1439,40 +1470,42 @@
      style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; gap: 5px; padding-bottom: 5px;">
     <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center; flex: 0 0 auto;">Change BG:</span>
     
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
-    <button class="actionBtn" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
-</div>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
+   </div>
 
+ <input type="file" id="posterBgUploadInput" accept="image/*" style="display: none;" onchange="handlePosterImageUpload(event)">
+    <button class="actionBtn1" style="padding: 6px 10px; font-size: 0.9em; flex: 0 0 auto;" onclick="document.getElementById('posterBgUploadInput').click()" title="Upload custom background"><i class="fas fa-upload"></i> Upload</button>
 
         <div id="posterContent">
         </div>
 
         <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
-            <button class="actionBtn" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as Image</button>
-            <button class="actionBtn" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
+            <button class="actionBtn1" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as Image</button>
+            <button class="actionBtn1" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
         </div>
     </div>
 </div>
@@ -1511,6 +1544,9 @@ const firebaseConfig = {
   appId: "1:76567991256:web:c58b127b8d86d8a1c598ad",
   measurementId: "G-MGW406NKBY"
 };
+
+
+
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -3180,13 +3216,43 @@ async function deleteUser(uid, name) {
     }
 }
 
+function handlePosterImageUpload(event) {
+    const fileInput = event.target;
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Please upload a valid image file (JPG, PNG, GIF, WEBP).', 'error');
+            fileInput.value = ''; // Reset the input
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            // e.target.result contains the Base64 data URL
+            const base64Image = e.target.result;
+            changePosterBackground(base64Image);
+        };
+
+        reader.onerror = function() {
+            showNotification('Failed to read the image file.', 'error');
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
 function changePosterBackground(source) {
     const posterContent = document.getElementById('posterContent');
     if (posterContent) {
         let newImageUrl;
-        if (source.startsWith('http')) {
+        // Check for full URL or Base64 data URI
+        if (source.startsWith('http') || source.startsWith('data:image')) {
             newImageUrl = source;
         } else {
+            // Fallback for keyword search on Unsplash
             newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
         }
         posterContent.style.backgroundImage = `url('${newImageUrl}')`;
@@ -3280,7 +3346,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "Sintha Housie Game!";
+        const websiteName = "Sintha housie Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -3583,7 +3649,7 @@ async function toggleGameRunner() {
         } else {
             await gameStateRef.child('isGameRunning').set(false);
         }
-        showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
+        
     } catch (e) {
         showNotification("Error starting/stopping game: " + e.message, 'error');
     }
@@ -3604,7 +3670,7 @@ function setNextCallNumber() {
     }
     
     nextManualCallNumber = numberToSet;
-    showNotification(`Next call will be ${numberToSet}.`, 'success');
+    
     inputEl.value = ''; 
 }
 
@@ -3846,12 +3912,13 @@ async function generateHousieTickets(bypassConfirm = false) {
     try {
         await db.ref('/tickets').set(null); 
         setTimeout(async () => {
-            const ticketSet = createTambolaSetOf6();
             const newTicketsObject = {};
             const numSets = totalTickets / 6;
 
             for (let i = 0; i < numSets; i++) {
-                const currentSet = (i > 0) ? createTambolaSetOf6() : ticketSet;
+                // Each call to createTambolaSetOf6 generates a new, unique "full sheet"
+                // where numbers 1-90 are used exactly once across the 6 tickets.
+                const currentSet = createTambolaSetOf6();
                 for (let j = 0; j < 6; j++) {
                     const ticketId = i * 6 + j + 1;
                     newTicketsObject[ticketId] = {
