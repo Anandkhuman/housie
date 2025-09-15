@@ -1006,6 +1006,35 @@
         border-width: 1px;
         line-height: 35px;
     }
+
+     .actionBtn {
+    background: var(--primary-bg-dash, #2c2c2c);
+    color: var(--light-text-dash, #fff);
+    border: 1px solid var(--muted-color-dash, #555);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+/* Hover effect */
+.actionBtn:hover {
+    background: var(--accent-color-dash, #3a86ff);
+    color: #fff;
+    border-color: var(--accent-color-dash, #3a86ff);
+    transform: translateY(-1px);
+}
+
+/* Active/selected BG highlight */
+.actionBtn.active {
+    background: var(--accent-color-dash, #3a86ff);
+    color: #fff;
+    border-color: var(--accent-color-dash, #3a86ff);
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
 </style>
 </head>
 <body>
