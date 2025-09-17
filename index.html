@@ -5,11 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SINTHA HOUSIE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@400;700&family=Lobster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -294,7 +293,7 @@
         position: relative;
         z-index: 1;
         width: 95%;
-        padding-top: 70px;
+        padding-top: 60px;
         padding-bottom: 60px;
     }
     .panel {
@@ -357,7 +356,7 @@
     .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
     .logo-container { font-size: 1.8rem; color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-primary); animation: pulse-glow 3s infinite ease-in-out; }
     @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .webTitle { font-size: 1.3rem; font-weight: 800;font-family: roboto; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);}
+    .webTitle { font-size: 1.5rem; font-weight: 700; }
     
     .icon-bar { 
         display: flex; 
@@ -828,8 +827,8 @@
         position: relative;
         z-index: 2;
     }
-   
-	    .poster-title {
+
+            .poster-title {
         font-size: 2em;
         text-transform: uppercase;
         font-weight: 700;
@@ -892,6 +891,8 @@
         display: inline-block;
         margin: 0;
     }
+
+
     .contact-section {
         margin-top: 0.5rem;
         border-top: 1px solid rgba(255,255,255,0.3);
@@ -1449,7 +1450,7 @@
             </table>
         </section>
 
-	<div style="font-weight:bold;font-size:14px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i>DO NOT CLOSE THIS PAGE WHILE GAME IS RUN</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
+	<div style="font-weight:bold;font-size:14px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
 
       </div>
 </div>
@@ -1583,7 +1584,7 @@ let currentCalledNumbers = [];
 let lastAnnouncedNumber = null;
 let isAnnouncing = false;
 let countdownInterval = null;
-let gameClockTimeout = null; // <-- NEW: For the distributed game clock
+let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false; 
 let knownWinners = {};
 let isInitialWinnerLoad = true;
@@ -1906,11 +1907,6 @@ function setupRealtimeListeners() {
         }
 
         updateGameRelatedUIs(data); 
-        
-        // This is the core of the new persistent game logic.
-        // Every client listens and helps keep the game clock ticking.
-        manageGameClock(data);
-
     }, err => { console.error("GameState listener error:", err); showNotification('Could not load game state.', 'error'); });
 
     listeners.tickets = db.ref('tickets');
@@ -3291,10 +3287,10 @@ function showPosterModal() {
         <div class="prize-section">
             <h3>PRIZES</h3>
             <div class="prize-list">
-                <div class="prize-column" contenteditable="true" id="prize-names">
+                <div class="prize-column" id="prize-names">
                     ${dividendNamesHTML}
                 </div>
-                <div class="prize-column" contenteditable="true" id="prize-amounts">
+                <div class="prize-column" id="prize-amounts">
                     ${dividendAmountsHTML}
                 </div>
             </div>
@@ -3621,89 +3617,74 @@ function handlePublicPopupBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
 }
 
-// =========================================================================
-// == NEW AND MODIFIED GAME RUNNER LOGIC STARTS HERE ==
-// =========================================================================
-
-// This function runs on ALL clients to keep the game clock alive.
-function manageGameClock(gameState) {
-    if (gameClockTimeout) clearTimeout(gameClockTimeout);
-    if (!gameState || !gameState.isGameRunning || !gameState.nextCallTimestamp) {
-        // Game is not running or not properly initialized, so stop the clock.
-        return;
-    }
-
-    // How long until the next number should be called?
-    const timeUntilNextCall = gameState.nextCallTimestamp - Date.now();
-
-    // If we're overdue (e.g., last runner disconnected), try to call in 2 seconds.
-    // Otherwise, schedule the call for the correct time.
-    // A small random buffer is added to reduce multiple clients firing at the exact same millisecond.
-    const delay = Math.max(2000, timeUntilNextCall) + (Math.random() * 500);
-
-    gameClockTimeout = setTimeout(attemptToCallNextNumber, delay);
-}
-
-// REWRITTEN: This function is triggered by the admin to start/stop the game.
-// It no longer uses a local setInterval.
 async function toggleGameRunner() {
-    const isRunning = document.getElementById('callStatusInp').value === 'on';
-    const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
     const gameStateRef = db.ref('gameState/currentState');
+    const isRunning = document.getElementById('callStatusInp').value === 'on';
+    if (gameRunnerInterval) clearInterval(gameRunnerInterval);
 
-    if (isRunning) {
-        if (isNaN(intervalSeconds) || intervalSeconds < 1) {
-            showNotification("Set a valid call interval (>= 1 second).", 'error');
-            document.getElementById('callStatusInp').value = 'off';
-            return;
-        }
-        try {
-            // Use a transaction to safely start the game and set the first call time.
+    try {
+        if (isRunning) {
+            await gameStateRef.child('isGameRunning').set(true);
             await gameStateRef.transaction(currentData => {
-                if (!currentData) currentData = {}; // Initialize if null
-                currentData.isGameRunning = true;
-                currentData.callIntervalSeconds = intervalSeconds;
-                if (!currentData.gameStartedAt) {
-                    currentData.gameStartedAt = firebase.database.ServerValue.TIMESTAMP;
-                }
-                // If there's no next call time or it's in the past, set it to now to trigger an immediate call.
-                if (!currentData.nextCallTimestamp || currentData.nextCallTimestamp < Date.now()) {
-                   currentData.nextCallTimestamp = firebase.database.ServerValue.TIMESTAMP;
+                if (currentData) {
+                    if (!currentData.gameStartedAt) {
+                        currentData.gameStartedAt = firebase.database.ServerValue.TIMESTAMP;
+                    }
                 }
                 return currentData;
             });
+            
             playSound(audioBaseUrl + "gamehasstarted.mp3");
+
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
-        } catch (e) {
-            showNotification("Error starting game: " + e.message, 'error');
+            const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
+            if (isNaN(intervalSeconds) || intervalSeconds < 1) {
+                showNotification("Set a valid call interval (>= 1 second).", 'error');
+                document.getElementById('callStatusInp').value = 'off';
+                await gameStateRef.child('isGameRunning').set(false);
+                return;
+            }
+            gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
+            callNextNumber(); 
+        } else {
+            await gameStateRef.child('isGameRunning').set(false);
         }
-    } else {
-        // Stop the game by setting the flag in Firebase.
-        try {
-            await gameStateRef.update({ isGameRunning: false });
-            if (gameClockTimeout) clearTimeout(gameClockTimeout); // Also clear local timer
-            await triggerGlobalNotification('The game has been paused by the admin.', 'info');
-        } catch (e) {
-            showNotification("Error stopping game: " + e.message, 'error');
-        }
+        
+    } catch (e) {
+        showNotification("Error starting/stopping game: " + e.message, 'error');
     }
 }
 
-// NEW: This function attempts to call the next number using a transaction.
-// This is called by the setTimeout managed by `manageGameClock`.
-function attemptToCallNextNumber() {
+async function setNextCallNumber() {
+    const inputEl = document.getElementById('nextCallInp');
+    const numberToSet = parseInt(inputEl.value, 10);
+
+    if (isNaN(numberToSet) || numberToSet < 1 || numberToSet > 90) {
+        showNotification('Please enter a valid number between 1 and 90.', 'error');
+        return;
+    }
+
+    if (currentCalledNumbers.includes(numberToSet)) {
+        showNotification(`Number ${numberToSet} has already been called.`, 'error');
+        return;
+    }
+    
+    try {
+        await db.ref('gameState/currentState/nextManualCallNumber').set(numberToSet);
+        showNotification(`Next call number set to ${numberToSet}.`, 'success');
+        inputEl.value = '';
+    } catch (e) {
+        showNotification('Failed to set next call number: ' + e.message, 'error');
+    }
+}
+
+function callNextNumber() {
     const gameStateRef = db.ref('gameState/currentState');
     gameStateRef.transaction(gameState => {
-        // Pre-transaction checks for safety.
-        if (!gameState || !gameState.isGameRunning) {
-            return; // Abort: Game is not running.
-        }
-        
-        // Check if it's time to call. Add a small grace period (e.g., 500ms)
-        // to prevent race conditions where a client's clock is slightly ahead.
-        // If another client was faster, its transaction will have already updated the timestamp.
-        if (Date.now() < gameState.nextCallTimestamp - 500) {
-            return; // Abort: Not time yet, another client will handle it.
+        if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
+        if (!gameState.isGameRunning) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            return;
         }
 
         const called = gameState.calledNumbers || [];
@@ -3712,7 +3693,11 @@ function attemptToCallNextNumber() {
         const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
 
         if (called.length >= 90 || areAllDividendsClaimed) {
-            gameState.isGameRunning = false; // End the game
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameState.isGameRunning = false;
+            const reason = areAllDividendsClaimed ? "All dividends have been won!" : "All 90 numbers have been called!";
+            showNotification(`${reason} Game over.`, 'info');
+            triggerGlobalNotification(`${reason} The game has ended!`, 'info');
             return gameState;
         }
 
@@ -3721,10 +3706,11 @@ function attemptToCallNextNumber() {
         
         if (gameState.nextManualCallNumber && availableNumbers.includes(gameState.nextManualCallNumber)) {
             newNumber = gameState.nextManualCallNumber;
-            gameState.nextManualCallNumber = null;
+            gameState.nextManualCallNumber = null; // Reset it within the transaction
         } else {
             if (availableNumbers.length === 0) {
-                 gameState.isGameRunning = false; // End the game
+                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+                 gameState.isGameRunning = false;
                  return gameState;
             }
             newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
@@ -3733,54 +3719,25 @@ function attemptToCallNextNumber() {
         gameState.calledNumbers = [...called, newNumber];
         gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
 
-        // Set the timestamp for the NEXT call. THIS IS THE CRITICAL STEP.
-        const intervalMs = (gameState.callIntervalSeconds || 10) * 1000;
-        gameState.nextCallTimestamp = Date.now() + intervalMs;
-        
-        // Check for game end condition again after checking winners
         const newWinners = gameState.winners;
         const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
         if(nowAllDividendsClaimed){
             gameState.isGameRunning = false;
         }
 
-        return gameState; // Commit the transaction
+        return gameState;
     }, (error, committed, snapshot) => {
         if (error) {
             console.error("Game call transaction failed: ", error);
+            showNotification('Game runner failed. Turning off.', 'error');
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameStateRef.child('isGameRunning').set(false);
         } else if (committed && snapshot.exists() && !snapshot.val().isGameRunning) {
-             const reason = (snapshot.val().calledNumbers || []).length >= 90 ? "All 90 numbers called!" : "All dividends won!";
-             showNotification(`${reason} Game over.`, 'info');
-             triggerGlobalNotification(`${reason} The game has ended!`, 'info');
+             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+             showNotification("All dividends won! Game over.", 'info');
+             triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
         }
     });
-}
-
-// =========================================================================
-// == END OF NEW AND MODIFIED GAME RUNNER LOGIC ==
-// =========================================================================
-
-async function setNextCallNumber() {
-    const inputEl = document.getElementById('nextCallInp');
-    const numberToSet = parseInt(inputEl.value, 10);
-
-    if (isNaN(numberToSet) || numberToSet < 1 || numberToSet > 90) {
-        
-        return;
-    }
-
-    if (currentCalledNumbers.includes(numberToSet)) {
-        
-        return;
-    }
-    
-    try {
-        await db.ref('gameState/currentState/nextManualCallNumber').set(numberToSet);
-        
-        inputEl.value = '';
-    } catch (e) {
-        
-    }
 }
 
 function checkAllWinners(calledNumbers, currentWinners) {
@@ -4348,7 +4305,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
-
-
-
