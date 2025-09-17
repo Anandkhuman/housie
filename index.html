@@ -828,7 +828,7 @@
         z-index: 2;
     }
 
-            .poster-title {
+       .poster-title {
         font-size: 2em;
         text-transform: uppercase;
         font-weight: 700;
@@ -1599,6 +1599,7 @@ let publicPopupSelectedTickets = [];
 let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
+let nextManualCallNumber = null;
 let adminDisplayedSearchPhones = new Set();
 
 
@@ -3655,7 +3656,7 @@ async function toggleGameRunner() {
     }
 }
 
-async function setNextCallNumber() {
+function setNextCallNumber() {
     const inputEl = document.getElementById('nextCallInp');
     const numberToSet = parseInt(inputEl.value, 10);
 
@@ -3669,13 +3670,9 @@ async function setNextCallNumber() {
         return;
     }
     
-    try {
-        await db.ref('gameState/currentState/nextManualCallNumber').set(numberToSet);
-        showNotification(`Next call number set to ${numberToSet}.`, 'success');
-        inputEl.value = '';
-    } catch (e) {
-        showNotification('Failed to set next call number: ' + e.message, 'error');
-    }
+    nextManualCallNumber = numberToSet;
+    
+    inputEl.value = ''; 
 }
 
 function callNextNumber() {
@@ -3704,9 +3701,4204 @@ function callNextNumber() {
         let newNumber;
         const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
         
-        if (gameState.nextManualCallNumber && availableNumbers.includes(gameState.nextManualCallNumber)) {
-            newNumber = gameState.nextManualCallNumber;
-            gameState.nextManualCallNumber = null; // Reset it within the transaction
+        if (nextManualCallNumber && availableNumbers.includes(nextManualCallNumber)) {
+            newNumber = nextManualCallNumber;
+            nextManualCallNumber = null;
+        } else {
+            if (availableNumbers.length === 0) {
+                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+                 gameState.isGameRunning = false;
+                 return gameState;
+            }
+            newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+        }
+
+        gameState.calledNumbers = [...called, newNumber];
+        gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
+
+        const newWinners = gameState.winners;
+        const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
+        if(nowAllDividendsClaimed){
+            gameState.isGameRunning = false;
+        }
+
+        return gameState;
+    }, (error, committed, snapshot) => {
+        if (error) {
+            console.error("Game call transaction failed: ", error);
+            showNotification('Game runner failed. Turning off.', 'error');
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameStateRef.child('isGameRunning').set(false);
+        } else if (committed && snapshot.exists() && !snapshot.val().isGameRunning) {
+             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+             showNotification("All dividends won! Game over.", 'info');
+             triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
+        }
+    });
+}
+
+function checkAllWinners(calledNumbers, currentWinners) {
+    let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
+    const activeDividends = gameSettingsData.dividends || [];
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
+    
+    const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
+    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+
+    const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
+        if (ticket.owner_phone) {
+            if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
+            acc[ticket.owner_phone].push(ticket);
+        }
+        return acc;
+    }, {});
+
+    for (const dividend of activeDividends) {
+        if (updatedWinners[dividend.name]) continue;
+
+        let winnersThisTurn = [];
+        
+        for (const ticket of soldTickets) {
+            if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
+            
+            let isWinner = false;
+            let winningPatternNumbers = [];
+            const checkPattern = (numbers) => {
+                winningPatternNumbers = numbers;
+                return check(numbers);
+            };
+            
+            const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
+
+            switch (dividend.name) {
+                case "Top Line":
+                    if (r1.length > 0 && checkPattern(r1)) isWinner = true;
+                    break;
+                case "Middle Line":
+                    if (r2.length > 0 && checkPattern(r2)) isWinner = true;
+                    break;
+                case "Bottom Line":
+                    if (r3.length > 0 && checkPattern(r3)) isWinner = true;
+                    break;
+                case "Corners (4)":
+                    const corners = [r1[0], r1[r1.length - 1], r3[0], r3[r3.length - 1]].filter(Boolean);
+                    if (corners.length === 4 && checkPattern(corners)) isWinner = true;
+                    break;
+                case "Star":
+                    const midNumR2 = r2.length === 5 ? r2[2] : null;
+                    if (r1.length === 5 && midNumR2 && r3.length === 5) {
+                        const starNumbers = [r1[0], r1[4], midNumR2, r3[0], r3[4]].filter(Boolean);
+                        if(starNumbers.length === 5 && checkPattern(starNumbers)) isWinner = true;
+                    }
+                    break;
+                case "First Full House":
+                case "Second Full House":
+                case "Third Full House":
+                    const housefullWinnersData = Object.values(updatedWinners).flat().filter(w => w.dividendName?.includes("Full House"));
+                    const housefullWinnerTicketIds = housefullWinnersData.map(w => w.ticketId);
+                    const allTicketNumbers = r1.concat(r2, r3);
+
+                    if (checkPattern(allTicketNumbers) && !housefullWinnerTicketIds.includes(ticket.id)) {
+                        const claimedPrizesCount = Object.keys(updatedWinners).filter(key => key.includes("Full House")).length;
+                        
+                        if ((dividend.name === "First Full House" && claimedPrizesCount === 0) ||
+                            (dividend.name === "Second Full House" && claimedPrizesCount === 1) ||
+                            (dividend.name === "Third Full House" && claimedPrizesCount === 2)) {
+                            isWinner = true;
+                        }
+                    }
+                    break;
+                default:
+                    if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
+                        const count = parseInt(dividend.name.match(/\d+/)[0], 10);
+                        if (countMarked(ticket) === count) {
+                            isWinner = true;
+                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
+                        }
+                    }
+                    break;
+            }
+            if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
+                winnersThisTurn.push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP, dividendName: dividend.name });
+            }
+        }
+
+        if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
+            for (const ownerPhone in ticketsByOwner) {
+                const ownerTickets = ticketsByOwner[ownerPhone];
+                const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
+                    const sheetNum = Math.floor((ticket.id - 1) / 6);
+                    if (!acc[sheetNum]) acc[sheetNum] = [];
+                    acc[sheetNum].push(ticket);
+                    return acc;
+                }, {});
+
+                for (const sheetNum in ticketsBySheet) {
+                    const sheetTickets = ticketsBySheet[sheetNum];
+                    if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
+                        if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                            const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a,b)=>a-b);
+                            winnersThisTurn.push({ 
+                                name: sheetTickets[0].owner_name, 
+                                phone: ownerPhone, 
+                                ticketId: `Full Sheet (${fullSheetTicketIds.join(',')})`, 
+                                winningNumber: lastCalledNumber, 
+                                won_at: firebase.database.ServerValue.TIMESTAMP, 
+                                dividendName: dividend.name 
+                            });
+                        }
+                    } else if (dividend.name === 'Half Sheet Bonus') {
+                        const sheetTicketIds = new Set(sheetTickets.map(t => t.id));
+                        const sheetStartId = parseInt(sheetNum) * 6 + 1;
+                        
+                        const firstHalfIds = [sheetStartId, sheetStartId + 1, sheetStartId + 2];
+                        const secondHalfIds = [sheetStartId + 3, sheetStartId + 4, sheetStartId + 5];
+
+                        let winnerFoundInSheet = false;
+
+                        if (firstHalfIds.every(id => sheetTicketIds.has(id))) {
+                            const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                                winnersThisTurn.push({
+                                    name: halfSheetTickets[0].owner_name,
+                                    phone: ownerPhone,
+                                    ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
+                                    winningNumber: lastCalledNumber,
+                                    won_at: firebase.database.ServerValue.TIMESTAMP,
+                                    dividendName: dividend.name
+                                });
+                                winnerFoundInSheet = true;
+                            }
+                        }
+
+                        if (!winnerFoundInSheet && secondHalfIds.every(id => sheetTicketIds.has(id))) {
+                            const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                                winnersThisTurn.push({
+                                    name: halfSheetTickets[0].owner_name,
+                                    phone: ownerPhone,
+                                    ticketId: `Half Sheet (${secondHalfIds.join(',')})`,
+                                    winningNumber: lastCalledNumber,
+                                    won_at: firebase.database.ServerValue.TIMESTAMP,
+                                    dividendName: dividend.name
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        if (winnersThisTurn.length > 0) {
+            updatedWinners[dividend.name] = winnersThisTurn;
+        }
+    }
+    return updatedWinners;
+}
+
+
+async function generateHousieTickets(bypassConfirm = false) {
+    const totalTicketsStr = document.getElementById('totalTicketInp').value;
+    if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
+    const totalTickets = parseInt(totalTicketsStr, 10);
+    if (isNaN(totalTickets) || totalTickets <= 0) return showNotification("Please enter a valid number of tickets.", 'error');
+    if (totalTickets % 6 !== 0) return showNotification('Total tickets must be a multiple of 6.', 'error');
+    if (!bypassConfirm && !confirm(`This will DELETE ALL existing tickets and generate ${totalTickets} new ones. Are you sure?`)) return;
+
+    showNotification(`Generating ${totalTickets} new tickets... This may take a moment.`, 'info');
+    await triggerGlobalNotification('Admin is generating new tickets...', 'info');
+
+    try {
+        await db.ref('/tickets').set(null); 
+        setTimeout(async () => {
+            const newTicketsObject = {};
+            const numSets = totalTickets / 6;
+
+            for (let i = 0; i < numSets; i++) {
+                // Each call to createTambolaSetOf6 generates a new, unique "full sheet"
+                // where numbers 1-90 are used exactly once across the 6 tickets.
+                const currentSet = createTambolaSetOf6();
+                for (let j = 0; j < 6; j++) {
+                    const ticketId = i * 6 + j + 1;
+                    newTicketsObject[ticketId] = {
+                        id: ticketId,
+                        numbers: currentSet[j],
+                        is_sold: false,
+                        owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
+                    };
+                }
+            }
+            await db.ref('/tickets').set(newTicketsObject);
+            const successMsg = `${totalTickets} new tickets generated successfully!`;
+            showNotification(successMsg, 'success');
+            await triggerGlobalNotification(successMsg, 'success');
+        }, 50);
+
+    } catch (e) {
+        showNotification("Error generating tickets: " + e.message, 'error');
+    }
+}
+
+function createTambolaSetOf6() {
+    const shuffle = (arr) => {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    };
+    const colCounts = [
+        [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2],
+        [1, 1, 2, 2, 2, 1, 2, 3, 1], [2, 2, 1, 2, 1, 2, 1, 1, 3],
+        [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
+    ];
+    const ticketLayouts = [];
+    for (let t = 0; t < 6; t++) {
+        const layout = Array(3).fill(0).map(() => Array(9).fill(0));
+        const ticketColCounts = colCounts[t];
+        for (let c = 0; c < 9; c++) {
+            const rowsToPlace = shuffle([0, 1, 2]).slice(0, ticketColCounts[c]);
+            for (const r of rowsToPlace) { layout[r][c] = 1; }
+        }
+        let isBalanced = false;
+        while (!isBalanced) {
+            const rowCounts = layout.map(row => row.reduce((a, b) => a + b, 0));
+            const overfullRows = rowCounts.map((c, i) => c > 5 ? i : -1).filter(i => i !== -1);
+            const underfullRows = rowCounts.map((c, i) => c < 5 ? i : -1).filter(i => i !== -1);
+            if (overfullRows.length === 0 && underfullRows.length === 0) { isBalanced = true; continue; }
+            const rOver = overfullRows[0], rUnder = underfullRows[0];
+            const swappableCols = [];
+            for (let c = 0; c < 9; c++) {
+                if (layout[rOver][c] === 1 && layout[rUnder][c] === 0) { swappableCols.push(c); }
+            }
+            if (swappableCols.length > 0) {
+                const colToSwap = swappableCols[Math.floor(Math.random() * swappableCols.length)];
+                layout[rOver][colToSwap] = 0;
+                layout[rUnder][colToSwap] = 1;
+            }
+        }
+        ticketLayouts.push(layout);
+    }
+    const numberPools = [
+        shuffle(Array.from({ length: 9 }, (_, i) => i + 1)),   shuffle(Array.from({ length: 10 }, (_, i) => i + 10)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 20)), shuffle(Array.from({ length: 10 }, (_, i) => i + 30)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 40)), shuffle(Array.from({ length: 10 }, (_, i) => i + 50)),
+        shuffle(Array.from({ length: 10 }, (_, i) => i + 60)), shuffle(Array.from({ length: 10 }, (_, i) => i + 70)),
+        shuffle(Array.from({ length: 11 }, (_, i) => i + 80))
+    ];
+    const finalTickets = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
+    for (let c = 0; c < 9; c++) {
+        for (let t = 0; t < 6; t++) {
+            for (let r = 0; r < 3; r++) {
+                if (ticketLayouts[t][r][c] === 1) { finalTickets[t][r][c] = numberPools[c].pop(); }
+            }
+        }
+    }
+    for (let t = 0; t < 6; t++) {
+        for (let c = 0; c < 9; c++) {
+            const colValues = [];
+            for (let r = 0; r < 3; r++) {
+                if (finalTickets[t][r][c] !== 0) { colValues.push(finalTickets[t][r][c]); }
+            }
+            colValues.sort((a, b) => a - b);
+            let valueIndex = 0;
+            for (let r = 0; r < 3; r++) {
+                if (finalTickets[t][r][c] !== 0) { finalTickets[t][r][c] = colValues[valueIndex++]; }
+            }
+        }
+    }
+    return finalTickets;
+}
+
+
+function createListPDF(title, headers, dataRows, filename) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text(title, 105, 15, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
+
+    const startY = 35;
+    const colPositions = [15, 40, 120]; 
+
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    headers.forEach((header, i) => {
+        doc.text(header, colPositions[i], startY);
+    });
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    let y = startY + 7;
+
+    dataRows.forEach(row => {
+        if (y > 280) { 
+            doc.addPage();
+            y = 15;
+        }
+        row.forEach((cell, i) => {
+            doc.text(String(cell), colPositions[i], y);
+        });
+        y += 7;
+    });
+
+    doc.save(filename);
+}
+
+async function downloadPreviousGameTicketList() {
+    try {
+        const snapshot = await db.ref('lastGame/tickets').once('value');
+        const prevTicketsObject = snapshot.val();
+        
+        if (!prevTicketsObject || Object.keys(prevTicketsObject).length === 0) {
+            return showNotification('No archived ticket data found.', 'info');
+        }
+
+        const prevTickets = Object.values(prevTicketsObject);
+        const usersSnapshot = await db.ref('users').once('value');
+        const users = usersSnapshot.val();
+        const userMap = new Map(Object.entries(users || {}).map(([uid, data]) => [uid, data]));
+
+        const dataRows = prevTickets.map(ticket => {
+            const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
+            const agentName = agent ? agent.name : 'Direct/Admin';
+            return [ticket.id, ticket.owner_name, agentName];
+        });
+
+        createListPDF(
+            'Previous Game - Sold Tickets',
+            ['Ticket ID', 'Owner Name', 'Booked By'],
+            dataRows,
+            'Previous-Game-Tickets.pdf'
+        );
+
+    } catch (e) {
+        showNotification('Error downloading previous ticket list: ' + e.message, 'error');
+    }
+}
+
+function downloadCurrentSoldTickets() {
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    if (soldTickets.length === 0) {
+        return showNotification('No tickets have been sold in the current game yet.', 'info');
+    }
+
+    const userMap = new Map(allUsersData.map(u => [u.uid, u]));
+
+    const dataRows = soldTickets.map(ticket => {
+        const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
+        const agentName = agent ? agent.name : 'Direct/Admin';
+        return [ticket.id, ticket.owner_name, agentName];
+    });
+
+    createListPDF(
+        'Current Game - Sold Tickets',
+        ['Ticket ID', 'Owner Name', 'Booked By'],
+        dataRows,
+        'Current-Sold-Tickets.pdf'
+    );
+}
+
+async function downloadTicketAsPDF(ticketId) {
+    const { jsPDF } = window.jspdf;
+    const ticketData = allTicketsData.find(t => t.id === ticketId);
+    if (!ticketData) return showNotification('Ticket data not found.', 'error');
+
+    const doc = new jsPDF();
+    const cellWidth = 20;
+    const cellHeight = 15;
+    const startX = 15;
+    const startY = 20;
+
+    doc.setFontSize(16);
+    doc.text(`Housie Ticket #${ticketData.id}`, startX, startY);
+    if(ticketData.is_sold){
+        doc.setFontSize(10);
+        doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
+    }
+
+    doc.setFontSize(14);
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 9; col++) {
+            const x = startX + col * cellWidth;
+            const y = startY + 15 + row * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+            const num = ticketData.numbers[row][col];
+            if (num > 0) {
+                doc.text(String(num), x + cellWidth / 2, y + cellHeight / 2, { align: 'center', baseline: 'middle' });
+            }
+        }
+    }
+
+    doc.save(`Housie-Ticket-${ticketId}.pdf`);
+    showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
+}
+
+async function downloadWinnersPDF() {
+    if (Object.keys(knownWinners).length === 0) {
+        showNotification("No winners to download yet.", "info");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Housie Game - Winners List", 105, 15, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 20, { align: 'center' });
+
+    const tableData = Object.entries(knownWinners).flatMap(([dividend, winnerArray]) => 
+        winnerArray.map(winner => [
+            dividend,
+            winner.name,
+            String(winner.ticketId)
+        ])
+    );
+    
+    let y = 35;
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text("Dividend", 15, y);
+    doc.text("Winner Name", 80, y);
+    doc.text("Ticket ID", 150, y);
+    doc.setFont(undefined, 'normal');
+    y += 7;
+
+    tableData.forEach(row => {
+        doc.text(row[0], 15, y);
+        doc.text(row[1], 80, y);
+        doc.text(row[2], 150, y);
+        y += 7;
+        if (y > 280) {
+            doc.addPage();
+            y = 15;
+        }
+    });
+
+    doc.save("Housie-Winners.pdf");
+}
+
+function updateRunGameUI(gameState) {
+    if(document.getElementById('runGameWindowDiv').classList.contains('active')){
+        const isRunning = gameState.isGameRunning || false;
+        document.getElementById('callStatusInp').value = isRunning ? 'on' : 'off';
+    }
+}
+
+function searchTicketAdmin() {
+    const searchTerm = document.getElementById('adminTicketSearchInp').value.trim();
+    if (!searchTerm) return;
+    
+    let ticketsToDisplay = [];
+    const searchNumber = parseInt(searchTerm, 10);
+
+    if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
+        const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
+        if (initialTicket) {
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+        }
+    } else {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+        );
+    }
+    
+    if (ticketsToDisplay.length > 0) {
+        const ownerPhone = ticketsToDisplay[0].owner_phone;
+        const ownerName = ticketsToDisplay[0].owner_name;
+
+        if (adminDisplayedSearchPhones.has(ownerPhone)) {
+            showNotification(`${ownerName}'s tickets are already displayed.`, 'info');
+            return;
+        }
+        adminDisplayedSearchPhones.add(ownerPhone);
+
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'sheet-view';
+        groupWrapper.dataset.phone = ownerPhone;
+        
+        let ticketsHTML = '';
+        ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+            let gridHTML;
+            if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                 gridHTML = ticket.numbers.flat().map(n =>
+                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                ).join('');
+            } else {
+                gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
+            }
+            
+            ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
+                        <div class="ticket-header">Ticket #${ticket.id}</div>
+                        <div class="ticket-grid">${gridHTML}</div>
+                    </div>`;
+        });
+        
+        groupWrapper.innerHTML = `
+            <div class="sheet-header" style="position: relative; padding-right: 30px;">
+                <span>${ownerName} - ${ownerPhone}</span>
+                <button class="clear-search-btn" style="background: #e74c3c;" onclick="clearAdminSearchResult('${ownerPhone}')" title="Clear this result">&times;</button>
+            </div>
+            <div class="sheet-content">${ticketsHTML}</div>`;
+            
+        document.getElementById('adminTicketDisplayArea').prepend(groupWrapper);
+        updateAdminDisplayedTickets();
+    } else {
+        showNotification('No tickets found for that search term.', 'error');
+    }
+}
+
+function clearAdminSearchResult(phone) {
+    const group = document.querySelector(`#adminTicketDisplayArea .sheet-view[data-phone="${phone}"]`);
+    if (group) group.remove();
+    adminDisplayedSearchPhones.delete(phone);
+}
+
+function updateAdminDisplayedTickets() {
+    document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
+        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
+            const num = parseInt(cell.dataset.num, 10);
+            if (num > 0) {
+                const isCalled = currentCalledNumbers.includes(num);
+                cell.classList.toggle('ticked', isCalled);
+                cell.classList.remove('last-called-highlight');
+                if (num === lastAnnouncedNumber) {
+                    cell.classList.add('last-called-highlight');
+                }
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    generateNumberBoard();
+    bindEventListeners();
+    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+
+    setTimeout(() => {
+        showPopup('firstVisitPopup');
+    }, 1500);
+});
+</script>
+
+	<script>
+(function(){
+    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
+    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
+    document['addEventListener']('keydown',function(_0x2){
+        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
+        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
+           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
+            _0x2['preventDefault']();
+        }
+    });
+})();
+	</script>
+
+</body>
+</html>    .overlay-popup.active .popup-content { transform: scale(1); }
+
+    .top-down-notification-popup {
+        height: auto;
+        align-items: flex-start;
+        justify-content: center;
+        background: transparent;
+        backdrop-filter: none;
+        pointer-events: none;
+        padding-top: 10px;
+        z-index: 10000;
+        transform: translateY(-150%);
+        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .top-down-notification-popup.active {
+        transform: translateY(0);
+    }
+
+    .top-down-notification-popup .popup-content {
+        max-width: 800px;
+        width: 95%;
+        margin: 0 auto;
+        transform: none !important;
+        pointer-events: auto;
+        box-shadow: 0 5px 25px rgba(0, 246, 255, 0.3);
+        padding: 1rem 1.5rem;
+        max-height: none;
+        overflow-y: visible;
+        border-radius: 12px;
+    }
+
+    .top-down-notification-popup .notification-body {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .top-down-notification-popup .notification-logo img {
+        max-width: 80px !important;
+        height: auto;
+    }
+
+    .top-down-notification-popup .notification-text-content {
+        flex-grow: 1;
+        color: var(--text-secondary);
+    }
+    .top-down-notification-popup .notification-text-content .popup-title {
+        margin: 0 0 0.5rem 0;
+        text-align: left;
+        font-size: 1.2rem;
+    }
+    .top-down-notification-popup .notification-text-content p {
+        margin: 0;
+        line-height: 1.5;
+        font-size: 0.9rem;
+    }
+
+    .top-down-notification-popup .notification-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .top-down-notification-popup .notification-actions .login-btn {
+        width: auto;
+        padding: 0.5rem 1rem;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+        .top-down-notification-popup .notification-body {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        .top-down-notification-popup .notification-text-content .popup-title {
+            text-align: center;
+        }
+        .top-down-notification-popup .notification-actions {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+
+    .x-button {
+        background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
+        cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;
+        transition: color 0.3s, transform 0.3s;
+        z-index: 10;
+    }
+    .x-button:hover { color: var(--text-primary); transform: rotate(90deg); }
+
+    .popup-title {
+        font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 1.5rem;
+        color: var(--accent-primary); text-shadow: 0 0 8px var(--accent-primary);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="datetime-local"],
+    select,
+    .agent-inp,
+    .searchInp,
+    .tableInp,
+    #bookingFormContainer input {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
+        border-radius: 4px;
+        text-align: center;
+        font-family: var(--font-family-neon);
+        background: var(--secondary-surface);
+        border: 1px solid var(--accent-primary);
+        color: var(--text-primary);
+    }
+
+    .login-form input {
+        margin-bottom: 0.8rem;
+    }
+
+    .login-btn {
+        width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
+        border-radius: 4px; margin-bottom: 0.8rem; text-align: center;
+        font-family: var(--font-family-neon);
+        background: var(--accent-primary); color: var(--text-dark);
+        cursor: pointer; font-weight: 700; transition: box-shadow 0.3s, filter 0.3s;
+        letter-spacing: 0.5px;
+    }
+    .login-btn:hover { box-shadow: 0 0 10px var(--accent-primary); filter: brightness(1.1); }
+    .login-btn.secondary { background: var(--accent-secondary); }
+    .login-btn.admin { background: #e67e22; }
+    .login-btn.agent { background: #3498db; }
+
+    .forgot-password-link {
+        display: block;
+        text-align: center;
+        color: var(--accent-primary);
+        margin: 1rem 0 0.5rem 0;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    .forgot-password-link:hover {
+        color: var(--text-primary);
+        text-decoration: underline;
+    }
+
+    .agent-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .agent-list a {
+        display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem;
+        border-radius: 4px; color: var(--text-primary); text-decoration: none;
+        font-size: 1rem; font-weight: 600; background: var(--secondary-surface);
+        transition: background-color 0.3s, transform 0.3s;
+    }
+    .agent-list a:hover { background-color: var(--primary-surface); transform: translateX(3px); }
+    .agent-list .fab.fa-whatsapp { color: #25D366; font-size: 1.2rem; margin-left: auto; }
+
+    #notification-container {
+        position: fixed; top: 10px; right: 2.5%; width: 95%;
+        z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+    }
+    .notification {
+        padding: 12px 15px; border-radius: 6px; color: white;
+        font-family: sans-serif; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        opacity: 0; transform: translateX(100%);
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    .notification.show { opacity: 1; transform: translateX(0); }
+    .notification.success { background-color: #2ecc71; }
+    .notification.error { background-color: #e74c3c; }
+    .notification.info { background-color: #3498db; }
+
+    .neon-view {
+    }
+    
+    .page-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+        width: 95%;
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .panel {
+        background: var(--primary-surface); 
+        border: 1px solid var(--accent-primary);
+        border-radius: 8px; 
+        margin-bottom: 0.1rem;
+        
+        box-shadow: 0 0 15px rgba(0, 246, 255, 0.2), inset 0 0 8px rgba(0, 246, 255, 0.1);
+        opacity: 0; 
+        transform: translateY(20px);
+        padding: 1rem;
+    }
+    
+    .top-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 998;
+        background: var(--primary-surface);
+        border-bottom: 2px solid var(--accent-primary);
+        box-shadow: 0 5px 15px rgba(0, 246, 255, 0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+        background: var(--primary-surface);
+        border-top: 2px solid var(--accent-primary);
+        box-shadow: 0 -5px 15px rgba(0, 246, 255, 0.2);
+        opacity: 0; 
+        transform: translateY(100%);
+        padding: 0.3rem 0;
+    }
+
+    .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+
+    @media (min-width: 992px) {
+        .game-layout {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+
+    .panel-title {
+        font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
+        color: var(--accent-primary); text-align: center;
+        text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
+    }
+    .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
+    .logo-container { font-size: 1.8rem; color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-primary); animation: pulse-glow 3s infinite ease-in-out; }
+    @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .webTitle { font-size: 1.5rem; font-weight: 700; }
+    
+    .icon-bar { 
+        display: flex; 
+        gap: 0.2rem;
+        justify-content: space-around; 
+        flex-wrap: nowrap; 
+        width: 100%;
+    }
+    
+    .icon-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+        background: transparent;
+        border: none;
+        color: var(--accent-primary);
+        border-radius: 4px;
+        padding: 0.4rem 0.2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color var(--transition-speed) ease, color 0.3s, transform 0.3s;
+        flex-grow: 1;
+        flex-basis: 0;
+        text-align: center;
+    }
+    .icon-btn:hover {
+        background: rgba(0, 246, 255, 0.1);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+    
+    .icon-btn i {
+        font-size: 1.4rem;
+    }
+    
+    .timer-status-bar { width: 100%; padding: 0.2rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.5rem; }
+    .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.70rem; font-weight: 600; color: var(--text-secondary); }
+    .info-item i { font-size: 1rem; color: var(--accent-primary); }
+    .info-separator { display: none; }
+    .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
+    .num-cell {
+        aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+        background: var(--secondary-surface); border-radius: 4px;
+        font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+        color: var(--text-secondary); text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
+        transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
+    }
+    .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
+    .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
+    .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
+    .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
+    
+    .search-container { display: flex; margin-bottom: 1rem; gap: 4px; }
+    .searchInp {
+        flex-grow: 1;
+        border-radius: 4px;
+        margin: 0;
+    }
+    .searchInp:focus { box-shadow: 0 0 10px var(--accent-primary); }
+    .search-btn { padding: 0 1rem; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: var(--text-dark); cursor: pointer; border-radius: 4px; font-size: 1rem; font-weight: 700; transition: filter var(--transition-speed) ease; }
+    .search-btn:hover { filter: brightness(1.2); }
+    
+    .ticketDisplayArea { display: flex; flex-direction: column; gap: 1rem; }
+    .search-result-group {
+        border: 1px solid var(--accent-secondary);
+        border-radius: 6px;
+        padding: 0.8rem;
+        background-color: rgba(255, 0, 160, 0.05);
+        position: relative;
+    }
+    .clear-search-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: var(--accent-secondary);
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid white;
+        transition: transform 0.2s, background-color 0.2s;
+        z-index: 5;
+    }
+    .clear-search-btn:hover {
+        transform: scale(1.1);
+        background-color: red;
+    }
+    .search-result-group .ticket-view {
+        margin-bottom: 0.5rem;
+    }
+    .search-result-group .ticket-view:last-child {
+        margin-bottom: 0;
+    }
+
+
+    .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
+    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: #01579b; text-shadow: none; }
+    .sheet-view { background-color: #ffffff; border: 1px solid #0277bd; border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem; }
+    .sheet-header { color: #01579b; border-bottom: 1px solid #b3e5fc; font-size: 1rem; margin-bottom: 0.8rem; background: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; padding-bottom: 0.5rem; }
+    .sheet-content { display: grid; gap: 0.8rem; grid-template-columns: 1fr !important; }
+    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
+    .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
+    .ticket-header span, .ticket-header div { color: #01579b !important; }
+    .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
+    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(1rem, 2.2vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+    .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
+    .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
+    #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
+    .ticket-num.winning-strike {
+        background-color: var(--called-color) !important;
+        color: var(--text-dark) !important;
+        transform: scale(1.2) rotate(3deg);
+        box-shadow: 0 0 15px 3px var(--called-color);
+        border: 2px solid black;
+        z-index: 2;
+        position: relative;
+    }
+
+    .download-pdf-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background-color: var(--accent-color-dash);
+        color: white;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        border: 2px solid white;
+        transition: transform 0.2s;
+    }
+    .download-pdf-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .dividend-table { width: 100%; border-collapse: collapse; }
+    .dividend-table th, .dividend-table td { padding: 0.8rem; text-align: left; border-top: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; }
+    .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.95rem; }
+    .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
+    .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
+    .dividend-table .winner-info { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+    .dividend-table .winner-details { flex-grow: 1; }
+    .dividend-table .winner-details ul { list-style: none; padding: 0; margin: 0; }
+    .dividend-table .winner-details li { margin-bottom: 4px; }
+    .dividend-table .winner-name { font-weight: 700; color: var(--called-color); }
+    .dividend-table .prize-share { font-size: 0.8em; color: var(--text-secondary); font-style: italic; display: block; margin-top: 2px;}
+    .dividend-table .winner-info .fa-eye { flex-shrink: 0; margin-left: 10px; cursor: pointer; color: var(--accent-primary); font-size: 1.1rem; transition: transform 0.2s; padding-top: 4px; }
+    .dividend-table .winner-info .fa-eye:hover { transform: scale(1.2); }
+
+    #number-announcement-overlay {
+        visibility: hidden;
+        opacity: 0;
+        background: transparent;
+        backdrop-filter: none;
+    }
+    #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
+    #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 60vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+    
+    #bookingFormContainer {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        grid-template-areas:
+            "name phone button"
+            "indicator indicator indicator";
+        gap: 0.2rem;
+        margin-bottom: 0.4rem;
+    }
+    #bookerName { grid-area: name; margin-bottom: 0; }
+    #bookerPhone { grid-area: phone; margin-bottom: 0; }
+    #requestBookingBtn { grid-area: button; width: auto; margin: 0; }
+    #publicSelectionIndicator { grid-area: indicator; margin-top: 0.2rem; }
+    
+    @media (max-width: 600px) {
+        #bookingFormContainer {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "name"
+                "phone"
+                "button"
+                "indicator";
+        }
+    }
+    
+    #bookingGridContainer .ticket-view.sold {
+        cursor: not-allowed;
+        opacity: 1;
+        background-color: #ffebee;
+        border-color: #ef9a9a;
+    }
+    #bookingGridContainer .ticket-view.sold .ticket-header {
+        background-color: #ffcdd2;
+        color: #c62828;
+    }
+    #bookingGridContainer .ticket-view.sold .ticket-header span,
+    #bookingGridContainer .ticket-view.sold .ticket-header div {
+        color: #c62828 !important;
+    }
+    #bookingGridContainer .ticket-view.sold .ticket-num.empty {
+        background-color: #ffebee;
+    }
+
+    #bookingGridContainer .ticket-view:not(.sold) {
+        background-color: #e3f2fd;
+        border-color: #90caf9;
+    }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-header {
+        background-color: #bbdefb;
+        color: #1565c0;
+    }
+     #bookingGridContainer .ticket-view:not(.sold) .ticket-header span,
+     #bookingGridContainer .ticket-view:not(.sold) .ticket-header div {
+        color: #1565c0 !important;
+     }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-num.empty {
+        background-color: #e3f2fd;
+    }
+
+    .selection-indicator {
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--called-color);
+        padding: 0.5rem 0.8rem;
+        margin-top: 1rem;
+        border-radius: 4px;
+        background: rgba(255, 242, 0, 0.1);
+        border: 2px dashed var(--called-color);
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.3s ease;
+    }
+    #bookedTicketsDisplay { max-height: 80vh; overflow-y: auto; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 1rem; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+    .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
+    .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
+    .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
+    .book-now-btn-small:hover { filter: brightness(1.2); }
+    .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 0.2rem; }
+    .dashboard-view .gameSettingDiv:first-child { margin-top: 1rem; }
+    .dashboard-view .titleBtn { width: 100%; border: 0; padding: 10px; color: var(--light-text-dash); background: rgba(255, 255, 255, 0.05); border-radius: 6px 6px 0 0; font-weight: bold; text-align: center; font-size: 1rem; }
+    .dashboard-view .clickBtn { padding: 8px; color: var(--light-text-dash); border-radius: 6px; border: 0; margin: 2px; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.85rem; }
+    .dashboard-view .runBtn { width: 80%; font-weight: bold; border-radius: 6px; background: var(--accent-color-dash); color: var(--light-text-dash); margin: 10px auto; border: 0; display: block; cursor: pointer; font-size: 1.2rem; height: 50px; }
+    .dashboard-view .bookFloatBtn { width: 110px; padding: 8px; border-radius: 8px; position: fixed; bottom: 10px; right: 10px; border: 0; background: var(--accent-color-dash); color: var(--light-text-dash); z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: pointer; font-size: 0.85rem; }
+    .dashboard-view .actionBtn { margin: 4px; background: var(--accent-color-dash); color: var(--light-text-dash); font-weight: bold; border-radius: 4px; border: 0; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.8rem; height: auto; padding: 8px 4px; flex-grow: 1; }
+    .dashboard-view .actionBtn:hover { background: #16a085; }
+    .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
+    .dashboard-view .gameSettingTable thead { display: none; }
+    .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
+    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 2fr 1fr; gap: 0px; align-items: center;}
+    .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
+
+    .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
+    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
+    .dashboard-view .gameSettingTable td::before { content: '' !important; }
+    .dashboard-view .tableInp {
+        margin: 0;
+        box-sizing: border-box;
+        background-color: white;
+        color: var(--text-dark);
+        border: 1px solid var(--secondary-bg-dash);
+    }
+    .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); cursor: pointer;}
+    #adminDashboardView .searchInp, #agentDashboardView .searchInp {
+        margin: 15px auto 0 auto;
+        display: block;
+        width: 90%;
+    }
+    .dashboard-view .toggleDiv { display: grid; grid-template-columns: 1fr 1fr; width: 90%; margin: 0 auto; }
+    .dashboard-view #showTicketBtn { background: var(--accent-color-dash); }
+    .dashboard-view #showAgentBtn { background: var(--secondary-bg-dash); }
+    .dashboard-view .actionBtnDiv { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 4px; padding: 8px; }
+    .dashboard-view .numBlockDiv { width: 90%; margin: 1rem auto; border: 8px solid silver; display: grid; grid-template-columns: repeat(10, 1fr); }
+    .dashboard-view .numBlockDiv .num-cell { font-size: 1rem; color: var(--text-dark); background: #fff;}
+    .dashboard-view .numBlockDiv .num-cell.called { background: var(--accent-color-dash); color: white; }
+    
+    .ticketBlockBtn {
+        font-size: 0.9rem; padding: 4px;
+        background: white;
+        font-weight: bold;
+        border: 2px solid silver;
+        color: #000;
+        cursor: pointer; aspect-ratio: 1/1;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .ticketBlockBtn:disabled {
+        background: #fff200;
+        color: #333;
+        cursor: not-allowed;
+        text-decoration: line-through;
+        border-color: #fbc02d;
+    }
+    .ticketBlockBtn.selected {
+        background: var(--accent-color-dash) !important;
+        color: var(--light-text-dash) !important;
+        border-color: var(--light-text-dash) !important;
+    }
+
+    .dashboard-view .bookBtn, .bookBtn { 
+        width: 100%; font-size: 1rem; padding: 0.8rem; border: 0; font-weight: bold; 
+        display: block; background: var(--accent-color-dash); color: var(--light-text-dash); 
+        border-radius: 6px; cursor: pointer;
+        transition: filter 0.2s;
+    }
+    .dashboard-view .bookBtn:hover, .bookBtn:hover {
+        filter: brightness(1.1);
+    }
+
+    .dashboard-view .runGameTable, .dashboard-view .dividentConDiv { width: 95%; margin: 1rem auto; }
+    .dashboard-view .dividentConDiv table { width: 100%; color: var(--light-text-dash); border-collapse: collapse; }
+    .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 6px; border: 1px solid var(--muted-color-dash); font-size: 0.85rem;}
+    
+    .gamePopDiv { background: rgba(0, 0, 0, 0.8); }
+    .gameDiv {
+        position: relative;
+        height: 95vh;
+        width: 95%;
+        background: var(--primary-bg-dash);
+        margin: 2.5% auto;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .gamePopDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
+    #agentDashboardView .runBtn { font-size: 1.5rem; }
+    #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
+    #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
+
+    .booking-popup-header {
+        flex-shrink: 0;
+        z-index: 5;
+        padding: 0.8rem;
+        position: relative;
+        border-bottom: 1px solid var(--secondary-bg-dash);
+    }
+    
+    .gamePopDiv .ticketBlockDiv {
+        flex-grow: 1;
+        overflow-y: auto;
+        margin: 0;
+        width: 100%;
+        max-height: none;
+        padding: 8px;
+    }
+
+    .bookInpDiv {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    #adminGameSettingTable .booked-ticket-line-1 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+    #adminGameSettingTable .booked-ticket-line-1 .fa-edit,
+    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt {
+        color: var(--accent-color-dash);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt {
+        color: #e74c3c;
+        margin-left: 10px;
+    }
+     #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover,
+     #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt:hover {
+        transform: scale(1.2);
+    }
+    #adminGameSettingTable .booked-ticket-line-2 {
+        font-size: 0.8rem;
+        color: var(--muted-color-dash);
+        margin-top: 4px;
+    }
+    #adminGameSettingTable .admin-ticket-row td {
+        display: block;
+        width: 100%;
+        padding: 0;
+    }
+     #adminGameSettingTable .admin-ticket-row.available-ticket td {
+        display: table-cell;
+    }
+    
+    #dividendSettingsTable tr {
+        grid-template-columns: 1fr; 
+    }
+    #dividendSettingsTable td {
+        display: flex; 
+        align-items: center;
+        gap: 10px;
+    }
+    .dividend-name-text {
+        flex-grow: 1; 
+        font-weight: 500;
+        color: var(--light-text-dash);
+    }
+    .dividend-amount {
+        width: 90px !important; 
+        flex-shrink: 0;
+        text-align: right !important;
+    }
+
+    #genericInfoPopupContent ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    #genericInfoPopupContent li {
+        padding: 8px;
+        border-bottom: 1px solid var(--secondary-surface);
+    }
+    #genericInfoPopupContent li:last-child {
+        border-bottom: none;
+    }
+    #genericInfoPopupContent .winner-dividend {
+        font-weight: 700;
+        color: var(--accent-primary);
+    }
+    #genericInfoPopupContent .winner-details {
+        font-size: 0.9em;
+        color: var(--text-primary);
+    }
+
+    #posterContent {
+        font-family: 'Oswald', sans-serif;
+        color: #ffffff;
+        padding: 2rem;
+        background-size: cover;
+        background-position: center;
+        text-align: center;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        transition: background-image 0.5s ease-in-out;
+    }
+    
+    #posterContent [contenteditable="true"]:hover {
+        outline: 2px dashed var(--accent-primary);
+        background-color: rgba(0, 246, 255, 0.1);
+    }
+
+    #posterContent::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 1;
+    }
+
+    #posterContent > * {
+        position: relative;
+        z-index: 2;
+    }
+
+       .poster-title {
+        font-size: 2em;
+        text-transform: uppercase;
+        font-weight: 700;
+        text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
+        margin: 0;
+    }
+
+    .poster-datetime {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-top: -0.1rem;
+        color: #ffeb3b;
+    }
+
+    .poster-tagline {
+        font-size: 1em;
+        margin: -0.1rem 0;
+    }
+
+    .prize-section {
+        margin: 0rem auto;
+        padding: 0rem;
+        border-radius: 8px;
+        max-width: 100%;
+    }
+
+    .prize-section h3 {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        border-bottom: 2px solid #ffeb3b;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 1rem;
+    }
+
+    .prize-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1 1rem;
+        text-align: left;
+    }
+
+    .prize-column p {
+        margin: 0.5rem 0;
+        font-size: 1.5em;
+    }
+
+    #prize-amounts {
+        text-align: right;
+        font-weight: bold;
+    }
+
+    .ticket-details {
+        font-size: 0.9em;
+        font-weight: bold;
+        background: #ffeb3b;
+        color: #000;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        display: inline-block;
+        margin: 0;
+    }
+
+
+    .contact-section {
+        margin-top: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.3);
+        padding-top: 0;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+
+    .contact-section p {
+        font-size: 1.1em;
+        margin: 0;
+    }
+
+    .contact-section a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+    .contact-section a:hover {
+        text-decoration: underline;
+    }
+
+    .gamePopDiv .tableInp, .gamePopDiv .tableInp1 {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        text-align: center;
+        font-family: var(--font-family-neon);
+        background: var(--secondary-bg-dash);
+        border: 1px solid var(--accent-color-dash);
+        color: var(--light-text-dash);
+        box-sizing: border-box;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .gamePopDiv .tableInp:focus {
+        border-color: var(--accent-color-dash);
+        box-shadow: 0 0 8px var(--accent-color-dash);
+        outline: none;
+    }
+
+    .gamePopDiv select.tableInp {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231abc9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+        padding-right: 2.5rem;
+    }
+
+    .runGameTable button.actionBtn {
+        margin: 0 !important;
+        height: auto;
+        font-size: 1rem;
+	    border-radius: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .runGameTable button.actionBtn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    
+    .gamePopDiv .ticketBlockDiv {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .compact-sheet-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px;
+        border-radius: 4px;
+        background-color: var(--secondary-bg-dash);
+    }
+
+    .compact-sheet-row .sheet-tick-box {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--accent-color-dash);
+        flex-shrink: 0;
+    }
+
+    .compact-sheet-row .ticket-buttons-group {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+        flex-grow: 1;
+    }
+
+    .gamePopDiv .ticketBlockBtn {
+        font-size: 0.8rem;
+        padding: 0;
+        height: 35px;
+        width: 100%;
+        aspect-ratio: unset;
+        min-width: 35px;
+        border-width: 1px;
+        line-height: 35px;
+    }
+
+     .actionBtn1 {
+    background: var(--primary-bg-dash, #2c2c2c);
+    color: var(--light-text-dash, #fff);
+    border: 1px solid var(--muted-color-dash, #555);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+/* Hover effect */
+.actionBtn1:hover {
+    background: var(--accent-color-dash, #3a86ff);
+    color: #fff;
+    border-color: var(--accent-color-dash, #3a86ff);
+    transform: translateY(-1px);
+}
+
+/* Active/selected BG highlight */
+.actionBtn1.active {
+    background: var(--accent-color-dash, #3a86ff);
+    color: #fff;
+    border-color: var(--accent-color-dash, #3a86ff);
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+</style>
+</head>
+<body>
+
+<div id="notification-container"></div>
+
+<div id="publicView" class="view neon-view active">
+    <header class="top-header">
+        <div class="title-container">
+            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+        <div class="panel">
+            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
+            </div>
+        </div>
+
+        <main class="game-layout">
+            <section class="panel">
+                <h2 class="panel-title">GAME BOARD</h2>
+                <div class="number-board" id="numberBoard"></div>
+            </section>
+            <aside class="info-column">
+                <section class="panel">
+                    <h2 class="panel-title">CALLED NUMBERS</h2>
+                    <div class="called-numbers-list" id="calledNumbersList"><span>Game has not started...</span></div>
+                </section>
+                <section class="panel">
+                    <h2 class="panel-title">MY TICKETS</h2>
+                    <div class="search-container">
+                        <input type="text" class="searchInp" id="ticketSearchInp" placeholder="Enter name, phone, or ticket ID">
+                        <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
+                        <button class="search-btn" id="clearAllSearchBtn" title="Clear All Search Results" style="padding: 0 0.8rem;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
+                </section>
+		
+		<section class="panel">
+                    <h2 class="panel-title">DIVIDENDS & WINNERS</h2>
+                    <table class="dividend-table" id="dividendListTable">
+                        <thead><tr><th>Dividend Name</th><th>Winner</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
+
+                 <section class="panel">
+                    <h2 class="panel-title">ALL TICKETS STATUS</h2>
+                    <div id="bookedTicketsDisplay">
+                    </div>
+                </section>
+                
+            </aside>
+        </main>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="icon-bar" id="public-icon-bar">
+            <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
+            <a href="#book" id="navigateToBooking" class="icon-btn"><i class="fas fa-ticket-alt"></i><span>Book</span></a>
+            <button class="icon-btn" id="showAgentsBtn"><i class="fas fa-users"></i><span>Agents</span></button>
+            <button class="icon-btn" id="publicLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
+            <button class="icon-btn" id="publicLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+        </div>
+    </nav>
+</div>
+
+<div id="ticketBookingView" class="view neon-view">
+    <header class="top-header">
+         <div class="title-container">
+            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+        <div class="panel">
+            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
+            </div>
+        </div>
+
+        <section class="panel">
+            <h2 class="panel-title">Select Tickets</h2>
+            <div id="bookingFormContainer">
+                 <input type="text" id="bookerName" placeholder="Your Name">
+                 <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
+                 <button class="login-btn" id="requestBookingBtn">Request Booking via Agent</button>
+                 <div id="publicSelectionIndicator" class="selection-indicator"></div>
+            </div>
+	        
+            <div id="bookingGridContainer">
+            </div>
+        </section>
+    </div>
+
+    <nav class="bottom-nav">
+         <div class="icon-bar" id="booking-icon-bar">
+            <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game</span></a>
+            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Check Available</span></button>
+            <button class="icon-btn" id="showAgentListBtn-booking"><i class="fas fa-users"></i><span>Agents</span></button>
+            <button class="icon-btn" id="bookingLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
+            <button class="icon-btn" id="bookingLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+        </div>
+    </nav>
+</div>
+<div id="adminDashboardView" class="view dashboard-view">
+    <div class="gameSettingDiv">
+        <div class="titleBtn">ADMIN DASHBOARD</div>
+    </div>
+    <div class="gameSettingDiv">
+        <button class="titleBtn">GAME SETTINGS</button>
+        <table class="gameSettingTable" id="settingsTable">
+            <tbody>
+                <tr><td>Game date-time</td><td><input class="tableInp" id="dateTimeInp" type="datetime-local"></td></tr>
+                <tr><td>Total ticket limit</td><td><input class="tableInp" id="totalTicketInp" type="number" value="600"></td></tr>
+                <tr><td>Ticket price</td><td><input class="tableInp" id="ticketPriceInp" type="number" value="300"></td></tr>
+                <tr><td>Agent commission</td><td><input class="tableInp" id="agentCommissionInp" type="number" value="50"></td></tr>
+                <tr><td colspan="2"><input class="tableInp" id="saveGameBtn" type="button" onclick="saveGameSetting()" value="SAVE SETTINGS" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gameSettingDiv">
+        <button class="titleBtn">ACTION BUTTONS</button>
+        <div class="actionBtnDiv">
+            <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
+            <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
+            <button class="actionBtn" onclick="resetAgent()">RESET AGENT</button>
+            <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
+            <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
+            <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
+            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TICKETS</button>
+            <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
+        </div>
+    </div>
+    <div class="gameSettingDiv">
+        <button class="titleBtn">START GAME CALLING</button>
+        <button class="runBtn" onclick="showPopup('runGameWindowDiv')" id="runGameBtn">RUN GAME</button>
+    </div>
+    <div class="gameSettingDiv">
+        <button class="titleBtn">DIVIDEND SETTINGS</button>
+        <table class="gameSettingTable" id="dividendSettingsTable">
+        </table>
+         <div style="width: 80%; margin: 10px auto; display:flex; gap: 10px;">
+            <button class="actionBtn" style="flex-grow: 1;" id="saveDividentBtn" onclick="saveDividendSettings()">SAVE DEVIDENDS</button>
+	    <button class="actionBtn" style="flex-grow: 1;" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
+        </div>
+    </div>
+    
+    <div class="gameSettingDiv">
+        <button class="titleBtn">BUSINESS INFO</button>
+        <table class="gameSettingTable" id="businessInfoTable">
+        </table>
+    </div>
+    <div class="gameSettingDiv">
+        <button class="titleBtn">ADMIN INFO</button>
+        <table class="gameSettingTable" id="adminInfoTable">
+            <tbody>
+                <tr><td>Admin name</td><td><input class="tableInp" id="adminNameInp"></td></tr>
+                <tr><td>Admin phone</td><td><input class="tableInp" id="adminPhoneInp" type="number"></td></tr>
+                <tr><td>Whatsapp group link</td><td><input class="tableInp" id="adminWpLinkInp"></td></tr>
+                <tr><td>Admin password</td><td><input class="tableInp" id="adminPassInp" placeholder="Enter new password to change"></td></tr>
+                <tr>
+                    <td><input class="tableInp" onclick="logout()" type="button" value="LOG OUT" style="background-color: var(--muted-color-dash); color: var(--light-text-dash); cursor: pointer;"></td>
+                    <td><input class="tableInp" id="saveAdminInfoBtn" type="button" onclick="saveAdminInfo()" value="SAVE INFO" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td>
+                </tr>
+             </tbody>
+        </table>
+    </div>
+    <div class="gameSettingDiv">
+        <button class="titleBtn">CREATE NEW AGENT</button>
+        <div style="padding: 1.2rem; background-color: var(--secondary-bg-dash); display: flex; flex-direction: column; gap: 0.8rem; width:80%; margin:auto;">
+            <input id="createAgentNameInp" class="tableInp" type="text" placeholder="Agent's Full Name" style="text-align:left;">
+            <input id="createAgentEmailInp" class="tableInp" type="email" placeholder="Agent's Email Address" style="text-align:left;">
+            <input id="createAgentPhoneInp" class="tableInp" type="tel" placeholder="Agent's Phone Number" style="text-align:left;">
+            <input id="createAgentPassInp" class="tableInp" type="password" placeholder="Set Temporary Password" style="text-align:left;">
+            <button class="actionBtn" style="width:100%; height: auto; padding: 10px;" onclick="createAgentByAdmin()">CREATE AGENT ACCOUNT</button>
+        </div>
+    </div>
+    <div class="gameSettingDiv" style="margin-bottom: 80px;">
+        <button class="titleBtn">TICKET/AGENT LIST</button>
+        <div class="toggleDiv">
+            <button class="clickBtn" id="showTicketBtn" onclick="toggleAdminList('tickets')">TICKET LIST</button>
+            <button class="clickBtn" id="showAgentBtn" onclick="toggleAdminList('agents')">AGENT LIST</button>
+        </div>
+        <input class="searchInp" placeholder="Enter keyword" id="adminSearchKeyInp" onkeyup="updateAdminList()">
+        <table class="gameSettingTable1" id="adminGameSettingTable"></table>
+    </div>
+    <button class="bookFloatBtn" id="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
+</div>
+<div id="agentDashboardView" class="view dashboard-view">
+    <div class="gameSettingDiv">
+        <div class="titleBtn">AGENT DASHBOARD</div>
+    </div>
+    <div class="gameSettingDiv">
+        <div class="titleBtn">TOTAL EARNING</div>
+        <button class="runBtn" id="earningBtn">₹ 0</button>
+    </div>
+    <div class="gameSettingDiv">
+        <div class="titleBtn">GAME & SALES INFO</div>
+        <table class="gameSettingTable" id="agentBusinessInfoTable">
+        </table>
+    </div>
+    <div class="gameSettingDiv">
+        <div class="titleBtn">AGENT INFO</div>
+        <table class="gameSettingTable">
+            <tbody>
+                <tr><td>Agent name</td><td><input class="tableInp" id="agentNameInp" readonly></td></tr>
+                <tr><td>Agent phone</td><td><input class="tableInp" id="agentPhoneInp" readonly></td></tr>
+                <tr><td colspan="2"><button class="actionBtn" style="width:100%;" onclick="logout()">LOG OUT</button></td></tr>
+             </tbody>
+        </table>
+    </div>
+    <div class="gameSettingDiv" style="margin-bottom: 80px;">
+        <div class="titleBtn">MY SOLD TICKETS</div>
+        <input class="searchInp" placeholder="Enter keyword" id="agentSearchKeyInp" onkeyup="showAgentSoldTickets()">
+        <table class="gameSettingTable" id="agentSoldTicketsTable">
+        </table>
+    </div>
+
+    <button class="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
+</div>
+<div class="overlay-popup" id="loginPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <div id="loginForm">
+            <h3 class="popup-title">Login</h3>
+            <div class="login-form">
+                <input id="loginEmailInp" type="email" placeholder="Email">
+                <input id="loginPassInp" type="password" placeholder="Password">
+                <input type="button" class="login-btn agent" value="AGENT LOGIN" id="agentLoginBtn">
+                <input type="button" class="login-btn admin" value="ADMIN LOGIN" id="adminLoginBtn">
+                <a href="#" class="forgot-password-link" id="forgotPasswordLink">Forgot Password?</a>
+    
+                <input type="button" class="login-btn secondary" value="Good Luck" id="showSignupFormBtn">
+            </div>
+        </div>
+        <div id="signupForm" style="display:none;">
+             <h3 class="popup-title">Admin Sign Up</h3>
+            <div class="login-form">
+                <input id="signupNameInp" type="text" placeholder="Your Name">
+                <input id="signupEmailInp" type="email" placeholder="Email Address">
+                <input id="signupPhoneInp" type="tel" placeholder="Phone Number">
+                <input id="signupPassInp" type="password" placeholder="Create Password">
+                <input type="button" class="login-btn" value="CREATE ADMIN ACCOUNT" id="signupActionBtn">
+                <p style="text-align:center; margin: 8px 0; font-size: 0.85rem;">Already have an account?</p>
+                <input type="button" class="login-btn secondary" value="LOGIN INSTEAD" id="showLoginFormBtn">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="overlay-popup" id="agentListPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Agent List</h3>
+        <div class="agent-list" id="agentListContainer"></div>
+    </div>
+</div>
+<div class="overlay-popup" id="number-announcement-overlay">
+    <div id="announced-number-display">--</div>
+</div>
+<div class="overlay-popup" id="agentSelectionPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Select an Agent to Book</h3>
+        <div class="agent-list" id="bookingAgentListContainer"></div>
+    </div>
+</div>
+<div class="overlay-popup" id="editOwnerPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Edit Ticket Owner</h3>
+        <p id="editOwnerInfoText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary);"></p>
+        <div class="login-form">
+             <input id="editOwnerNameInp" type="text" class="agent-inp" placeholder="Owner Name">
+             <input id="editOwnerPhoneInp" type="tel" class="agent-inp" placeholder="Owner Phone">
+             <button id="saveOwnerChangesBtn" class="login-btn agent">Save Changes</button>
+        </div>
+    </div>
+</div>
+<div class="overlay-popup" id="winningTicketViewerPopup">
+    <div class="popup-content" style="background-color: #e0f7fa; border-color: #0288d1;">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" id="winningTicketPopupTitle" style="color: #01579b; text-shadow: none;">Winning Ticket</h3>
+        <div id="winningTicketDisplayArea" style="padding-top: 1rem;">
+        </div>
+    </div>
+</div>
+<div class="overlay-popup" id="applyToAllConfirmPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Confirm Update</h3>
+        <p id="applyToAllConfirmText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.5;"></p>
+        <div class="login-form" style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem;">
+             <button id="confirmApplyToAllBtn" class="login-btn agent">Yes, Apply to All</button>
+             <button id="confirmApplyToSingleBtn" class="login-btn secondary">No, Just This Ticket</button>
+             <button onclick="closePopups()" class="login-btn" style="background-color: var(--muted-color-dash);">Cancel</button>
+        </div>
+    </div>
+</div>
+<div class="overlay-popup" id="deleteConfirmPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Confirm Deletion</h3>
+        <p id="deleteConfirmText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.5;"></p>
+        <div class="login-form" style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem;">
+             <button id="confirmDeleteAllBtn" class="login-btn admin">Delete All Tickets</button>
+             <button id="confirmDeleteSingleBtn" class="login-btn secondary">Delete Just This One</button>
+             <button onclick="closePopups()" class="login-btn" style="background-color: var(--muted-color-dash);">Cancel</button>
+        </div>
+    </div>
+</div>
+<div class="overlay-popup" id="ticketResetConfirmPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Confirm Ticket Change</h3>
+        <p id="ticketResetConfirmText" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.5;"></p>
+        <div class="login-form" style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem;">
+             <button id="confirmNoResetBtn" class="login-btn secondary">Keep Bookings & Adjust Count</button>
+             <button id="confirmResetBtn" class="login-btn admin">Reset All Tickets & Bookings</button>
+             <button onclick="closePopups()" class="login-btn" style="background-color: var(--muted-color-dash);">Cancel</button>
+        </div>
+    </div>
+</div>
+<div class="gamePopDiv" id="dashboardBookingPopup">
+    <div class="gameDiv">
+        <div class="booking-popup-header">
+            <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+            <div class="titleBtn" style="margin-bottom: 0.5rem;"></div>
+            <div class="bookInpDiv">
+                <input class="tableInp" id="dashBookerNameInp" placeholder="Name">
+                <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
+            </div>
+             <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 100%; margin: 0.8rem 0; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
+            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
+        </div>
+        <div class="ticketBlockDiv" id="dashTicketBlockDiv">
+        </div>
+    </div>
+</div>
+<div class="gamePopDiv" id="publicBookingPopup">
+    <div class="gameDiv">
+        <div class="booking-popup-header">
+            <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+            <div class="titleBtn" style="margin-bottom: 0.5rem;"></div>
+            <div class="bookInpDiv">
+                <input class="tableInp" id="publicBookerNameInp" placeholder="Your Name">
+                <input class="tableInp" id="publicBookerPhoneInp" placeholder="Your Phone">
+            </div>
+             <div id="publicBookingIndicator" class="selection-indicator" style="width: 100%; margin: 0.8rem 0; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
+            <input class="bookBtn" type="button" id="publicRequestBookingBtn" value="REQUEST BOOKING">
+        </div>
+        <div class="ticketBlockDiv" id="publicBookingGrid">
+        </div>
+    </div>
+</div>
+<div class="gamePopDiv" id="runGameWindowDiv">
+    <div class="gameDiv" style="overflow-y: auto;">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <div class="panel" style="background: transparent; border: none; box-shadow: none; padding: 0; width: 95%; margin: 0.5rem auto;">
+            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1rem;">
+            </div>
+        </div>
+        <table class="runGameTable gameSettingTable">
+            <tbody>
+                <tr>
+                    <td>AUTO CALLING</td>
+                    <td><select class="tableInp" id="callStatusInp" onchange="toggleGameRunner()"><option value="off">OFF</option><option value="on">ON</option></select></td>
+                </tr>
+                <tr>
+                    <td>INTERVAL (sec)</td>
+                    <td><input type="number" class="tableInp" id="callIntervalInp" value="10"></td>
+                </tr>
+            </tbody>
+        </table>
+       
+              <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+            <tbody>
+                <tr>
+                    <td>NEXT CALL NUMBER</td>
+                    <td style="display: flex; gap: 5px;">
+                        <input type="number" class="tableInp" id="nextCallInp" placeholder="Num" style="flex-grow: 1;">
+                        <button class="actionBtn" onclick="setNextCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">SET</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+       
+          <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
+            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
+            <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
+                <input type="text" class="searchInp" id="adminTicketSearchInp" placeholder="Enter name, phone, or ticket ID" style="background: var(--primary-bg-dash); color: var(--light-text-dash); border-color: var(--accent-color-dash);">
+                <button class="search-btn" id="adminSearchTicketBtn" style="background: var(--accent-color-dash);"><i class="fas fa-search"></i></button>
+                <button class="search-btn" id="adminClearSearchBtn" title="Clear All Search Results" style="padding: 0 0.8rem; background: var(--muted-color-dash);"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="ticketDisplayArea" id="adminTicketDisplayArea" style="padding: 0 1rem 1rem 1rem; max-height: 400px; overflow-y: auto;"></div>
+        </section>
+        <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
+            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
+            <div class="number-board" id="runGamePopupBoard">
+            </div>
+        </section>
+
+      
+
+        <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
+            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
+            <table class="dividend-table" id="runGameDividendTable" style="color: var(--light-text-dash);">
+                <thead><tr><th style="color: var(--accent-color-dash);">Dividend</th><th style="color: var(--accent-color-dash);">Winner</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+	<div style="font-weight:bold;font-size:14px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
+
+      </div>
+</div>
+<div class="overlay-popup" id="genericInfoPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" id="genericInfoPopupTitle">Info</h3>
+        <div id="genericInfoPopupContent" style="text-align: left; color: var(--text-secondary); line-height: 1.6;">
+        </div>
+    </div>
+</div>
+<div class="overlay-popup" id="posterMakerPopup">
+    <div class="popup-content" style="max-width: 650px; background: var(--primary-bg-dash);">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" style="color: var(--light-text-dash);">Game Poster Generator</h3>
+        
+        <div id="poster-bg-controls" 
+     style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; gap: 5px; padding-bottom: 5px;">
+    <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center; flex: 0 0 auto;">Change BG:</span>
+    
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
+    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
+   </div>
+
+ <input type="file" id="posterBgUploadInput" accept="image/*" style="display: none;" onchange="handlePosterImageUpload(event)">
+    <button class="actionBtn1" style="padding: 6px 10px; font-size: 0.9em; flex: 0 0 auto;" onclick="document.getElementById('posterBgUploadInput').click()" title="Upload custom background"><i class="fas fa-upload"></i> Upload</button>
+
+        <div id="posterContent">
+        </div>
+
+        <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
+            <button class="actionBtn1" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as Image</button>
+            <button class="actionBtn1" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
+        </div>
+    </div>
+</div>
+
+<div class="overlay-popup top-down-notification-popup" id="firstVisitPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <div class="notification-body">
+            <div class="notification-logo">
+                <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
+            </div>
+            <div class="notification-text-content">
+                <h3 class="popup-title">Welcome to Sintha Team!</h3>
+                <p>
+                    <b>Sintha Team</b> offers fully developed Tambola or Housie games and Jandi Munda or Lagao websites.
+                    If you would like to organize games and purchase a custom website, please contact us for more information.
+                </p>
+            </div>
+            <div class="notification-actions">
+                 <a href="https://sinthahousie.in/contact" target="_blank" class="login-btn" style="text-decoration: none;">Contact Us</a>
+                 <button class="login-btn secondary" id="closeFirstVisitPopupBtn">Not Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
+  authDomain: "sinthahousie-1dd3b.firebaseapp.com",
+  databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
+  projectId: "sinthahousie-1dd3b",
+  storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
+  messagingSenderId: "76567991256",
+  appId: "1:76567991256:web:c58b127b8d86d8a1c598ad",
+  measurementId: "G-MGW406NKBY"
+};
+
+
+
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
+function playSound(src) {
+    const sound = new Audio(src);
+    sound.play().catch(error => {
+    });
+}
+
+const dividendSoundMap = {
+    "First Full House": "FirstFullHouse.mp3",
+    "Second Full House": "SecondFullHouse.mp3",
+    "Third Full House": "ThirdFullHouse.mp3",
+    "Top Line": "TopLine.mp3",
+    "Middle Line": "MiddleLine.mp3",
+    "Bottom Line": "BottomLine.mp3",
+    "Corners (4)": "Corner.mp3",
+    "Quick 7": "Quick7.mp3",
+    "Full Sheet Bonus": "FullSheetBonus.mp3",
+    "Half Sheet Bonus": "HalfSheetBonus.mp3",
+    "Star": "Star.mp3",
+    "Early 5": "Early5.mp3",
+   };
+
+let currentView = 'publicView';
+let currentUser = null;
+let currentUserRole = null;
+let listeners = {}; 
+let authInitialized = false;
+let currentCalledNumbers = [];
+let lastAnnouncedNumber = null;
+let isAnnouncing = false;
+let countdownInterval = null;
+let gameRunnerInterval = null;
+let gameLiveSoundPlayed = false; 
+let knownWinners = {};
+let isInitialWinnerLoad = true;
+let ticketIdToEdit = null;
+let originalOwnerInfo = { name: '', phone: '' }; 
+let ticketToDeleteInfo = {};
+let allTicketsData = [];
+let allUsersData = [];
+let gameSettingsData = {};
+let publicSelectedTickets = []; 
+let publicPopupSelectedTickets = []; 
+let adminListState = 'tickets';
+let lastNotification = { message: '', type: '', timestamp: 0 };
+let displayedSearchPhones = new Set();
+let nextManualCallNumber = null;
+let adminDisplayedSearchPhones = new Set();
+
+
+const allPossibleDividends = [
+    "First Full House", "Second Full House", "Third Full House", "Full Sheet Bonus", "Half Sheet Bonus", "Top Line", "Middle Line", "Bottom Line",
+    "Early 5", "Quick 7", "Corners (4)", "Star"
+];
+
+function showView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const newView = document.getElementById(viewId);
+    if (newView) {
+        newView.classList.add('active');
+        currentView = viewId;
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+
+        const isDashboard = viewId === 'adminDashboardView' || viewId === 'agentDashboardView';
+        document.body.classList.toggle('dashboard-view-active', isDashboard);
+    }
+}
+
+function handleRouting() {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'admin' && currentUserRole === 'admin') {
+        showView('adminDashboardView');
+    } else if (hash === 'agent' && currentUserRole === 'agent') {
+        showView('agentDashboardView');
+    } else if (hash === 'book') {
+        showView('ticketBookingView');
+    } else {
+        showView('publicView');
+    }
+}
+
+window.addEventListener('hashchange', handleRouting);
+
+function showNotification(message, type = 'info', duration = 4000) {
+    const now = Date.now();
+    const cooldown = 5000;
+
+    if (
+        message === lastNotification.message &&
+        type === lastNotification.type &&
+        (now - lastNotification.timestamp) < cooldown
+    ) {
+        return;
+    }
+
+    const container = document.getElementById('notification-container');
+    const existingNotifs = container.querySelectorAll('.notification');
+    for (const notif of existingNotifs) {
+        if (notif.textContent === message && notif.classList.contains(type)) {
+            return;
+        }
+    }
+
+    lastNotification = { message, type, timestamp: now };
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    container.appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+        notification.addEventListener('transitionend', () => notification.remove());
+    }, duration);
+}
+
+async function triggerGlobalNotification(message, type = 'info') {
+    try {
+        await db.ref('gameState/lastAction').set({
+            message: message,
+            type: type,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+    } catch (e) {
+        console.error('Error triggering global notification:', e);
+    }
+}
+
+auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    if (user) {
+        try {
+            const userSnapshot = await db.ref('users/' + user.uid).once('value');
+            const userData = userSnapshot.val();
+            currentUserRole = userData ? userData.role : null;
+            if (!currentUserRole) throw new Error("User role not found in database.");
+            updateUIAfterLogin();
+        } catch (error) {
+            console.error("Authentication state error:", error.message, "Logging out.");
+            showNotification(`Auth Error: ${error.message}`, 'error');
+            logout();
+        }
+    } else {
+        currentUserRole = null;
+        updateUIAfterLogout();
+    }
+
+    if (!authInitialized) {
+        authInitialized = true;
+        setupRealtimeListeners();
+    }
+    handleRouting();
+});
+
+async function loginUser(expectedRole) {
+    const emailEl = document.getElementById('loginEmailInp');
+    const passEl = document.getElementById('loginPassInp');
+    if (!emailEl.value || !passEl.value) return showNotification('Please fill all fields.', 'error');
+
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(emailEl.value, passEl.value);
+        const userSnapshot = await db.ref('users/' + userCredential.user.uid).once('value');
+        const userData = userSnapshot.val();
+        if (userData && userData.role === expectedRole) {
+            showNotification(`Login successful as ${expectedRole}!`, 'success');
+            closePopups();
+        } else {
+            await auth.signOut();
+            showNotification(`Login failed: This is not a valid ${expectedRole} account.`, 'error');
+        }
+    } catch (error) {
+        showNotification(`Login Error: ${error.message}`, 'error');
+    }
+}
+
+async function signupUser() {
+    const name = document.getElementById('signupNameInp').value.trim();
+    const email = document.getElementById('signupEmailInp').value.trim();
+    const phone = document.getElementById('signupPhoneInp').value.trim();
+    const pass = document.getElementById('signupPassInp').value;
+    if (!name || !email || !phone || !pass) return showNotification('Please fill all fields.', 'error');
+
+    try {
+        const role = 'admin';
+        const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+        const user = userCredential.user;
+        await user.updateProfile({ displayName: name });
+
+        await db.ref('users/' + user.uid).set({
+            name, email, phone, role,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        showNotification(`Admin account created. Please log in.`, 'success');
+        await auth.signOut();
+        showLoginForm();
+    } catch (error) {
+        showNotification(`Signup Error: ${error.message}`, 'error');
+    }
+}
+
+function logout() {
+    auth.signOut().then(() => {
+        showNotification("You have been logged out.", "info");
+    });
+}
+
+async function handleForgotPassword(e) {
+    e.preventDefault(); 
+    const emailEl = document.getElementById('loginEmailInp');
+    const email = emailEl.value.trim();
+
+    if (!email) {
+        showNotification('Please enter your email address in the email field first.', 'error');
+        emailEl.focus();
+        return;
+    }
+
+    try {
+        await auth.sendPasswordResetEmail(email);
+        showNotification(`Password reset link sent to ${email}. Please check your inbox (and spam folder).`, 'success');
+        closePopups();
+    } catch (error) {
+        console.error("Forgot Password Error:", error);
+        showNotification(`Error sending reset email: ${error.message}`, 'error');
+    }
+}
+
+function bindEventListeners() {
+    document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
+    document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
+    document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
+    document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
+    document.getElementById('signupActionBtn').addEventListener('click', signupUser);
+    document.getElementById('forgotPasswordLink').addEventListener('click', handleForgotPassword);
+    document.querySelectorAll('#publicLogoutBtn, #bookingLogoutBtn').forEach(btn => btn.addEventListener('click', logout));
+    document.getElementById('showAgentsBtn').addEventListener('click', showAgentListPopup);
+    document.getElementById('showAgentListBtn-booking').addEventListener('click', showAgentListPopup);
+    document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.addEventListener('click', () => showPopup('loginPopup')));
+    document.getElementById('searchBtn').addEventListener('click', () => searchTicketPublic());
+    document.getElementById('ticketSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketPublic(); });
+    document.getElementById('clearAllSearchBtn').addEventListener('click', () => {
+        document.getElementById('ticketDisplayArea').innerHTML = '';
+        displayedSearchPhones.clear();
+    });
+    document.getElementById('navigateToBooking').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'book'; });
+    document.getElementById('navigateToGame').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'game'; });
+    document.getElementById('requestBookingBtn').addEventListener('click', handlePublicBookingRequest);
+    document.getElementById('checkAvailabilityBtn').addEventListener('click', () => {
+        renderPublicBookingGrid();
+        showPopup('publicBookingPopup');
+    });
+    document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
+    document.getElementById('saveOwnerChangesBtn').addEventListener('click', saveTicketOwnerChanges);
+    document.getElementById('closeFirstVisitPopupBtn').addEventListener('click', closePopups);
+    document.getElementById('adminSearchTicketBtn').addEventListener('click', searchTicketAdmin);
+    document.getElementById('adminTicketSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketAdmin(); });
+    document.getElementById('adminClearSearchBtn').addEventListener('click', () => {
+        document.getElementById('adminTicketDisplayArea').innerHTML = '';
+        adminDisplayedSearchPhones.clear();
+    });
+}
+
+function showPopup(id) {
+    const popup = document.getElementById(id);
+    if (popup) {
+        popup.style.display = popup.classList.contains('overlay-popup') ? 'flex' : 'block';
+        setTimeout(() => popup.classList.add('active'), 10);
+    }
+}
+
+function closePopups() {
+    document.querySelectorAll('.overlay-popup, .gamePopDiv').forEach(p => {
+        p.classList.remove('active');
+        setTimeout(() => { p.style.display = 'none'; }, 650);
+    });
+}
+
+function showLoginForm() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('signupForm').style.display = 'none'; }
+function showSignupForm() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('signupForm').style.display = 'block'; }
+
+function showAgentListPopup() {
+    const container = document.getElementById('agentListContainer');
+    container.innerHTML = '';
+
+    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent');
+    if (agents.length > 0) {
+        agents.forEach(agent => {
+            const phone = agent.phone.replace(/\D/g, '');
+            const link = document.createElement('a');
+            link.href = `https://wa.me/${phone}`;
+            link.target = '_blank';
+            link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
+            container.appendChild(link);
+        });
+    } else { container.innerHTML = '<p>No agents available.</p>'; }
+    showPopup('agentListPopup');
+}
+
+function setupRealtimeListeners() {
+    Object.values(listeners).forEach(ref => ref.off());
+
+    listeners.settings = db.ref('settings/gameConfig');
+    listeners.settings.on('value', snapshot => {
+        gameSettingsData = snapshot.val() || {};
+        updateAllUIsWithSettings(gameSettingsData);
+        updateTicketRelatedUIs();
+    }, err => { console.error("Settings listener error:", err); showNotification('Could not load game settings.', 'error'); });
+
+    listeners.gameState = db.ref('gameState/currentState');
+    listeners.gameState.on('value', snapshot => {
+        const data = snapshot.val() || {};
+        const newNumbers = data.calledNumbers || [];
+        if (newNumbers.length > currentCalledNumbers.length) {
+            const newNum = newNumbers[newNumbers.length - 1];
+            if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
+                if (currentView === 'publicView' || currentView === 'ticketBookingView') {
+                    announceNumber(newNum);
+                }
+            }
+        }
+        currentCalledNumbers = newNumbers;
+
+        const newWinners = data.winners || {};
+
+        if (isInitialWinnerLoad) {
+            knownWinners = newWinners;
+            isInitialWinnerLoad = false;
+        } else {
+            for (const dividendName in newWinners) {
+                const newWinnerArray = newWinners[dividendName] || [];
+                const oldWinnerArray = knownWinners[dividendName] || [];
+
+                const oldWinnerTicketIds = new Set(oldWinnerArray.map(w => w.ticketId));
+                const justAnnouncedWinners = newWinnerArray.filter(w => !oldWinnerTicketIds.has(w.ticketId));
+
+                if (justAnnouncedWinners.length > 0) {
+                    const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
+                    const msg = `${winnerNames} has won ${dividendName}!`;
+                    
+                    triggerGlobalNotification(msg, 'success');
+                    
+                    const soundFile = dividendSoundMap[dividendName];
+                    if (soundFile) {
+                        playSound(audioBaseUrl + soundFile);
+                    }
+                }
+            }
+            knownWinners = newWinners;
+        }
+
+        updateGameRelatedUIs(data); 
+    }, err => { console.error("GameState listener error:", err); showNotification('Could not load game state.', 'error'); });
+
+    listeners.tickets = db.ref('tickets');
+    listeners.tickets.on('value', snapshot => {
+        const ticketsObject = snapshot.val();
+        allTicketsData = ticketsObject ? Object.values(ticketsObject) : [];
+        updateTicketRelatedUIs();
+    }, err => { console.error("Tickets listener error:", err); showNotification('Could not load tickets.', 'error'); });
+
+    listeners.users = db.ref('users');
+    listeners.users.on('value', snapshot => {
+        const usersObject = snapshot.val();
+        allUsersData = usersObject ? Object.entries(usersObject).map(([uid, data]) => ({ uid, ...data })) : [];
+        updateUserRelatedUIs();
+    }, err => { console.error("Users listener error:", err); showNotification('Could not load user data.', 'error'); });
+
+    let isFirstNotificationRead = true;
+    listeners.globalNotifications = db.ref('gameState/lastAction');
+    listeners.globalNotifications.on('value', snapshot => {
+        if (isFirstNotificationRead || !snapshot.exists()) {
+            isFirstNotificationRead = false; return;
+        }
+        const data = snapshot.val();
+        const notificationAge = Date.now() - data.timestamp;
+        if (notificationAge < 15000) {
+            showNotification(data.message, data.type);
+        }
+    }, err => console.error("Global notification listener error:", err));
+}
+
+function updateAllUIsWithSettings(data) {
+    document.getElementById('whatsappGroupLink').href = data.whatsappLink || '#';
+    updateCountdownTimers(data.gameDateTime);
+    populateDividendList(data.dividends || []);
+    if (currentUserRole === 'admin') updateAdminSettingsUI(data);
+    if (currentUserRole === 'agent') updateAgentInfoUI();
+    updateBusinessInfo();
+}
+
+function updateGameRelatedUIs(gameState) {
+    const calledNums = gameState.calledNumbers || [];
+    const winners = gameState.winners || {};
+    
+    updateNumberBoard(calledNums);
+    updateCalledNumbersList(calledNums);
+    updateWinners(winners);
+    updateDisplayedTicketPublic();
+    if (currentUserRole === 'admin') {
+        updateRunGameUI(gameState);
+        updateAdminDisplayedTickets();
+    }
+}
+
+function updateTicketRelatedUIs() {
+    renderVisualTicketBookingPage();
+    renderSheetWiseBookedList();
+    if (document.getElementById('ticketDisplayArea').innerHTML) {
+        const currentPhones = Array.from(displayedSearchPhones);
+        document.getElementById('ticketDisplayArea').innerHTML = '';
+        displayedSearchPhones.clear();
+        currentPhones.forEach(phone => searchTicketPublic(phone, true));
+    }
+    if (currentUserRole === 'admin') {
+        updateAdminList();
+        updateBusinessInfo(); 
+    }
+    if (currentUserRole === 'agent') {
+        showAgentSoldTickets();
+        updateAgentInfoUI(); 
+    }
+    updateDashboardBookingPopup();
+    if (document.getElementById('publicBookingPopup').classList.contains('active')) {
+        renderPublicBookingGrid(); 
+    }
+}
+function updateUserRelatedUIs() {
+    if (currentUserRole === 'admin') { updateAdminList(); updateAdminInfoUI(); }
+    if (currentUserRole === 'agent') { updateAgentInfoUI(); }
+}
+
+function updateUIAfterLogin() {
+    document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.style.display = 'none');
+    document.querySelectorAll('#publicLogoutBtn, #bookingLogoutBtn').forEach(btn => btn.style.display = 'flex');
+    const addDashLink = (bar, role) => {
+        bar.querySelector('.dashboard-link')?.remove();
+        const link = document.createElement('a');
+        link.href = `#${role}`;
+        link.className = 'icon-btn dashboard-link';
+        link.innerHTML = `<i class="fas fa-user-shield"></i><span>Dashboard</span>`;
+        bar.appendChild(link);
+    };
+    if (currentUserRole) {
+        addDashLink(document.getElementById('public-icon-bar'), currentUserRole);
+        addDashLink(document.getElementById('booking-icon-bar'), currentUserRole);
+    }
+}
+
+function updateUIAfterLogout() {
+    document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.style.display = 'flex');
+    document.querySelectorAll('#publicLogoutBtn, #bookingLogoutBtn').forEach(btn => btn.style.display = 'none');
+    document.querySelectorAll('.dashboard-link').forEach(link => link.remove());
+}
+
+function checkSheetSelection(selectedIds) {
+    const count = selectedIds.length;
+    if (count === 0) {
+        return { valid: false, message: "" };
+    }
+
+    const sheets = {};
+    for (const id of selectedIds) {
+        const sheetNum = Math.floor((id - 1) / 6);
+        if (!sheets[sheetNum]) {
+            sheets[sheetNum] = [];
+        }
+        sheets[sheetNum].push(id);
+    }
+
+    let fullSheetCount = 0;
+    let halfSheetCount = 0;
+    let randomCount = 0;
+
+    for (const sheetNum in sheets) {
+        const ticketsInSheet = sheets[sheetNum].sort((a, b) => a - b);
+        const len = ticketsInSheet.length;
+        const sheetStartId = parseInt(sheetNum) * 6 + 1;
+
+        if (len === 6) {
+            fullSheetCount++;
+        } else if (len === 3) {
+            const firstId = ticketsInSheet[0];
+            const isFirstHalf = (firstId === sheetStartId) &&
+                (ticketsInSheet[1] === sheetStartId + 1) &&
+                (ticketsInSheet[2] === sheetStartId + 2);
+            const isLastHalf = (firstId === sheetStartId + 3) &&
+                (ticketsInSheet[1] === sheetStartId + 4) &&
+                (ticketsInSheet[2] === sheetStartId + 5);
+
+            if (isFirstHalf || isLastHalf) {
+                halfSheetCount++;
+            } else {
+                randomCount += 3;
+            }
+        } else {
+            randomCount += len;
+        }
+    }
+
+    const parts = [];
+    if (fullSheetCount > 0) {
+        parts.push(`${fullSheetCount} Full Sheet${fullSheetCount > 1 ? 's' : ''}`);
+    }
+    if (halfSheetCount > 0) {
+        parts.push(`${halfSheetCount} Half Sheet${halfSheetCount > 1 ? 's' : ''}`);
+    }
+    if (randomCount > 0) {
+        parts.push(`${randomCount} Random Ticket${randomCount > 1 ? 's' : ''}`);
+    }
+
+    if (parts.length === 0) {
+        return { valid: false, message: "Select your tickets." };
+    }
+
+    const message = parts.join(' & ') + ' Selected';
+    return { valid: true, message: message };
+}
+function generateNumberBoard() {
+    const publicBoard = document.getElementById('numberBoard');
+    const adminPopupBoard = document.getElementById('runGamePopupBoard');
+
+    let boardHtml = '';
+    for(let i = 1; i <= 90; i++) {
+        boardHtml += `<div class="num-cell" id="num-${i}">${i}</div>`;
+    }
+
+    let adminPopupBoardHtml = '';
+    for(let i = 1; i <= 90; i++) {
+        adminPopupBoardHtml += `<div class="num-cell" id="run-game-popup-num-${i}">${i}</div>`;
+    }
+
+    if(publicBoard) publicBoard.innerHTML = boardHtml;
+    if(adminPopupBoard) adminPopupBoard.innerHTML = adminPopupBoardHtml;
+}
+
+function announceNumber(number) {
+    isAnnouncing = true;
+    lastAnnouncedNumber = number;
+    
+    playSound(audioBaseUrl + number + '.mp3');
+
+    const overlay = document.getElementById('number-announcement-overlay');
+    const numberDisplay = document.getElementById('announced-number-display');
+    if (!overlay || !numberDisplay) { isAnnouncing = false; return; }
+
+    gsap.timeline({ onComplete: () => { isAnnouncing = false; } })
+      .set(overlay, { display: 'flex' })
+      .set(numberDisplay, { textContent: number, y: '50%', scale: 0.5, autoAlpha: 0 })
+      .to(overlay, { autoAlpha: 1, duration: 0.3 })
+      .to(numberDisplay, { y: '0%', scale: 1, autoAlpha: 1, duration: 0.8, ease: 'elastic.out(1, 0.6)' }, '-=0.1')
+      .to(numberDisplay, { duration: 1.5 }, '+=0.2')
+      .to(overlay, { autoAlpha: 0, duration: 0.5, onComplete: () => overlay.style.display = 'none' }, '+=0.5');
+}
+
+function updateCountdownTimers(targetDateString) {
+    if (countdownInterval) clearInterval(countdownInterval);
+    const targetDate = new Date(targetDateString).getTime();
+    
+    const timerBars = [
+        document.getElementById('public-timer-bar'),
+        document.getElementById('booking-timer-bar'),
+        document.getElementById('runGame-timer-bar')
+    ];
+
+    if (!targetDateString || isNaN(targetDate)) {
+        gameLiveSoundPlayed = false;
+        const waitingHTML = `<div class="info-item"><i class="fas fa-hourglass-half"></i><span>Awaiting Game Schedule</span></div>`;
+        timerBars.forEach(bar => { if(bar) bar.innerHTML = waitingHTML; });
+        return;
+    }
+
+    const date = new Date(targetDate);
+    const dateText = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    const timeText = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
+    const update = () => {
+        const distance = targetDate - new Date().getTime();
+        let countdownText;
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            countdownText = 'Game is in Progress!';
+            if (!gameLiveSoundPlayed) {
+                playSound(audioBaseUrl + "GAMEISLIVE.mp3");
+                gameLiveSoundPlayed = true;
+            }
+        } else {
+            const d = Math.floor(distance / 86400000).toString().padStart(2, '0');
+            const h = Math.floor((distance % 86400000) / 3600000).toString().padStart(2, '0');
+            const m = Math.floor((distance % 3600000) / 60000).toString().padStart(2, '0');
+            const s = Math.floor((distance % 60000) / 1000).toString().padStart(2, '0');
+            countdownText = `${d}d ${h}h ${m}m ${s}s`;
+        }
+        const timerHTML = `
+            <div class="info-item"><i class="fas fa-calendar-alt"></i><span>${dateText}</span></div>
+            <div class="info-item"><i class="fas fa-clock"></i><span>${timeText}</span></div>
+            <div class="info-item"><i class="fas fa-hourglass-start"></i><span>${countdownText}</span></div>`;
+        timerBars.forEach(bar => { if(bar) bar.innerHTML = timerHTML; });
+    };
+    update();
+    countdownInterval = setInterval(update, 1000);
+}
+
+function renderVisualTicketBookingPage() {
+    const gridContainer = document.getElementById('bookingGridContainer');
+    if (!gridContainer) return;
+    gridContainer.innerHTML = '';
+
+    if (currentView === 'ticketBookingView') {
+        publicSelectedTickets = [];
+        updatePublicSelectionIndicator();
+    }
+
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    if (allTicketsData.length === 0 || totalTickets === 0) {
+        gridContainer.innerHTML = '<p style="text-align: center;">Tickets have not been generated by the admin yet.</p>';
+        return;
+    }
+
+    const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
+    const numSheets = Math.ceil(totalTickets / 6);
+
+    for (let i = 0; i < numSheets; i++) {
+        const startTicketId = i * 6 + 1;
+        const endTicketId = startTicketId + 5;
+        const sheetWrapper = document.createElement('div');
+        sheetWrapper.className = 'sheet-view';
+
+        const sheetHeader = document.createElement('div');
+        sheetHeader.className = 'sheet-header';
+        sheetHeader.innerHTML = `
+            <span>Sheet ${i + 1} (Tkt ${startTicketId}-${endTicketId})</span>
+            <label class="full-sheet-selector">
+                <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${endTicketId})"> Select Full
+            </label>`;
+        sheetWrapper.appendChild(sheetHeader);
+
+        const sheetContent = document.createElement('div');
+        sheetContent.className = 'sheet-content';
+        sheetWrapper.appendChild(sheetContent);
+
+        for (let j = startTicketId; j <= endTicketId; j++) {
+            const ticket = ticketsMap.get(j);
+            const ticketView = document.createElement('div');
+            ticketView.id = `booking-ticket-${j}`;
+            ticketView.className = 'ticket-view';
+            if (ticket && ticket.is_sold) {
+                ticketView.classList.add('sold');
+            } else {
+                ticketView.onclick = () => togglePublicTicketSelection(j);
+            }
+
+            let headerHTML = `<div class="ticket-header">Ticket #${j}</div>`;
+            let gridHTML = '';
+
+            if (ticket) {
+                if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                    gridHTML = ticket.numbers.flat().map(n =>
+                        `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                    ).join('');
+                } else {
+                    gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                }
+            } else {
+                gridHTML = '<p style="text-align:center; padding: 1rem;">Data missing</p>';
+            }
+
+            ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
+            sheetContent.appendChild(ticketView);
+        }
+        gridContainer.appendChild(sheetWrapper);
+    }
+}
+
+function selectFullSheet(checkbox, startId, endId) {
+    for (let id = startId; id <= endId; id++) {
+        const ticketView = document.getElementById(`booking-ticket-${id}`);
+        if (ticketView && !ticketView.classList.contains('sold')) {
+            const isSelected = publicSelectedTickets.includes(id);
+            if (checkbox.checked && !isSelected) {
+                togglePublicTicketSelection(id);
+            } else if (!checkbox.checked && isSelected) {
+                togglePublicTicketSelection(id);
+            }
+        }
+    }
+}
+
+function togglePublicTicketSelection(ticketId) {
+    const ticketView = document.getElementById(`booking-ticket-${ticketId}`);
+    if (!ticketView || ticketView.classList.contains('sold')) return;
+
+    const index = publicSelectedTickets.indexOf(ticketId);
+    if (index > -1) {
+        publicSelectedTickets.splice(index, 1);
+        ticketView.classList.remove('selected');
+    } else {
+        publicSelectedTickets.push(ticketId);
+        ticketView.classList.add('selected');
+    }
+    updatePublicSelectionIndicator();
+}
+
+function updatePublicSelectionIndicator() {
+    const indicator = document.getElementById('publicSelectionIndicator');
+    if (!indicator) return;
+    const result = checkSheetSelection(publicSelectedTickets);
+    indicator.textContent = result.message;
+    indicator.style.borderColor = result.valid ? 'var(--accent-primary)' : 'var(--accent-secondary)';
+}
+
+function handlePublicBookingRequest() {
+    const name = document.getElementById('bookerName').value.trim();
+    const phone = document.getElementById('bookerPhone').value.trim();
+    if (!name || !phone) return showNotification('Please enter your name and mobile number.', 'error');
+    if (publicSelectedTickets.length === 0) return showNotification('Please select at least one ticket.', 'error');
+
+    openAgentSelectorForWhatsApp(name, phone, publicSelectedTickets);
+}
+
+function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
+    const container = document.getElementById('bookingAgentListContainer');
+    container.innerHTML = '';
+    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent');
+    if (agents.length > 0) {
+        agents.forEach(agent => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.onclick = (e) => { e.preventDefault(); redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
+            link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
+            container.appendChild(link);
+        });
+        showPopup('agentSelectionPopup');
+    } else {
+        showNotification('No agents are available to handle bookings.', 'info');
+    }
+}
+
+function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
+    const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
+    const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}`;
+    const cleanPhone = agentPhone.replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    closePopups();
+}
+
+function searchTicketPublic(searchTermOverride = null, isRerender = false) {
+    const searchTerm = searchTermOverride || document.getElementById('ticketSearchInp').value.trim();
+    if (!searchTerm) return;
+    
+    let ticketsToDisplay = [];
+    const searchNumber = parseInt(searchTerm, 10);
+
+    if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
+        const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
+        if (initialTicket) {
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+        }
+    } else {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+        );
+    }
+    
+    if (ticketsToDisplay.length > 0) {
+        const ownerPhone = ticketsToDisplay[0].owner_phone;
+        const ownerName = ticketsToDisplay[0].owner_name;
+
+        if (displayedSearchPhones.has(ownerPhone) && !isRerender) {
+            showNotification(`${ownerName}'s tickets are already displayed.`, 'info');
+            return;
+        }
+        
+        displayedSearchPhones.add(ownerPhone);
+
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'search-result-group';
+        groupWrapper.dataset.phone = ownerPhone;
+        
+        let ticketsHTML = '';
+        ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+            let gridHTML;
+            if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                 gridHTML = ticket.numbers.flat().map(n =>
+                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                ).join('');
+            } else {
+                gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+            }
+            
+            ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
+                        <div class="ticket-header">Ticket #${ticket.id}: ${ticket.owner_name}</div>
+                        <div class="ticket-grid">${gridHTML}</div>
+                    </div>`;
+        });
+
+        groupWrapper.innerHTML = `<button class="clear-search-btn" onclick="clearSearchResult('${ownerPhone}')" title="Clear this result">&times;</button>${ticketsHTML}`;
+        document.getElementById('ticketDisplayArea').appendChild(groupWrapper);
+        updateDisplayedTicketPublic();
+    } else if (!isRerender) {
+        showNotification('No tickets found for that search term.', 'error');
+    }
+}
+
+function clearSearchResult(phone) {
+    const group = document.querySelector(`.search-result-group[data-phone="${phone}"]`);
+    if (group) group.remove();
+    displayedSearchPhones.delete(phone);
+}
+
+function updateDisplayedTicketPublic() {
+    document.querySelectorAll('#ticketDisplayArea .ticket-view, #bookedTicketsDisplay .ticket-view').forEach(ticketView => {
+        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
+            const num = parseInt(cell.dataset.num, 10);
+            if (num > 0) {
+                 const isCalled = currentCalledNumbers.includes(num);
+                 cell.classList.toggle('ticked', isCalled);
+                cell.classList.remove('last-called-highlight');
+                if (num === lastAnnouncedNumber) {
+                     cell.classList.add('last-called-highlight');
+                }
+            }
+        });
+    });
+}
+
+function populateDividendList(dividends) {
+    const tbodies = document.querySelectorAll('#dividendListTable tbody, #runGameDividendTable tbody');
+    if(tbodies.length === 0) return;
+    
+    const rowsHTML = (dividends || [])
+        .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
+                      <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
+                      <td class="winner-info"><span class="winner-name">Pending...</span></td>
+                  </tr>`)
+        .join('');
+
+    tbodies.forEach(tbody => tbody.innerHTML = rowsHTML);
+}
+
+function updateWinners(winners) {
+    const tables = document.querySelectorAll('#dividendListTable, #runGameDividendTable');
+    
+    tables.forEach(table => {
+        table.querySelectorAll('.winner-info').forEach(el => {
+            el.innerHTML = `<span class="winner-name">Pending...</span>`;
+        });
+    });
+
+    for (const name in winners) {
+        const winnerArray = winners[name];
+        if (!Array.isArray(winnerArray) || winnerArray.length === 0) continue;
+
+        const dividendData = (gameSettingsData.dividends || []).find(d => d.name === name);
+        const totalAmount = dividendData ? dividendData.amount : 0;
+        const shareText = winnerArray.length > 1 ? `<span class="prize-share">(₹${(totalAmount / winnerArray.length).toFixed(2)} each)</span>` : '';
+        
+        const winnerListHTML = `<ul>` + winnerArray.map(w => 
+            `<li><span class="winner-name">${w.name}</span> (Tkt: ${w.ticketId})</li>`
+        ).join('') + `</ul>`;
+
+        let eyeIcon = '';
+        if (winnerArray.length > 0) {
+            const safeName = name.replace(/'/g, "\\'");
+            eyeIcon = `<i class="fas fa-eye" onclick="showAllWinningTicketsForDividend('${safeName}')"></i>`;
+        }
+        
+        const finalHTML = `<div class="winner-details">${winnerListHTML} ${shareText}</div> ${eyeIcon}`;
+
+        tables.forEach(table => {
+            const row = table.querySelector(`tr[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
+            if (row) {
+                const winnerCell = row.querySelector('.winner-info');
+                if (winnerCell) winnerCell.innerHTML = finalHTML;
+            }
+        });
+    }
+}
+
+
+function updateNumberBoard(called) {
+    const lastCalled = called.length > 0 ? called[called.length - 1] : null;
+    for (let i = 1; i <= 90; i++) {
+        const isCalled = called.includes(i);
+        const publicCell = document.getElementById(`num-${i}`);
+        if(publicCell){
+            publicCell.classList.toggle('called', isCalled);
+            publicCell.classList.toggle('last-called-highlight', i === lastCalled);
+        }
+
+        const adminCell = document.getElementById(`run-game-popup-num-${i}`);
+        if(adminCell){
+            adminCell.classList.toggle('called', isCalled);
+            adminCell.classList.toggle('last-called-highlight', i === lastCalled);
+        }
+    }
+}
+
+function updateCalledNumbersList(called) {
+    const listEl = document.getElementById('calledNumbersList');
+    if(listEl) {
+        listEl.innerHTML = (called.length > 0)
+            ? called.slice().reverse().map(n => `<div class="called-num-chip">${n}</div>`).join('')
+            : '<span>Game has not started...</span>';
+    }
+}
+
+function goToBooking(ticketId) {
+    window.location.hash = 'book';
+    setTimeout(() => {
+        const ticketView = document.getElementById(`booking-ticket-${ticketId}`);
+        if(ticketView && !ticketView.classList.contains('sold')) {
+           togglePublicTicketSelection(ticketId);
+           ticketView.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 200);
+}
+
+function renderSheetWiseBookedList() {
+    const container = document.getElementById('bookedTicketsDisplay');
+    if (!container) return;
+
+    if (!gameSettingsData || !gameSettingsData.totalTickets) {
+        container.innerHTML = '<p style="text-align:center;">Ticket data is currently unavailable.</p>';
+        return;
+    }
+
+    const totalTickets = gameSettingsData.totalTickets;
+    const allTicketsMap = new Map(allTicketsData.map(t => [t.id, t]));
+    container.innerHTML = '';
+
+    if (allTicketsMap.size === 0) {
+        container.innerHTML = '<p style="text-align:center; font-style: italic; color: #01579b;">No tickets have been generated by the admin.</p>';
+        return;
+    }
+
+    const numSheets = Math.ceil(totalTickets / 6);
+
+    for (let i = 0; i < numSheets; i++) {
+        const startTicket = i * 6 + 1;
+        const endTicket = startTicket + 5;
+
+        const sheetWrapper = document.createElement('div');
+        sheetWrapper.className = 'sheet-view';
+
+        const sheetHeader = document.createElement('div');
+        sheetHeader.className = 'sheet-header';
+        sheetHeader.textContent = `Sheet ${i + 1} (Tickets ${startTicket}-${endTicket})`;
+        sheetWrapper.appendChild(sheetHeader);
+
+        const sheetContent = document.createElement('div');
+        sheetContent.className = 'sheet-content';
+        sheetWrapper.appendChild(sheetContent);
+
+        for (let j = startTicket; j <= endTicket; j++) {
+            const ticket = allTicketsMap.get(j);
+            const ticketViewWrapper = document.createElement('div');
+            const ticketView = document.createElement('div');
+            ticketView.className = 'ticket-view';
+            ticketView.setAttribute('data-ticket-id', j);
+
+            if (!ticket) {
+                ticketView.innerHTML = `<div class="ticket-header">Ticket #${j} Data Missing</div>`;
+            } else {
+                 let headerHTML;
+                if (ticket.is_sold) {
+                    headerHTML = `<div class="ticket-header"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket #${j}</span></div>`;
+                } else {
+                    headerHTML = `
+                        <div class="ticket-header">
+                            <span>Ticket #${j}</span>
+                            <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
+                        </div>`;
+                }
+                
+                let gridHTML;
+                if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                    gridHTML = ticket.numbers.flat().map(n =>
+                        `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                    ).join('');
+                } else {
+                    gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                }
+
+                ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
+            }
+            ticketViewWrapper.appendChild(ticketView);
+            sheetContent.appendChild(ticketViewWrapper);
+        }
+        container.appendChild(sheetWrapper);
+    }
+
+    updateDisplayedTicketPublic();
+}
+
+function showAllWinningTicketsForDividend(dividendName) {
+    const winnerArray = knownWinners[dividendName];
+    if (!winnerArray || winnerArray.length === 0) {
+        return showNotification("Winner information not found for this dividend.", "error");
+    }
+
+    const displayArea = document.getElementById('winningTicketDisplayArea');
+    const title = document.getElementById('winningTicketPopupTitle');
+    
+    title.textContent = `${dividendName} Winner(s)`;
+    let allTicketsHTML = '';
+
+    winnerArray.forEach(winner => {
+        const winningNumber = winner.winningNumber;
+        const ticketId = winner.ticketId;
+        
+        allTicketsHTML += `<h4 style="color: #01579b; margin-top: 1rem; text-align: center; border-bottom: 1px solid #b3e5fc; padding-bottom: 0.5rem;">${winner.name} (${typeof ticketId === 'number' ? `Tkt #${ticketId}` : ticketId})</h4>`;
+        
+        let ticketsToDisplay = [];
+
+        if (typeof ticketId === 'string' && ticketId.toLowerCase().includes('sheet')) {
+            if (ticketId.toLowerCase().includes('full sheet')) {
+                const ticketIdsMatch = ticketId.match(/\(([^)]+)\)/);
+                if (ticketIdsMatch && ticketIdsMatch[1]) {
+                    const fullSheetTicketIds = ticketIdsMatch[1].split(',').map(Number);
+                    ticketsToDisplay = allTicketsData.filter(t => fullSheetTicketIds.includes(t.id));
+                }
+            } else if (ticketId.toLowerCase().includes('half sheet')) {
+                const ticketIdsMatch = ticketId.match(/\(([^)]+)\)/);
+                if (ticketIdsMatch && ticketIdsMatch[1]) {
+                    const halfSheetTicketIds = ticketIdsMatch[1].split(',').map(Number);
+                    ticketsToDisplay = allTicketsData.filter(t => halfSheetTicketIds.includes(t.id));
+                }
+            }
+        } else {
+            const singleTicket = allTicketsData.find(t => t.id == ticketId);
+            if (singleTicket) {
+                ticketsToDisplay.push(singleTicket);
+            }
+        }
+
+        if (ticketsToDisplay.length > 0) {
+            ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+                let gridHTML;
+                if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                    gridHTML = ticket.numbers.flat().map(n => {
+                        const isCalled = n > 0 && currentCalledNumbers.includes(n);
+                        const isWinningStrike = n === winningNumber;
+                        const classes = `ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''} ${isWinningStrike ? 'winning-strike' : ''}`;
+                        return `<div class="${classes}" data-num="${n}">${n > 0 ? n : ''}</div>`;
+                    }).join('');
+                } else {
+                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                }
+
+
+                allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
+                                    <div class="ticket-header">Ticket #${ticket.id}</div>
+                                    <div class="ticket-grid">${gridHTML}</div>
+                               </div>`;
+            });
+        } else {
+             allTicketsHTML += `<p style="text-align:center; color:#e74c3c; padding:1rem;">Could not find the visual ticket data for this winner.</p>`;
+        }
+    });
+
+    displayArea.innerHTML = allTicketsHTML;
+    showPopup('winningTicketViewerPopup');
+}
+
+function toggleDividendAmountInput(checkbox) {
+    const amountInput = checkbox.closest('td').querySelector('.dividend-amount');
+    if (amountInput) {
+        amountInput.disabled = !checkbox.checked;
+        if (!checkbox.checked) {
+            amountInput.value = '';
+        }
+    }
+}
+
+function updateAdminSettingsUI(data) {
+    if (currentView !== 'adminDashboardView') return;
+    document.getElementById('dateTimeInp').value = data.gameDateTime || '';
+    document.getElementById('totalTicketInp').value = data.totalTickets || 600;
+    document.getElementById('ticketPriceInp').value = data.ticketPrice || 0;
+    document.getElementById('agentCommissionInp').value = data.agentCommission || 0;
+
+    const table = document.getElementById('dividendSettingsTable');
+    table.innerHTML = `
+        <thead><tr><th>Dividend Name & Amount</th><th>Active</th></tr></thead>
+        <tbody>
+            ${allPossibleDividends.map(name => {
+                const dividendData = (data.dividends || []).find(d => d.name === name);
+                const isChecked = !!dividendData;
+                const amount = dividendData ? dividendData.amount || '' : '';
+                return `
+                    <tr>
+                        <td>
+                            <span class="dividend-name-text">${name}</span>
+                            <input class="tableInp dividend-amount" type="number" placeholder="Amount" value="${amount}" ${!isChecked ? 'disabled' : ''}>
+                            <input class="tableCheckbox dividend-active" type="checkbox" data-name="${name}" ${isChecked ? 'checked' : ''} onchange="toggleDividendAmountInput(this)">
+                        </td>
+                    </tr>`;
+            }).join('')}
+        </tbody>`;
+}
+
+function updateAdminInfoUI() {
+    if (currentView !== 'adminDashboardView' || !currentUser) return;
+    const adminData = allUsersData.find(u => u.uid === currentUser.uid);
+    if(adminData){
+        document.getElementById('adminNameInp').value = adminData.name || '';
+        document.getElementById('adminPhoneInp').value = adminData.phone || '';
+    }
+    document.getElementById('adminWpLinkInp').value = gameSettingsData.whatsappLink || '';
+}
+
+async function saveGameSetting() {
+    const oldTotalTickets = gameSettingsData.totalTickets || 0;
+    const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
+
+    const settingsToSave = {
+        gameDateTime: document.getElementById('dateTimeInp').value,
+        totalTickets: newTotalTickets,
+        ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
+        agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
+    };
+
+    if (oldTotalTickets !== newTotalTickets && newTotalTickets > 0) {
+        const confirmText = document.getElementById('ticketResetConfirmText');
+        confirmText.innerHTML = `You are changing the ticket count from <b>${oldTotalTickets}</b> to <b>${newTotalTickets}</b>. <br/><br/> 'Adjust' will add/remove tickets without affecting existing bookings. <br/> 'Reset' will delete all tickets and generate new ones.`;
+
+        document.getElementById('confirmResetBtn').onclick = async () => {
+            closePopups();
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            await generateHousieTickets(true);
+            showNotification('Settings saved and all tickets regenerated.', 'success');
+        };
+
+        document.getElementById('confirmNoResetBtn').onclick = async () => {
+            closePopups();
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            await updateTicketCountWithoutReset(newTotalTickets, oldTotalTickets);
+            showNotification('Settings saved and ticket count adjusted.', 'success');
+        };
+
+        showPopup('ticketResetConfirmPopup');
+    } else {
+        try {
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            showNotification('Game settings saved successfully!', 'success');
+            await triggerGlobalNotification('Admin has updated the game settings.', 'info');
+        } catch (e) {
+            showNotification('Error saving settings: ' + e.message, 'error');
+        }
+    }
+}
+
+async function updateTicketCountWithoutReset(newCount, oldCount) {
+    if (newCount > oldCount) {
+        showNotification(`Adding ${newCount - oldCount} new tickets...`, 'info');
+        await appendNewTickets(newCount, oldCount);
+    } else if (newCount < oldCount) {
+        const soldTicketsInRange = allTicketsData.filter(t => t.id > newCount && t.is_sold);
+        if (soldTicketsInRange.length > 0) {
+            showNotification(`Cannot decrease count. ${soldTicketsInRange.length} ticket(s) are already sold in the range you are removing. Please reset tickets instead.`, 'error');
+            await db.ref('settings/gameConfig/totalTickets').set(oldCount);
+            return;
+        }
+        showNotification(`Removing ${oldCount - newCount} tickets from the end.`, 'info');
+        const updates = {};
+        for (let i = newCount + 1; i <= oldCount; i++) {
+            updates[`/tickets/${i}`] = null;
+        }
+        await db.ref().update(updates);
+    }
+}
+
+async function appendNewTickets(newCount, oldCount) {
+    const numSetsToAdd = Math.ceil((newCount - oldCount) / 6);
+    if (numSetsToAdd <= 0) return;
+
+    showNotification(`Generating ${numSetsToAdd * 6} new tickets...`, 'info');
+    try {
+        const updates = {};
+        for (let i = 0; i < numSetsToAdd; i++) {
+            const currentSet = createTambolaSetOf6();
+            for (let j = 0; j < 6; j++) {
+                const ticketId = oldCount + (i * 6) + j + 1;
+                if (ticketId > newCount) continue;
+                updates[ticketId] = {
+                    id: ticketId,
+                    numbers: currentSet[j],
+                    is_sold: false,
+                    owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
+                };
+            }
+        }
+        await db.ref('/tickets').update(updates);
+        showNotification('New tickets added successfully!', 'success');
+    } catch (e) {
+        showNotification('Error appending new tickets: ' + e.message, 'error');
+    }
+}
+
+async function saveDividendSettings() {
+    const activeDividends = [];
+    let hasError = false;
+    document.querySelectorAll('#dividendSettingsTable tbody tr').forEach(row => {
+        const checkbox = row.querySelector('.dividend-active');
+        if (checkbox.checked) {
+            const name = checkbox.dataset.name;
+            const amountInput = row.querySelector('.dividend-amount');
+            const amount = parseInt(amountInput.value, 10);
+
+            if (isNaN(amount) || amount <= 0) {
+                showNotification(`Please enter a valid, positive amount for '${name}'.`, 'error');
+                amountInput.style.border = '2px solid red';
+                hasError = true;
+            } else {
+                 amountInput.style.border = '1px solid var(--secondary-bg-dash)';
+                 activeDividends.push({
+                    name: name,
+                    amount: amount
+                });
+            }
+        }
+    });
+
+    if (hasError) {
+        return; 
+    }
+
+    try {
+        await db.ref('settings/gameConfig/dividends').set(activeDividends);
+        showNotification('Dividend settings saved!', 'success');
+        await triggerGlobalNotification('Admin has updated the dividend settings.', 'info');
+    } catch (e) { showNotification('Error saving dividends: ' + e.message, 'error'); }
+}
+
+async function saveAdminInfo() {
+    if(!currentUser) return;
+    try {
+        const newPass = document.getElementById('adminPassInp').value;
+        if(newPass && newPass.length < 6) return showNotification("Password must be at least 6 characters.", 'error');
+
+        const updates = {};
+        updates[`users/${currentUser.uid}/name`] = document.getElementById('adminNameInp').value;
+        updates[`users/${currentUser.uid}/phone`] = document.getElementById('adminPhoneInp').value;
+        updates['settings/gameConfig/whatsappLink'] = document.getElementById('adminWpLinkInp').value;
+
+        await db.ref().update(updates);
+
+        if(newPass){
+            await currentUser.updatePassword(newPass);
+            showNotification("Admin info and password updated!", 'success');
+        } else {
+            showNotification('Admin info updated!', 'success');
+        }
+        await triggerGlobalNotification('Admin info has been updated.', 'info');
+        document.getElementById('adminPassInp').value = '';
+    } catch(e) {
+        showNotification("Error updating info: " + e.message, 'error');
+    }
+}
+
+async function createAgentByAdmin() {
+    if (currentUserRole !== 'admin') return showNotification("Only admins can create agents.", 'error');
+
+    const name = document.getElementById('createAgentNameInp').value.trim();
+    const email = document.getElementById('createAgentEmailInp').value.trim();
+    const phone = document.getElementById('createAgentPhoneInp').value.trim();
+    const pass = document.getElementById('createAgentPassInp').value;
+
+    if (!name || !email || !phone || !pass) return showNotification('Please fill all fields for the new agent.', 'error');
+    if (pass.length < 6) return showNotification("Password must be at least 6 characters.", 'error');
+
+    const secondaryApp = firebase.initializeApp(firebaseConfig, 'agent-creator-' + Date.now());
+    try {
+        const secondaryAuth = secondaryApp.auth();
+        const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
+        const newUser = userCredential.user;
+
+        await db.ref('users/' + newUser.uid).set({
+            name, email, phone, role: 'agent',
+            createdBy: currentUser.uid,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        await secondaryAuth.signOut();
+        const successMsg = `Agent '${name}' created successfully!`;
+        showNotification(successMsg, 'success');
+        await triggerGlobalNotification(successMsg, 'success');
+
+        document.getElementById('createAgentNameInp').value = '';
+        document.getElementById('createAgentEmailInp').value = '';
+        document.getElementById('createAgentPhoneInp').value = '';
+        document.getElementById('createAgentPassInp').value = '';
+
+    } catch (error) {
+        showNotification(`Error creating agent: ${error.message}`, 'error');
+    } finally {
+        await secondaryApp.delete();
+    }
+}
+
+async function resetCallNum() {
+    if(!confirm('Are you sure? This will reset all called numbers, winners, and the game timer.')) return;
+    try {
+        await db.ref('gameState/currentState').update({
+            calledNumbers: null,
+            winners: null,
+            isGameRunning: false,
+            gameStartedAt: null 
+        });
+        showNotification('Game state has been reset.', 'success');
+        await triggerGlobalNotification('Admin has reset the game board.', 'info');
+    } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
+}
+async function resetTicket() {
+    if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD.')) return;
+    try {
+        const updates = {};
+        allTicketsData.forEach(ticket => {
+            if (ticket.is_sold) {
+                updates[`/tickets/${ticket.id}/is_sold`] = false;
+                updates[`/tickets/${ticket.id}/owner_name`] = null;
+                updates[`/tickets/${ticket.id}/owner_name_lower`] = null;
+                updates[`/tickets/${ticket.id}/owner_phone`] = null;
+                updates[`/tickets/${ticket.id}/agent_uid`] = null;
+                updates[`/tickets/${ticket.id}/sold_at`] = null;
+            }
+        });
+        if (Object.keys(updates).length > 0) {
+           await db.ref().update(updates);
+        }
+        showNotification('All sold tickets have been reset.', 'success');
+        await triggerGlobalNotification('Admin has reset all sold tickets.', 'info');
+    } catch (e) { showNotification('Error resetting tickets: ' + e.message, 'error'); }
+}
+
+async function resetAgent() {
+    if(!confirm('Are you sure? This will DELETE all users with the "agent" role. This cannot be undone!')) return;
+    try {
+        const updates = {};
+        const agents = allUsersData.filter(u => u.role === 'agent');
+        if (agents.length === 0) return showNotification("No agents to delete.", "info");
+
+        agents.forEach(agent => {
+            updates[`/users/${agent.uid}`] = null;
+        });
+        await db.ref().update(updates);
+
+        const msg = `${agents.length} agent account(s) deleted.`;
+        showNotification(msg, 'success');
+        await triggerGlobalNotification(msg, 'info');
+    } catch (e) { showNotification('Error deleting agents: ' + e.message, 'error'); }
+}
+
+function showLastSoldTicket() {
+    const soldTickets = allTicketsData
+        .filter(t => t.is_sold && t.sold_at)
+        .sort((a, b) => b.sold_at - a.sold_at);
+
+    if (soldTickets.length > 0) {
+        const lastTicket = soldTickets[0];
+        const agent = allUsersData.find(u => u.uid === lastTicket.agent_uid);
+        const agentName = agent ? agent.name : 'Admin/Direct';
+        showNotification(`Last ticket sold: #${lastTicket.id} to ${lastTicket.owner_name} by ${agentName}.`, 'info');
+    } else {
+        showNotification('No tickets have been sold yet.', 'info');
+    }
+}
+
+async function showPreviousGameWinners() {
+    try {
+        const snapshot = await db.ref('lastGame/winners').once('value');
+        const prevWinners = snapshot.val();
+
+        if (!prevWinners || Object.keys(prevWinners).length === 0) {
+            return showNotification('No archived winner data found.', 'info');
+        }
+
+        const titleEl = document.getElementById('genericInfoPopupTitle');
+        const contentEl = document.getElementById('genericInfoPopupContent');
+
+        titleEl.textContent = 'Previous Game Winners';
+
+        let contentHTML = '<ul>';
+        for (const dividend in prevWinners) {
+            const winnerArray = prevWinners[dividend];
+            if(Array.isArray(winnerArray)){
+                const winnerDetails = winnerArray.map(w => `${w.name} (Ticket: ${w.ticketId})`).join('<br>');
+                contentHTML += `<li>
+                    <div class="winner-dividend">${dividend}</div>
+                    <div class="winner-details">${winnerDetails}</div>
+                </li>`;
+            }
+        }
+        contentHTML += '</ul>';
+
+        contentEl.innerHTML = contentHTML;
+        showPopup('genericInfoPopup');
+
+    } catch (e) {
+        showNotification('Error fetching previous winners: ' + e.message, 'error');
+    }
+}
+
+function updateBusinessInfo() {
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    const soldCount = soldTickets.length;
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    const ticketsLeft = totalTickets - soldCount;
+    const price = gameSettingsData.ticketPrice || 0;
+    const commission = gameSettingsData.agentCommission || 0;
+    
+    const agentUids = new Set(allUsersData.filter(u => u.role === 'agent').map(u => u.uid));
+    const agentSoldCount = soldTickets.filter(t => t.agent_uid && agentUids.has(t.agent_uid)).length;
+    const totalCommission = agentSoldCount * commission;
+
+    const totalRevenue = soldCount * price;
+    const activeDividends = gameSettingsData.dividends || [];
+    const totalPrizeMoney = activeDividends.reduce((sum, dividend) => sum + (parseInt(dividend.amount, 10) || 0), 0);
+    const netProfit = totalRevenue - totalCommission - totalPrizeMoney;
+
+    const adminTable = document.getElementById('businessInfoTable');
+    if(adminTable && currentView === 'adminDashboardView') {
+        adminTable.innerHTML = `<tbody>
+            <tr><td>Total Tickets</td><td>${totalTickets}</td></tr>
+            <tr><td>Tickets Sold</td><td>${soldCount}</td></tr>
+            <tr><td>Tickets Left</td><td>${ticketsLeft}</td></tr>
+            <tr><td>Total Revenue</td><td>₹ ${totalRevenue.toLocaleString()}</td></tr>
+            <tr><td>Total Agent Commission</td><td>₹ ${totalCommission.toLocaleString()}</td></tr>
+            <tr><td>Total Prize Money</td><td>₹ ${totalPrizeMoney.toLocaleString()}</td></tr>
+            <tr><td>Net Profit</td><td>₹ ${netProfit.toLocaleString()}</td></tr>
+        </tbody>`;
+    }
+}
+
+function toggleAdminList(state) {
+    adminListState = state;
+    document.getElementById('showTicketBtn').style.backgroundColor = state === 'tickets' ? 'var(--accent-color-dash)' : 'var(--secondary-bg-dash)';
+    document.getElementById('showAgentBtn').style.backgroundColor = state === 'agents' ? 'var(--accent-color-dash)' : 'var(--secondary-bg-dash)';
+    updateAdminList();
+}
+
+function updateAdminList() {
+    if (currentView !== 'adminDashboardView') return;
+    const searchTerm = document.getElementById('adminSearchKeyInp').value.toLowerCase();
+    const table = document.getElementById('adminGameSettingTable');
+
+    if (adminListState === 'tickets') {
+        const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
+        table.innerHTML = `<thead><tr><th>Ticket Details</th></tr></thead><tbody>` +
+            tickets.sort((a,b) => a.id - b.id).map(t => {
+                if (t.is_sold) {
+                    const agent = allUsersData.find(u => u.uid === t.agent_uid);
+                    const name = t.owner_name ? t.owner_name.replace(/'/g, "\\'") : '';
+                    const phone = t.owner_phone || '';
+                    return `<tr class="admin-ticket-row">
+                        <td>
+                           <div class="booked-ticket-line-1">
+                                <span>#${t.id}: ${t.owner_name}</span>
+                                <div>
+                                    <i class="fas fa-edit" onclick="showEditTicketPopup(${t.id}, '${name}', '${phone}')"></i>
+                                    <i class="fas fa-trash-alt" onclick="promptDeleteTicket(${t.id}, '${name}', '${phone}')"></i>
+                                </div>
+                            </div>
+                            <div class="booked-ticket-line-2">
+                                <span>Mobile: ${t.owner_phone || '-'}</span> | <span>Agent: ${agent?.name || (t.is_sold ? 'Admin/Direct' : '-')}</span>
+                            </div>
+                        </td>
+                    </tr>`;
+                } else {
+                     return `<tr class="admin-ticket-row available-ticket">
+                        <td data-label="ID">${t.id}</td>
+                        <td data-label="Status">Available</td>
+                        <td data-label="Owner">-</td>
+                        <td data-label="Actions">-</td>
+                    </tr>`;
+                }
+            }).join('') + `</tbody>`;
+    } else {
+        const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').toLowerCase().includes(searchTerm));
+        table.innerHTML = `` +
+            users.map(u => {
+                const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
+                let actionCell = `<td data-label="Actions">-</td>`;
+                if (u.role === 'agent') {
+                     const name = u.name ? u.name.replace(/'/g, "\\'") : '';
+                    actionCell = `<td data-label="Actions"><i class="fas fa-trash-alt" style="color: #e74c3c; cursor: pointer;" title="Delete Agent" onclick="deleteUser('${u.uid}', '${name}')"></i></td>`;
+                }
+                return `<tr>
+                    <td data-label="Name">${u.name}</td>
+                    <td data-label="Role">${u.role}</td>
+                    <td data-label="Phone">${u.phone}</td>
+                    <td data-label="Sold">${soldCount}</td>
+                    ${actionCell}
+                </tr>`;
+            }).join('') + `</tbody>`;
+    }
+}
+
+function showEditTicketPopup(ticketId, currentName, currentPhone) {
+    ticketIdToEdit = ticketId; 
+    originalOwnerInfo = { name: currentName, phone: currentPhone }; 
+    document.getElementById('editOwnerInfoText').innerHTML = `Editing details for Ticket <b>#${ticketId}</b>.`;
+    document.getElementById('editOwnerNameInp').value = currentName;
+    document.getElementById('editOwnerPhoneInp').value = currentPhone;
+    showPopup('editOwnerPopup');
+}
+
+async function saveTicketOwnerChanges() {
+    if (!ticketIdToEdit || !originalOwnerInfo.phone) return;
+
+    const newName = document.getElementById('editOwnerNameInp').value.trim();
+    const newPhone = document.getElementById('editOwnerPhoneInp').value.trim();
+
+    if (!newName || !newPhone) {
+        return showNotification('Name and Phone cannot be empty.', 'error');
+    }
+
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+
+    if (ownedTickets.length > 1) {
+        const confirmText = document.getElementById('applyToAllConfirmText');
+        confirmText.innerHTML = `<b>${originalOwnerInfo.name}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to apply the new details to all of them?`;
+
+        document.getElementById('confirmApplyToAllBtn').onclick = () => applyOwnerChanges(true, newName, newPhone);
+        document.getElementById('confirmApplyToSingleBtn').onclick = () => applyOwnerChanges(false, newName, newPhone);
+
+        showPopup('applyToAllConfirmPopup');
+    } else {
+        applyOwnerChanges(false, newName, newPhone);
+    }
+}
+
+async function applyOwnerChanges(applyToAll, newName, newPhone) {
+    try {
+        const updates = {};
+        let ticketsToUpdate = [];
+        let successMessage = '';
+
+        if (applyToAll) {
+            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+            successMessage = `Details updated for all ${ticketsToUpdate.length} tickets owned by ${originalOwnerInfo.name}.`;
+        } else {
+            const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
+            if (singleTicket) ticketsToUpdate.push(singleTicket);
+            successMessage = `Ticket #${ticketIdToEdit} updated successfully!`;
+        }
+
+        if (ticketsToUpdate.length === 0) {
+            closePopups();
+            return showNotification('Could not find the specified ticket(s) to update.', 'error');
+        }
+
+        ticketsToUpdate.forEach(ticket => {
+            updates[`/tickets/${ticket.id}/owner_name`] = newName;
+            updates[`/tickets/${ticket.id}/owner_name_lower`] = newName.toLowerCase();
+            updates[`/tickets/${ticket.id}/owner_phone`] = newPhone;
+        });
+
+        await db.ref().update(updates);
+        showNotification(successMessage, 'success');
+
+    } catch (e) {
+        showNotification('Error updating ticket(s): ' + e.message, 'error');
+    } finally {
+        closePopups();
+        ticketIdToEdit = null;
+        originalOwnerInfo = { name: '', phone: '' };
+    }
+}
+
+function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
+    if (!ownerPhone) {
+        if (confirm(`This ticket has no owner info. Are you sure you want to mark Ticket #${ticketId} as available?`)) {
+            performDelete(ticketId, false);
+        }
+        return;
+    }
+
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === ownerPhone);
+
+    if (ownedTickets.length > 1) {
+        ticketToDeleteInfo = { ticketId, ownerName, ownerPhone };
+        const confirmText = document.getElementById('deleteConfirmText');
+        confirmText.innerHTML = `<b>${ownerName}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to delete all of them, or just this one (<b>#${ticketId}</b>)?`;
+
+        document.getElementById('confirmDeleteAllBtn').onclick = () => performDelete(ownerPhone, true);
+        document.getElementById('confirmDeleteSingleBtn').onclick = () => performDelete(ticketId, false);
+
+        showPopup('deleteConfirmPopup');
+    } else {
+        if (confirm(`Are you sure you want to delete Ticket #${ticketId} for ${ownerName}? This will mark it as available.`)) {
+            performDelete(ticketId, false);
+        }
+    }
+}
+
+async function performDelete(identifier, deleteAll) {
+    try {
+        const updates = {};
+        let ticketsToReset = [];
+        let successMessage = '';
+
+        if (deleteAll) {
+            ticketsToReset = allTicketsData.filter(t => t.is_sold && t.owner_phone === identifier);
+            successMessage = `Deleted all ${ticketsToReset.length} tickets for the owner.`;
+        } else {
+            const singleTicket = allTicketsData.find(t => t.id === identifier);
+            if (singleTicket) ticketsToReset.push(singleTicket);
+            successMessage = `Ticket #${identifier} has been deleted and is now available.`;
+        }
+
+        if (ticketsToReset.length === 0) {
+            closePopups();
+            return showNotification('Could not find ticket(s) to delete.', 'error');
+        }
+
+        ticketsToReset.forEach(ticket => {
+            updates[`/tickets/${ticket.id}/is_sold`] = false;
+            updates[`/tickets/${ticket.id}/owner_name`] = null;
+            updates[`/tickets/${ticket.id}/owner_name_lower`] = null;
+            updates[`/tickets/${ticket.id}/owner_phone`] = null;
+            updates[`/tickets/${ticket.id}/agent_uid`] = null;
+            updates[`/tickets/${ticket.id}/sold_at`] = null;
+        });
+
+        await db.ref().update(updates);
+        showNotification(successMessage, 'success');
+        triggerGlobalNotification(`Admin made ${ticketsToReset.length} ticket(s) available again.`, 'info');
+
+    } catch (e) {
+        showNotification('Error deleting ticket(s): ' + e.message, 'error');
+    } finally {
+        closePopups();
+        ticketToDeleteInfo = {};
+    }
+}
+
+
+async function deleteUser(uid, name) {
+    if (uid === currentUser.uid) {
+        return showNotification("You cannot delete your own account.", "error");
+    }
+    const userToDelete = allUsersData.find(u => u.uid === uid);
+    if (userToDelete && userToDelete.role === 'admin') {
+        return showNotification("Admins cannot be deleted from this panel.", "error");
+    }
+
+    if (!confirm(`Are you sure you want to PERMANENTLY DELETE the agent '${name}'? This action cannot be undone.`)) return;
+
+    try {
+        await db.ref(`users/${uid}`).remove();
+        const msg = `Agent '${name}' has been deleted.`;
+        showNotification(msg, 'success');
+        await triggerGlobalNotification(msg, 'info');
+    } catch (e) {
+        showNotification('Error deleting user: ' + e.message, 'error');
+    }
+}
+
+function handlePosterImageUpload(event) {
+    const fileInput = event.target;
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Please upload a valid image file (JPG, PNG, GIF, WEBP).', 'error');
+            fileInput.value = ''; // Reset the input
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            // e.target.result contains the Base64 data URL
+            const base64Image = e.target.result;
+            changePosterBackground(base64Image);
+        };
+
+        reader.onerror = function() {
+            showNotification('Failed to read the image file.', 'error');
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
+function changePosterBackground(source) {
+    const posterContent = document.getElementById('posterContent');
+    if (posterContent) {
+        let newImageUrl;
+        // Check for full URL or Base64 data URI
+        if (source.startsWith('http') || source.startsWith('data:image')) {
+            newImageUrl = source;
+        } else {
+            // Fallback for keyword search on Unsplash
+            newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
+        }
+        posterContent.style.backgroundImage = `url('${newImageUrl}')`;
+        showNotification('Poster background updated!', 'info', 2000);
+    }
+}
+
+function showPosterModal() {
+    const title = "SINTHA HOUSIE";
+    const gameDateTime = gameSettingsData.gameDateTime;
+    const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
+    const totalTickets = gameSettingsData.totalTickets || 'N/A';
+    const activeDividends = gameSettingsData.dividends || [];
+    const adminUser = allUsersData.find(u => u.role === 'admin');
+    const adminPhone = adminUser ? adminUser.phone : (document.getElementById('adminPhoneInp').value || 'N/A');
+    const websiteLink = window.location.href.split('#')[0];
+
+    let gameTimeFormatted = "DATE & TIME NOT SET";
+    if (gameDateTime) {
+        const date = new Date(gameDateTime);
+        gameTimeFormatted = date.toLocaleString('en-US', { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    const dividendNamesHTML = activeDividends.map(d => `<p>${d.name}</p>`).join('');
+    const dividendAmountsHTML = activeDividends.map(d => `<p>Rs ${d.amount.toLocaleString()}</p>`).join('');
+
+    const posterHTML = `
+        <h1 class="poster-title" contenteditable="true">${title}</h1>
+        <p class="poster-datetime" contenteditable="true">${gameTimeFormatted}</p>
+        <p class="poster-tagline" contenteditable="true">Grab Your Tickets & Get Ready to Win!</p>
+
+        <div class="prize-section">
+            <h3>PRIZES</h3>
+            <div class="prize-list">
+                <div class="prize-column" id="prize-names">
+                    ${dividendNamesHTML}
+                </div>
+                <div class="prize-column" id="prize-amounts">
+                    ${dividendAmountsHTML}
+                </div>
+            </div>
+        </div>
+
+        <p class="ticket-details" contenteditable="true">Get ticket @ Rs ${ticketPrice}. Total tickets only (${totalTickets})</p>
+
+        <div class="contact-section">
+            <p contenteditable="true">visit: <a href="${websiteLink}" target="_blank">${websiteLink.replace(/^https?:\/\//, '')}</a></p>
+            <p contenteditable="true">Whatsapp: <span>${adminPhone}</span></p>
+        </div>
+    `;
+
+    document.getElementById('posterContent').innerHTML = posterHTML;
+    
+    changePosterBackground('party,confetti');
+    
+    showPopup('posterMakerPopup');
+}
+
+
+function savePosterAsImage() {
+    const posterElement = document.getElementById('posterContent');
+    if (!posterElement) return showNotification('Poster element not found.', 'error');
+
+    showNotification('Generating poster image...', 'info');
+
+    html2canvas(posterElement, {
+        useCORS: true, 
+        allowTaint: true,
+        logging: false,
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'sintha-housie-poster.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showNotification('Poster download started!', 'success');
+    }).catch(err => {
+        console.error("html2canvas error:", err);
+        showNotification('Could not generate poster image. Check console for errors.', 'error');
+    });
+}
+
+async function sharePoster() {
+    const posterElement = document.getElementById('posterContent');
+    if (!posterElement) return showNotification('Poster element not found.', 'error');
+
+    showNotification('Preparing poster for sharing...', 'info');
+
+    try {
+        const canvas = await html2canvas(posterElement, { useCORS: true, allowTaint: true });
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
+        const filesArray = [file];
+
+        const websiteName = "Sintha housie Game!";
+        const websiteLink = window.location.href.split('#')[0];
+        
+        if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+            await navigator.share({
+                files: filesArray,
+                title: websiteName,
+                text: `Join the ${websiteName}. Check out the poster!`,
+                url: websiteLink
+            });
+            showNotification('Poster shared successfully!', 'success');
+        } else {
+            showNotification('Image sharing not supported. Saving image instead.', 'info', 6000);
+            savePosterAsImage();
+        }
+    } catch (error) {
+        if (error.name !== 'AbortError') {
+             console.error('Error sharing poster:', error);
+             showNotification(`Could not share poster: ${error.message}`, 'error');
+             savePosterAsImage();
+        }
+    }
+}
+
+function updateAgentInfoUI() {
+    if (!currentUser || currentView !== 'agentDashboardView') return;
+    
+    const agentData = allUsersData.find(u => u.uid === currentUser.uid);
+    if (agentData) {
+        document.getElementById('agentNameInp').value = agentData.name;
+        document.getElementById('agentPhoneInp').value = agentData.phone;
+    }
+    
+    const mySoldTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid);
+    const mySoldCount = mySoldTickets.length;
+    const myEarnings = mySoldCount * (gameSettingsData.agentCommission || 0);
+    document.getElementById('earningBtn').textContent = `₹ ${myEarnings.toLocaleString()}`;
+
+    const soldCount = allTicketsData.filter(t => t.is_sold).length;
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    const ticketsLeft = totalTickets - soldCount;
+
+    const agentBusinessInfoTable = document.getElementById('agentBusinessInfoTable');
+    if (agentBusinessInfoTable) {
+        agentBusinessInfoTable.innerHTML = `<tbody>
+            <tr><td>Ticket Price</td><td>₹ ${(gameSettingsData.ticketPrice || 0).toLocaleString()}</td></tr>
+            <tr><td>My Commission/Tkt</td><td>₹ ${(gameSettingsData.agentCommission || 0).toLocaleString()}</td></tr>
+            <tr><td style="color:var(--accent-color-dash);">My Tickets Sold</td><td style="color:var(--accent-color-dash); font-weight: bold;">${mySoldCount}</td></tr>
+            <tr><td colspan="2" style="height: 10px;"></td></tr>
+            <tr><td>Total Tickets in Game</td><td>${totalTickets}</td></tr>
+            <tr><td>Total Sold</td><td>${soldCount}</td></tr>
+            <tr><td>Tickets Left</td><td>${ticketsLeft}</td></tr>
+        </tbody>`;
+    }
+}
+
+function showAgentSoldTickets() {
+    if (!currentUser || currentView !== 'agentDashboardView') return;
+    const searchTerm = document.getElementById('agentSearchKeyInp').value.toLowerCase();
+    const table = document.getElementById('agentSoldTicketsTable');
+    const myTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid && (!searchTerm || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm)));
+
+    table.innerHTML = `<thead><tr><th>Ticket ID</th><th>Owner Name</th><th>Owner Phone</th></tr></thead><tbody>` +
+        myTickets.sort((a,b) => a.id - b.id).map(t => `<tr><td data-label="ID">${t.id}</td><td data-label="Name">${t.owner_name}</td><td data-label="Phone">${t.owner_phone}</td></tr>`).join('') + `</tbody>`;
+}
+
+function updateDashboardBookingPopup() {
+    const container = document.getElementById('dashTicketBlockDiv');
+    if (!container) return;
+    container.innerHTML = '';
+    const indicator = document.getElementById('dashboardSelectionIndicator');
+    if (indicator) indicator.textContent = '';
+
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    if (allTicketsData.length === 0 || totalTickets === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--light-text-dash);">Tickets have not been generated.</p>';
+        return;
+    }
+
+    const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
+    const numSheets = Math.ceil(totalTickets / 6);
+
+    for (let i = 0; i < numSheets; i++) {
+        const startTicket = i * 6 + 1;
+        const endTicket = startTicket + 5;
+
+        const sheetRow = document.createElement('div');
+        sheetRow.className = 'compact-sheet-row';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'sheet-tick-box';
+        checkbox.onchange = () => selectFullSheetDashboard(checkbox, startTicket, endTicket);
+        sheetRow.appendChild(checkbox);
+
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'ticket-buttons-group';
+
+        for (let j = startTicket; j <= endTicket; j++) {
+            const ticket = ticketsMap.get(j);
+            const btn = document.createElement('button');
+            btn.className = 'ticketBlockBtn';
+            btn.textContent = j;
+            btn.id = `dash-ticket-btn-${j}`;
+            if (ticket && ticket.is_sold) {
+                btn.disabled = true;
+            } else {
+                btn.onclick = () => {
+                    btn.classList.toggle('selected');
+                    updateDashboardSelectionIndicator();
+                };
+            }
+            buttonGroup.appendChild(btn);
+        }
+        
+        sheetRow.appendChild(buttonGroup);
+        container.appendChild(sheetRow);
+    }
+}
+
+function selectFullSheetDashboard(checkbox, startId, endId) {
+    for (let id = startId; id <= endId; id++) {
+        const btn = document.getElementById(`dash-ticket-btn-${id}`);
+        if (btn && !btn.disabled) {
+            const isSelected = btn.classList.contains('selected');
+            if (checkbox.checked && !isSelected) {
+                btn.click();
+            } else if (!checkbox.checked && isSelected) {
+                btn.click();
+            }
+        }
+    }
+}
+
+function updateDashboardSelectionIndicator() {
+    const selectedNodes = document.querySelectorAll('#dashTicketBlockDiv .selected');
+    const selectedIds = Array.from(selectedNodes).map(node => parseInt(node.textContent, 10));
+    const indicator = document.getElementById('dashboardSelectionIndicator');
+    if (indicator) {
+        const result = checkSheetSelection(selectedIds);
+        indicator.textContent = result.message;
+        indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
+    }
+}
+
+async function handleDashboardBooking() {
+    if (!currentUser) return showNotification("You must be logged in.", 'error');
+    const name = document.getElementById('dashBookerNameInp').value.trim();
+    const phone = document.getElementById('dashBookerPhoneInp').value.trim();
+    const selectedNodes = document.querySelectorAll('#dashTicketBlockDiv .selected');
+    if (!name || !phone) return showNotification('Please enter name and phone.', 'error');
+    if (selectedNodes.length === 0) return showNotification('Please select tickets.', 'error');
+    const ticketIdsToBook = Array.from(selectedNodes).map(node => parseInt(node.textContent, 10));
+    try {
+        const updates = {};
+        const timestamp = firebase.database.ServerValue.TIMESTAMP;
+        ticketIdsToBook.forEach(id => {
+            updates[`/tickets/${id}/is_sold`] = true;
+            updates[`/tickets/${id}/owner_name`] = name;
+            updates[`/tickets/${id}/owner_name_lower`] = name.toLowerCase();
+            updates[`/tickets/${id}/owner_phone`] = phone;
+            updates[`/tickets/${id}/agent_uid`] = currentUser.uid;
+            updates[`/tickets/${id}/sold_at`] = timestamp;
+        });
+        await db.ref().update(updates);
+        showNotification(`${ticketIdsToBook.length} tickets booked for ${name}.`, 'success');
+        document.getElementById('dashBookerNameInp').value = '';
+        document.getElementById('dashBookerPhoneInp').value = '';
+        closePopups();
+    } catch(e) { showNotification('Error booking tickets: ' + e.message, 'error'); }
+}
+
+function renderPublicBookingGrid() {
+    const container = document.getElementById('publicBookingGrid');
+    if (!container) return;
+    container.innerHTML = '';
+    publicPopupSelectedTickets = [];
+    updatePublicBookingIndicator();
+
+    const totalTickets = gameSettingsData.totalTickets || 0;
+    if (allTicketsData.length === 0 || totalTickets === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--light-text-dash);">Tickets are not available yet.</p>';
+        return;
+    }
+
+    const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
+    const numSheets = Math.ceil(totalTickets / 6);
+
+    for (let i = 0; i < numSheets; i++) {
+        const startTicket = i * 6 + 1;
+        const endTicket = startTicket + 5;
+        
+        const sheetRow = document.createElement('div');
+        sheetRow.className = 'compact-sheet-row';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'sheet-tick-box';
+        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, endTicket);
+        sheetRow.appendChild(checkbox);
+        
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'ticket-buttons-group';
+
+        for (let j = startTicket; j <= endTicket; j++) {
+            const ticket = ticketsMap.get(j);
+            const btn = document.createElement('button');
+            btn.className = 'ticketBlockBtn';
+            btn.textContent = j;
+            btn.id = `public-ticket-btn-${j}`;
+            if (ticket && ticket.is_sold) {
+                btn.disabled = true;
+            } else {
+                btn.onclick = () => togglePublicPopupTicketSelection(j);
+            }
+            buttonGroup.appendChild(btn);
+        }
+
+        sheetRow.appendChild(buttonGroup);
+        container.appendChild(sheetRow);
+    }
+}
+
+function togglePublicPopupTicketSelection(ticketId) {
+    const btn = document.getElementById(`public-ticket-btn-${ticketId}`);
+    if (!btn || btn.disabled) return;
+
+    const index = publicPopupSelectedTickets.indexOf(ticketId);
+    if (index > -1) {
+        publicPopupSelectedTickets.splice(index, 1);
+        btn.classList.remove('selected');
+    } else {
+        publicPopupSelectedTickets.push(ticketId);
+        btn.classList.add('selected');
+    }
+    updatePublicBookingIndicator();
+}
+
+function selectFullSheetPublic(checkbox, startId, endId) {
+    for (let id = startId; id <= endId; id++) {
+        const btn = document.getElementById(`public-ticket-btn-${id}`);
+        if (btn && !btn.disabled) {
+            const isSelected = publicPopupSelectedTickets.includes(id);
+            if (checkbox.checked && !isSelected) {
+                togglePublicPopupTicketSelection(id);
+            } else if (!checkbox.checked && isSelected) {
+                togglePublicPopupTicketSelection(id);
+            }
+        }
+    }
+}
+
+function updatePublicBookingIndicator() {
+    const indicator = document.getElementById('publicBookingIndicator');
+    if (indicator) {
+        const result = checkSheetSelection(publicPopupSelectedTickets);
+        indicator.textContent = result.message;
+        indicator.style.color = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
+        indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
+    }
+}
+
+function handlePublicPopupBookingRequest() {
+    const name = document.getElementById('publicBookerNameInp').value.trim();
+    const phone = document.getElementById('publicBookerPhoneInp').value.trim();
+
+    if (!name || !phone) return showNotification('Please enter your name and phone number.', 'error');
+    if (publicPopupSelectedTickets.length === 0) return showNotification('Please select tickets to book.', 'error');
+    openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
+}
+
+async function toggleGameRunner() {
+    const gameStateRef = db.ref('gameState/currentState');
+    const isRunning = document.getElementById('callStatusInp').value === 'on';
+    if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+
+    try {
+        if (isRunning) {
+            await gameStateRef.child('isGameRunning').set(true);
+            await gameStateRef.transaction(currentData => {
+                if (currentData) {
+                    if (!currentData.gameStartedAt) {
+                        currentData.gameStartedAt = firebase.database.ServerValue.TIMESTAMP;
+                    }
+                }
+                return currentData;
+            });
+            
+            playSound(audioBaseUrl + "gamehasstarted.mp3");
+
+            await triggerGlobalNotification('The game has started! Good luck!', 'success');
+            const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
+            if (isNaN(intervalSeconds) || intervalSeconds < 1) {
+                showNotification("Set a valid call interval (>= 1 second).", 'error');
+                document.getElementById('callStatusInp').value = 'off';
+                await gameStateRef.child('isGameRunning').set(false);
+                return;
+            }
+            gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
+            callNextNumber(); 
+        } else {
+            await gameStateRef.child('isGameRunning').set(false);
+        }
+        
+    } catch (e) {
+        showNotification("Error starting/stopping game: " + e.message, 'error');
+    }
+}
+
+function setNextCallNumber() {
+    const inputEl = document.getElementById('nextCallInp');
+    const numberToSet = parseInt(inputEl.value, 10);
+
+    if (isNaN(numberToSet) || numberToSet < 1 || numberToSet > 90) {
+        showNotification('Please enter a valid number between 1 and 90.', 'error');
+        return;
+    }
+
+    if (currentCalledNumbers.includes(numberToSet)) {
+        showNotification(`Number ${numberToSet} has already been called.`, 'error');
+        return;
+    }
+    
+    nextManualCallNumber = numberToSet;
+    
+    inputEl.value = ''; 
+}
+
+function callNextNumber() {
+    const gameStateRef = db.ref('gameState/currentState');
+    gameStateRef.transaction(gameState => {
+        if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
+        if (!gameState.isGameRunning) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            return;
+        }
+
+        const called = gameState.calledNumbers || [];
+        const activeDividends = gameSettingsData.dividends || [];
+        const currentWinners = gameState.winners || {};
+        const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
+
+        if (called.length >= 90 || areAllDividendsClaimed) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameState.isGameRunning = false;
+            const reason = areAllDividendsClaimed ? "All dividends have been won!" : "All 90 numbers have been called!";
+            showNotification(`${reason} Game over.`, 'info');
+            triggerGlobalNotification(`${reason} The game has ended!`, 'info');
+            return gameState;
+        }
+
+        let newNumber;
+        const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
+        
+        if (nextManualCallNumber && availableNumbers.includes(nextManualCallNumber)) {
+            newNumber = nextManualCallNumber;
+            nextManualCallNumber = null;
         } else {
             if (availableNumbers.length === 0) {
                  if (gameRunnerInterval) clearInterval(gameRunnerInterval);
