@@ -16,8 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></radialGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
-
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
 
 <style>
     :root {
@@ -49,6 +48,14 @@
         animation: pulse-highlight 1.5s infinite;
         border-color: #ff0000 !important;
     }
+    
+    @keyframes blink {
+        50% {
+            background: #fff;
+            color: #ff4d4d;
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+        }
+    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; outline: none; border: none; }
     ::-webkit-scrollbar { width: 4px; }
@@ -56,7 +63,7 @@
     ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
 
     body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, var(--font-family-neon);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         color: var(--text-primary);
         background-color: var(--bg-color);
         overflow-x: hidden;
@@ -470,7 +477,7 @@
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
-    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(1rem, 2.2vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(0.9rem, 2.2vw, 1.2rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -867,7 +874,7 @@
     .prize-list {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1 1rem;
+        gap: 1rem;
         text-align: left;
     }
 
@@ -1018,24 +1025,39 @@
     cursor: pointer;
     transition: all 0.25s ease;
     white-space: nowrap;
-}
+    }
 
-/* Hover effect */
-.actionBtn1:hover {
-    background: var(--accent-color-dash, #3a86ff);
-    color: #fff;
-    border-color: var(--accent-color-dash, #3a86ff);
-    transform: translateY(-1px);
-}
+    /* Hover effect */
+    .actionBtn1:hover {
+        background: var(--accent-color-dash, #3a86ff);
+        color: #fff;
+        border-color: var(--accent-color-dash, #3a86ff);
+        transform: translateY(-1px);
+    }
 
-/* Active/selected BG highlight */
-.actionBtn1.active {
-    background: var(--accent-color-dash, #3a86ff);
-    color: #fff;
-    border-color: var(--accent-color-dash, #3a86ff);
-    font-weight: bold;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
-}
+    /* Active/selected BG highlight */
+    .actionBtn1.active {
+        background: var(--accent-color-dash, #3a86ff);
+        color: #fff;
+        border-color: var(--accent-color-dash, #3a86ff);
+        font-weight: bold;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    }
+    
+    .game-running-warning {
+        font-weight: bold;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: 6px;
+        background: #ff4d4d;
+        color: #fff;
+        box-shadow: 0 0 12px rgba(255, 77, 77, 0.8);
+        animation: blink 2s infinite;
+        margin: 1rem auto;
+    }
 </style>
 </head>
 <body>
@@ -1449,7 +1471,7 @@
             </table>
         </section>
 
-	<div style="font-weight:bold;font-size:14px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
+	    <div class="game-running-warning"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div>
 
       </div>
 </div>
@@ -1497,7 +1519,7 @@
     <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
    </div>
 
- <input type="file" id="posterBgUploadInput" accept="image/*" style="display: none;" onchange="handlePosterImageUpload(event)">
+    <input type="file" id="posterBgUploadInput" accept="image/*" style="display: none;" onchange="handlePosterImageUpload(event)">
     <button class="actionBtn1" style="padding: 6px 10px; font-size: 0.9em; flex: 0 0 auto;" onclick="document.getElementById('posterBgUploadInput').click()" title="Upload custom background"><i class="fas fa-upload"></i> Upload</button>
 
         <div id="posterContent">
@@ -4101,41 +4123,6 @@ function downloadCurrentSoldTickets() {
     );
 }
 
-async function downloadTicketAsPDF(ticketId) {
-    const { jsPDF } = window.jspdf;
-    const ticketData = allTicketsData.find(t => t.id === ticketId);
-    if (!ticketData) return showNotification('Ticket data not found.', 'error');
-
-    const doc = new jsPDF();
-    const cellWidth = 20;
-    const cellHeight = 15;
-    const startX = 15;
-    const startY = 20;
-
-    doc.setFontSize(16);
-    doc.text(`Housie Ticket #${ticketData.id}`, startX, startY);
-    if(ticketData.is_sold){
-        doc.setFontSize(10);
-        doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
-    }
-
-    doc.setFontSize(14);
-    for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 9; col++) {
-            const x = startX + col * cellWidth;
-            const y = startY + 15 + row * cellHeight;
-            doc.rect(x, y, cellWidth, cellHeight);
-            const num = ticketData.numbers[row][col];
-            if (num > 0) {
-                doc.text(String(num), x + cellWidth / 2, y + cellHeight / 2, { align: 'center', baseline: 'middle' });
-            }
-        }
-    }
-
-    doc.save(`Housie-Ticket-${ticketId}.pdf`);
-    showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
-}
-
 async function downloadWinnersPDF() {
     if (Object.keys(knownWinners).length === 0) {
         showNotification("No winners to download yet.", "info");
@@ -4286,13 +4273,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	<script>
 (function(){
-    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
-    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
-    document['addEventListener']('keydown',function(_0x2){
-        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
-        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
-           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
-            _0x2['preventDefault']();
+    document.addEventListener('contextmenu',function(e){e.preventDefault();});
+    document.addEventListener('keydown',function(e){
+        if(e.key==='F12'){e.preventDefault();}
+        if((e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key.toUpperCase()))||
+           (e.ctrlKey&&['U','S'].includes(e.key.toUpperCase()))){
+            e.preventDefault();
         }
     });
 })();
