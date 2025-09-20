@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STAR MANIPUR HOUSIE</title>
+    <title>IMPHAL HOUSIE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1109,7 +1109,7 @@
     <header class="top-header">
         <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">STAR MANIPUR HOUSIE</h1>
+            <h1 class="webTitle">IMPHAL HOUSIE</h1>
         </div>
     </header>
 
@@ -1172,7 +1172,7 @@
     <header class="top-header">
          <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">STAR MANIPUR HOUSIE</h1>
+            <h1 class="webTitle">IMPHAL HOUSIE</h1>
         </div>
     </header>
 
@@ -1475,7 +1475,7 @@
                 </tr>
             </tbody>
         </table>
-       
+        
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -1649,7 +1649,6 @@ let publicPopupSelectedTickets = [];
 let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
-let nextManualCallNumber = null;
 let adminDisplayedSearchPhones = new Set();
 
 
@@ -3302,7 +3301,7 @@ function handlePosterBgUpload(event) {
 }
 
 function showPosterModal() {
-    const title = "STAR MANIPUR HOUSIE";
+    const title = "IMPHAL HOUSIE";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -3392,7 +3391,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "STAR MANIPUR HOUSIE Game!";
+        const websiteName = "IMPHAL HOUSIE Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -3701,7 +3700,7 @@ async function toggleGameRunner() {
     }
 }
 
-function setNextCallNumber() {
+async function setNextCallNumber() {
     const inputEl = document.getElementById('nextCallInp');
     const numberToSet = parseInt(inputEl.value, 10);
 
@@ -3714,57 +3713,76 @@ function setNextCallNumber() {
         showNotification(`Number ${numberToSet} has already been called.`, 'error');
         return;
     }
-    
-    nextManualCallNumber = numberToSet;
-    
-    inputEl.value = ''; 
+
+    try {
+        await db.ref('gameState/nextManualCall').set(numberToSet);
+        showNotification(`Next number is set to ${numberToSet}. It will be called on the next auto-call tick.`, 'success');
+        inputEl.value = '';
+    } catch (e) {
+        showNotification(`Error setting next number: ${e.message}`, 'error');
+    }
 }
 
 function callNextNumber() {
-    const gameStateRef = db.ref('gameState/currentState');
-    gameStateRef.transaction(gameState => {
-        if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
-        if (!gameState.isGameRunning) {
-            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            return;
+    const parentGameStateRef = db.ref('gameState');
+
+    parentGameStateRef.transaction(gameState => {
+        if (!gameState) {
+             return { 
+                currentState: { isGameRunning: false, calledNumbers: [], winners: {} },
+                nextManualCall: null 
+            };
+        }
+        
+        if (!gameState.currentState) {
+             gameState.currentState = { isGameRunning: false, calledNumbers: [], winners: {} };
         }
 
-        const called = gameState.calledNumbers || [];
-        const activeDividends = gameSettingsData.dividends || [];
-        const currentWinners = gameState.winners || {};
-        const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
+        const currentState = gameState.currentState;
 
-        if (called.length >= 90 || areAllDividendsClaimed) {
+        if (!currentState.isGameRunning) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            gameState.isGameRunning = false;
-            const reason = areAllDividendsClaimed ? "All dividends have been won!" : "All 90 numbers have been called!";
-            showNotification(`${reason} Game over.`, 'info');
-            triggerGlobalNotification(`${reason} The game has ended!`, 'info');
-            return gameState;
+            return; 
+        }
+
+        const called = currentState.calledNumbers || [];
+        const activeDividends = gameSettingsData.dividends || [];
+        const currentWinners = currentState.winners || {};
+        
+        const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
+        if (called.length >= 90 || areAllDividendsClaimed) {
+             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+             currentState.isGameRunning = false;
+             return gameState;
         }
 
         let newNumber;
         const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
         
-        if (nextManualCallNumber && availableNumbers.includes(nextManualCallNumber)) {
-            newNumber = nextManualCallNumber;
-            nextManualCallNumber = null;
+        const manualCallNumber = gameState.nextManualCall;
+
+        if (manualCallNumber && availableNumbers.includes(manualCallNumber)) {
+            newNumber = manualCallNumber;
+            gameState.nextManualCall = null; 
         } else {
+            if (gameState.nextManualCall) {
+                gameState.nextManualCall = null;
+            }
             if (availableNumbers.length === 0) {
                  if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                 gameState.isGameRunning = false;
+                 currentState.isGameRunning = false;
                  return gameState;
             }
             newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
         }
+        
+        currentState.calledNumbers = [...called, newNumber];
+        currentState.winners = checkAllWinners(currentState.calledNumbers, currentState.winners || {});
 
-        gameState.calledNumbers = [...called, newNumber];
-        gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
-
-        const newWinners = gameState.winners;
+        const newWinners = currentState.winners;
         const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
         if(nowAllDividendsClaimed){
-            gameState.isGameRunning = false;
+            currentState.isGameRunning = false;
         }
 
         return gameState;
@@ -3773,11 +3791,22 @@ function callNextNumber() {
             console.error("Game call transaction failed: ", error);
             showNotification('Game runner failed. Turning off.', 'error');
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            gameStateRef.child('isGameRunning').set(false);
-        } else if (committed && snapshot.exists() && !snapshot.val().isGameRunning) {
-             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-             showNotification("All dividends won! Game over.", 'info');
-             triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
+            db.ref('gameState/currentState/isGameRunning').set(false);
+        } else if (committed && snapshot.exists()) {
+            const finalState = snapshot.val().currentState;
+            if (!finalState.isGameRunning) {
+                if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+                const called = finalState.calledNumbers || [];
+                const winners = finalState.winners || {};
+                const activeDividends = gameSettingsData.dividends || [];
+                const areAllDividendsClaimed = activeDividends.every(div => winners[div.name]);
+                
+                if (called.length >= 90 || areAllDividendsClaimed) {
+                    const reason = areAllDividendsClaimed ? "All dividends have been won!" : "All 90 numbers have been called!";
+                    showNotification(`${reason} Game over.`, 'info');
+                    triggerGlobalNotification(`${reason} The game has ended!`, 'info');
+                }
+            }
         }
     });
 }
