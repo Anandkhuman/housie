@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SINTHA HOUSIE</title>
+    <title>STAR MANIPUR HOUSIE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +16,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></radialGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
+
 
 <style>
     :root {
@@ -48,14 +49,6 @@
         animation: pulse-highlight 1.5s infinite;
         border-color: #ff0000 !important;
     }
-    
-    @keyframes blink {
-        50% {
-            background: #fff;
-            color: #ff4d4d;
-            box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
-        }
-    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; outline: none; border: none; }
     ::-webkit-scrollbar { width: 4px; }
@@ -63,7 +56,7 @@
     ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
 
     body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, var(--font-family-neon);
         color: var(--text-primary);
         background-color: var(--bg-color);
         overflow-x: hidden;
@@ -477,7 +470,7 @@
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
-    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(0.9rem, 2.2vw, 1.2rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(1rem, 2.2vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -835,7 +828,7 @@
         z-index: 2;
     }
 
-       .poster-title {
+   .poster-title {
         font-size: 2em;
         text-transform: uppercase;
         font-weight: 700;
@@ -880,7 +873,7 @@
 
     .prize-column p {
         margin: 0.5rem 0;
-        font-size: 1.5em;
+        font-size: 1.2em;
     }
 
     #prize-amounts {
@@ -898,7 +891,6 @@
         display: inline-block;
         margin: 0;
     }
-
 
     .contact-section {
         margin-top: 0.5rem;
@@ -1014,49 +1006,98 @@
         border-width: 1px;
         line-height: 35px;
     }
-
-     .actionBtn1 {
-    background: var(--primary-bg-dash, #2c2c2c);
-    color: var(--light-text-dash, #fff);
-    border: 1px solid var(--muted-color-dash, #555);
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 0.85em;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    white-space: nowrap;
+    
+    /* --- Poster Maker Styles --- */
+    #poster-bg-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 8px;
+        margin-bottom: 1rem;
+        background-color: rgba(0, 0, 0, 0.25);
+        border-radius: 8px;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--secondary-bg-dash);
     }
 
-    /* Hover effect */
-    .actionBtn1:hover {
-        background: var(--accent-color-dash, #3a86ff);
-        color: #fff;
-        border-color: var(--accent-color-dash, #3a86ff);
-        transform: translateY(-1px);
+    #poster-bg-controls::-webkit-scrollbar {
+        height: 5px;
+    }
+    #poster-bg-controls::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #poster-bg-controls::-webkit-scrollbar-thumb {
+        background: var(--accent-color-dash);
+        border-radius: 5px;
+    }
+    #poster-bg-controls::-webkit-scrollbar-thumb:hover {
+        background: #1fe0b8;
     }
 
-    /* Active/selected BG highlight */
-    .actionBtn1.active {
-        background: var(--accent-color-dash, #3a86ff);
-        color: #fff;
-        border-color: var(--accent-color-dash, #3a86ff);
-        font-weight: bold;
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    #poster-bg-controls > .actionBtn,
+    #poster-bg-controls > span,
+    #poster-bg-controls > label.actionBtn {
+        flex-shrink: 0;
+        margin: 0 !important;
+        transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        padding: 6px 12px;
+        font-size: 0.85em;
+        height: auto;
+    }
+
+    #poster-bg-controls > span {
+        align-self: center;
+        font-weight: 600;
+        color: var(--light-text-dash);
+    }
+
+    #poster-bg-controls > .actionBtn:hover,
+    #poster-bg-controls > label.actionBtn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.2);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    }
+
+    #poster-bg-controls > .actionBtn.active {
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+        color: var(--text-dark);
+        font-weight: 700;
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 0 12px var(--accent-primary);
+        border-color: var(--light-text-dash);
     }
     
-    .game-running-warning {
-        font-weight: bold;
-        font-size: 14px;
-        display: inline-flex;
+    #poster-bg-controls label.actionBtn {
+        cursor: pointer;
+        display: flex;
         align-items: center;
+        gap: 5px;
+    }
+
+    .poster-actions {
+        display: flex;
+        justify-content: space-around;
         gap: 10px;
-        padding: 10px 16px;
-        border-radius: 6px;
-        background: #ff4d4d;
-        color: #fff;
-        box-shadow: 0 0 12px rgba(255, 77, 77, 0.8);
-        animation: blink 2s infinite;
-        margin: 1rem auto;
+        padding-top: 15px;
+        border-top: 1px solid var(--muted-color-dash);
+        margin-top: 15px;
+    }
+
+    .poster-actions .actionBtn {
+        flex-grow: 1;
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .poster-actions .actionBtn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.2);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 </style>
 </head>
@@ -1068,7 +1109,7 @@
     <header class="top-header">
         <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">SINTHA HOUSIE</h1>
+            <h1 class="webTitle">STAR MANIPUR HOUSIE</h1>
         </div>
     </header>
 
@@ -1131,7 +1172,7 @@
     <header class="top-header">
          <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">SINTHA HOUSIE</h1>
+            <h1 class="webTitle">STAR MANIPUR HOUSIE</h1>
         </div>
     </header>
 
@@ -1435,7 +1476,6 @@
             </tbody>
         </table>
        
-      
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -1461,7 +1501,7 @@
             </table>
         </section>
 
-	    <div class="game-running-warning"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div>
+	<div style="font-weight:bold;font-size:14px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
 
       </div>
 </div>
@@ -1478,46 +1518,47 @@
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" style="color: var(--light-text-dash);">Game Poster Generator</h3>
         
-        <div id="poster-bg-controls" 
-     style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; gap: 5px; padding-bottom: 5px;">
-    <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center; flex: 0 0 auto;">Change BG:</span>
-    
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
-   </div>
+        <div id="poster-bg-controls">
+            <span>Change BG:</span>
+            <label for="bg-upload" class="actionBtn">
+                <i class="fas fa-upload"></i> Upload
+            </label>
+            <input type="file" id="bg-upload" accept="image/*" style="display: none;">
+            
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
+        </div>
 
-    <input type="file" id="posterBgUploadInput" accept="image/*" style="display: none;" onchange="handlePosterImageUpload(event)">
-    <button class="actionBtn1" style="padding: 6px 10px; font-size: 0.9em; flex: 0 0 auto;" onclick="document.getElementById('posterBgUploadInput').click()" title="Upload custom background"><i class="fas fa-upload"></i> Upload</button>
 
         <div id="posterContent">
         </div>
 
-        <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
-            <button class="actionBtn1" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as Image</button>
-            <button class="actionBtn1" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
+        <div class="poster-actions">
+            <button class="actionBtn" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as File</button>
+            <button class="actionBtn" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
         </div>
     </div>
 </div>
@@ -1826,6 +1867,7 @@ function bindEventListeners() {
         document.getElementById('adminTicketDisplayArea').innerHTML = '';
         adminDisplayedSearchPhones.clear();
     });
+    document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
 }
 
 function showPopup(id) {
@@ -3226,52 +3268,41 @@ async function deleteUser(uid, name) {
     }
 }
 
-function handlePosterImageUpload(event) {
-    const fileInput = event.target;
-    if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+function changePosterBackground(buttonElement, source) {
+    const bgButtons = document.querySelectorAll('#poster-bg-controls .actionBtn');
+    bgButtons.forEach(btn => btn.classList.remove('active'));
 
-        if (!allowedTypes.includes(file.type)) {
-            showNotification('Please upload a valid image file (JPG, PNG, GIF, WEBP).', 'error');
-            fileInput.value = ''; // Reset the input
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            // e.target.result contains the Base64 data URL
-            const base64Image = e.target.result;
-            changePosterBackground(base64Image);
-        };
-
-        reader.onerror = function() {
-            showNotification('Failed to read the image file.', 'error');
-        };
-
-        reader.readAsDataURL(file);
+    if (buttonElement) {
+        buttonElement.classList.add('active');
     }
-}
-
-function changePosterBackground(source) {
+    
     const posterContent = document.getElementById('posterContent');
     if (posterContent) {
         let newImageUrl;
-        // Check for full URL or Base64 data URI
         if (source.startsWith('http') || source.startsWith('data:image')) {
             newImageUrl = source;
         } else {
-            // Fallback for keyword search on Unsplash
             newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
         }
         posterContent.style.backgroundImage = `url('${newImageUrl}')`;
-        showNotification('Poster background updated!', 'info', 2000);
+    }
+}
+
+function handlePosterBgUpload(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            changePosterBackground(null, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    } else if (file) {
+        showNotification('Please select a valid image file (e.g., JPG, PNG, GIF).', 'error');
     }
 }
 
 function showPosterModal() {
-    const title = "SINTHA HOUSIE";
+    const title = "STAR MANIPUR HOUSIE";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -3316,7 +3347,12 @@ function showPosterModal() {
 
     document.getElementById('posterContent').innerHTML = posterHTML;
     
-    changePosterBackground('party,confetti');
+    const firstBgButton = document.querySelector('#poster-bg-controls .actionBtn[onclick]');
+    if (firstBgButton) {
+      firstBgButton.click();
+    } else {
+      changePosterBackground(null, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg');
+    }
     
     showPopup('posterMakerPopup');
 }
@@ -3356,7 +3392,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "SINTHA HOUSIE GAME!";
+        const websiteName = "STAR MANIPUR HOUSIE Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -3659,7 +3695,7 @@ async function toggleGameRunner() {
         } else {
             await gameStateRef.child('isGameRunning').set(false);
         }
-        
+        showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
     } catch (e) {
         showNotification("Error starting/stopping game: " + e.message, 'error');
     }
@@ -3907,7 +3943,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
     return updatedWinners;
 }
 
-
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
     if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
@@ -3950,77 +3985,125 @@ async function generateHousieTickets(bypassConfirm = false) {
     }
 }
 
+// A helper for shuffling arrays using the Fisher-Yates algorithm.
+const shuffleArray = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+};
+
+/**
+ * Creates a complete, valid, non-repeating set of 6 Tambola tickets (a "full sheet").
+ * In a full sheet, every number from 1 to 90 appears exactly once.
+ * @returns {Array} An array of 6 tickets, where each ticket is a 3x9 grid of numbers.
+ */
 function createTambolaSetOf6() {
-    const shuffle = (arr) => {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    };
-    const colCounts = [
+    // These are standard distribution patterns for 6-ticket Tambola sheets.
+    // Each inner array represents one ticket.
+    // The values are the number of cells to be filled in each of the 9 columns (1-9, 10-19, ..., 80-90).
+    // The sum of each column across all 6 tickets equals the total numbers available in that column's range.
+    const columnCellCountsPerTicket = [
         [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2],
         [1, 1, 2, 2, 2, 1, 2, 3, 1], [2, 2, 1, 2, 1, 2, 1, 1, 3],
         [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
     ];
+
+    // Step 1: Create a binary layout (mask) for each of the 6 tickets.
+    // A '1' indicates a number will be placed, '0' is a blank space.
     const ticketLayouts = [];
-    for (let t = 0; t < 6; t++) {
+    for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
         const layout = Array(3).fill(0).map(() => Array(9).fill(0));
-        const ticketColCounts = colCounts[t];
-        for (let c = 0; c < 9; c++) {
-            const rowsToPlace = shuffle([0, 1, 2]).slice(0, ticketColCounts[c]);
-            for (const r of rowsToPlace) { layout[r][c] = 1; }
+        const ticketColumnCount = columnCellCountsPerTicket[ticketIndex];
+
+        // For each column, randomly place the required number of cells ('1's) into the 3 rows.
+        for (let colIndex = 0; colIndex < 9; colIndex++) {
+            const numCellsInCol = ticketColumnCount[colIndex];
+            const rowsToPlaceIn = shuffleArray([0, 1, 2]).slice(0, numCellsInCol);
+            for (const rowIndex of rowsToPlaceIn) {
+                layout[rowIndex][colIndex] = 1;
+            }
         }
+
+        // Step 2: Balance the layout to ensure each row has exactly 5 numbers.
+        // This loop swaps cells vertically within columns to fix the balance.
         let isBalanced = false;
         while (!isBalanced) {
-            const rowCounts = layout.map(row => row.reduce((a, b) => a + b, 0));
-            const overfullRows = rowCounts.map((c, i) => c > 5 ? i : -1).filter(i => i !== -1);
-            const underfullRows = rowCounts.map((c, i) => c < 5 ? i : -1).filter(i => i !== -1);
-            if (overfullRows.length === 0 && underfullRows.length === 0) { isBalanced = true; continue; }
-            const rOver = overfullRows[0], rUnder = underfullRows[0];
-            const swappableCols = [];
-            for (let c = 0; c < 9; c++) {
-                if (layout[rOver][c] === 1 && layout[rUnder][c] === 0) { swappableCols.push(c); }
+            const rowCounts = layout.map(row => row.reduce((sum, cell) => sum + cell, 0));
+            
+            if (rowCounts.every(count => count === 5)) {
+                isBalanced = true;
+                continue;
             }
+
+            const overfullRowIndex = rowCounts.findIndex(count => count > 5);
+            const underfullRowIndex = rowCounts.findIndex(count => count < 5);
+
+            const swappableCols = [];
+            for (let colIndex = 0; colIndex < 9; colIndex++) {
+                if (layout[overfullRowIndex][colIndex] === 1 && layout[underfullRowIndex][colIndex] === 0) {
+                    swappableCols.push(colIndex);
+                }
+            }
+
             if (swappableCols.length > 0) {
                 const colToSwap = swappableCols[Math.floor(Math.random() * swappableCols.length)];
-                layout[rOver][colToSwap] = 0;
-                layout[rUnder][colToSwap] = 1;
+                layout[overfullRowIndex][colToSwap] = 0;
+                layout[underfullRowIndex][colToSwap] = 1;
             }
         }
         ticketLayouts.push(layout);
     }
+
+    // Step 3: Create shuffled pools of numbers for each column.
+    // This ensures no number is repeated across the 6-ticket sheet.
     const numberPools = [
-        shuffle(Array.from({ length: 9 }, (_, i) => i + 1)),   shuffle(Array.from({ length: 10 }, (_, i) => i + 10)),
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 20)), shuffle(Array.from({ length: 10 }, (_, i) => i + 30)),
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 40)), shuffle(Array.from({ length: 10 }, (_, i) => i + 50)),
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 60)), shuffle(Array.from({ length: 10 }, (_, i) => i + 70)),
-        shuffle(Array.from({ length: 11 }, (_, i) => i + 80))
+        shuffleArray(Array.from({ length: 9 }, (_, i) => i + 1)),   // 1-9
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 10)), // 10-19
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 20)), // 20-29
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 30)), // 30-39
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 40)), // 40-49
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 50)), // 50-59
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 60)), // 60-69
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 70)), // 70-79
+        shuffleArray(Array.from({ length: 11 }, (_, i) => i + 80))  // 80-90
     ];
+
+    // Step 4: Populate the final tickets using the layouts and number pools.
     const finalTickets = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
-    for (let c = 0; c < 9; c++) {
-        for (let t = 0; t < 6; t++) {
-            for (let r = 0; r < 3; r++) {
-                if (ticketLayouts[t][r][c] === 1) { finalTickets[t][r][c] = numberPools[c].pop(); }
+    for (let colIndex = 0; colIndex < 9; colIndex++) {
+        for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (ticketLayouts[ticketIndex][rowIndex][colIndex] === 1) {
+                    finalTickets[ticketIndex][rowIndex][colIndex] = numberPools[colIndex].pop();
+                }
             }
         }
     }
-    for (let t = 0; t < 6; t++) {
-        for (let c = 0; c < 9; c++) {
-            const colValues = [];
-            for (let r = 0; r < 3; r++) {
-                if (finalTickets[t][r][c] !== 0) { colValues.push(finalTickets[t][r][c]); }
+
+    // Step 5: Sort the numbers within each column of each ticket (standard Tambola format).
+    for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+        for (let colIndex = 0; colIndex < 9; colIndex++) {
+            const columnValues = [];
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
+                    columnValues.push(finalTickets[ticketIndex][rowIndex][colIndex]);
+                }
             }
-            colValues.sort((a, b) => a - b);
+            columnValues.sort((a, b) => a - b);
+            
             let valueIndex = 0;
-            for (let r = 0; r < 3; r++) {
-                if (finalTickets[t][r][c] !== 0) { finalTickets[t][r][c] = colValues[valueIndex++]; }
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
+                    finalTickets[ticketIndex][rowIndex][colIndex] = columnValues[valueIndex++];
+                }
             }
         }
     }
+
     return finalTickets;
 }
-
 
 function createListPDF(title, headers, dataRows, filename) {
     const { jsPDF } = window.jspdf;
@@ -4110,6 +4193,41 @@ function downloadCurrentSoldTickets() {
         dataRows,
         'Current-Sold-Tickets.pdf'
     );
+}
+
+async function downloadTicketAsPDF(ticketId) {
+    const { jsPDF } = window.jspdf;
+    const ticketData = allTicketsData.find(t => t.id === ticketId);
+    if (!ticketData) return showNotification('Ticket data not found.', 'error');
+
+    const doc = new jsPDF();
+    const cellWidth = 20;
+    const cellHeight = 15;
+    const startX = 15;
+    const startY = 20;
+
+    doc.setFontSize(16);
+    doc.text(`Housie Ticket #${ticketData.id}`, startX, startY);
+    if(ticketData.is_sold){
+        doc.setFontSize(10);
+        doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
+    }
+
+    doc.setFontSize(14);
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 9; col++) {
+            const x = startX + col * cellWidth;
+            const y = startY + 15 + row * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+            const num = ticketData.numbers[row][col];
+            if (num > 0) {
+                doc.text(String(num), x + cellWidth / 2, y + cellHeight / 2, { align: 'center', baseline: 'middle' });
+            }
+        }
+    }
+
+    doc.save(`Housie-Ticket-${ticketId}.pdf`);
+    showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
 }
 
 async function downloadWinnersPDF() {
@@ -4262,12 +4380,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	<script>
 (function(){
-    document.addEventListener('contextmenu',function(e){e.preventDefault();});
-    document.addEventListener('keydown',function(e){
-        if(e.key==='F12'){e.preventDefault();}
-        if((e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key.toUpperCase()))||
-           (e.ctrlKey&&['U','S'].includes(e.key.toUpperCase()))){
-            e.preventDefault();
+    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
+    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
+    document['addEventListener']('keydown',function(_0x2){
+        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
+        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
+           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
+            _0x2['preventDefault']();
         }
     });
 })();
