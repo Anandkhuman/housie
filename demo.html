@@ -1475,7 +1475,17 @@
                 </tr>
             </tbody>
         </table>
-        
+            <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+            <tbody>
+                <tr>
+                    <td>NEXT CALL NUMBER</td>
+                    <td style="display: flex; gap: 5px;">
+                        <input type="number" class="tableInp" id="nextCallInp" placeholder="Num" style="flex-grow: 1;">
+                        <button class="actionBtn" onclick="setNextCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">SET</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -1649,6 +1659,7 @@ let publicPopupSelectedTickets = [];
 let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
+// REMOVED: let nextManualCallNumber = null;
 let adminDisplayedSearchPhones = new Set();
 
 
@@ -3713,76 +3724,69 @@ async function setNextCallNumber() {
         showNotification(`Number ${numberToSet} has already been called.`, 'error');
         return;
     }
-
+    
     try {
-        await db.ref('gameState/nextManualCall').set(numberToSet);
-        showNotification(`Next number is set to ${numberToSet}. It will be called on the next auto-call tick.`, 'success');
+        // Write the intended number to the shared game state in Firebase.
+        await db.ref('gameState/currentState/nextManualCall').set(numberToSet);
+        showNotification(`Next number is set to ${numberToSet}. It will be called on the next interval.`, 'success');
         inputEl.value = '';
-    } catch (e) {
-        showNotification(`Error setting next number: ${e.message}`, 'error');
+    } catch (error) {
+        showNotification(`Error setting next number: ${error.message}`, 'error');
+        console.error("Error in setNextCallNumber:", error);
     }
 }
 
 function callNextNumber() {
-    const parentGameStateRef = db.ref('gameState');
-
-    parentGameStateRef.transaction(gameState => {
-        if (!gameState) {
-             return { 
-                currentState: { isGameRunning: false, calledNumbers: [], winners: {} },
-                nextManualCall: null 
-            };
-        }
-        
-        if (!gameState.currentState) {
-             gameState.currentState = { isGameRunning: false, calledNumbers: [], winners: {} };
-        }
-
-        const currentState = gameState.currentState;
-
-        if (!currentState.isGameRunning) {
+    const gameStateRef = db.ref('gameState/currentState');
+    gameStateRef.transaction(gameState => {
+        if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
+        if (!gameState.isGameRunning) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            return; 
+            return; // Abort transaction, no changes needed.
         }
 
-        const called = currentState.calledNumbers || [];
+        const called = gameState.calledNumbers || [];
         const activeDividends = gameSettingsData.dividends || [];
-        const currentWinners = currentState.winners || {};
-        
+        const currentWinners = gameState.winners || {};
         const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
+
         if (called.length >= 90 || areAllDividendsClaimed) {
-             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-             currentState.isGameRunning = false;
-             return gameState;
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameState.isGameRunning = false;
+            return gameState;
         }
 
         let newNumber;
         const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
         
-        const manualCallNumber = gameState.nextManualCall;
-
-        if (manualCallNumber && availableNumbers.includes(manualCallNumber)) {
-            newNumber = manualCallNumber;
-            gameState.nextManualCall = null; 
+        const manualCallNum = gameState.nextManualCall;
+        
+        if (manualCallNum && availableNumbers.includes(manualCallNum)) {
+            newNumber = manualCallNum;
+            // IMPORTANT: Consume the manual number by deleting it from the state.
+            delete gameState.nextManualCall; 
         } else {
+            // If a manual number was set but is invalid (e.g., already called), clear it.
             if (gameState.nextManualCall) {
-                gameState.nextManualCall = null;
+                delete gameState.nextManualCall;
             }
             if (availableNumbers.length === 0) {
                  if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                 currentState.isGameRunning = false;
+                 gameState.isGameRunning = false;
                  return gameState;
             }
+            // Fallback to random number generation.
             newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
         }
-        
-        currentState.calledNumbers = [...called, newNumber];
-        currentState.winners = checkAllWinners(currentState.calledNumbers, currentState.winners || {});
 
-        const newWinners = currentState.winners;
+        gameState.calledNumbers = [...called, newNumber];
+        gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
+
+        const newWinners = gameState.winners;
+        // Check if the new winner claims the last prize
         const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
         if(nowAllDividendsClaimed){
-            currentState.isGameRunning = false;
+            gameState.isGameRunning = false;
         }
 
         return gameState;
@@ -3791,25 +3795,27 @@ function callNextNumber() {
             console.error("Game call transaction failed: ", error);
             showNotification('Game runner failed. Turning off.', 'error');
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            db.ref('gameState/currentState/isGameRunning').set(false);
+            gameStateRef.child('isGameRunning').set(false);
         } else if (committed && snapshot.exists()) {
-            const finalState = snapshot.val().currentState;
+             const finalState = snapshot.val();
+            // Check why the game stopped and notify accordingly
             if (!finalState.isGameRunning) {
                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                const called = finalState.calledNumbers || [];
-                const winners = finalState.winners || {};
                 const activeDividends = gameSettingsData.dividends || [];
-                const areAllDividendsClaimed = activeDividends.every(div => winners[div.name]);
-                
-                if (called.length >= 90 || areAllDividendsClaimed) {
-                    const reason = areAllDividendsClaimed ? "All dividends have been won!" : "All 90 numbers have been called!";
-                    showNotification(`${reason} Game over.`, 'info');
-                    triggerGlobalNotification(`${reason} The game has ended!`, 'info');
+                const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
+
+                if (allClaimed) {
+                    showNotification("All dividends won! Game over.", 'info');
+                    triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
+                } else if (finalState.calledNumbers?.length >= 90) {
+                    showNotification("All 90 numbers called! Game over.", 'info');
+                    triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
                 }
             }
         }
     });
 }
+
 
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
