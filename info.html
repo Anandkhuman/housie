@@ -525,10 +525,6 @@
     
     function checkAndRender() { if (Object.values(isDataReady).every(Boolean)) populateAssignmentLists(); }
 
-    function populateAssignmentLists() {
-        // ... (function logic unchanged, left out for brevity)
-    }
-
     document.getElementById('calc-settlement-btn').addEventListener('click', () => {
         const ticketPrice = gameSettings.ticketPrice || 0;
         const commissionRate = gameSettings.agentCommission || 0;
@@ -662,10 +658,10 @@
         document.getElementById('back-to-calc-btn').addEventListener('click', () => { 
             resultsView.style.display = 'none'; 
             calcView.style.display = 'block'; 
-            historyView.style.display = 'block'; // MODIFIED: Show history view again
+            historyView.style.display = 'block';
         });
         calcView.style.display = 'none';
-        historyView.style.display = 'none'; // MODIFIED: Hide history view when showing results
+        historyView.style.display = 'none';
         resultsView.style.display = 'block';
         window.scrollTo(0, 0);
     }
@@ -679,7 +675,6 @@
             historyList.innerHTML = sortedKeys.map(key => {
                 const entry = calculationHistory[key];
                 const date = new Date(entry.timestamp).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
-                // MODIFIED: Added data-key to the main item div to make it clickable
                 return `<div class="history-item" data-key="${key}">
                             <div class="history-info">
                                 <div class="date">${date}</div>
@@ -693,11 +688,10 @@
         }
     }
 
-    // MODIFIED: Replaced individual listeners with a single, more efficient event delegate
     document.getElementById('history-list').addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.delete-history-btn');
         if (deleteBtn) {
-            e.stopPropagation(); // Prevent the main item click from firing
+            e.stopPropagation(); 
             const key = deleteBtn.dataset.key;
             if (confirm('Are you sure you want to delete this history entry?')) {
                 db.ref('calculationHistory/' + key).remove();
@@ -710,7 +704,6 @@
             const key = historyItem.dataset.key;
             const entry = calculationHistory[key];
             if (entry && entry.results) {
-                // Call renderResults with the data from the clicked history item
                 renderResults(entry.results.summary, entry.results.admins, entry.results.agents);
             }
         }
@@ -722,18 +715,38 @@
         }
     });
 
-    // Initial population of assignment lists
+    // --- START OF IMPLEMENTED FIX ---
+    // This is the updated function that fixes the issue.
     function populateAssignmentLists() {
         const admins = allUsers.filter(u => u.role === 'admin');
         const agents = allUsers.filter(u => u.role === 'agent');
         const agentListContainer = document.getElementById('agent-assignment-list');
         const winnerListContainer = document.getElementById('winner-assignment-list');
-        agentListContainer.innerHTML = ''; winnerListContainer.innerHTML = '';
+
+        agentListContainer.innerHTML = '';
+        winnerListContainer.innerHTML = '';
+
         if (admins.length === 0) return;
+
         const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
-        agentListContainer.innerHTML = agents.map(agent => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox agent-checkbox" data-agent-uid="${agent.uid}" checked><div class="details"><span class="name">${agent.name}</span></div></div><select class="admin-selector" data-agent-uid="${agent.uid}">${adminOptionsHtml}</select></div>`).join('');
+
+        // 1. Create Agent List HTML
+        agentListContainer.innerHTML = agents.map(agent => `
+            <div class="assignment-item">
+                <div class="toggle-group">
+                    <input type="checkbox" class="include-checkbox agent-checkbox" data-agent-uid="${agent.uid}" checked>
+                    <div class="details">
+                        <span class="name">${agent.name}</span>
+                    </div>
+                </div>
+                <select class="admin-selector">${adminOptionsHtml}</select>
+            </div>
+        `).join('');
+
+        // 2. Create Winner List HTML
         const allWinners = [];
         const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
+
         dividendOrder.forEach(dividendName => {
             if (gameWinners[dividendName]) {
                 const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
@@ -742,26 +755,60 @@
                         const winnerPrize = prizeInfo.amount / gameWinners[dividendName].length;
                         if (typeof winner.ticketId === 'number') {
                             const ticket = allTickets.find(t => t.id === winner.ticketId);
-                            if (ticket) { allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: winnerPrize }); }
-                        } else if (typeof winner.ticketId === 'string') {
-                            allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name }, prizeName: dividendName, prizeAmount: winnerPrize });
+                            if (ticket) {
+                                allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: winnerPrize });
+                            }
+                        } else if (typeof winner.ticketId === 'string') { // For manual prizes
+                            allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name, agent_uid: null }, prizeName: dividendName, prizeAmount: winnerPrize });
                         }
                     });
                 }
             }
         });
-        winnerListContainer.innerHTML = allWinners.map(winner => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox prize-checkbox" data-prize-amount="${winner.prizeAmount}" data-ticket-id="${winner.ticketId}" checked><div class="details"><span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span><span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString('en-IN')}</span></div></div><select class="admin-selector">${adminOptionsHtml}</select></div>`).join('');
-        document.querySelectorAll('.include-checkbox').forEach(cb => cb.addEventListener('change', e => e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked)));
-        document.querySelectorAll('.agent-checkbox').forEach(agentCb => agentCb.addEventListener('change', e => {
-            const agentUid = e.target.dataset.agentUid;
-            const isChecked = e.target.checked;
-            const ticketIdsSoldByAgent = allTickets.filter(t => t.agent_uid === agentUid).map(t => t.id);
-            document.querySelectorAll('.prize-checkbox').forEach(prizeCb => {
-                const prizeTicketId = parseInt(prizeCb.dataset.ticketId, 10);
-                if (!isNaN(prizeTicketId) && ticketIdsSoldByAgent.includes(prizeTicketId)) { prizeCb.checked = isChecked; prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked); }
+        
+        // Add `data-agent-uid` to each prize checkbox to link it to the agent who sold it
+        winnerListContainer.innerHTML = allWinners.map(winner => `
+            <div class="assignment-item">
+                <div class="toggle-group">
+                    <input type="checkbox" class="include-checkbox prize-checkbox" 
+                           data-prize-amount="${winner.prizeAmount}" 
+                           data-ticket-id="${winner.ticket.id}" 
+                           data-agent-uid="${winner.ticket.agent_uid || ''}" checked>
+                    <div class="details">
+                        <span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span>
+                        <span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString('en-IN')}</span>
+                    </div>
+                </div>
+                <select class="admin-selector">${adminOptionsHtml}</select>
+            </div>
+        `).join('');
+
+        // 3. Add Event Listeners to make everything work
+
+        // General listener to add/remove the 'excluded' class for visual feedback
+        document.querySelectorAll('.include-checkbox').forEach(cb => {
+            cb.addEventListener('change', e => {
+                e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked);
             });
-        }));
+        });
+
+        // The MAIN FIX: Add a listener to each agent checkbox
+        document.querySelectorAll('.agent-checkbox').forEach(agentCb => {
+            agentCb.addEventListener('change', e => {
+                const agentUid = e.target.dataset.agentUid;
+                const isChecked = e.target.checked;
+
+                // Now, find all prize checkboxes that belong to this agent
+                document.querySelectorAll(`.prize-checkbox[data-agent-uid="${agentUid}"]`).forEach(prizeCb => {
+                    // And update their checked status to match the agent's checkbox
+                    prizeCb.checked = isChecked;
+                    // Also update the visual style (line-through)
+                    prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked);
+                });
+            });
+        });
     }
+    // --- END OF IMPLEMENTED FIX ---
 
 </script>
 </body>
