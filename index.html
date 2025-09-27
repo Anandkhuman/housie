@@ -1902,7 +1902,7 @@ function showAgentListPopup() {
     const container = document.getElementById('agentListContainer');
     container.innerHTML = '';
 
-    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent');
+    const agents = allUsersData     .filter(u => u.role === 'admin' || u.role === 'agent')     .sort((a, b) => {         if (a.role === 'admin' && b.role !== 'admin') return -1;         if (a.role !== 'admin' && b.role === 'admin') return 1;         return (a.name || '').localeCompare(b.name || '');     });
     if (agents.length > 0) {
         agents.forEach(agent => {
             const phone = agent.phone.replace(/\D/g, '');
@@ -2340,7 +2340,7 @@ function handlePublicBookingRequest() {
 function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     const container = document.getElementById('bookingAgentListContainer');
     container.innerHTML = '';
-    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent');
+    const agents = allUsersData     .filter(u => u.role === 'admin' || u.role === 'agent')     .sort((a, b) => {         if (a.role === 'admin' && b.role !== 'admin') return -1;         if (a.role !== 'admin' && b.role === 'admin') return 1;         return (a.name || '').localeCompare(b.name || '');     });
     if (agents.length > 0) {
         agents.forEach(agent => {
             const link = document.createElement('a');
@@ -4429,3 +4429,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
