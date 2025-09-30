@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ema Panthoibi Eratpa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- CHANGE #1: Included Three.js library for the background animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0c0c1e;
+            --primary-text-color: #e0e0e0; /* Base white text color */
+            --heading-color: #ffd700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Noto Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* CHANGE #2: Added styles for the new background canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Place it in the background */
+        }
+
+        /* --- Start Screen --- */
+        #start-screen {
+            position: fixed; inset: 0; display: flex; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; cursor: pointer;
+            background: radial-gradient(circle, #2a2a4e, var(--bg-color));
+            z-index: 100; opacity: 1; transition: opacity 1.5s ease-out;
+        }
+        .start-text { animation: fadeIn 2s ease-in-out; }
+        .start-text h1 { font-size: 7vw; color: var(--heading-color); margin-bottom: 20px; }
+        .start-text p { font-size: 4vw; color: #ccc; animation: pulse 2.5s infinite; }
+
+        /* --- Main App Container --- */
+        #app-container {
+            position: relative; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in;
+            padding-top: 2vh; 
+            z-index: 2; /* Ensure content is above the canvas */
+        }
+        #app-container.visible { opacity: 1; }
+        
+        /* FADE-OUT GRADIENT EFFECT */
+        #app-container::before, #app-container::after {
+            content: ''; position: absolute; left: 0; right: 0; z-index: 3; pointer-events: none; height: 15vh;
+        }
+        #app-container::before { top: 0; background: linear-gradient(to bottom, var(--bg-color) 0%, rgba(12, 12, 30, 0) 100%); }
+        #app-container::after { bottom: 0; background: linear-gradient(to top, var(--bg-color) 0%, rgba(12, 12, 30, 0) 100%); }
+
+        /* --- PARAGRAPH-WISE DISPLAY --- */
+        #scroll-container {
+            position: absolute; inset: 0; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            padding: 0 5%;
+            gap: 4vh; /* CHANGE #3: Increased gap between image and text */
+        }
+
+        .top-image {
+            max-height: 35vh; /* CHANGE #4: Increased image size */
+            max-width: 90%;   
+            object-fit: contain; 
+            border-radius: 8px;  
+        }
+        
+        .scroll-text {
+            max-width: 700px; width: 100%; text-align: center; position: relative;
+            height: 40vh; /* CHANGE #5: Adjusted text area height to fit layout */
+        }
+        
+        .scroll-text > * {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; opacity: 0; transition: opacity 1.2s ease-in-out;
+            line-height: 1.8; font-size: 1.2rem;
+        }
+        .scroll-text > *.visible { opacity: 1; }
+
+        .scroll-text h1, .scroll-text h2 { color: var(--heading-color); }
+        .scroll-text h1 { font-size: 1.8rem; }
+        .scroll-text h2 { font-size: 1.4rem; font-weight: normal; }
+        .scroll-text p, .scroll-text ol { margin-bottom: 1.2rem; }
+        .scroll-text ol { padding-left: 30px; text-align: left; }
+        .scroll-text .note { font-style: italic; color: #aaa; }
+        .scroll-text .signature { font-size: 1.6rem; font-weight: bold; margin-top: 2rem; }
+        .scroll-text .credit { font-size: 0.9rem; line-height: 1.5; color: #ccc; margin-top: 3rem; }
+        
+        /* --- Keyframe Animations --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } }
+        
+        /* --- DESKTOP & TABLET ADAPTATION --- */
+        @media (min-width: 768px) {
+            .start-text h1 { font-size: 3rem; }
+            .start-text p { font-size: 1.2rem; }
+            #app-container::before, #app-container::after { height: 25vh; }
+            .scroll-text > * { font-size: 1.5rem; }
+            .top-image { max-height: 40vh; } /* CHANGE #6: Adjusted image size for larger screens */
+            .scroll-text { height: 38vh; } /* CHANGE #7: Adjusted text area for larger screens */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CHANGE #8: Added canvas element for Three.js animation -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="start-screen">
+        <div class="start-text">
+            <h1>পানথোইবী ইমাগী থৌগ্ললোন ইশৈ</h1>
+            <p>Tap anywhere to begin</p>
+        </div>
+    </div>
+
+    <main id="app-container">
+        <div id="scroll-container">
+            <img src="https://raw.githubusercontent.com/Anandkhuman/housie/main/Panthoibi.png" alt="Ema Panthoibi" class="top-image">
+            
+            <div class="scroll-text">
+               
+                <h2>**** EMA PANTHOIBI ERATPA ***</h2>
+                <p class="note">(Ema Panthoibi eratpa asi Mera thagi nongma panba chaoren houba numittagi pangthoknei. Mapung oiba wari makhada thamjari.)</p>
+                <p>Atiya Sidaba amadi Sidabi anina kuina macha uba fangdana leirambadagi Tengpalba mapuda nijaduna macha nupi ama fangjakhi. Laiyamsing harao mathoi kakhi, Nauwa adugi ming "Panthoibi" haina thonkhi.</p>
+                <p>Tengpalba mapuna Malem asi semba loiraduna achat chatta lengli panliba khibikki mama oina naokonbinaba amadi sennabinaba "Panthoibi" bu Malem da tharage ningduna Koubru gi manakta tharammi.</p>
+                <p>"Panthoibi Ema" gi mingkhei asi 118 sui adubu maru oiba maming 3 khak pijari.</p>
+                <ol>
+                    <li>Pamba keiren tongbi, wangam keiren fabi.</li>
+                    <li>Chinga chingda langthakpi, Pishum chingda sathoubi.</li>
+                    <li>Parei wasak chetpi, silam khangna singumbi.</li>
+                </ol>
+                <p>Langba chaki matamni Tengpalba mapuna Nongmai ningthou amasung Nongmairenbi anibu saion touduna puthokkhi. Makhoi anina matam kuina macha uba fanglamde.</p> 
+                <p>Tengpalba mapuda nijaduna nauwa nupimacha amagi thoujal fangjakhi adubu macha fangjou haiba nongdambana tamlamde. Maram asi leibana mapuna wakhal nungaitana koina sum leiduna yenglakpada Koubru gi masaigonda Panthoibibu urammi.</p>
+                <p>Tengpalba mapuna pambei leire khanduna Panthoibi bu kourakkhi. Nongmai ningthouna kuina macha leitaduna nijaba amadi nongdamba na macha fangjou tamlamdaba awaba maram pumba Panthoibida liraba matungda Nongmai ningthou gi macha oina saion tounaba paotak pirakkhi.</p>
+                <p>Mapugi paotak adu hiktokpa yadaba maramna Panthoibi na khunu kharang onduna ahing ama Nongmai ningthou gi konthongda pairakle aduga nauwa nupimacha amagi saktam louduna mamai nongpok onduna makhongna nongchup onduna hiplaga makhol houna kappa hourakle.</p>
+                <p>Nauwa aduna kappa makhol tabadagi Nongmairenbina yumgi mapanda thoraktuna yenglammi. Nauwa angang ama konthong mayada kaptuna leiba urammi. Thuna chattuna nauwa adu konkhatlaga imungda purakle.</p> 
+                <p>Nongmai ningthou da angakpa pao asi tamlammi madudi Sidaba mapuna chanbiduna nauwa nupimacha ama eikhoigi echa oina pibire hairammi. Madu tabada Nongmai ningthou adu haraobagi ngamkhei leiramde.</p>
+                <p>Matamgi matung inna thuna mapung marei faduna masak yamna fajabi leisa ama oire.</p>
+                <p>Nongma numit amada Lainingthou khana chaoba Wangbren gi macha Khaba Louthiba na matam kuirabagi tungda magi marup Nongmai ningthoubu unaba laklammi. Makhoi anina kuina unnadraba tungda unnaba aduda yamna haraona wari watai sarammi.</p>
+                <p>Matam aduda Panthoibi na chanaba chinnaba hei lei puraklammi. Khaba Louthibana masak fajakhraba Panthoibi bu ubada pamjaduna macha nupa Khaba Sakchoppa ki nupi oirage khalammi. Maram aduna marup anina macha singgi luhongbagi wafam yanarammi.</p>
+                <p>Adubu wafam adu Panthoibina yaningde. Maramdi Langon amada mahak amadi "Nongpok Apanba" ga thungnasi hainakhiba leikhi. Maram asina Luhongba asi thugainaba thourang toukhi. Panthoibina haikhi kharam lamdagi na Nongmai faobagi lambi asi Sana amadi Lupana semlabadi luhongba asi yage.</p>
+                <p>Adubu aruba thabak asi Khaba Louthibana laina pangthoktuna Luhongbagi laida katnaba pot chei suna puduna laiyamsingga loinana Panthoibigi yumda laklammi.</p>
+                <p>Khaba Louthibana luhongbagi laida katnaba pot chei suna puduna Panthoibigi yumda laiyamsingga loinana luhongba laklaba tungda. Panthoibina pambei leitraduna luhongba adu saruk yakhi adubu Sakchoppa gi ngaksamda lei huku haiba yaramde.</p>
+                <p>Panthoibina laiyam singgi mamangda haikhi madudi numit 5 ni subada eina khabada lei hukchage. Hainakhiba adugi matung inna Panthoibina khaba gi thongganda khangpok ama saduna numit 5 ni leikhi. Adubu mahak chadaba tumdaba maramna kanna nakhi.</p>
+                <p>Numit 4 ni subada mayamna maiba yengbagi wafam hainarammi. Matang aduda Panthoibina maiba aheiba "Nongpok Apanba" kouba leibani aduda yenghansi haikhi. Maiba adu kouduna yengba houkhi.</p>
+                <p>Langon amada makhoi ani thungnasi haina wasaknakhiba adugi matung inna makhoi anina khabagi thonggandagi lounam touduna chenkhre. Makhoi ani chenkhre haiba khangbadagi khabana fanaba tannarakle. Makhoi anina "Saji Sangai" onduna chingda chenkhatkhre.</p>
+                <p>Matam aduda khabana kei onduna tannarakle. Adu khangduna makhoi anina mee amuk onduna "Leirongthen khul" da kumtharakle aduga haonubi haonuba oiduna lou sing uduna cheihi kaya lottuna leire.</p>
+                <p>Khabana yamna kanna thibadagi kuina leithaba yadaduna makhoi anina "khunu kharang" onduna paikhre. Matam aduda khabana "Langja" onduna tannare. Khunu kharang oibanina kuina paiba ngamdaduna uchek yamna taba mafam amada paitharakle aduga ahing lenle.</p>
+                <p>Makhoina ahing lenlamba mafam adu "Uchekon" haina koukhre. Nong nganlaga San (cow) onduna amuk lotle. Mafam adubu "Santhok" haina koukhre. Santhok ta aroiba oina lotlaba tungda "Nongpok Apanba" amadi "Panthoibi" gi asengba saktam oina chongthoktuna mana yamna punglaba upambi amagi makhada pothaduna lotle.</p>
+                <p>Matam aduda Panthoibi na pambi adugi mana ama thatlaga chabada yamna khaba faorammi. Upambi adubu "Nongmangkha" haina thonkhi.</p>
+                <p>Pothariba matam aduda khabana timen ta ama paiduna mafam aduda thunglare. Madu ubada Panthoibi na yamna saona haikhi nakhoi nupa masen chainaduna panggal changyeng tounaro haikhi. Achouba upambi amagi mathakta kaduna yengkhi.</p>
+                <p>Chainaba aduda Nongpok Apanbana khara lakchaduna khaba gi thabakta tana thinge touba matam aduda upambi adudagi kumtharaktuna Panthoibi na makhoi anibu khamdokkhi.</p>
+                <p>Asumna Panthoibi na khabagi mathawai kankhi aduga hairammi yumda chattuna nahakki namada eibu mou oina lousankhidra hangnaba haikhi. Khabana yumda laktuna mamada Panthoibi bu lousannaba haijakhi adubu mama "Lounganbi" na yakhide.</p>
+                <p>Maramdi mana khange madudi Nongpok Apanba amadi Panthoibi ani asi matik mayai chenba Lairemba amadi Lairembi ngaktani. Makhoi anina thungnasi haina wasaknakhiba adu Laiyamsingna loina khanghoue.</p>
+                <p>Panthoibi asi malem asida leiriba achat chatta lengli palliba pumnamakki mamani. Mahakti pumnamakpu naokonbiba macha oina sennabiba athoiba lairembini. Mahak leitrabadi malem asida thawai panba amatta hingduna leiba ngamloi. Malem asida mana touningba saion kaya touduna leibi yamna matik mayai chenbi Lairembini.</p>
+                <p>Khabagi mama Lounganbi na khabada Panthoibi gi mafamda chattuna soikhiba kaya ngakpinaba haijaru takpikhi. Adubu khabana thibada fangkhide. Mamana takpikhiba Panthoibi gi mingkhei 118 adu kouduna thiba hourakhi. Matam aduda Panthoibi na khabagi mamangda chongthoklammi aduga khabada magi apamba ninaba haikhi.</p>
+                <p>Khabana Panthoibigi Sham mana ama, amadi charei, innafi, khwangset ki langla amamam pibiyu haina nijarammi. Panthoibi na khabana pamba pot suna pibire aduga potsing asina kari tougadouribano hangkhi.</p>
+                <p>Maduda khabana khumjakhi madudi Lairembi nahakki setna chanaba firolsing asi Kangleipak asida leiriba meeyam amadi laiyam singna erat thouni toujagani.</p>
+                <p>Maram aduna malem asida cheihi khudinggi Mera gi nongma panba numitta kumthabirakou haijakhi. Waram asi leibana Ema Panthoibi na cheihi khudinggi Mera gi nongma panba numitta kumthabiraktuna meeyamna erat thouni toujaba fangjari.</p>
+                <p class="signature">Yaiphare</p>
+                <hr>
+                <p class="credit">From:- (Camp Bengalore)<br>Keisham Lokeshwar (Chinglen)<br>Sr. Manager (Retd), PNB</p>
+                <p class="signature">Yaiphare</p>
+            </div>
+        </div>
+    </main>
+    
+    <audio id="bg-music" loop preload="auto" playsinline src="https://raw.githubusercontent.com/Anandkhuman/Audio/main/_Panthoibi_Ema_gi_Thaugatlon__tcO-lN7rOjM_140.mp3"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startScreen = document.getElementById('start-screen');
+            const appContainer = document.getElementById('app-container');
+            const textContent = document.querySelector('.scroll-text');
+            const backgroundMusic = document.getElementById('bg-music');
+            let hasStarted = false;
+
+            const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            async function showLyricsSequentially() {
+                const blocks = Array.from(textContent.children);
+                // Create an infinite loop for the text
+                while(true) {
+                    for (const block of blocks) {
+                        if (block.textContent.trim() === '') continue;
+                        const wordsPerMinute = 120; 
+                        const words = block.textContent.trim().split(/\s+/).length;
+                        let readingTime = (words / wordsPerMinute) * 60 * 1000;
+                        if (readingTime < 3000) readingTime = 3000;
+                        
+                        block.classList.add('visible');
+                        await wait(readingTime + 1500); 
+                        block.classList.remove('visible');
+                        await wait(1200);
+                    }
+                }
+            }
+
+            function startExperience() {
+                if (hasStarted) return;
+                hasStarted = true;
+
+                const playPromise = backgroundMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        backgroundMusic.volume = 0.5;
+                    }).catch(error => {
+                        console.error("Audio playback was prevented by the browser:", error);
+                    });
+                }
+                
+                startScreen.style.opacity = '0';
+                setTimeout(() => { startScreen.style.display = 'none'; }, 1500);
+
+                appContainer.classList.add('visible');
+                
+                showLyricsSequentially();
+            }
+
+            startScreen.addEventListener('click', startExperience, { once: true });
+            startScreen.addEventListener('touchend', startExperience, { once: true });
+        });
+    </script>
+    
+    <!-- CHANGE #9: Added new script for the Three.js background animation -->
+    <script>
+        // 1. Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#bg-canvas'),
+        });
+
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.z = 50;
+
+        // 2. Create Particles
+        const particleCount = 8000;
+        const vertices = [];
+        for (let i = 0; i < particleCount; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 1500;
+            vertices.push(x, y, z);
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+        const material = new THREE.PointsMaterial({
+            color: 0xffd700, // Gold color matching the heading
+            size: 1.2,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.75,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        // 3. Mouse Interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        });
+
+        // 4. Animation Loop
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Slow constant rotation
+            particles.rotation.y = elapsedTime * 0.03;
+            particles.rotation.x = elapsedTime * 0.01;
+
+            // Subtle parallax effect based on mouse position
+            // Dividing by a larger number makes the effect more subtle
+            camera.position.x += ( (mouseX - window.innerWidth / 2) / 5000 - camera.position.x ) * 0.05;
+            camera.position.y += ( -(mouseY - window.innerHeight / 2) / 5000 - camera.position.y ) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 5. Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+        });
+    </script>
+
+</body>
+</html>
