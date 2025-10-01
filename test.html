@@ -1130,6 +1130,51 @@
         filter: brightness(1.2);
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
+
+    /* --- Success Popup Animation --- */
+    .success-animation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .checkmark {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 2;
+        stroke: #2ecc71;
+        stroke-miterlimit: 10;
+        margin: 0 auto;
+        box-shadow: inset 0px 0px 0px #2ecc71;
+        animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
+    }
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #2ecc71;
+        fill: none;
+        animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+    @keyframes stroke_anim {
+        100% { stroke-dashoffset: 0; }
+    }
+    @keyframes scale_anim {
+        0% { transform: none; }
+        20% { transform: scale3d(1.1, 1.1, 1); }
+        100% { transform: none; }
+    }
+    @keyframes fill_anim {
+        100% { box-shadow: inset 0px 0px 0px 50px #2ecc71; }
+    }
 </style>
 </head>
 <body>
@@ -1626,6 +1671,20 @@
     </div>
 </div>
 
+<!-- NEW: Booking Success Popup -->
+<div class="overlay-popup" id="bookingSuccessPopup">
+    <div class="popup-content" style="background: var(--primary-surface); border-color: #2ecc71; box-shadow: 0 0 20px rgba(46, 204, 113, 0.5); padding: 2rem;">
+        <div class="success-animation">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
+        <h3 class="popup-title" id="bookingSuccessTitle" style="color: #2ecc71; text-shadow: 0 0 8px #2ecc71; margin-top: 1rem;">Booking Successful!</h3>
+        <p id="bookingSuccessMessage" style="text-align: center; color: var(--text-secondary); line-height: 1.5;"></p>
+    </div>
+</div>
+
 
 <script>
 const firebaseConfig = {
@@ -1796,7 +1855,7 @@ auth.onAuthStateChanged(async (user) => {
     if (!authInitialized) {
         authInitialized = true;
         setupRealtimeListeners();
-        processBookingLink();
+        processBookingLink(); // This will now handle the short link
     }
     handleRouting();
 });
@@ -2368,15 +2427,19 @@ function handlePublicBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicSelectedTickets);
 }
 
-function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
+async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     const container = document.getElementById('bookingAgentListContainer');
     container.innerHTML = '';
-    const agents = allUsersData     .filter(u => u.role === 'admin' || u.role === 'agent')     .sort((a, b) => {         if (a.role === 'admin' && b.role !== 'admin') return -1;         if (a.role !== 'admin' && b.role === 'admin') return 1;         return (a.name || '').localeCompare(b.name || '');     });
+    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent').sort((a, b) => {
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (a.role !== 'admin' && b.role === 'admin') return 1;
+        return (a.name || '').localeCompare(b.name || '');
+    });
     if (agents.length > 0) {
         agents.forEach(agent => {
             const link = document.createElement('a');
             link.href = '#';
-            link.onclick = (e) => { e.preventDefault(); redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
+            link.onclick = async (e) => { e.preventDefault(); await redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
             link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
         });
@@ -2386,68 +2449,126 @@ function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     }
 }
 
-function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
-    // Generate the booking link
-    const baseURL = window.location.origin + window.location.pathname;
-    const params = new URLSearchParams();
-    params.append('action', 'book');
-    params.append('name', userName);
-    params.append('phone', userPhone);
-    params.append('tickets', ticketIds.join(','));
-    const bookingLink = `${baseURL}?${params.toString()}`;
+function generateUniqueCode() {
+    // 6 character alphanumeric code
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
 
-    const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
+async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
+    const code = generateUniqueCode();
+    const bookingRequest = {
+        name: userName,
+        phone: userPhone,
+        tickets: ticketIds,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        requestedBy: "public_user"
+    };
+
+    try {
+        const snapshot = await db.ref(`bookingRequests/${code}`).once('value');
+        if (snapshot.exists()) {
+            return redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds); // Recurse on collision
+        }
+
+        await db.ref(`bookingRequests/${code}`).set(bookingRequest);
+
+        const baseURL = window.location.origin + window.location.pathname;
+        const bookingLink = `${baseURL}?book=${code}`;
+
+        const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
+        
+        const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm (Admin/Agent Only):*\n${bookingLink}`;
+        
+        const cleanPhone = agentPhone.replace(/\D/g, '');
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        closePopups();
+
+    } catch (error) {
+        console.error("Error creating booking link:", error);
+        showNotification("Could not create booking link. Please try again.", "error");
+    }
+}
+
+function showBookingSuccessPopup(message, duration = 4000) {
+    const popup = document.getElementById('bookingSuccessPopup');
+    const messageEl = document.getElementById('bookingSuccessMessage');
     
-    // Create the message with the link
-    const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm the booking (for Admin/Agent use only):*\n${bookingLink}`;
+    messageEl.textContent = message;
     
-    const cleanPhone = agentPhone.replace(/\D/g, '');
-    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
-    closePopups();
+    // Reset animations for replayability
+    const checkmark = popup.querySelector('.checkmark');
+    const circle = popup.querySelector('.checkmark__circle');
+    const check = popup.querySelector('.checkmark__check');
+    checkmark.style.animation = 'none';
+    circle.style.animation = 'none';
+    check.style.animation = 'none';
+    
+    void checkmark.offsetWidth; // Force reflow
+
+    // Re-apply animations
+    checkmark.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
+    circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
+    check.style.animation = 'stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards';
+
+    showPopup('bookingSuccessPopup');
+
+    setTimeout(() => {
+        closePopups();
+        if (currentUserRole) {
+            window.location.hash = currentUserRole;
+        }
+    }, duration);
 }
 
 async function processBookingLink() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('action') !== 'book') return;
+    const bookingCode = urlParams.get('book');
+    
+    if (!bookingCode) return;
 
-    // Wait until ticket data is loaded. Add a timeout.
-    const startTime = Date.now();
-    while (allTicketsData.length === 0 && Date.now() - startTime < 8000) { // 8 sec timeout
-        await new Promise(resolve => setTimeout(resolve, 100)); // wait 100ms
-    }
-
-    if (allTicketsData.length === 0) {
-        showNotification('Could not load ticket data. Please refresh the page and try the link again.', 'error');
-        return;
-    }
-
-    const name = urlParams.get('name');
-    const phone = urlParams.get('phone');
-    const ticketsStr = urlParams.get('tickets');
-
-    // Clean the URL immediately to prevent re-triggers on refresh.
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    // Check for permissions.
+    const startTime = Date.now();
+    while (!authInitialized && Date.now() - startTime < 8000) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
     if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
-        const titleEl = document.getElementById('genericInfoPopupTitle');
-        const contentEl = document.getElementById('genericInfoPopupContent');
-        titleEl.textContent = 'Permission Denied';
-        contentEl.innerHTML = '<p style="padding: 1rem; text-align: center;">You do not have permission to perform this action. Please log in as an Admin or Agent.</p>';
-        showPopup('genericInfoPopup');
+        showNotification('You must be logged in as an Admin or Agent to confirm a booking.', 'error');
+        showPopup('loginPopup');
         return;
     }
 
-    // If permission is granted, proceed with booking.
-    const ticketIdsToBook = ticketsStr.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id));
-
-    if (!name || !phone || ticketIdsToBook.length === 0) {
-        showNotification('Invalid or incomplete booking link data.', 'error');
+    while (allTicketsData.length === 0 && Date.now() - startTime < 15000) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (allTicketsData.length === 0) {
+        showNotification('Could not load ticket data. Please refresh and try again.', 'error');
         return;
     }
-
+    
+    const requestRef = db.ref(`bookingRequests/${bookingCode}`);
     try {
-        // Check if any of the tickets are already sold
+        const snapshot = await requestRef.once('value');
+        if (!snapshot.exists()) {
+            showNotification('This booking link is invalid or has already been used.', 'error');
+            return;
+        }
+
+        const requestData = snapshot.val();
+        const { name, phone, tickets: ticketIdsToBook } = requestData;
+
+        if (!name || !phone || !Array.isArray(ticketIdsToBook) || ticketIdsToBook.length === 0) {
+            showNotification('Invalid data in booking link.', 'error');
+            await requestRef.remove();
+            return;
+        }
+
         const alreadySold = [];
         for (const id of ticketIdsToBook) {
             const ticketData = allTicketsData.find(t => t.id === id);
@@ -2458,6 +2579,7 @@ async function processBookingLink() {
         
         if (alreadySold.length > 0) {
              showNotification(`Cannot book. Ticket(s) ${alreadySold.join(', ')} are already sold.`, 'error');
+             await requestRef.remove();
              return;
         }
 
@@ -2473,12 +2595,15 @@ async function processBookingLink() {
         });
 
         await db.ref().update(updates);
-        const successMsg = `${ticketIdsToBook.length} ticket(s) automatically booked for ${name}.`;
-        showNotification(successMsg, 'success');
-        triggerGlobalNotification(successMsg, 'info');
+        await requestRef.remove();
+
+        const successMsg = `${ticketIdsToBook.length} ticket(s) booked for ${name}. Redirecting...`;
+        showBookingSuccessPopup(successMsg, 4000); 
+        triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
 
     } catch(e) {
-        showNotification('Error during auto-booking: ' + e.message, 'error');
+        showNotification('Error processing booking: ' + e.message, 'error');
+        await requestRef.remove().catch(err => console.error("Failed to cleanup requestRef on error", err));
     }
 }
 
