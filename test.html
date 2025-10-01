@@ -1162,11 +1162,13 @@
         animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
     .checkmark__check {
-        transform-origin: 50% 50%;
-        stroke-dasharray: 48;
-        stroke-dashoffset: 48;
-        animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-    }
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #ffffff; /* <-- White tick mark */
+    animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
     @keyframes stroke_anim {
         100% { stroke-dashoffset: 0; }
     }
