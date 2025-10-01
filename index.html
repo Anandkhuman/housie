@@ -1180,6 +1180,49 @@
     @keyframes fill_anim {
         100% { box-shadow: inset 0px 0px 0px 50px #2ecc71; }
     }
+	@media (max-width: 768px) {
+        #adminGameSettingTable.agent-list-table {
+            display: block;
+        }
+        #adminGameSettingTable.agent-list-table thead {
+            display: none; /* Hide table headers on mobile */
+        }
+        #adminGameSettingTable.agent-list-table tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid var(--secondary-bg-dash);
+            border-radius: 4px;
+            padding: 0.5rem;
+            background-color: rgba(0,0,0,0.1);
+        }
+        #adminGameSettingTable.agent-list-table td {
+            display: flex;
+            justify-content: space-between; /* Label on left, value on right */
+            align-items: center;
+            padding: 8px 4px;
+            border-bottom: 1px dashed rgba(127, 140, 141, 0.3);
+            text-align: right; /* Align value to the right */
+        }
+        #adminGameSettingTable.agent-list-table td:last-child {
+            border-bottom: none;
+            justify-content: center; /* Center action button */
+        }
+        /* Use ::before pseudo-element to create labels for the data */
+        #adminGameSettingTable.agent-list-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: var(--muted-color-dash);
+            text-align: left;
+            margin-right: auto; /* Pushes the value to the right */
+            padding-right: 10px;
+        }
+        /* Add the data-label content via CSS */
+        #adminGameSettingTable.agent-list-table td:nth-of-type(1)::before { content: "Name:"; }
+        #adminGameSettingTable.agent-list-table td:nth-of-type(2)::before { content: "Phone:"; }
+        #adminGameSettingTable.agent-list-table td:nth-of-type(3)::before { content: "Sold:"; }
+        #adminGameSettingTable.agent-list-table td:nth-of-type(4)::before { content: "Commission:"; }
+        #adminGameSettingTable.agent-list-table td:nth-of-type(5)::before { content: "Actions:"; }
+    }
 </style>
 </head>
 <body>
@@ -4747,3 +4790,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
