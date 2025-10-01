@@ -699,6 +699,37 @@
     #agentDashboardView .runBtn { font-size: 1.5rem; }
     #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
     #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
+    
+    /* Style for Agent List Table in Admin View */
+    #adminGameSettingTable.agent-list-table {
+        display: table;
+        width: 98%;
+        margin: 1rem auto;
+    }
+    #adminGameSettingTable.agent-list-table thead {
+        display: table-header-group;
+        background-color: rgba(255,255,255,0.05);
+    }
+    #adminGameSettingTable.agent-list-table tr {
+        display: table-row !important;
+        grid-template-columns: none !important;
+    }
+    #adminGameSettingTable.agent-list-table th, 
+    #adminGameSettingTable.agent-list-table td {
+        display: table-cell !important;
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid var(--secondary-bg-dash);
+        vertical-align: middle;
+    }
+    #adminGameSettingTable.agent-list-table th {
+        font-weight: bold;
+        color: var(--accent-color-dash);
+    }
+    #adminGameSettingTable.agent-list-table tbody tr:hover {
+        background-color: rgba(26, 188, 156, 0.1);
+    }
+
 
     .booking-popup-header {
         flex-shrink: 0;
@@ -828,8 +859,8 @@
         z-index: 2;
     }
 
-    .poster-title {
-        font-size: 1.6em;
+   .poster-title {
+        font-size: 2em;
         text-transform: uppercase;
         font-weight: 700;
         text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
@@ -837,14 +868,14 @@
     }
 
     .poster-datetime {
-        font-size: 0.7em;
+        font-size: 1.1em;
         font-weight: bold;
         margin-top: -0.1rem;
         color: #ffeb3b;
     }
 
     .poster-tagline {
-        font-size: 0.9em;
+        font-size: 1em;
         margin: -0.1rem 0;
     }
 
@@ -867,13 +898,13 @@
     .prize-list {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1 1rem;
+        gap: 1rem;
         text-align: left;
     }
 
     .prize-column p {
         margin: 0.5rem 0;
-        font-size: 1.1em;
+        font-size: 1.2em;
     }
 
     #prize-amounts {
@@ -882,7 +913,7 @@
     }
 
     .ticket-details {
-        font-size: 0.6em;
+        font-size: 0.9em;
         font-weight: bold;
         background: #ffeb3b;
         color: #000;
@@ -1006,35 +1037,99 @@
         border-width: 1px;
         line-height: 35px;
     }
+    
+    /* --- Poster Maker Styles --- */
+    #poster-bg-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 8px;
+        margin-bottom: 1rem;
+        background-color: rgba(0, 0, 0, 0.25);
+        border-radius: 8px;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--secondary-bg-dash);
+    }
 
-     .actionBtn1 {
-    background: var(--primary-bg-dash, #2c2c2c);
-    color: var(--light-text-dash, #fff);
-    border: 1px solid var(--muted-color-dash, #555);
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 0.85em;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    white-space: nowrap;
-}
+    #poster-bg-controls::-webkit-scrollbar {
+        height: 5px;
+    }
+    #poster-bg-controls::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #poster-bg-controls::-webkit-scrollbar-thumb {
+        background: var(--accent-color-dash);
+        border-radius: 5px;
+    }
+    #poster-bg-controls::-webkit-scrollbar-thumb:hover {
+        background: #1fe0b8;
+    }
 
-/* Hover effect */
-.actionBtn1:hover {
-    background: var(--accent-color-dash, #3a86ff);
-    color: #fff;
-    border-color: var(--accent-color-dash, #3a86ff);
-    transform: translateY(-1px);
-}
+    #poster-bg-controls > .actionBtn,
+    #poster-bg-controls > span,
+    #poster-bg-controls > label.actionBtn {
+        flex-shrink: 0;
+        margin: 0 !important;
+        transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        padding: 6px 12px;
+        font-size: 0.85em;
+        height: auto;
+    }
 
-/* Active/selected BG highlight */
-.actionBtn1.active {
-    background: var(--accent-color-dash, #3a86ff);
-    color: #fff;
-    border-color: var(--accent-color-dash, #3a86ff);
-    font-weight: bold;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
-}
+    #poster-bg-controls > span {
+        align-self: center;
+        font-weight: 600;
+        color: var(--light-text-dash);
+    }
+
+    #poster-bg-controls > .actionBtn:hover,
+    #poster-bg-controls > label.actionBtn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.2);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    }
+
+    #poster-bg-controls > .actionBtn.active {
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+        color: var(--text-dark);
+        font-weight: 700;
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 0 12px var(--accent-primary);
+        border-color: var(--light-text-dash);
+    }
+    
+    #poster-bg-controls label.actionBtn {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .poster-actions {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        padding-top: 15px;
+        border-top: 1px solid var(--muted-color-dash);
+        margin-top: 15px;
+    }
+
+    .poster-actions .actionBtn {
+        flex-grow: 1;
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .poster-actions .actionBtn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.2);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
 </style>
 </head>
 <body>
@@ -1411,8 +1506,7 @@
                 </tr>
             </tbody>
         </table>
-       
-              <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+            <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
             <tbody>
                 <tr>
                     <td>NEXT CALL NUMBER</td>
@@ -1423,7 +1517,6 @@
                 </tr>
             </tbody>
         </table>
-       
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -1466,46 +1559,47 @@
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" style="color: var(--light-text-dash);">Game Poster Generator</h3>
         
-        <div id="poster-bg-controls" 
-     style="text-align: center; margin-bottom: 10px; display: flex; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; gap: 5px; padding-bottom: 5px;">
-    <span style="color: var(--light-text-dash); font-size: 0.9em; margin-right: 10px; align-self: center; flex: 0 0 auto;">Change BG:</span>
-    
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
-    <button class="actionBtn1" style="padding: 4px 8px; font-size: 0.8em; flex: 0 0 auto;" onclick="changePosterBackground('https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
-   </div>
+        <div id="poster-bg-controls">
+            <span>Change BG:</span>
+            <label for="bg-upload" class="actionBtn">
+                <i class="fas fa-upload"></i> Upload
+            </label>
+            <input type="file" id="bg-upload" accept="image/*" style="display: none;">
+            
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg')">BG 1</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg2.jpeg')">BG 2</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg3.jpeg')">BG 3</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg4.jpeg')">BG 4</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg5.jpeg')">BG 5</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg6.jpeg')">BG 6</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg7.jpeg')">BG 7</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg8.jpeg')">BG 8</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg9.jpeg')">BG 9</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg10.jpeg')">BG 10</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg11.jpg')">BG 11</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg12.jpg')">BG 12</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg13.jpg')">BG 13</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg14.jpg')">BG 14</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg15.jpg')">BG 15</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg16.jpg')">BG 16</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg17.jpg')">BG 17</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg18.jpg')">BG 18</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg19.jpg')">BG 19</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg20.jpg')">BG 20</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg21.jpg')">BG 21</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg22.jpg')">BG 22</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg23.jpg')">BG 23</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg24.jpg')">BG 24</button>
+            <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
+        </div>
 
- <input type="file" id="posterBgUploadInput" accept="image/*" style="display: none;" onchange="handlePosterImageUpload(event)">
-    <button class="actionBtn1" style="padding: 6px 10px; font-size: 0.9em; flex: 0 0 auto;" onclick="document.getElementById('posterBgUploadInput').click()" title="Upload custom background"><i class="fas fa-upload"></i> Upload</button>
 
         <div id="posterContent">
         </div>
 
-        <div class="poster-actions" style="display: flex; justify-content: space-around; padding: 15px 0 5px 0; border-top: 1px solid var(--muted-color-dash); margin-top: 15px;">
-            <button class="actionBtn1" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as Image</button>
-            <button class="actionBtn1" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
+        <div class="poster-actions">
+            <button class="actionBtn" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as File</button>
+            <button class="actionBtn" id="sharePosterBtn" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
         </div>
     </div>
 </div>
@@ -1535,17 +1629,14 @@
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
-  authDomain: "sinthahousie-1dd3b.firebaseapp.com",
-  databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
-  projectId: "sinthahousie-1dd3b",
-  storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
-  messagingSenderId: "76567991256",
-  appId: "1:76567991256:web:c58b127b8d86d8a1c598ad",
-  measurementId: "G-MGW406NKBY"
+  apiKey: "AIzaSyAjvI_Vl4trHwZAosaGLdEYQ87jJHeGYwc",
+  authDomain: "studio-ahutj.firebaseapp.com",
+  databaseURL: "https://studio-ahutj-default-rtdb.firebaseio.com",
+  projectId: "studio-ahutj",
+  storageBucket: "studio-ahutj.firebasestorage.app",
+  messagingSenderId: "636752463109",
+  appId: "1:636752463109:web:da78d4100720a39a20a36c"
 };
-
-
 
 
 firebase.initializeApp(firebaseConfig);
@@ -1598,6 +1689,7 @@ let publicPopupSelectedTickets = [];
 let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
+// REMOVED: let nextManualCallNumber = null;
 let adminDisplayedSearchPhones = new Set();
 
 
@@ -1704,6 +1796,7 @@ auth.onAuthStateChanged(async (user) => {
     if (!authInitialized) {
         authInitialized = true;
         setupRealtimeListeners();
+        processBookingLink();
     }
     handleRouting();
 });
@@ -1815,6 +1908,7 @@ function bindEventListeners() {
         document.getElementById('adminTicketDisplayArea').innerHTML = '';
         adminDisplayedSearchPhones.clear();
     });
+    document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
 }
 
 function showPopup(id) {
@@ -1839,7 +1933,7 @@ function showAgentListPopup() {
     const container = document.getElementById('agentListContainer');
     container.innerHTML = '';
 
-    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent');
+    const agents = allUsersData     .filter(u => u.role === 'admin' || u.role === 'agent')     .sort((a, b) => {         if (a.role === 'admin' && b.role !== 'admin') return -1;         if (a.role !== 'admin' && b.role === 'admin') return 1;         return (a.name || '').localeCompare(b.name || '');     });
     if (agents.length > 0) {
         agents.forEach(agent => {
             const phone = agent.phone.replace(/\D/g, '');
@@ -2277,7 +2371,7 @@ function handlePublicBookingRequest() {
 function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     const container = document.getElementById('bookingAgentListContainer');
     container.innerHTML = '';
-    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent');
+    const agents = allUsersData     .filter(u => u.role === 'admin' || u.role === 'agent')     .sort((a, b) => {         if (a.role === 'admin' && b.role !== 'admin') return -1;         if (a.role !== 'admin' && b.role === 'admin') return 1;         return (a.name || '').localeCompare(b.name || '');     });
     if (agents.length > 0) {
         agents.forEach(agent => {
             const link = document.createElement('a');
@@ -2293,12 +2387,101 @@ function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
 }
 
 function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
+    // Generate the booking link
+    const baseURL = window.location.origin + window.location.pathname;
+    const params = new URLSearchParams();
+    params.append('action', 'book');
+    params.append('name', userName);
+    params.append('phone', userPhone);
+    params.append('tickets', ticketIds.join(','));
+    const bookingLink = `${baseURL}?${params.toString()}`;
+
     const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
-    const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}`;
+    
+    // Create the message with the link
+    const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm the booking (for Admin/Agent use only):*\n${bookingLink}`;
+    
     const cleanPhone = agentPhone.replace(/\D/g, '');
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
     closePopups();
 }
+
+async function processBookingLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') !== 'book') return;
+
+    // Wait until ticket data is loaded. Add a timeout.
+    const startTime = Date.now();
+    while (allTicketsData.length === 0 && Date.now() - startTime < 8000) { // 8 sec timeout
+        await new Promise(resolve => setTimeout(resolve, 100)); // wait 100ms
+    }
+
+    if (allTicketsData.length === 0) {
+        showNotification('Could not load ticket data. Please refresh the page and try the link again.', 'error');
+        return;
+    }
+
+    const name = urlParams.get('name');
+    const phone = urlParams.get('phone');
+    const ticketsStr = urlParams.get('tickets');
+
+    // Clean the URL immediately to prevent re-triggers on refresh.
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Check for permissions.
+    if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
+        const titleEl = document.getElementById('genericInfoPopupTitle');
+        const contentEl = document.getElementById('genericInfoPopupContent');
+        titleEl.textContent = 'Permission Denied';
+        contentEl.innerHTML = '<p style="padding: 1rem; text-align: center;">You do not have permission to perform this action. Please log in as an Admin or Agent.</p>';
+        showPopup('genericInfoPopup');
+        return;
+    }
+
+    // If permission is granted, proceed with booking.
+    const ticketIdsToBook = ticketsStr.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id));
+
+    if (!name || !phone || ticketIdsToBook.length === 0) {
+        showNotification('Invalid or incomplete booking link data.', 'error');
+        return;
+    }
+
+    try {
+        // Check if any of the tickets are already sold
+        const alreadySold = [];
+        for (const id of ticketIdsToBook) {
+            const ticketData = allTicketsData.find(t => t.id === id);
+            if (ticketData && ticketData.is_sold) {
+                alreadySold.push(id);
+            }
+        }
+        
+        if (alreadySold.length > 0) {
+             showNotification(`Cannot book. Ticket(s) ${alreadySold.join(', ')} are already sold.`, 'error');
+             return;
+        }
+
+        const updates = {};
+        const timestamp = firebase.database.ServerValue.TIMESTAMP;
+        ticketIdsToBook.forEach(id => {
+            updates[`/tickets/${id}/is_sold`] = true;
+            updates[`/tickets/${id}/owner_name`] = name;
+            updates[`/tickets/${id}/owner_name_lower`] = name.toLowerCase();
+            updates[`/tickets/${id}/owner_phone`] = phone;
+            updates[`/tickets/${id}/agent_uid`] = currentUser.uid;
+            updates[`/tickets/${id}/sold_at`] = timestamp;
+        });
+
+        await db.ref().update(updates);
+        const successMsg = `${ticketIdsToBook.length} ticket(s) automatically booked for ${name}.`;
+        showNotification(successMsg, 'success');
+        triggerGlobalNotification(successMsg, 'info');
+
+    } catch(e) {
+        showNotification('Error during auto-booking: ' + e.message, 'error');
+    }
+}
+
 
 function searchTicketPublic(searchTermOverride = null, isRerender = false) {
     const searchTerm = searchTermOverride || document.getElementById('ticketSearchInp').value.trim();
@@ -3001,6 +3184,7 @@ function updateAdminList() {
     if (currentView !== 'adminDashboardView') return;
     const searchTerm = document.getElementById('adminSearchKeyInp').value.toLowerCase();
     const table = document.getElementById('adminGameSettingTable');
+    table.className = 'gameSettingTable1'; // Reset class
 
     if (adminListState === 'tickets') {
         const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
@@ -3034,25 +3218,74 @@ function updateAdminList() {
                 }
             }).join('') + `</tbody>`;
     } else {
+        table.classList.add('agent-list-table');
+        const commissionPerTicket = gameSettingsData.agentCommission || 0;
         const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').toLowerCase().includes(searchTerm));
-        table.innerHTML = `` +
-            users.map(u => {
-                const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
-                let actionCell = `<td data-label="Actions">-</td>`;
-                if (u.role === 'agent') {
-                     const name = u.name ? u.name.replace(/'/g, "\\'") : '';
-                    actionCell = `<td data-label="Actions"><i class="fas fa-trash-alt" style="color: #e74c3c; cursor: pointer;" title="Delete Agent" onclick="deleteUser('${u.uid}', '${name}')"></i></td>`;
-                }
-                return `<tr>
-                    <td data-label="Name">${u.name}</td>
-                    <td data-label="Role">${u.role}</td>
-                    <td data-label="Phone">${u.phone}</td>
-                    <td data-label="Sold">${soldCount}</td>
-                    ${actionCell}
-                </tr>`;
-            }).join('') + `</tbody>`;
+        
+        let tableHTML = `<thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th style="text-align:center;">Sold</th>
+                                <th>Commission</th>
+                                <th style="text-align:center;">Actions</th>
+                            </tr>
+                         </thead>
+                         <tbody>`;
+
+        tableHTML += users.map(u => {
+            const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
+            const commission = soldCount * commissionPerTicket;
+            const safeName = u.name ? u.name.replace(/'/g, "\\'") : 'N/A';
+            
+            let actionCell = '<td>-</td>';
+            if (u.role === 'agent') {
+                actionCell = `<td style="text-align:center;"><i class="fas fa-trash-alt" style="color: #e74c3c; cursor: pointer;" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i></td>`;
+            }
+
+            return `<tr onclick="showAgentBookings('${u.uid}', '${safeName}')" title="Click to see tickets sold by ${safeName}" style="cursor: pointer;">
+                        <td>${u.name || 'N/A'} <span style="opacity:0.7;font-size:0.8em;">(${u.role})</span></td>
+                        <td>${u.phone || 'N/A'}</td>
+                        <td style="text-align:center;">${soldCount}</td>
+                        <td style="text-align:right; padding-right: 5px;">₹ ${commission.toLocaleString()}</td>
+                        ${actionCell}
+                    </tr>`;
+        }).join('');
+
+        tableHTML += `</tbody>`;
+        table.innerHTML = tableHTML;
     }
 }
+
+function showAgentBookings(agentUid, agentName) {
+    if (!agentUid) return;
+
+    const agentBookings = allTicketsData
+        .filter(t => t.agent_uid === agentUid)
+        .sort((a, b) => a.id - b.id);
+
+    const titleEl = document.getElementById('genericInfoPopupTitle');
+    const contentEl = document.getElementById('genericInfoPopupContent');
+
+    titleEl.textContent = `Tickets Sold by ${agentName}`;
+
+    if (agentBookings.length === 0) {
+        contentEl.innerHTML = '<p style="padding: 1rem; text-align: center;">This user has not sold any tickets yet.</p>';
+    } else {
+        let contentHTML = '<ul>';
+        agentBookings.forEach(ticket => {
+            contentHTML += `<li>
+                <strong>Ticket #${ticket.id}</strong><br>
+                <span style="font-size: 0.9em;">Owner: ${ticket.owner_name} | Phone: ${ticket.owner_phone || 'N/A'}</span>
+            </li>`;
+        });
+        contentHTML += '</ul>';
+        contentEl.innerHTML = contentHTML;
+    }
+    
+    showPopup('genericInfoPopup');
+}
+
 
 function showEditTicketPopup(ticketId, currentName, currentPhone) {
     ticketIdToEdit = ticketId; 
@@ -3215,47 +3448,36 @@ async function deleteUser(uid, name) {
     }
 }
 
-function handlePosterImageUpload(event) {
-    const fileInput = event.target;
-    if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+function changePosterBackground(buttonElement, source) {
+    const bgButtons = document.querySelectorAll('#poster-bg-controls .actionBtn');
+    bgButtons.forEach(btn => btn.classList.remove('active'));
 
-        if (!allowedTypes.includes(file.type)) {
-            showNotification('Please upload a valid image file (JPG, PNG, GIF, WEBP).', 'error');
-            fileInput.value = ''; // Reset the input
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            // e.target.result contains the Base64 data URL
-            const base64Image = e.target.result;
-            changePosterBackground(base64Image);
-        };
-
-        reader.onerror = function() {
-            showNotification('Failed to read the image file.', 'error');
-        };
-
-        reader.readAsDataURL(file);
+    if (buttonElement) {
+        buttonElement.classList.add('active');
     }
-}
-
-function changePosterBackground(source) {
+    
     const posterContent = document.getElementById('posterContent');
     if (posterContent) {
         let newImageUrl;
-        // Check for full URL or Base64 data URI
         if (source.startsWith('http') || source.startsWith('data:image')) {
             newImageUrl = source;
         } else {
-            // Fallback for keyword search on Unsplash
             newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
         }
         posterContent.style.backgroundImage = `url('${newImageUrl}')`;
-        showNotification('Poster background updated!', 'info', 2000);
+    }
+}
+
+function handlePosterBgUpload(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            changePosterBackground(null, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    } else if (file) {
+        showNotification('Please select a valid image file (e.g., JPG, PNG, GIF).', 'error');
     }
 }
 
@@ -3305,7 +3527,12 @@ function showPosterModal() {
 
     document.getElementById('posterContent').innerHTML = posterHTML;
     
-    changePosterBackground('party,confetti');
+    const firstBgButton = document.querySelector('#poster-bg-controls .actionBtn[onclick]');
+    if (firstBgButton) {
+      firstBgButton.click();
+    } else {
+      changePosterBackground(null, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg');
+    }
     
     showPopup('posterMakerPopup');
 }
@@ -3345,7 +3572,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "Sintha housie Game!";
+        const websiteName = "SINTHA HOUSIE Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -3648,7 +3875,7 @@ async function toggleGameRunner() {
         } else {
             await gameStateRef.child('isGameRunning').set(false);
         }
-        
+        showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
     } catch (e) {
         showNotification("Error starting/stopping game: " + e.message, 'error');
     }
@@ -3669,11 +3896,13 @@ async function setNextCallNumber() {
     }
     
     try {
-        await db.ref('gameState/currentState/nextManualCallNumber').set(numberToSet);
-        showNotification(`Next call number set to ${numberToSet}.`, 'success');
+        // Write the intended number to the shared game state in Firebase.
+        await db.ref('gameState/currentState/nextManualCall').set(numberToSet);
+        showNotification(`Next number is set to ${numberToSet}. It will be called on the next interval.`, 'success');
         inputEl.value = '';
-    } catch (e) {
-        showNotification('Failed to set next call number: ' + e.message, 'error');
+    } catch (error) {
+        showNotification(`Error setting next number: ${error.message}`, 'error');
+        console.error("Error in setNextCallNumber:", error);
     }
 }
 
@@ -3683,7 +3912,7 @@ function callNextNumber() {
         if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
         if (!gameState.isGameRunning) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            return;
+            return; // Abort transaction, no changes needed.
         }
 
         const called = gameState.calledNumbers || [];
@@ -3694,24 +3923,29 @@ function callNextNumber() {
         if (called.length >= 90 || areAllDividendsClaimed) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameState.isGameRunning = false;
-            const reason = areAllDividendsClaimed ? "All dividends have been won!" : "All 90 numbers have been called!";
-            showNotification(`${reason} Game over.`, 'info');
-            triggerGlobalNotification(`${reason} The game has ended!`, 'info');
             return gameState;
         }
 
         let newNumber;
         const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
         
-        if (gameState.nextManualCallNumber && availableNumbers.includes(gameState.nextManualCallNumber)) {
-            newNumber = gameState.nextManualCallNumber;
-            gameState.nextManualCallNumber = null; // Reset it within the transaction
+        const manualCallNum = gameState.nextManualCall;
+        
+        if (manualCallNum && availableNumbers.includes(manualCallNum)) {
+            newNumber = manualCallNum;
+            // IMPORTANT: Consume the manual number by deleting it from the state.
+            delete gameState.nextManualCall; 
         } else {
+            // If a manual number was set but is invalid (e.g., already called), clear it.
+            if (gameState.nextManualCall) {
+                delete gameState.nextManualCall;
+            }
             if (availableNumbers.length === 0) {
                  if (gameRunnerInterval) clearInterval(gameRunnerInterval);
                  gameState.isGameRunning = false;
                  return gameState;
             }
+            // Fallback to random number generation.
             newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
         }
 
@@ -3719,6 +3953,7 @@ function callNextNumber() {
         gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
 
         const newWinners = gameState.winners;
+        // Check if the new winner claims the last prize
         const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
         if(nowAllDividendsClaimed){
             gameState.isGameRunning = false;
@@ -3731,13 +3966,26 @@ function callNextNumber() {
             showNotification('Game runner failed. Turning off.', 'error');
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameStateRef.child('isGameRunning').set(false);
-        } else if (committed && snapshot.exists() && !snapshot.val().isGameRunning) {
-             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-             showNotification("All dividends won! Game over.", 'info');
-             triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
+        } else if (committed && snapshot.exists()) {
+             const finalState = snapshot.val();
+            // Check why the game stopped and notify accordingly
+            if (!finalState.isGameRunning) {
+                if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+                const activeDividends = gameSettingsData.dividends || [];
+                const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
+
+                if (allClaimed) {
+                    showNotification("All dividends won! Game over.", 'info');
+                    triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
+                } else if (finalState.calledNumbers?.length >= 90) {
+                    showNotification("All 90 numbers called! Game over.", 'info');
+                    triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
+                }
+            }
         }
     });
 }
+
 
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
@@ -3900,7 +4148,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
     return updatedWinners;
 }
 
-
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
     if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
@@ -3943,77 +4190,125 @@ async function generateHousieTickets(bypassConfirm = false) {
     }
 }
 
+// A helper for shuffling arrays using the Fisher-Yates algorithm.
+const shuffleArray = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+};
+
+/**
+ * Creates a complete, valid, non-repeating set of 6 Tambola tickets (a "full sheet").
+ * In a full sheet, every number from 1 to 90 appears exactly once.
+ * @returns {Array} An array of 6 tickets, where each ticket is a 3x9 grid of numbers.
+ */
 function createTambolaSetOf6() {
-    const shuffle = (arr) => {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    };
-    const colCounts = [
+    // These are standard distribution patterns for 6-ticket Tambola sheets.
+    // Each inner array represents one ticket.
+    // The values are the number of cells to be filled in each of the 9 columns (1-9, 10-19, ..., 80-90).
+    // The sum of each column across all 6 tickets equals the total numbers available in that column's range.
+    const columnCellCountsPerTicket = [
         [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2],
         [1, 1, 2, 2, 2, 1, 2, 3, 1], [2, 2, 1, 2, 1, 2, 1, 1, 3],
         [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
     ];
+
+    // Step 1: Create a binary layout (mask) for each of the 6 tickets.
+    // A '1' indicates a number will be placed, '0' is a blank space.
     const ticketLayouts = [];
-    for (let t = 0; t < 6; t++) {
+    for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
         const layout = Array(3).fill(0).map(() => Array(9).fill(0));
-        const ticketColCounts = colCounts[t];
-        for (let c = 0; c < 9; c++) {
-            const rowsToPlace = shuffle([0, 1, 2]).slice(0, ticketColCounts[c]);
-            for (const r of rowsToPlace) { layout[r][c] = 1; }
+        const ticketColumnCount = columnCellCountsPerTicket[ticketIndex];
+
+        // For each column, randomly place the required number of cells ('1's) into the 3 rows.
+        for (let colIndex = 0; colIndex < 9; colIndex++) {
+            const numCellsInCol = ticketColumnCount[colIndex];
+            const rowsToPlaceIn = shuffleArray([0, 1, 2]).slice(0, numCellsInCol);
+            for (const rowIndex of rowsToPlaceIn) {
+                layout[rowIndex][colIndex] = 1;
+            }
         }
+
+        // Step 2: Balance the layout to ensure each row has exactly 5 numbers.
+        // This loop swaps cells vertically within columns to fix the balance.
         let isBalanced = false;
         while (!isBalanced) {
-            const rowCounts = layout.map(row => row.reduce((a, b) => a + b, 0));
-            const overfullRows = rowCounts.map((c, i) => c > 5 ? i : -1).filter(i => i !== -1);
-            const underfullRows = rowCounts.map((c, i) => c < 5 ? i : -1).filter(i => i !== -1);
-            if (overfullRows.length === 0 && underfullRows.length === 0) { isBalanced = true; continue; }
-            const rOver = overfullRows[0], rUnder = underfullRows[0];
-            const swappableCols = [];
-            for (let c = 0; c < 9; c++) {
-                if (layout[rOver][c] === 1 && layout[rUnder][c] === 0) { swappableCols.push(c); }
+            const rowCounts = layout.map(row => row.reduce((sum, cell) => sum + cell, 0));
+            
+            if (rowCounts.every(count => count === 5)) {
+                isBalanced = true;
+                continue;
             }
+
+            const overfullRowIndex = rowCounts.findIndex(count => count > 5);
+            const underfullRowIndex = rowCounts.findIndex(count => count < 5);
+
+            const swappableCols = [];
+            for (let colIndex = 0; colIndex < 9; colIndex++) {
+                if (layout[overfullRowIndex][colIndex] === 1 && layout[underfullRowIndex][colIndex] === 0) {
+                    swappableCols.push(colIndex);
+                }
+            }
+
             if (swappableCols.length > 0) {
                 const colToSwap = swappableCols[Math.floor(Math.random() * swappableCols.length)];
-                layout[rOver][colToSwap] = 0;
-                layout[rUnder][colToSwap] = 1;
+                layout[overfullRowIndex][colToSwap] = 0;
+                layout[underfullRowIndex][colToSwap] = 1;
             }
         }
         ticketLayouts.push(layout);
     }
+
+    // Step 3: Create shuffled pools of numbers for each column.
+    // This ensures no number is repeated across the 6-ticket sheet.
     const numberPools = [
-        shuffle(Array.from({ length: 9 }, (_, i) => i + 1)),   shuffle(Array.from({ length: 10 }, (_, i) => i + 10)),
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 20)), shuffle(Array.from({ length: 10 }, (_, i) => i + 30)),
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 40)), shuffle(Array.from({ length: 10 }, (_, i) => i + 50)),
-        shuffle(Array.from({ length: 10 }, (_, i) => i + 60)), shuffle(Array.from({ length: 10 }, (_, i) => i + 70)),
-        shuffle(Array.from({ length: 11 }, (_, i) => i + 80))
+        shuffleArray(Array.from({ length: 9 }, (_, i) => i + 1)),   // 1-9
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 10)), // 10-19
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 20)), // 20-29
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 30)), // 30-39
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 40)), // 40-49
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 50)), // 50-59
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 60)), // 60-69
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 70)), // 70-79
+        shuffleArray(Array.from({ length: 11 }, (_, i) => i + 80))  // 80-90
     ];
+
+    // Step 4: Populate the final tickets using the layouts and number pools.
     const finalTickets = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
-    for (let c = 0; c < 9; c++) {
-        for (let t = 0; t < 6; t++) {
-            for (let r = 0; r < 3; r++) {
-                if (ticketLayouts[t][r][c] === 1) { finalTickets[t][r][c] = numberPools[c].pop(); }
+    for (let colIndex = 0; colIndex < 9; colIndex++) {
+        for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (ticketLayouts[ticketIndex][rowIndex][colIndex] === 1) {
+                    finalTickets[ticketIndex][rowIndex][colIndex] = numberPools[colIndex].pop();
+                }
             }
         }
     }
-    for (let t = 0; t < 6; t++) {
-        for (let c = 0; c < 9; c++) {
-            const colValues = [];
-            for (let r = 0; r < 3; r++) {
-                if (finalTickets[t][r][c] !== 0) { colValues.push(finalTickets[t][r][c]); }
+
+    // Step 5: Sort the numbers within each column of each ticket (standard Tambola format).
+    for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+        for (let colIndex = 0; colIndex < 9; colIndex++) {
+            const columnValues = [];
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
+                    columnValues.push(finalTickets[ticketIndex][rowIndex][colIndex]);
+                }
             }
-            colValues.sort((a, b) => a - b);
+            columnValues.sort((a, b) => a - b);
+            
             let valueIndex = 0;
-            for (let r = 0; r < 3; r++) {
-                if (finalTickets[t][r][c] !== 0) { finalTickets[t][r][c] = colValues[valueIndex++]; }
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
+                    finalTickets[ticketIndex][rowIndex][colIndex] = columnValues[valueIndex++];
+                }
             }
         }
     }
+
     return finalTickets;
 }
-
 
 function createListPDF(title, headers, dataRows, filename) {
     const { jsPDF } = window.jspdf;
