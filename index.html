@@ -108,93 +108,96 @@
     }
     .overlay-popup.active .popup-content { transform: scale(1); }
 
-    .top-down-notification-popup {
-        height: auto;
-        align-items: flex-start;
-        justify-content: center;
-        background: transparent;
-        backdrop-filter: none;
-        pointer-events: none;
-        padding-top: 10px;
-        z-index: 10000;
-        transform: translateY(-150%);
-        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
+.top-down-notification-popup {
+    background: transparent;
+    backdrop-filter: none;
+    align-items: flex-start;
+    padding-top: 6px;
+    pointer-events: none;
+    height: auto;
+    justify-content: center;
+    z-index: 10000;
+    transform: translateY(-150%);
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
 
-    .top-down-notification-popup.active {
-        transform: translateY(0);
-    }
+.top-down-notification-popup.active {
+    transform: translateY(0);
+}
 
-    .top-down-notification-popup .popup-content {
-        max-width: 800px;
-        width: 95%;
-        margin: 0 auto;
-        transform: none !important;
-        pointer-events: auto;
-        box-shadow: 0 5px 25px rgba(0, 246, 255, 0.3);
-        padding: 1rem 1.5rem;
-        max-height: none;
-        overflow-y: visible;
-        border-radius: 12px;
-    }
+.top-down-notification-popup .popup-content {
+    max-width: 600px;
+    width: 95%;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    transform: none !important;
+    pointer-events: auto;
+    max-height: none;
+    overflow-y: visible;
+}
 
+.top-down-notification-popup .notification-body {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-wrap: wrap;
+}
+
+.top-down-notification-popup .notification-logo img {
+    max-width: 45px !important;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.top-down-notification-popup .notification-text-content .popup-title {
+    display: none;
+}
+
+.top-down-notification-popup .notification-text-content {
+    flex-grow: 1;
+}
+
+.top-down-notification-popup .notification-text-content p {
+    margin: 0;
+    line-height: 1.4;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.top-down-notification-popup .notification-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.top-down-notification-popup .notification-actions .login-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    margin: 0;
+    width: auto;
+}
+
+/* Mobile View ke liye Specific Centering Layout */
+@media (max-width: 768px) {
     .top-down-notification-popup .notification-body {
-        display: flex;
-        align-items: center;
-        gap: 0.2rem;
+        justify-content: center; /* Sabhi items ko center karega */
     }
 
-    .top-down-notification-popup .notification-logo img {
-        max-width: 80px !important;
-        height: auto;
-    }
-
-    .top-down-notification-popup .notification-text-content {
-        flex-grow: 1;
-        color: var(--text-secondary);
-    }
-    .top-down-notification-popup .notification-text-content .popup-title {
-        margin: 0 0 0.5rem 0;
-        text-align: left;
-        font-size: 1.2rem;
-    }
     .top-down-notification-popup .notification-text-content p {
-        margin: 0;
-        line-height: 1.5;
-        font-size: 0.9rem;
+        text-align: center; /* Text ko center karega */
     }
-
+    
     .top-down-notification-popup .notification-actions {
-        display: flex;
-        gap: 0.8rem;
-        flex-shrink: 0;
+        width: 100%;
+        margin-top: 0.3rem;
+        justify-content: center; /* Buttons ko center karega */
     }
-
-    .top-down-notification-popup .notification-actions .login-btn {
-        width: auto;
-        padding: 0.5rem 1rem;
-        margin: 0;
-        font-size: 0.85rem;
-    }
-
-    @media (max-width: 768px) {
-        .top-down-notification-popup .notification-body {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-        }
-        .top-down-notification-popup .notification-text-content .popup-title {
-            text-align: center;
-        }
-        .top-down-notification-popup .notification-actions {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
+}
 
     .x-button {
-        background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
+        background: transparent; position: absolute; top: 0.3rem; right: 0.5rem;
         cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;
         transition: color 0.3s, transform 0.3s;
         z-index: 10;
@@ -699,6 +702,37 @@
     #agentDashboardView .runBtn { font-size: 1.5rem; }
     #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
     #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
+    
+    /* Style for Agent List Table in Admin View */
+    #adminGameSettingTable.agent-list-table {
+        display: table;
+        width: 98%;
+        margin: 1rem auto;
+    }
+    #adminGameSettingTable.agent-list-table thead {
+        display: table-header-group;
+        background-color: rgba(255,255,255,0.05);
+    }
+    #adminGameSettingTable.agent-list-table tr {
+        display: table-row !important;
+        grid-template-columns: none !important;
+    }
+    #adminGameSettingTable.agent-list-table th, 
+    #adminGameSettingTable.agent-list-table td {
+        display: table-cell !important;
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid var(--secondary-bg-dash);
+        vertical-align: middle;
+    }
+    #adminGameSettingTable.agent-list-table th {
+        font-weight: bold;
+        color: var(--accent-color-dash);
+    }
+    #adminGameSettingTable.agent-list-table tbody tr:hover {
+        background-color: rgba(26, 188, 156, 0.1);
+    }
+
 
     .booking-popup-header {
         flex-shrink: 0;
@@ -1099,6 +1133,53 @@
         filter: brightness(1.2);
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
+
+    /* --- Success Popup Animation --- */
+    .success-animation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .checkmark {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 2;
+        stroke: #2ecc71;
+        stroke-miterlimit: 10;
+        margin: 0 auto;
+        box-shadow: inset 0px 0px 0px #2ecc71;
+        animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
+    }
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #2ecc71;
+        fill: none;
+        animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .checkmark__check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #ffffff; /* <-- White tick mark */
+    animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+    @keyframes stroke_anim {
+        100% { stroke-dashoffset: 0; }
+    }
+    @keyframes scale_anim {
+        0% { transform: none; }
+        20% { transform: scale3d(1.1, 1.1, 1); }
+        100% { transform: none; }
+    }
+    @keyframes fill_anim {
+        100% { box-shadow: inset 0px 0px 0px 50px #2ecc71; }
+    }
 </style>
 </head>
 <body>
@@ -1183,7 +1264,7 @@
         </div>
 
         <section class="panel">
-            <h2 class="panel-title">Select Tickets</h2>
+            <h2 class="panel-title"></h2>
             <div id="bookingFormContainer">
                  <input type="text" id="bookerName" placeholder="Your Name">
                  <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
@@ -1595,6 +1676,20 @@
     </div>
 </div>
 
+<!-- NEW: Booking Success Popup -->
+<div class="overlay-popup" id="bookingSuccessPopup">
+    <div class="popup-content" style="background: var(--primary-surface); border-color: #2ecc71; box-shadow: 0 0 20px rgba(46, 204, 113, 0.5); padding: 2rem;">
+        <div class="success-animation">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
+        <h3 class="popup-title" id="bookingSuccessTitle" style="color: #2ecc71; text-shadow: 0 0 8px #2ecc71; margin-top: 1rem;">Booking Successful!</h3>
+        <p id="bookingSuccessMessage" style="text-align: center; color: var(--text-secondary); line-height: 1.5;"></p>
+    </div>
+</div>
+
 
 <script>
 const firebaseConfig = {
@@ -1766,6 +1861,7 @@ auth.onAuthStateChanged(async (user) => {
     if (!authInitialized) {
         authInitialized = true;
         setupRealtimeListeners();
+        processBookingLink(); // This will now handle the short link
     }
     handleRouting();
 });
@@ -2269,7 +2365,7 @@ function renderVisualTicketBookingPage() {
                 ticketView.onclick = () => togglePublicTicketSelection(j);
             }
 
-            let headerHTML = `<div class="ticket-header">Ticket #${j}</div>`;
+            let headerHTML = `<div class="ticket-header">Ticket ${j}</div>`;
             let gridHTML = '';
 
             if (ticket) {
@@ -2337,15 +2433,19 @@ function handlePublicBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicSelectedTickets);
 }
 
-function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
+async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     const container = document.getElementById('bookingAgentListContainer');
     container.innerHTML = '';
-    const agents = allUsersData     .filter(u => u.role === 'admin' || u.role === 'agent')     .sort((a, b) => {         if (a.role === 'admin' && b.role !== 'admin') return -1;         if (a.role !== 'admin' && b.role === 'admin') return 1;         return (a.name || '').localeCompare(b.name || '');     });
+    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent').sort((a, b) => {
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (a.role !== 'admin' && b.role === 'admin') return 1;
+        return (a.name || '').localeCompare(b.name || '');
+    });
     if (agents.length > 0) {
         agents.forEach(agent => {
             const link = document.createElement('a');
             link.href = '#';
-            link.onclick = (e) => { e.preventDefault(); redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
+            link.onclick = async (e) => { e.preventDefault(); await redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
             link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
         });
@@ -2355,12 +2455,180 @@ function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     }
 }
 
-function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
-    const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
-    const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}`;
-    const cleanPhone = agentPhone.replace(/\D/g, '');
-    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
-    closePopups();
+function generateUniqueCode() {
+    // 6 character alphanumeric code
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
+    const code = generateUniqueCode();
+    const bookingRequest = {
+        name: userName,
+        phone: userPhone,
+        tickets: ticketIds,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        requestedBy: "public_user"
+    };
+
+    try {
+        const snapshot = await db.ref(`bookingRequests/${code}`).once('value');
+        if (snapshot.exists()) {
+            return redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds); // Recurse on collision
+        }
+
+        await db.ref(`bookingRequests/${code}`).set(bookingRequest);
+
+        const baseURL = window.location.origin + window.location.pathname;
+        const bookingLink = `${baseURL}?book=${code}`;
+
+        const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
+        
+        const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm (Admin/Agent Only):*\n${bookingLink}`;
+        
+        const cleanPhone = agentPhone.replace(/\D/g, '');
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        closePopups();
+
+    } catch (error) {
+        console.error("Error creating booking link:", error);
+        showNotification("Could not create booking link. Please try again.", "error");
+    }
+}
+
+async function processBookingLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookingCode = urlParams.get('book');
+    
+    if (!bookingCode) return;
+
+    // --- NEW: Start full-page loading ---
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    
+    const popup = document.getElementById('bookingSuccessPopup');
+    const titleEl = document.getElementById('bookingSuccessTitle');
+    const messageEl = document.getElementById('bookingSuccessMessage');
+    const checkmarkSVG = popup.querySelector('.checkmark');
+
+    titleEl.textContent = 'Processing Booking...';
+    messageEl.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 1rem;">Please wait while we confirm the booking.</p>';
+    if (checkmarkSVG) checkmarkSVG.style.display = 'none';
+    
+    showPopup('bookingSuccessPopup');
+    // --- END NEW ---
+
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Helper function for cleanup on error
+    const handleErrorAndCleanup = (msg) => {
+        closePopups();
+        showNotification(msg, 'error');
+        handleRouting(); // Restore the default view based on hash
+    };
+
+    const startTime = Date.now();
+    while (!authInitialized && Date.now() - startTime < 8000) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
+        handleErrorAndCleanup('You must be logged in as an Admin or Agent to confirm a booking.');
+        showPopup('loginPopup');
+        return;
+    }
+
+    while (allTicketsData.length === 0 && Date.now() - startTime < 15000) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (allTicketsData.length === 0) {
+        handleErrorAndCleanup('Could not load ticket data. Please refresh and try again.');
+        return;
+    }
+    
+    const requestRef = db.ref(`bookingRequests/${bookingCode}`);
+    try {
+        const snapshot = await requestRef.once('value');
+        if (!snapshot.exists()) {
+            handleErrorAndCleanup('This booking link is invalid or has already been used.');
+            return;
+        }
+
+        const requestData = snapshot.val();
+        const { name, phone, tickets: ticketIdsToBook } = requestData;
+
+        if (!name || !phone || !Array.isArray(ticketIdsToBook) || ticketIdsToBook.length === 0) {
+            handleErrorAndCleanup('Invalid data in booking link.');
+            await requestRef.remove();
+            return;
+        }
+
+        const alreadySold = [];
+        for (const id of ticketIdsToBook) {
+            const ticketData = allTicketsData.find(t => t.id === id);
+            if (ticketData && ticketData.is_sold) {
+                alreadySold.push(id);
+            }
+        }
+        
+        if (alreadySold.length > 0) {
+             handleErrorAndCleanup(`Cannot book. Ticket(s) ${alreadySold.join(', ')} are already sold.`);
+             await requestRef.remove();
+             return;
+        }
+
+        const updates = {};
+        const timestamp = firebase.database.ServerValue.TIMESTAMP;
+        ticketIdsToBook.forEach(id => {
+            updates[`/tickets/${id}/is_sold`] = true;
+            updates[`/tickets/${id}/owner_name`] = name;
+            updates[`/tickets/${id}/owner_name_lower`] = name.toLowerCase();
+            updates[`/tickets/${id}/owner_phone`] = phone;
+            updates[`/tickets/${id}/agent_uid`] = currentUser.uid;
+            updates[`/tickets/${id}/sold_at`] = timestamp;
+        });
+
+        await db.ref().update(updates);
+        await requestRef.remove();
+
+        // --- NEW: Handle success state ---
+        const successMsg = `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting to dashboard...`;
+        
+        titleEl.textContent = 'Booking Successful!';
+        messageEl.textContent = successMsg;
+        
+        if (checkmarkSVG) {
+            checkmarkSVG.style.display = 'block';
+            const circle = popup.querySelector('.checkmark__circle');
+            const check = popup.querySelector('.checkmark__check');
+            checkmarkSVG.style.animation = 'none';
+            circle.style.animation = 'none';
+            check.style.animation = 'none';
+            void checkmarkSVG.offsetWidth; // Force reflow
+            checkmarkSVG.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
+            circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
+            check.style.animation = 'stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards';
+        }
+
+        triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
+
+        setTimeout(() => {
+            if (currentUserRole) {
+                window.location.hash = currentUserRole;
+            } else {
+                handleRouting(); // fallback
+            }
+            // No need to close popup as the view will be replaced
+        }, 4000);
+        // --- END NEW ---
+
+    } catch(e) {
+        handleErrorAndCleanup('Error processing booking: ' + e.message);
+        await requestRef.remove().catch(err => console.error("Failed to cleanup requestRef on error", err));
+    }
 }
 
 function searchTicketPublic(searchTermOverride = null, isRerender = false) {
@@ -2409,7 +2677,7 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
             }
             
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="ticket-header">Ticket #${ticket.id}: ${ticket.owner_name}</div>
+                        <div class="ticket-header">Ticket ${ticket.id}: ${ticket.owner_name}</div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         });
@@ -2580,15 +2848,15 @@ function renderSheetWiseBookedList() {
             ticketView.setAttribute('data-ticket-id', j);
 
             if (!ticket) {
-                ticketView.innerHTML = `<div class="ticket-header">Ticket #${j} Data Missing</div>`;
+                ticketView.innerHTML = `<div class="ticket-header">Ticket ${j} Data Missing</div>`;
             } else {
                  let headerHTML;
                 if (ticket.is_sold) {
-                    headerHTML = `<div class="ticket-header"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket #${j}</span></div>`;
+                    headerHTML = `<div class="ticket-header"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${j}</span></div>`;
                 } else {
                     headerHTML = `
                         <div class="ticket-header">
-                            <span>Ticket #${j}</span>
+                            <span>Ticket ${j}</span>
                             <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
                         </div>`;
                 }
@@ -2629,7 +2897,7 @@ function showAllWinningTicketsForDividend(dividendName) {
         const winningNumber = winner.winningNumber;
         const ticketId = winner.ticketId;
         
-        allTicketsHTML += `<h4 style="color: #01579b; margin-top: 1rem; text-align: center; border-bottom: 1px solid #b3e5fc; padding-bottom: 0.5rem;">${winner.name} (${typeof ticketId === 'number' ? `Tkt #${ticketId}` : ticketId})</h4>`;
+        allTicketsHTML += `<h4 style="color: #01579b; margin-top: 1rem; text-align: center; border-bottom: 1px solid #b3e5fc; padding-bottom: 0.5rem;">${winner.name} (${typeof ticketId === 'number' ? `Tkt ${ticketId}` : ticketId})</h4>`;
         
         let ticketsToDisplay = [];
 
@@ -2670,7 +2938,7 @@ function showAllWinningTicketsForDividend(dividendName) {
 
 
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
-                                    <div class="ticket-header">Ticket #${ticket.id}</div>
+                                    <div class="ticket-header">Ticket ${ticket.id}</div>
                                     <div class="ticket-grid">${gridHTML}</div>
                                </div>`;
             });
@@ -2981,7 +3249,7 @@ function showLastSoldTicket() {
         const lastTicket = soldTickets[0];
         const agent = allUsersData.find(u => u.uid === lastTicket.agent_uid);
         const agentName = agent ? agent.name : 'Admin/Direct';
-        showNotification(`Last ticket sold: #${lastTicket.id} to ${lastTicket.owner_name} by ${agentName}.`, 'info');
+        showNotification(`Last ticket sold: ${lastTicket.id} to ${lastTicket.owner_name} by ${agentName}.`, 'info');
     } else {
         showNotification('No tickets have been sold yet.', 'info');
     }
@@ -3064,6 +3332,7 @@ function updateAdminList() {
     if (currentView !== 'adminDashboardView') return;
     const searchTerm = document.getElementById('adminSearchKeyInp').value.toLowerCase();
     const table = document.getElementById('adminGameSettingTable');
+    table.className = 'gameSettingTable1'; // Reset class
 
     if (adminListState === 'tickets') {
         const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
@@ -3076,7 +3345,7 @@ function updateAdminList() {
                     return `<tr class="admin-ticket-row">
                         <td>
                            <div class="booked-ticket-line-1">
-                                <span>#${t.id}: ${t.owner_name}</span>
+                                <span>${t.id}: ${t.owner_name}</span>
                                 <div>
                                     <i class="fas fa-edit" onclick="showEditTicketPopup(${t.id}, '${name}', '${phone}')"></i>
                                     <i class="fas fa-trash-alt" onclick="promptDeleteTicket(${t.id}, '${name}', '${phone}')"></i>
@@ -3097,30 +3366,79 @@ function updateAdminList() {
                 }
             }).join('') + `</tbody>`;
     } else {
+        table.classList.add('agent-list-table');
+        const commissionPerTicket = gameSettingsData.agentCommission || 0;
         const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').toLowerCase().includes(searchTerm));
-        table.innerHTML = `` +
-            users.map(u => {
-                const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
-                let actionCell = `<td data-label="Actions">-</td>`;
-                if (u.role === 'agent') {
-                     const name = u.name ? u.name.replace(/'/g, "\\'") : '';
-                    actionCell = `<td data-label="Actions"><i class="fas fa-trash-alt" style="color: #e74c3c; cursor: pointer;" title="Delete Agent" onclick="deleteUser('${u.uid}', '${name}')"></i></td>`;
-                }
-                return `<tr>
-                    <td data-label="Name">${u.name}</td>
-                    <td data-label="Role">${u.role}</td>
-                    <td data-label="Phone">${u.phone}</td>
-                    <td data-label="Sold">${soldCount}</td>
-                    ${actionCell}
-                </tr>`;
-            }).join('') + `</tbody>`;
+        
+        let tableHTML = `<thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th style="text-align:center;">Sold</th>
+                                <th>Commission</th>
+                                <th style="text-align:center;">Actions</th>
+                            </tr>
+                         </thead>
+                         <tbody>`;
+
+        tableHTML += users.map(u => {
+            const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
+            const commission = soldCount * commissionPerTicket;
+            const safeName = u.name ? u.name.replace(/'/g, "\\'") : 'N/A';
+            
+            let actionCell = '<td>-</td>';
+            if (u.role === 'agent') {
+                actionCell = `<td style="text-align:center;"><i class="fas fa-trash-alt" style="color: #e74c3c; cursor: pointer;" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i></td>`;
+            }
+
+            return `<tr onclick="showAgentBookings('${u.uid}', '${safeName}')" title="Click to see tickets sold by ${safeName}" style="cursor: pointer;">
+                        <td>${u.name || 'N/A'} <span style="opacity:0.7;font-size:0.8em;">(${u.role})</span></td>
+                        <td>${u.phone || 'N/A'}</td>
+                        <td style="text-align:center;">${soldCount}</td>
+                        <td style="text-align:right; padding-right: 5px;">₹ ${commission.toLocaleString()}</td>
+                        ${actionCell}
+                    </tr>`;
+        }).join('');
+
+        tableHTML += `</tbody>`;
+        table.innerHTML = tableHTML;
     }
 }
+
+function showAgentBookings(agentUid, agentName) {
+    if (!agentUid) return;
+
+    const agentBookings = allTicketsData
+        .filter(t => t.agent_uid === agentUid)
+        .sort((a, b) => a.id - b.id);
+
+    const titleEl = document.getElementById('genericInfoPopupTitle');
+    const contentEl = document.getElementById('genericInfoPopupContent');
+
+    titleEl.textContent = `Tickets Sold by ${agentName}`;
+
+    if (agentBookings.length === 0) {
+        contentEl.innerHTML = '<p style="padding: 1rem; text-align: center;">This user has not sold any tickets yet.</p>';
+    } else {
+        let contentHTML = '<ul>';
+        agentBookings.forEach(ticket => {
+            contentHTML += `<li>
+                <strong>Ticket ${ticket.id}</strong><br>
+                <span style="font-size: 0.9em;">Owner: ${ticket.owner_name} | Phone: ${ticket.owner_phone || 'N/A'}</span>
+            </li>`;
+        });
+        contentHTML += '</ul>';
+        contentEl.innerHTML = contentHTML;
+    }
+    
+    showPopup('genericInfoPopup');
+}
+
 
 function showEditTicketPopup(ticketId, currentName, currentPhone) {
     ticketIdToEdit = ticketId; 
     originalOwnerInfo = { name: currentName, phone: currentPhone }; 
-    document.getElementById('editOwnerInfoText').innerHTML = `Editing details for Ticket <b>#${ticketId}</b>.`;
+    document.getElementById('editOwnerInfoText').innerHTML = `Editing details for Ticket <b>${ticketId}</b>.`;
     document.getElementById('editOwnerNameInp').value = currentName;
     document.getElementById('editOwnerPhoneInp').value = currentPhone;
     showPopup('editOwnerPopup');
@@ -3163,7 +3481,7 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         } else {
             const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
             if (singleTicket) ticketsToUpdate.push(singleTicket);
-            successMessage = `Ticket #${ticketIdToEdit} updated successfully!`;
+            successMessage = `Ticket ${ticketIdToEdit} updated successfully!`;
         }
 
         if (ticketsToUpdate.length === 0) {
@@ -3191,7 +3509,7 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
 
 function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
     if (!ownerPhone) {
-        if (confirm(`This ticket has no owner info. Are you sure you want to mark Ticket #${ticketId} as available?`)) {
+        if (confirm(`This ticket has no owner info. Are you sure you want to mark Ticket ${ticketId} as available?`)) {
             performDelete(ticketId, false);
         }
         return;
@@ -3202,14 +3520,14 @@ function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
     if (ownedTickets.length > 1) {
         ticketToDeleteInfo = { ticketId, ownerName, ownerPhone };
         const confirmText = document.getElementById('deleteConfirmText');
-        confirmText.innerHTML = `<b>${ownerName}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to delete all of them, or just this one (<b>#${ticketId}</b>)?`;
+        confirmText.innerHTML = `<b>${ownerName}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to delete all of them, or just this one (<b>${ticketId}</b>)?`;
 
         document.getElementById('confirmDeleteAllBtn').onclick = () => performDelete(ownerPhone, true);
         document.getElementById('confirmDeleteSingleBtn').onclick = () => performDelete(ticketId, false);
 
         showPopup('deleteConfirmPopup');
     } else {
-        if (confirm(`Are you sure you want to delete Ticket #${ticketId} for ${ownerName}? This will mark it as available.`)) {
+        if (confirm(`Are you sure you want to delete Ticket ${ticketId} for ${ownerName}? This will mark it as available.`)) {
             performDelete(ticketId, false);
         }
     }
@@ -3227,7 +3545,7 @@ async function performDelete(identifier, deleteAll) {
         } else {
             const singleTicket = allTicketsData.find(t => t.id === identifier);
             if (singleTicket) ticketsToReset.push(singleTicket);
-            successMessage = `Ticket #${identifier} has been deleted and is now available.`;
+            successMessage = `Ticket ${identifier} has been deleted and is now available.`;
         }
 
         if (ticketsToReset.length === 0) {
@@ -4242,7 +4560,7 @@ async function downloadTicketAsPDF(ticketId) {
     const startY = 20;
 
     doc.setFontSize(16);
-    doc.text(`Housie Ticket #${ticketData.id}`, startX, startY);
+    doc.text(`Housie Ticket ${ticketData.id}`, startX, startY);
     if(ticketData.is_sold){
         doc.setFontSize(10);
         doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
@@ -4262,7 +4580,7 @@ async function downloadTicketAsPDF(ticketId) {
     }
 
     doc.save(`Housie-Ticket-${ticketId}.pdf`);
-    showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
+    showNotification(`Downloading PDF for ticket ${ticketId}.`, 'success');
 }
 
 async function downloadWinnersPDF() {
@@ -4361,7 +4679,7 @@ function searchTicketAdmin() {
             }
             
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="ticket-header">Ticket #${ticket.id}</div>
+                        <div class="ticket-header">Ticket ${ticket.id}</div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         });
@@ -4429,4 +4747,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
