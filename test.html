@@ -2494,44 +2494,35 @@ async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
     }
 }
 
-function showBookingSuccessPopup(message, duration = 4000) {
-    const popup = document.getElementById('bookingSuccessPopup');
-    const messageEl = document.getElementById('bookingSuccessMessage');
-    
-    messageEl.textContent = message;
-    
-    // Reset animations for replayability
-    const checkmark = popup.querySelector('.checkmark');
-    const circle = popup.querySelector('.checkmark__circle');
-    const check = popup.querySelector('.checkmark__check');
-    checkmark.style.animation = 'none';
-    circle.style.animation = 'none';
-    check.style.animation = 'none';
-    
-    void checkmark.offsetWidth; // Force reflow
-
-    // Re-apply animations
-    checkmark.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
-    circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
-    check.style.animation = 'stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards';
-
-    showPopup('bookingSuccessPopup');
-
-    setTimeout(() => {
-        closePopups();
-        if (currentUserRole) {
-            window.location.hash = currentUserRole;
-        }
-    }, duration);
-}
-
 async function processBookingLink() {
     const urlParams = new URLSearchParams(window.location.search);
     const bookingCode = urlParams.get('book');
     
     if (!bookingCode) return;
 
+    // --- NEW: Start full-page loading ---
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    
+    const popup = document.getElementById('bookingSuccessPopup');
+    const titleEl = document.getElementById('bookingSuccessTitle');
+    const messageEl = document.getElementById('bookingSuccessMessage');
+    const checkmarkSVG = popup.querySelector('.checkmark');
+
+    titleEl.textContent = 'Processing Booking...';
+    messageEl.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 1rem;">Please wait while we confirm the booking.</p>';
+    if (checkmarkSVG) checkmarkSVG.style.display = 'none';
+    
+    showPopup('bookingSuccessPopup');
+    // --- END NEW ---
+
     window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Helper function for cleanup on error
+    const handleErrorAndCleanup = (msg) => {
+        closePopups();
+        showNotification(msg, 'error');
+        handleRouting(); // Restore the default view based on hash
+    };
 
     const startTime = Date.now();
     while (!authInitialized && Date.now() - startTime < 8000) {
@@ -2539,7 +2530,7 @@ async function processBookingLink() {
     }
     
     if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
-        showNotification('You must be logged in as an Admin or Agent to confirm a booking.', 'error');
+        handleErrorAndCleanup('You must be logged in as an Admin or Agent to confirm a booking.');
         showPopup('loginPopup');
         return;
     }
@@ -2548,7 +2539,7 @@ async function processBookingLink() {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
     if (allTicketsData.length === 0) {
-        showNotification('Could not load ticket data. Please refresh and try again.', 'error');
+        handleErrorAndCleanup('Could not load ticket data. Please refresh and try again.');
         return;
     }
     
@@ -2556,7 +2547,7 @@ async function processBookingLink() {
     try {
         const snapshot = await requestRef.once('value');
         if (!snapshot.exists()) {
-            showNotification('This booking link is invalid or has already been used.', 'error');
+            handleErrorAndCleanup('This booking link is invalid or has already been used.');
             return;
         }
 
@@ -2564,7 +2555,7 @@ async function processBookingLink() {
         const { name, phone, tickets: ticketIdsToBook } = requestData;
 
         if (!name || !phone || !Array.isArray(ticketIdsToBook) || ticketIdsToBook.length === 0) {
-            showNotification('Invalid data in booking link.', 'error');
+            handleErrorAndCleanup('Invalid data in booking link.');
             await requestRef.remove();
             return;
         }
@@ -2578,7 +2569,7 @@ async function processBookingLink() {
         }
         
         if (alreadySold.length > 0) {
-             showNotification(`Cannot book. Ticket(s) ${alreadySold.join(', ')} are already sold.`, 'error');
+             handleErrorAndCleanup(`Cannot book. Ticket(s) ${alreadySold.join(', ')} are already sold.`);
              await requestRef.remove();
              return;
         }
@@ -2597,16 +2588,42 @@ async function processBookingLink() {
         await db.ref().update(updates);
         await requestRef.remove();
 
-        const successMsg = `${ticketIdsToBook.length} ticket(s) booked for ${name}. Redirecting...`;
-        showBookingSuccessPopup(successMsg, 4000); 
+        // --- NEW: Handle success state ---
+        const successMsg = `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting to dashboard...`;
+        
+        titleEl.textContent = 'Booking Successful!';
+        messageEl.textContent = successMsg;
+        
+        if (checkmarkSVG) {
+            checkmarkSVG.style.display = 'block';
+            const circle = popup.querySelector('.checkmark__circle');
+            const check = popup.querySelector('.checkmark__check');
+            checkmarkSVG.style.animation = 'none';
+            circle.style.animation = 'none';
+            check.style.animation = 'none';
+            void checkmarkSVG.offsetWidth; // Force reflow
+            checkmarkSVG.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
+            circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
+            check.style.animation = 'stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards';
+        }
+
         triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
 
+        setTimeout(() => {
+            if (currentUserRole) {
+                window.location.hash = currentUserRole;
+            } else {
+                handleRouting(); // fallback
+            }
+            // No need to close popup as the view will be replaced
+        }, 4000);
+        // --- END NEW ---
+
     } catch(e) {
-        showNotification('Error processing booking: ' + e.message, 'error');
+        handleErrorAndCleanup('Error processing booking: ' + e.message);
         await requestRef.remove().catch(err => console.error("Failed to cleanup requestRef on error", err));
     }
 }
-
 
 function searchTicketPublic(searchTermOverride = null, isRerender = false) {
     const searchTerm = searchTermOverride || document.getElementById('ticketSearchInp').value.trim();
