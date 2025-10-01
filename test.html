@@ -108,93 +108,96 @@
     }
     .overlay-popup.active .popup-content { transform: scale(1); }
 
-    .top-down-notification-popup {
-        height: auto;
-        align-items: flex-start;
-        justify-content: center;
-        background: transparent;
-        backdrop-filter: none;
-        pointer-events: none;
-        padding-top: 10px;
-        z-index: 10000;
-        transform: translateY(-150%);
-        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
+.top-down-notification-popup {
+    background: transparent;
+    backdrop-filter: none;
+    align-items: flex-start;
+    padding-top: 6px;
+    pointer-events: none;
+    height: auto;
+    justify-content: center;
+    z-index: 10000;
+    transform: translateY(-150%);
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
 
-    .top-down-notification-popup.active {
-        transform: translateY(0);
-    }
+.top-down-notification-popup.active {
+    transform: translateY(0);
+}
 
-    .top-down-notification-popup .popup-content {
-        max-width: 800px;
-        width: 95%;
-        margin: 0 auto;
-        transform: none !important;
-        pointer-events: auto;
-        box-shadow: 0 5px 25px rgba(0, 246, 255, 0.3);
-        padding: 1rem 1.5rem;
-        max-height: none;
-        overflow-y: visible;
-        border-radius: 12px;
-    }
+.top-down-notification-popup .popup-content {
+    max-width: 600px;
+    width: 95%;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    transform: none !important;
+    pointer-events: auto;
+    max-height: none;
+    overflow-y: visible;
+}
 
+.top-down-notification-popup .notification-body {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-wrap: wrap;
+}
+
+.top-down-notification-popup .notification-logo img {
+    max-width: 45px !important;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.top-down-notification-popup .notification-text-content .popup-title {
+    display: none;
+}
+
+.top-down-notification-popup .notification-text-content {
+    flex-grow: 1;
+}
+
+.top-down-notification-popup .notification-text-content p {
+    margin: 0;
+    line-height: 1.4;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.top-down-notification-popup .notification-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.top-down-notification-popup .notification-actions .login-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    margin: 0;
+    width: auto;
+}
+
+/* Mobile View ke liye Specific Centering Layout */
+@media (max-width: 768px) {
     .top-down-notification-popup .notification-body {
-        display: flex;
-        align-items: center;
-        gap: 0.2rem;
+        justify-content: center; /* Sabhi items ko center karega */
     }
 
-    .top-down-notification-popup .notification-logo img {
-        max-width: 80px !important;
-        height: auto;
-    }
-
-    .top-down-notification-popup .notification-text-content {
-        flex-grow: 1;
-        color: var(--text-secondary);
-    }
-    .top-down-notification-popup .notification-text-content .popup-title {
-        margin: 0 0 0.5rem 0;
-        text-align: left;
-        font-size: 1.2rem;
-    }
     .top-down-notification-popup .notification-text-content p {
-        margin: 0;
-        line-height: 1.5;
-        font-size: 0.9rem;
+        text-align: center; /* Text ko center karega */
     }
-
+    
     .top-down-notification-popup .notification-actions {
-        display: flex;
-        gap: 0.8rem;
-        flex-shrink: 0;
+        width: 100%;
+        margin-top: 0.3rem;
+        justify-content: center; /* Buttons ko center karega */
     }
-
-    .top-down-notification-popup .notification-actions .login-btn {
-        width: auto;
-        padding: 0.5rem 1rem;
-        margin: 0;
-        font-size: 0.85rem;
-    }
-
-    @media (max-width: 768px) {
-        .top-down-notification-popup .notification-body {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-        }
-        .top-down-notification-popup .notification-text-content .popup-title {
-            text-align: center;
-        }
-        .top-down-notification-popup .notification-actions {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
+}
 
     .x-button {
-        background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
+        background: transparent; position: absolute; top: 0.3rem; right: 0.5rem;
         cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;
         transition: color 0.3s, transform 0.3s;
         z-index: 10;
@@ -2359,7 +2362,7 @@ function renderVisualTicketBookingPage() {
                 ticketView.onclick = () => togglePublicTicketSelection(j);
             }
 
-            let headerHTML = `<div class="ticket-header">Ticket #${j}</div>`;
+            let headerHTML = `<div class="ticket-header">Ticket ${j}</div>`;
             let gridHTML = '';
 
             if (ticket) {
@@ -2671,7 +2674,7 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
             }
             
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="ticket-header">Ticket #${ticket.id}: ${ticket.owner_name}</div>
+                        <div class="ticket-header">Ticket ${ticket.id}: ${ticket.owner_name}</div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         });
@@ -2842,15 +2845,15 @@ function renderSheetWiseBookedList() {
             ticketView.setAttribute('data-ticket-id', j);
 
             if (!ticket) {
-                ticketView.innerHTML = `<div class="ticket-header">Ticket #${j} Data Missing</div>`;
+                ticketView.innerHTML = `<div class="ticket-header">Ticket ${j} Data Missing</div>`;
             } else {
                  let headerHTML;
                 if (ticket.is_sold) {
-                    headerHTML = `<div class="ticket-header"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket #${j}</span></div>`;
+                    headerHTML = `<div class="ticket-header"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${j}</span></div>`;
                 } else {
                     headerHTML = `
                         <div class="ticket-header">
-                            <span>Ticket #${j}</span>
+                            <span>Ticket ${j}</span>
                             <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
                         </div>`;
                 }
@@ -2891,7 +2894,7 @@ function showAllWinningTicketsForDividend(dividendName) {
         const winningNumber = winner.winningNumber;
         const ticketId = winner.ticketId;
         
-        allTicketsHTML += `<h4 style="color: #01579b; margin-top: 1rem; text-align: center; border-bottom: 1px solid #b3e5fc; padding-bottom: 0.5rem;">${winner.name} (${typeof ticketId === 'number' ? `Tkt #${ticketId}` : ticketId})</h4>`;
+        allTicketsHTML += `<h4 style="color: #01579b; margin-top: 1rem; text-align: center; border-bottom: 1px solid #b3e5fc; padding-bottom: 0.5rem;">${winner.name} (${typeof ticketId === 'number' ? `Tkt ${ticketId}` : ticketId})</h4>`;
         
         let ticketsToDisplay = [];
 
@@ -2932,7 +2935,7 @@ function showAllWinningTicketsForDividend(dividendName) {
 
 
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
-                                    <div class="ticket-header">Ticket #${ticket.id}</div>
+                                    <div class="ticket-header">Ticket ${ticket.id}</div>
                                     <div class="ticket-grid">${gridHTML}</div>
                                </div>`;
             });
@@ -3243,7 +3246,7 @@ function showLastSoldTicket() {
         const lastTicket = soldTickets[0];
         const agent = allUsersData.find(u => u.uid === lastTicket.agent_uid);
         const agentName = agent ? agent.name : 'Admin/Direct';
-        showNotification(`Last ticket sold: #${lastTicket.id} to ${lastTicket.owner_name} by ${agentName}.`, 'info');
+        showNotification(`Last ticket sold: ${lastTicket.id} to ${lastTicket.owner_name} by ${agentName}.`, 'info');
     } else {
         showNotification('No tickets have been sold yet.', 'info');
     }
@@ -3339,7 +3342,7 @@ function updateAdminList() {
                     return `<tr class="admin-ticket-row">
                         <td>
                            <div class="booked-ticket-line-1">
-                                <span>#${t.id}: ${t.owner_name}</span>
+                                <span>${t.id}: ${t.owner_name}</span>
                                 <div>
                                     <i class="fas fa-edit" onclick="showEditTicketPopup(${t.id}, '${name}', '${phone}')"></i>
                                     <i class="fas fa-trash-alt" onclick="promptDeleteTicket(${t.id}, '${name}', '${phone}')"></i>
@@ -3417,7 +3420,7 @@ function showAgentBookings(agentUid, agentName) {
         let contentHTML = '<ul>';
         agentBookings.forEach(ticket => {
             contentHTML += `<li>
-                <strong>Ticket #${ticket.id}</strong><br>
+                <strong>Ticket ${ticket.id}</strong><br>
                 <span style="font-size: 0.9em;">Owner: ${ticket.owner_name} | Phone: ${ticket.owner_phone || 'N/A'}</span>
             </li>`;
         });
@@ -3432,7 +3435,7 @@ function showAgentBookings(agentUid, agentName) {
 function showEditTicketPopup(ticketId, currentName, currentPhone) {
     ticketIdToEdit = ticketId; 
     originalOwnerInfo = { name: currentName, phone: currentPhone }; 
-    document.getElementById('editOwnerInfoText').innerHTML = `Editing details for Ticket <b>#${ticketId}</b>.`;
+    document.getElementById('editOwnerInfoText').innerHTML = `Editing details for Ticket <b>${ticketId}</b>.`;
     document.getElementById('editOwnerNameInp').value = currentName;
     document.getElementById('editOwnerPhoneInp').value = currentPhone;
     showPopup('editOwnerPopup');
@@ -3475,7 +3478,7 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         } else {
             const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
             if (singleTicket) ticketsToUpdate.push(singleTicket);
-            successMessage = `Ticket #${ticketIdToEdit} updated successfully!`;
+            successMessage = `Ticket ${ticketIdToEdit} updated successfully!`;
         }
 
         if (ticketsToUpdate.length === 0) {
@@ -3503,7 +3506,7 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
 
 function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
     if (!ownerPhone) {
-        if (confirm(`This ticket has no owner info. Are you sure you want to mark Ticket #${ticketId} as available?`)) {
+        if (confirm(`This ticket has no owner info. Are you sure you want to mark Ticket ${ticketId} as available?`)) {
             performDelete(ticketId, false);
         }
         return;
@@ -3514,14 +3517,14 @@ function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
     if (ownedTickets.length > 1) {
         ticketToDeleteInfo = { ticketId, ownerName, ownerPhone };
         const confirmText = document.getElementById('deleteConfirmText');
-        confirmText.innerHTML = `<b>${ownerName}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to delete all of them, or just this one (<b>#${ticketId}</b>)?`;
+        confirmText.innerHTML = `<b>${ownerName}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to delete all of them, or just this one (<b>${ticketId}</b>)?`;
 
         document.getElementById('confirmDeleteAllBtn').onclick = () => performDelete(ownerPhone, true);
         document.getElementById('confirmDeleteSingleBtn').onclick = () => performDelete(ticketId, false);
 
         showPopup('deleteConfirmPopup');
     } else {
-        if (confirm(`Are you sure you want to delete Ticket #${ticketId} for ${ownerName}? This will mark it as available.`)) {
+        if (confirm(`Are you sure you want to delete Ticket ${ticketId} for ${ownerName}? This will mark it as available.`)) {
             performDelete(ticketId, false);
         }
     }
@@ -3539,7 +3542,7 @@ async function performDelete(identifier, deleteAll) {
         } else {
             const singleTicket = allTicketsData.find(t => t.id === identifier);
             if (singleTicket) ticketsToReset.push(singleTicket);
-            successMessage = `Ticket #${identifier} has been deleted and is now available.`;
+            successMessage = `Ticket ${identifier} has been deleted and is now available.`;
         }
 
         if (ticketsToReset.length === 0) {
@@ -4554,7 +4557,7 @@ async function downloadTicketAsPDF(ticketId) {
     const startY = 20;
 
     doc.setFontSize(16);
-    doc.text(`Housie Ticket #${ticketData.id}`, startX, startY);
+    doc.text(`Housie Ticket ${ticketData.id}`, startX, startY);
     if(ticketData.is_sold){
         doc.setFontSize(10);
         doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
@@ -4574,7 +4577,7 @@ async function downloadTicketAsPDF(ticketId) {
     }
 
     doc.save(`Housie-Ticket-${ticketId}.pdf`);
-    showNotification(`Downloading PDF for ticket #${ticketId}.`, 'success');
+    showNotification(`Downloading PDF for ticket ${ticketId}.`, 'success');
 }
 
 async function downloadWinnersPDF() {
@@ -4673,7 +4676,7 @@ function searchTicketAdmin() {
             }
             
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="ticket-header">Ticket #${ticket.id}</div>
+                        <div class="ticket-header">Ticket ${ticket.id}</div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         });
