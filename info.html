@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,6 +20,7 @@
             --error-color: #e74c3c;
             --success-color: #2ecc71;
             --warning-color: #f39c12;
+            --info-color: #3498db;
         }
     * {
         margin: 0;
@@ -158,10 +160,15 @@
 
     /* --- MAIN CONTENT STYLES --- */
     #main-container { display: none; max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
-    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 2rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
     .header h1 { font-size: 2rem; font-weight: 700; }
+    .header-buttons { display: flex; align-items: center; gap: 0.8rem; }
     #logout-btn { background: var(--error-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
     #logout-btn:hover { background-color: #c0392b; }
+    /* HISTORY BUTTON STYLE - START */
+    #view-history-btn { background: var(--info-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
+    #view-history-btn:hover { background-color: #2980b9; }
+    /* HISTORY BUTTON STYLE - END */
     .container-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
     .calc-card { background-color: var(--secondary-bg-dash); padding: 1.5rem; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
     .calc-card h2 { color: var(--accent-color-dash); margin-bottom: 1.5rem; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; }
@@ -175,16 +182,17 @@
     .assignment-section h3 { color: var(--light-text-dash); font-size: 1.2rem; margin-bottom: 0.5rem; }
     .info-text { font-size: 0.9rem; color: var(--muted-color-dash); margin-bottom: 1rem; }
     .assignment-list { max-height: 250px; overflow-y: auto; border: 1px solid var(--primary-bg-dash); border-radius: 4px; padding: 0.5rem; background-color: var(--primary-bg-dash); }
-    .assignment-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--secondary-bg-dash); transition: opacity 0.3s; }
+    .assignment-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--secondary-bg-dash); transition: opacity 0.3s; gap: 15px;}
     .assignment-item.excluded { opacity: 0.6; }
     .assignment-item.excluded .details .name, .assignment-item.excluded .details .sub-text { text-decoration: line-through; color: var(--muted-color-dash); }
     .assignment-item:last-child { border-bottom: none; }
-    .assignment-item .toggle-group { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+    .assignment-item .toggle-group { display: flex; align-items: center; gap: 6px; flex-grow: 1; }
     .assignment-item .toggle-group input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
-    .assignment-item .details { flex-grow: 1; margin-right: 1rem; }
+    .assignment-item .details { flex-grow: 1; margin-right: 0; }
     .assignment-item .details .name { font-weight: 600; color: var(--light-text-dash); }
     .assignment-item .details .sub-text { font-size: 0.85rem; color: var(--muted-color-dash); display: block; }
-    .assignment-item select { width: auto; min-width: 120px; flex-shrink: 0; padding: 0.4rem; }
+    .assignment-item select { width: auto; min-width: 80px; flex-shrink: 0; padding: 0.4rem; }
+    .extra-tickets-input { text-align: center; }
     
     /* --- RESULTS VIEW STYLES --- */
     #results-view { padding-top: 2rem; }
@@ -216,6 +224,7 @@
         justify-content: center;
         z-index: 1000;
         backdrop-filter: blur(5px);
+        padding: 1rem;
     }
     .modal-content {
         background-color: var(--secondary-bg-dash);
@@ -228,6 +237,7 @@
         border-top: 4px solid var(--accent-color-dash);
         transform: scale(0.9);
         animation: modal-pop 0.3s ease-out forwards;
+        position: relative;
     }
     @keyframes modal-pop {
         to { transform: scale(1); }
@@ -257,8 +267,31 @@
         background-color: #27ae60;
         transform: translateY(-2px);
     }
+    /* CLOSE BUTTON FOR MODALS - START */
+    .modal-close-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: transparent;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--muted-color-dash);
+        cursor: pointer;
+        line-height: 1;
+        padding: 0.5rem;
+        transition: color 0.2s, transform 0.2s;
+    }
+    .modal-close-btn:hover {
+        color: var(--light-text-dash);
+        transform: rotate(90deg);
+    }
+    /* CLOSE BUTTON FOR MODALS - END */
 
     /* --- NEW: HISTORY STYLES --- */
+    #history-list {
+        max-height: 60vh; /* Allow more height in modal */
+        overflow-y: auto;
+    }
     #history-list .history-item {
         display: flex;
         justify-content: space-between;
@@ -362,21 +395,15 @@
 <div id="main-container">
     <header class="header">
         <h1>Admin Settlement Panel</h1>
-        <div>
+        <div class="header-buttons">
             <span id="admin-name" style="margin-right: 1rem;"></span>
+            <!-- HISTORY FIX: ADDED VIEW HISTORY BUTTON -->
+            <button id="view-history-btn"><i class="fas fa-history"></i> View History</button>
             <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </header>
 
-    <div id="history-view" class="calc-card" style="margin-bottom: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; margin-bottom: 1rem;">
-            <h2 style="border-bottom: none; margin-bottom: 0;"><i class="fas fa-history"></i> Calculation History</h2>
-            <button id="clear-all-history-btn" style="width: auto; margin:0; padding: 0.5rem 1rem; background-color: var(--error-color); border-radius: 5px; border:none; color:white; font-weight: 600; cursor:pointer;">Clear All</button>
-        </div>
-        <div id="history-list" class="assignment-list" style="max-height: 400px; padding: 0;">
-            <p style="padding: 1rem; text-align: center; color: var(--muted-color-dash);">No history found.</p>
-        </div>
-    </div>
+    <!-- HISTORY FIX: HISTORY VIEW IS NOW A MODAL (SEE BELOW), REMOVED FROM HERE -->
 
     <div id="calculator-view">
          <div class="calc-card">
@@ -391,9 +418,17 @@
                     <input type="number" id="free-full-sheet-settlement" placeholder="e.g., 2" value="0">
                 </div>
             </div>
+
+            <!-- NEW: Admin Adjustments Section -->
+            <div class="assignment-section">
+                <h3><i class="fas fa-user-shield"></i> Admin Adjustments</h3>
+                <p class="info-text">Add/remove tickets for an Admin's commission calculation.</p>
+                <div id="admin-adjustment-list" class="assignment-list"></div>
+            </div>
+            
             <div class="assignment-section">
                 <h3><i class="fas fa-user-tie"></i> Agent Inclusion & Assignment</h3>
-                <p class="info-text">Uncheck an agent to exclude them from calculations.</p>
+                <p class="info-text">Uncheck an agent to exclude them and their prize payouts. Add/remove tickets for commission calculation.</p>
                 <div id="agent-assignment-list" class="assignment-list"></div>
             </div>
             <div class="assignment-section">
@@ -416,6 +451,20 @@
         <h2>Confirmation Required</h2>
         <p>Please confirm with another admin before calculation. Clicking below will take you to the dashboard.</p>
         <button id="confirm-proceed-btn">Proceed to Dashboard</button>
+    </div>
+</div>
+
+<!-- HISTORY FIX: CREATED HISTORY MODAL -->
+<div id="history-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 700px; text-align: left;">
+        <button class="modal-close-btn" id="close-history-modal">&times;</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+            <h2 style="border-bottom: none; margin-bottom: 0;"><i class="fas fa-history"></i> Calculation History</h2>
+            <button id="clear-all-history-btn" style="width: auto; margin:0; padding: 0.5rem 1rem; background-color: var(--error-color); border-radius: 5px; border:none; color:white; font-weight: 600; cursor:pointer;">Clear All</button>
+        </div>
+        <div id="history-list" class="assignment-list" style="max-height: 60vh; padding: 0;">
+            <p style="padding: 1rem; text-align: center; color: var(--muted-color-dash);">No history found.</p>
+        </div>
     </div>
 </div>
 
@@ -442,7 +491,8 @@
     const mainContainer = document.getElementById('main-container');
     const calcView = document.getElementById('calculator-view');
     const resultsView = document.getElementById('results-view');
-    const historyView = document.getElementById('history-view');
+    // HISTORY FIX: Get reference to the new history modal
+    const historyModal = document.getElementById('history-modal');
     const bgMusic = document.getElementById('background-music');
     const verificationContainer = document.getElementById('verification-container');
     const successContainer = document.getElementById('success-container');
@@ -533,7 +583,7 @@
         const freePerHalf = parseInt(document.getElementById('free-half-sheet-settlement').value, 10) || 0;
         const freePerFull = parseInt(document.getElementById('free-full-sheet-settlement').value, 10) || 0;
         
-        const includedAgentUids = Array.from(document.querySelectorAll('#agent-assignment-list .include-checkbox:checked')).map(cb => cb.dataset.agentUid);
+        const includedAgentUids = Array.from(document.querySelectorAll('#agent-assignment-list .include-checkbox:checked')).map(cb => cb.dataset.uid);
         const initialSoldTickets = allTickets.filter(t => t.is_sold && t.owner_phone && (allUsers.find(u => u.uid === t.agent_uid)?.role === 'admin' || includedAgentUids.includes(t.agent_uid)));
 
         const processedTickets = JSON.parse(JSON.stringify(initialSoldTickets));
@@ -545,7 +595,7 @@
             for (const sheet in sheets) {
                 freeCount += (Math.floor(sheets[sheet] / 6) * freePerFull) + (Math.floor((sheets[sheet] % 6) / 3) * freePerHalf);
             }
-            ticketsInBooking.sort((a,b) => a.id - b.id); // Sort tickets to make free ones predictable
+            ticketsInBooking.sort((a,b) => a.id - b.id);
             for(let i=0; i < ticketsInBooking.length && i < freeCount; i++) {
                 ticketsInBooking[i].isFree = true;
             }
@@ -554,8 +604,8 @@
         const paidTickets = processedTickets.filter(t => !t.isFree);
         const freeTickets = processedTickets.filter(t => t.isFree);
 
-        const adminBalances = admins.map(admin => ({ name: admin.name, uid: admin.uid, ticketsSold: 0, freeTicketsGenerated: 0, directCollection: 0, transfersInFromAgents: 0, prizesPaid: 0 }));
-        const agentSettlements = agents.map(agent => ({ name: agent.name, uid: agent.uid, ticketsSold: 0, freeTicketsGenerated: 0, collection: 0, commission: 0, netTransfer: 0, transferToAdminName: 'N/A (Excluded)'}));
+        const adminBalances = admins.map(admin => ({ name: admin.name, uid: admin.uid, ticketsSold: 0, freeTicketsGenerated: 0, extraTickets: 0, commission: 0, directCollection: 0, transfersInFromAgents: 0, prizesPaid: 0 }));
+        const agentSettlements = agents.map(agent => ({ name: agent.name, uid: agent.uid, ticketsSold: 0, freeTicketsGenerated: 0, extraTickets: 0, collection: 0, commission: 0, netTransfer: 0, transferToAdminName: 'N/A (Excluded)'}));
 
         paidTickets.forEach(t => {
             const seller = adminBalances.find(a => a.uid === t.agent_uid) || agentSettlements.find(a => a.uid === t.agent_uid);
@@ -573,11 +623,15 @@
             }
         });
 
+        // --- NEW: Calculate Extra Tickets and Commissions ---
         agentSettlements.forEach(agent => {
+            const extraTicketsInput = document.querySelector(`#agent-assignment-list .extra-tickets-input[data-uid="${agent.uid}"]`);
+            agent.extraTickets = extraTicketsInput ? parseInt(extraTicketsInput.value, 10) || 0 : 0;
             agent.collection = agent.ticketsSold * ticketPrice;
-            agent.commission = (agent.ticketsSold + agent.freeTicketsGenerated) * commissionRate;
+            agent.commission = (agent.ticketsSold + agent.freeTicketsGenerated + agent.extraTickets) * commissionRate;
+            
             if (includedAgentUids.includes(agent.uid)) {
-                const item = document.querySelector(`#agent-assignment-list .agent-checkbox[data-agent-uid="${agent.uid}"]`).closest('.assignment-item');
+                const item = document.querySelector(`#agent-assignment-list .agent-checkbox[data-uid="${agent.uid}"]`).closest('.assignment-item');
                 const receivingAdmin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value);
                 if(receivingAdmin) {
                     agent.netTransfer = agent.collection - agent.commission;
@@ -587,14 +641,23 @@
             }
         });
 
-        adminBalances.forEach(admin => admin.directCollection = admin.ticketsSold * ticketPrice);
+        adminBalances.forEach(admin => {
+            const extraTicketsInput = document.querySelector(`#admin-adjustment-list .extra-tickets-input[data-uid="${admin.uid}"]`);
+            admin.extraTickets = extraTicketsInput ? parseInt(extraTicketsInput.value, 10) || 0 : 0;
+            admin.commission = (admin.ticketsSold + admin.freeTicketsGenerated + admin.extraTickets) * commissionRate;
+            admin.directCollection = admin.ticketsSold * ticketPrice;
+        });
+        // --- END NEW ---
+
+        const totalAgentCommissions = agentSettlements.reduce((sum, agent) => sum + agent.commission, 0);
+        const totalAdminCommissions = adminBalances.reduce((sum, admin) => sum + admin.commission, 0);
 
         const summary = {
             totalSoldTickets: paidTickets.length,
             totalFreeTickets: freeTickets.length,
             totalCollection: paidTickets.length * ticketPrice,
             totalPrizesPaid: adminBalances.reduce((sum, admin) => sum + admin.prizesPaid, 0),
-            totalCommissionsPaid: agentSettlements.reduce((sum, agent) => sum + agent.commission, 0),
+            totalCommissionsPaid: totalAgentCommissions + totalAdminCommissions
         };
         summary.netProfit = summary.totalCollection - (summary.totalPrizesPaid + summary.totalCommissionsPaid);
 
@@ -619,7 +682,7 @@
         resultsHtml += `<div class="results-area"><h3>Business Summary</h3><div class="result-block"><div class="result-item"><span>Total Paid Tickets</span><span>${summary.totalSoldTickets}</span></div><div class="result-item"><span>Total Free Tickets Given</span><span>${summary.totalFreeTickets}</span></div><div class="result-item"><span>(+) Total Collection</span><span>₹ ${summary.totalCollection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Prizes Paid</span><span>₹ ${Math.round(summary.totalPrizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Commissions</span><span>₹ ${Math.round(summary.totalCommissionsPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit / Loss</span><span>₹ ${Math.round(summary.netProfit).toLocaleString('en-IN')}</span></div></div></div>`;
         
         // Admin Balances
-        resultsHtml += `<div class="results-area"><h3>Admin Balances</h3>${admins.map(admin => { const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid; return `<div class="result-block"><h4>${admin.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${admin.freeTicketsGenerated}</span></div><div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString('en-IN')}</span></div><div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance in Hand</span><span>₹ ${Math.round(finalBalance).toLocaleString('en-IN')}</span></div></div>`; }).join('')}</div>`;
+        resultsHtml += `<div class="results-area"><h3>Admin Balances</h3>${admins.map(admin => { const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid; return `<div class="result-block"><h4>${admin.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${admin.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${admin.extraTickets}</span></div><div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString('en-IN')}</span></div><div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Commission Earned</span><span>₹ ${Math.round(admin.commission).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance in Hand</span><span>₹ ${Math.round(finalBalance).toLocaleString('en-IN')}</span></div></div>`; }).join('')}</div>`;
 
         // Profit Distribution
         const numAdmins = admins.length > 0 ? admins.length : 1;
@@ -650,7 +713,7 @@
         }
 
         // Agent Settlements
-        resultsHtml += `<div class="results-area"><h3>Agent Settlements</h3>${agents.map(agent => `<div class="result-block"><h4>${agent.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${agent.freeTicketsGenerated}</span></div><div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>Commission Earned</span><span>₹ ${Math.round(agent.commission).toLocaleString('en-IN')}</span></div><div class="result-item total"><span>Net Transfer to ${agent.transferToAdminName}</span><span>₹ ${agent.netTransfer > 0 ? Math.round(agent.netTransfer).toLocaleString('en-IN') : 0}</span></div></div>`).join('')}</div>`;
+        resultsHtml += `<div class="results-area"><h3>Agent Settlements</h3>${agents.map(agent => `<div class="result-block"><h4>${agent.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${agent.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${agent.extraTickets}</span></div><div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>Commission Earned</span><span>₹ ${Math.round(agent.commission).toLocaleString('en-IN')}</span></div><div class="result-item total"><span>Net Transfer to ${agent.transferToAdminName}</span><span>₹ ${agent.netTransfer > 0 ? Math.round(agent.netTransfer).toLocaleString('en-IN') : 0}</span></div></div>`).join('')}</div>`;
 
         resultsHtml += `<button class="calculate-btn" id="back-to-calc-btn">Back to Calculator</button>`;
         resultsView.innerHTML = resultsHtml;
@@ -658,15 +721,14 @@
         document.getElementById('back-to-calc-btn').addEventListener('click', () => { 
             resultsView.style.display = 'none'; 
             calcView.style.display = 'block'; 
-            historyView.style.display = 'block';
+            // HISTORY FIX: No need to show history view here anymore
         });
         calcView.style.display = 'none';
-        historyView.style.display = 'none';
+        // HISTORY FIX: No need to hide history view here anymore
         resultsView.style.display = 'block';
         window.scrollTo(0, 0);
     }
     
-    // --- HISTORY FUNCTIONS ---
     function renderHistory() {
         const historyList = document.getElementById('history-list');
         const sortedKeys = Object.keys(calculationHistory).sort((a, b) => calculationHistory[b].timestamp - calculationHistory[a].timestamp);
@@ -688,6 +750,19 @@
         }
     }
 
+    // HISTORY FIX: Added event listeners for the new history modal
+    document.getElementById('view-history-btn').addEventListener('click', () => {
+        historyModal.style.display = 'flex';
+    });
+    document.getElementById('close-history-modal').addEventListener('click', () => {
+        historyModal.style.display = 'none';
+    });
+    historyModal.addEventListener('click', (e) => {
+        if (e.target === historyModal) {
+            historyModal.style.display = 'none';
+        }
+    });
+
     document.getElementById('history-list').addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.delete-history-btn');
         if (deleteBtn) {
@@ -704,6 +779,7 @@
             const key = historyItem.dataset.key;
             const entry = calculationHistory[key];
             if (entry && entry.results) {
+                historyModal.style.display = 'none'; // Hide modal after clicking an item
                 renderResults(entry.results.summary, entry.results.admins, entry.results.agents);
             }
         }
@@ -715,38 +791,51 @@
         }
     });
 
-    // --- START OF IMPLEMENTED FIX ---
-    // This is the updated function that fixes the issue.
     function populateAssignmentLists() {
         const admins = allUsers.filter(u => u.role === 'admin');
         const agents = allUsers.filter(u => u.role === 'agent');
         const agentListContainer = document.getElementById('agent-assignment-list');
         const winnerListContainer = document.getElementById('winner-assignment-list');
+        const adminAdjustmentContainer = document.getElementById('admin-adjustment-list');
 
         agentListContainer.innerHTML = '';
         winnerListContainer.innerHTML = '';
+        adminAdjustmentContainer.innerHTML = '';
 
         if (admins.length === 0) return;
 
         const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
 
-        // 1. Create Agent List HTML
+        adminAdjustmentContainer.innerHTML = admins.map(admin => `
+            <div class="assignment-item">
+                <div class="details" style="flex-grow: 1;">
+                    <span class="name">${admin.name}</span>
+                </div>
+                 <div style="width: 120px; text-align: right;">
+                  
+                    <input type="number" class="extra-tickets-input" data-uid="${admin.uid}" placeholder="free tkt" style="width: 100%; padding: 0.4rem;">
+                </div>
+            </div>
+        `).join('') || '<p>No admins found.</p>';
+
         agentListContainer.innerHTML = agents.map(agent => `
             <div class="assignment-item">
                 <div class="toggle-group">
-                    <input type="checkbox" class="include-checkbox agent-checkbox" data-agent-uid="${agent.uid}" checked>
+                    <input type="checkbox" class="include-checkbox agent-checkbox" data-uid="${agent.uid}" checked>
                     <div class="details">
                         <span class="name">${agent.name}</span>
                     </div>
                 </div>
+                <div style="width: 100px; text-align: right;">
+                
+                    <input type="number" class="extra-tickets-input" data-uid="${agent.uid}" placeholder="free tkt" style="width: 100%; padding: 0.4rem;">
+                </div>
                 <select class="admin-selector">${adminOptionsHtml}</select>
             </div>
-        `).join('');
+        `).join('') || '<p>No agents found.</p>';
 
-        // 2. Create Winner List HTML
         const allWinners = [];
         const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
-
         dividendOrder.forEach(dividendName => {
             if (gameWinners[dividendName]) {
                 const prizeInfo = (gameSettings.dividends || []).find(d => d.name === dividendName);
@@ -758,15 +847,28 @@
                             if (ticket) {
                                 allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: winnerPrize });
                             }
-                        } else if (typeof winner.ticketId === 'string') { // For manual prizes
-                            allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name, agent_uid: null }, prizeName: dividendName, prizeAmount: winnerPrize });
+                        } else if (typeof winner.ticketId === 'string') {
+                            // <!-- START: BUG FIX FOR BONUS WINNER AGENT-->
+                            let agentUidForBonus = null;
+                            // Extract ticket numbers from the bonus string (e.g., "Full Sheet (1,2,3,4,5,6)")
+                            const ticketIdsInBonus = winner.ticketId.match(/\d+/g);
+                            if (ticketIdsInBonus && ticketIdsInBonus.length > 0) {
+                                // Find the first ticket mentioned in the bonus
+                                const firstTicketId = parseInt(ticketIdsInBonus[0], 10);
+                                const representativeTicket = allTickets.find(t => t.id === firstTicketId);
+                                if (representativeTicket) {
+                                    // Get the agent_uid from that ticket, which is much more reliable
+                                    agentUidForBonus = representativeTicket.agent_uid;
+                                }
+                            }
+                            allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name, agent_uid: agentUidForBonus }, prizeName: dividendName, prizeAmount: winnerPrize });
+                             // <!-- END: BUG FIX -->
                         }
                     });
                 }
             }
         });
         
-        // Add `data-agent-uid` to each prize checkbox to link it to the agent who sold it
         winnerListContainer.innerHTML = allWinners.map(winner => `
             <div class="assignment-item">
                 <div class="toggle-group">
@@ -781,34 +883,27 @@
                 </div>
                 <select class="admin-selector">${adminOptionsHtml}</select>
             </div>
-        `).join('');
+        `).join('') || '<p>No winners yet.</p>';
 
-        // 3. Add Event Listeners to make everything work
-
-        // General listener to add/remove the 'excluded' class for visual feedback
         document.querySelectorAll('.include-checkbox').forEach(cb => {
             cb.addEventListener('change', e => {
                 e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked);
             });
         });
 
-        // The MAIN FIX: Add a listener to each agent checkbox
         document.querySelectorAll('.agent-checkbox').forEach(agentCb => {
             agentCb.addEventListener('change', e => {
-                const agentUid = e.target.dataset.agentUid;
+                const agentUid = e.target.dataset.uid;
                 const isChecked = e.target.checked;
-
-                // Now, find all prize checkboxes that belong to this agent
+                // This will now correctly find ALL prizes associated with the agent, including bonuses,
+                // because the data-agent-uid attribute is now being set reliably.
                 document.querySelectorAll(`.prize-checkbox[data-agent-uid="${agentUid}"]`).forEach(prizeCb => {
-                    // And update their checked status to match the agent's checkbox
                     prizeCb.checked = isChecked;
-                    // Also update the visual style (line-through)
-                    prizeCb.closest('.assignment-item').classList.toggle('excluded', !isChecked);
+                    prizeCb.dispatchEvent(new Event('change', { bubbles: true })); // Trigger change event to update style
                 });
             });
         });
     }
-    // --- END OF IMPLEMENTED FIX ---
 
 </script>
 </body>
