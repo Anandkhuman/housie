@@ -109,88 +109,93 @@
     .overlay-popup.active .popup-content { transform: scale(1); }
 
     .top-down-notification-popup {
-        height: auto;
-        align-items: flex-start;
-        justify-content: center;
-        background: transparent;
-        backdrop-filter: none;
-        pointer-events: none;
-        padding-top: 10px;
-        z-index: 10000;
-        transform: translateY(-150%);
-        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
+    background: transparent;
+    backdrop-filter: none;
+    align-items: flex-start;
+    padding-top: 6px;
+    pointer-events: none;
+    height: auto;
+    justify-content: center;
+    z-index: 10000;
+    transform: translateY(-150%);
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
 
-    .top-down-notification-popup.active {
-        transform: translateY(0);
-    }
+.top-down-notification-popup.active {
+    transform: translateY(0);
+}
 
-    .top-down-notification-popup .popup-content {
-        max-width: 800px;
-        width: 95%;
-        margin: 0 auto;
-        transform: none !important;
-        pointer-events: auto;
-        box-shadow: 0 5px 25px rgba(0, 246, 255, 0.3);
-        padding: 1rem 1.5rem;
-        max-height: none;
-        overflow-y: visible;
-        border-radius: 12px;
-    }
+.top-down-notification-popup .popup-content {
+    max-width: 600px;
+    width: 95%;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    transform: none !important;
+    pointer-events: auto;
+    max-height: none;
+    overflow-y: visible;
+}
 
+.top-down-notification-popup .notification-body {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-wrap: wrap;
+}
+
+.top-down-notification-popup .notification-logo img {
+    max-width: 45px !important;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.top-down-notification-popup .notification-text-content .popup-title {
+    display: none;
+}
+
+.top-down-notification-popup .notification-text-content {
+    flex-grow: 1;
+}
+
+.top-down-notification-popup .notification-text-content p {
+    margin: 0;
+    line-height: 1.4;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.top-down-notification-popup .notification-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.top-down-notification-popup .notification-actions .login-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    margin: 0;
+    width: auto;
+}
+
+/* Mobile View ke liye Specific Centering Layout */
+@media (max-width: 768px) {
     .top-down-notification-popup .notification-body {
-        display: flex;
-        align-items: center;
-        gap: 0.2rem;
+        justify-content: center; /* Sabhi items ko center karega */
     }
 
-    .top-down-notification-popup .notification-logo img {
-        max-width: 80px !important;
-        height: auto;
-    }
-
-    .top-down-notification-popup .notification-text-content {
-        flex-grow: 1;
-        color: var(--text-secondary);
-    }
-    .top-down-notification-popup .notification-text-content .popup-title {
-        margin: 0 0 0.5rem 0;
-        text-align: left;
-        font-size: 1.2rem;
-    }
     .top-down-notification-popup .notification-text-content p {
-        margin: 0;
-        line-height: 1.5;
-        font-size: 0.9rem;
+        text-align: center; /* Text ko center karega */
     }
-
+    
     .top-down-notification-popup .notification-actions {
-        display: flex;
-        gap: 0.8rem;
-        flex-shrink: 0;
+        width: 100%;
+        margin-top: 0.3rem;
+        justify-content: center; /* Buttons ko center karega */
     }
+}
 
-    .top-down-notification-popup .notification-actions .login-btn {
-        width: auto;
-        padding: 0.5rem 1rem;
-        margin: 0;
-        font-size: 0.85rem;
-    }
-
-    @media (max-width: 768px) {
-        .top-down-notification-popup .notification-body {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-        }
-        .top-down-notification-popup .notification-text-content .popup-title {
-            text-align: center;
-        }
-        .top-down-notification-popup .notification-actions {
-            width: 100%;
-            justify-content: center;
-        }
-    }
 
 
     .x-button {
