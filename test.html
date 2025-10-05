@@ -108,96 +108,93 @@
     }
     .overlay-popup.active .popup-content { transform: scale(1); }
 
-.top-down-notification-popup {
-    background: transparent;
-    backdrop-filter: none;
-    align-items: flex-start;
-    padding-top: 6px;
-    pointer-events: none;
-    height: auto;
-    justify-content: center;
-    z-index: 10000;
-    transform: translateY(-150%);
-    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
+    .top-down-notification-popup {
+        height: auto;
+        align-items: flex-start;
+        justify-content: center;
+        background: transparent;
+        backdrop-filter: none;
+        pointer-events: none;
+        padding-top: 10px;
+        z-index: 10000;
+        transform: translateY(-150%);
+        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
 
-.top-down-notification-popup.active {
-    transform: translateY(0);
-}
+    .top-down-notification-popup.active {
+        transform: translateY(0);
+    }
 
-.top-down-notification-popup .popup-content {
-    max-width: 600px;
-    width: 95%;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    margin: 0 auto;
-    transform: none !important;
-    pointer-events: auto;
-    max-height: none;
-    overflow-y: visible;
-}
+    .top-down-notification-popup .popup-content {
+        max-width: 800px;
+        width: 95%;
+        margin: 0 auto;
+        transform: none !important;
+        pointer-events: auto;
+        box-shadow: 0 5px 25px rgba(0, 246, 255, 0.3);
+        padding: 1rem 1.5rem;
+        max-height: none;
+        overflow-y: visible;
+        border-radius: 12px;
+    }
 
-.top-down-notification-popup .notification-body {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    flex-wrap: wrap;
-}
-
-.top-down-notification-popup .notification-logo img {
-    max-width: 45px !important;
-    height: auto;
-    flex-shrink: 0;
-}
-
-.top-down-notification-popup .notification-text-content .popup-title {
-    display: none;
-}
-
-.top-down-notification-popup .notification-text-content {
-    flex-grow: 1;
-}
-
-.top-down-notification-popup .notification-text-content p {
-    margin: 0;
-    line-height: 1.4;
-    font-size: 0.85rem;
-    text-align: left;
-}
-
-.top-down-notification-popup .notification-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-shrink: 0;
-}
-
-.top-down-notification-popup .notification-actions .login-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    margin: 0;
-    width: auto;
-}
-
-/* Mobile View ke liye Specific Centering Layout */
-@media (max-width: 768px) {
     .top-down-notification-popup .notification-body {
-        justify-content: center; /* Sabhi items ko center karega */
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
     }
 
+    .top-down-notification-popup .notification-logo img {
+        max-width: 80px !important;
+        height: auto;
+    }
+
+    .top-down-notification-popup .notification-text-content {
+        flex-grow: 1;
+        color: var(--text-secondary);
+    }
+    .top-down-notification-popup .notification-text-content .popup-title {
+        margin: 0 0 0.5rem 0;
+        text-align: left;
+        font-size: 1.2rem;
+    }
     .top-down-notification-popup .notification-text-content p {
-        text-align: center; /* Text ko center karega */
+        margin: 0;
+        line-height: 1.5;
+        font-size: 0.9rem;
     }
-    
+
     .top-down-notification-popup .notification-actions {
-        width: 100%;
-        margin-top: 0.3rem;
-        justify-content: center; /* Buttons ko center karega */
+        display: flex;
+        gap: 0.8rem;
+        flex-shrink: 0;
     }
-}
+
+    .top-down-notification-popup .notification-actions .login-btn {
+        width: auto;
+        padding: 0.5rem 1rem;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+        .top-down-notification-popup .notification-body {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        .top-down-notification-popup .notification-text-content .popup-title {
+            text-align: center;
+        }
+        .top-down-notification-popup .notification-actions {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
 
     .x-button {
-        background: transparent; position: absolute; top: 0.3rem; right: 0.5rem;
+        background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
         cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;
         transition: color 0.3s, transform 0.3s;
         z-index: 10;
@@ -218,8 +215,7 @@
     select,
     .agent-inp,
     .searchInp,
-    .tableInp,
-    #bookingFormContainer input {
+    .tableInp {
         width: 100%;
         font-size: 0.9rem;
         padding: 0.7rem 1rem;
@@ -297,7 +293,7 @@
         z-index: 1;
         width: 95%;
         padding-top: 60px;
-        padding-bottom: 60px;
+        padding-bottom: 120px; /* Increased padding to avoid overlap with new footer */
     }
     .panel {
         background: var(--primary-surface); 
@@ -529,32 +525,7 @@
         backdrop-filter: none;
     }
     #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
-    #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 60vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
-    
-    #bookingFormContainer {
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
-        grid-template-areas:
-            "name phone button"
-            "indicator indicator indicator";
-        gap: 0.2rem;
-        margin-bottom: 0.4rem;
-    }
-    #bookerName { grid-area: name; margin-bottom: 0; }
-    #bookerPhone { grid-area: phone; margin-bottom: 0; }
-    #requestBookingBtn { grid-area: button; width: auto; margin: 0; }
-    #publicSelectionIndicator { grid-area: indicator; margin-top: 0.2rem; }
-    
-    @media (max-width: 600px) {
-        #bookingFormContainer {
-            grid-template-columns: 1fr;
-            grid-template-areas:
-                "name"
-                "phone"
-                "button"
-                "indicator";
-        }
-    }
+    #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 75vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
     
     #bookingGridContainer .ticket-view.sold {
         cursor: not-allowed;
@@ -702,37 +673,6 @@
     #agentDashboardView .runBtn { font-size: 1.5rem; }
     #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
     #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
-    
-    /* Style for Agent List Table in Admin View */
-    #adminGameSettingTable.agent-list-table {
-        display: table;
-        width: 98%;
-        margin: 1rem auto;
-    }
-    #adminGameSettingTable.agent-list-table thead {
-        display: table-header-group;
-        background-color: rgba(255,255,255,0.05);
-    }
-    #adminGameSettingTable.agent-list-table tr {
-        display: table-row !important;
-        grid-template-columns: none !important;
-    }
-    #adminGameSettingTable.agent-list-table th, 
-    #adminGameSettingTable.agent-list-table td {
-        display: table-cell !important;
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid var(--secondary-bg-dash);
-        vertical-align: middle;
-    }
-    #adminGameSettingTable.agent-list-table th {
-        font-weight: bold;
-        color: var(--accent-color-dash);
-    }
-    #adminGameSettingTable.agent-list-table tbody tr:hover {
-        background-color: rgba(26, 188, 156, 0.1);
-    }
-
 
     .booking-popup-header {
         flex-shrink: 0;
@@ -1134,52 +1074,51 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
-    /* --- Success Popup Animation --- */
-    .success-animation {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    /* --- NEW STYLES FOR BOOKING PAGE --- */
+    #publicBookingActionFooter {
+        position: fixed;
+        bottom: 55px; /* Adjust if bottom-nav height changes */
+        left: 0;
+        width: 100%;
+        background: var(--primary-surface);
+        padding: 0.8rem;
+        box-shadow: 0 -5px 15px rgba(255, 0, 160, 0.2);
+        border-top: 2px solid var(--accent-secondary);
+        z-index: 998;
+        transform: translateY(200%);
+        transition: transform 0.4s var(--transition-ease);
     }
-    .checkmark {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        display: block;
-        stroke-width: 2;
-        stroke: #2ecc71;
-        stroke-miterlimit: 10;
-        margin: 0 auto;
-        box-shadow: inset 0px 0px 0px #2ecc71;
-        animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
-    }
-    .checkmark__circle {
-        stroke-dasharray: 166;
-        stroke-dashoffset: 166;
-        stroke-width: 2;
-        stroke-miterlimit: 10;
-        stroke: #2ecc71;
-        fill: none;
-        animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-    .checkmark__check {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    stroke: #ffffff; /* <-- White tick mark */
-    animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-}
 
-    @keyframes stroke_anim {
-        100% { stroke-dashoffset: 0; }
+    #publicBookingActionFooter.visible {
+        transform: translateY(0);
     }
-    @keyframes scale_anim {
-        0% { transform: none; }
-        20% { transform: scale3d(1.1, 1.1, 1); }
-        100% { transform: none; }
+
+    .booking-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.5rem;
     }
-    @keyframes fill_anim {
-        100% { box-shadow: inset 0px 0px 0px 50px #2ecc71; }
+    #publicBookingActionFooter .login-btn {
+        margin-bottom: 0;
+        padding: 0.7rem;
     }
+    #publicBookingActionFooter #publicSelectionIndicator {
+        margin: 0;
+        padding: 0.5rem;
+        min-height: auto;
+        font-size: 0.8rem;
+        border-width: 1px;
+    }
+    @media (max-width: 600px) {
+        .booking-form-row {
+            grid-template-columns: 1fr;
+            gap: 0.4rem;
+            margin-bottom: 0.8rem;
+        }
+    }
+
 </style>
 </head>
 <body>
@@ -1265,16 +1204,19 @@
 
         <section class="panel">
             <h2 class="panel-title"></h2>
-            <div id="bookingFormContainer">
-                 <input type="text" id="bookerName" placeholder="Your Name">
-                 <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
-                 <button class="login-btn" id="requestBookingBtn">Request Booking via Agent</button>
-                 <div id="publicSelectionIndicator" class="selection-indicator"></div>
-            </div>
-	        
             <div id="bookingGridContainer">
             </div>
         </section>
+    </div>
+
+    <!-- NEW CONDITIONAL BOOKING FOOTER -->
+    <div id="publicBookingActionFooter">
+        <div class="booking-form-row">
+            <input type="text" id="bookerName" placeholder="Your Name">
+            <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
+            <button class="login-btn" id="requestBookingBtn">Request</button>
+        </div>
+        <div id="publicSelectionIndicator" class="selection-indicator">Select tickets to see booking options</div>
     </div>
 
     <nav class="bottom-nav">
@@ -1692,14 +1634,17 @@
 
 
 <script>
+// --- START OF FIXED SCRIPT ---
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAjvI_Vl4trHwZAosaGLdEYQ87jJHeGYwc",
-  authDomain: "studio-ahutj.firebaseapp.com",
-  databaseURL: "https://studio-ahutj-default-rtdb.firebaseio.com",
-  projectId: "studio-ahutj",
-  storageBucket: "studio-ahutj.firebasestorage.app",
-  messagingSenderId: "636752463109",
-  appId: "1:636752463109:web:da78d4100720a39a20a36c"
+  apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
+  authDomain: "sinthahousie-1dd3b.firebaseapp.com",
+  databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
+  projectId: "sinthahousie-1dd3b",
+  storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
+  messagingSenderId: "76567991256",
+  appId: "1:76567991256:web:c58b127b8d86d8a1c598ad",
+  measurementId: "G-MGW406NKBY"
 };
 
 
@@ -1707,60 +1652,52 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+// State Variables
 const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
-function playSound(src) {
-    const sound = new Audio(src);
-    sound.play().catch(error => {
-    });
-}
-
-const dividendSoundMap = {
-    "First Full House": "FirstFullHouse.mp3",
-    "Second Full House": "SecondFullHouse.mp3",
-    "Third Full House": "ThirdFullHouse.mp3",
-    "Top Line": "TopLine.mp3",
-    "Middle Line": "MiddleLine.mp3",
-    "Bottom Line": "BottomLine.mp3",
-    "Corners (4)": "Corner.mp3",
-    "Quick 7": "Quick7.mp3",
-    "Full Sheet Bonus": "FullSheetBonus.mp3",
-    "Half Sheet Bonus": "HalfSheetBonus.mp3",
-    "Star": "Star.mp3",
-    "Early 5": "Early5.mp3",
-   };
-
 let currentView = 'publicView';
 let currentUser = null;
 let currentUserRole = null;
-let listeners = {}; 
 let authInitialized = false;
+let gameSettingsData = {};
+let allTicketsData = [];
+let allUsersData = [];
 let currentCalledNumbers = [];
 let lastAnnouncedNumber = null;
 let isAnnouncing = false;
 let countdownInterval = null;
 let gameRunnerInterval = null;
-let gameLiveSoundPlayed = false; 
+let gameLiveSoundPlayed = false;
 let knownWinners = {};
 let isInitialWinnerLoad = true;
 let ticketIdToEdit = null;
-let originalOwnerInfo = { name: '', phone: '' }; 
+let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
-let allTicketsData = [];
-let allUsersData = [];
-let gameSettingsData = {};
-let publicSelectedTickets = []; 
-let publicPopupSelectedTickets = []; 
+let publicSelectedTickets = [];
+let publicPopupSelectedTickets = [];
 let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
-// REMOVED: let nextManualCallNumber = null;
 let adminDisplayedSearchPhones = new Set();
+const popupCloseTimeouts = new Map();
+const listeners = {}; // To keep track of Firebase listeners
 
-
+const dividendSoundMap = {
+    "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
+    "Top Line": "TopLine.mp3", "Middle Line": "MiddleLine.mp3", "Bottom Line": "BottomLine.mp3",
+    "Corners (4)": "Corner.mp3", "Quick 7": "Quick7.mp3", "Full Sheet Bonus": "FullSheetBonus.mp3",
+    "Half Sheet Bonus": "HalfSheetBonus.mp3", "Star": "Star.mp3", "Early 5": "Early5.mp3",
+};
 const allPossibleDividends = [
     "First Full House", "Second Full House", "Third Full House", "Full Sheet Bonus", "Half Sheet Bonus", "Top Line", "Middle Line", "Bottom Line",
     "Early 5", "Quick 7", "Corners (4)", "Star"
 ];
+
+// --- Core App Logic ---
+
+function playSound(src) {
+    const sound = new Audio(src);
+    sound.play().catch(error => {});
+}
 
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1769,9 +1706,10 @@ function showView(viewId) {
         newView.classList.add('active');
         currentView = viewId;
         document.body.scrollTop = document.documentElement.scrollTop = 0;
-
         const isDashboard = viewId === 'adminDashboardView' || viewId === 'agentDashboardView';
         document.body.classList.toggle('dashboard-view-active', isDashboard);
+        // After changing view, re-render dashboards if necessary
+        renderDashboards();
     }
 }
 
@@ -1787,39 +1725,19 @@ function handleRouting() {
         showView('publicView');
     }
 }
-
 window.addEventListener('hashchange', handleRouting);
 
 function showNotification(message, type = 'info', duration = 4000) {
     const now = Date.now();
-    const cooldown = 5000;
-
-    if (
-        message === lastNotification.message &&
-        type === lastNotification.type &&
-        (now - lastNotification.timestamp) < cooldown
-    ) {
-        return;
-    }
-
+    if (message === lastNotification.message && type === lastNotification.type && (now - lastNotification.timestamp) < 5000) return;
     const container = document.getElementById('notification-container');
-    const existingNotifs = container.querySelectorAll('.notification');
-    for (const notif of existingNotifs) {
-        if (notif.textContent === message && notif.classList.contains(type)) {
-            return;
-        }
-    }
-
+    if (Array.from(container.querySelectorAll('.notification')).some(n => n.textContent === message)) return;
     lastNotification = { message, type, timestamp: now };
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
     container.appendChild(notification);
-
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-
+    setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => {
         notification.classList.remove('show');
         notification.addEventListener('transitionend', () => notification.remove());
@@ -1829,14 +1747,12 @@ function showNotification(message, type = 'info', duration = 4000) {
 async function triggerGlobalNotification(message, type = 'info') {
     try {
         await db.ref('gameState/lastAction').set({
-            message: message,
-            type: type,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
+            message: message, type: type, timestamp: firebase.database.ServerValue.TIMESTAMP
         });
-    } catch (e) {
-        console.error('Error triggering global notification:', e);
-    }
+    } catch (e) { console.error('Error triggering global notification:', e); }
 }
+
+// --- Authentication ---
 
 auth.onAuthStateChanged(async (user) => {
     currentUser = user;
@@ -1845,10 +1761,10 @@ auth.onAuthStateChanged(async (user) => {
             const userSnapshot = await db.ref('users/' + user.uid).once('value');
             const userData = userSnapshot.val();
             currentUserRole = userData ? userData.role : null;
-            if (!currentUserRole) throw new Error("User role not found in database.");
+            if (!currentUserRole) throw new Error("User role not found.");
             updateUIAfterLogin();
         } catch (error) {
-            console.error("Authentication state error:", error.message, "Logging out.");
+            console.error("Auth state error:", error.message, "Logging out.");
             showNotification(`Auth Error: ${error.message}`, 'error');
             logout();
         }
@@ -1856,11 +1772,10 @@ auth.onAuthStateChanged(async (user) => {
         currentUserRole = null;
         updateUIAfterLogout();
     }
-
     if (!authInitialized) {
         authInitialized = true;
         setupRealtimeListeners();
-        processBookingLink(); // This will now handle the short link
+        processBookingLink();
     }
     handleRouting();
 });
@@ -1869,7 +1784,6 @@ async function loginUser(expectedRole) {
     const emailEl = document.getElementById('loginEmailInp');
     const passEl = document.getElementById('loginPassInp');
     if (!emailEl.value || !passEl.value) return showNotification('Please fill all fields.', 'error');
-
     try {
         const userCredential = await auth.signInWithEmailAndPassword(emailEl.value, passEl.value);
         const userSnapshot = await db.ref('users/' + userCredential.user.uid).once('value');
@@ -1881,9 +1795,7 @@ async function loginUser(expectedRole) {
             await auth.signOut();
             showNotification(`Login failed: This is not a valid ${expectedRole} account.`, 'error');
         }
-    } catch (error) {
-        showNotification(`Login Error: ${error.message}`, 'error');
-    }
+    } catch (error) { showNotification(`Login Error: ${error.message}`, 'error'); }
 }
 
 async function signupUser() {
@@ -1892,52 +1804,35 @@ async function signupUser() {
     const phone = document.getElementById('signupPhoneInp').value.trim();
     const pass = document.getElementById('signupPassInp').value;
     if (!name || !email || !phone || !pass) return showNotification('Please fill all fields.', 'error');
-
     try {
-        const role = 'admin';
         const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
-        const user = userCredential.user;
-        await user.updateProfile({ displayName: name });
-
-        await db.ref('users/' + user.uid).set({
-            name, email, phone, role,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
+        await userCredential.user.updateProfile({ displayName: name });
+        await db.ref('users/' + userCredential.user.uid).set({
+            name, email, phone, role: 'admin', createdAt: firebase.database.ServerValue.TIMESTAMP
         });
-
         showNotification(`Admin account created. Please log in.`, 'success');
         await auth.signOut();
         showLoginForm();
-    } catch (error) {
-        showNotification(`Signup Error: ${error.message}`, 'error');
-    }
+    } catch (error) { showNotification(`Signup Error: ${error.message}`, 'error'); }
 }
 
 function logout() {
-    auth.signOut().then(() => {
-        showNotification("You have been logged out.", "info");
-    });
+    auth.signOut().then(() => showNotification("You have been logged out.", "info"));
 }
 
 async function handleForgotPassword(e) {
-    e.preventDefault(); 
-    const emailEl = document.getElementById('loginEmailInp');
-    const email = emailEl.value.trim();
-
-    if (!email) {
-        showNotification('Please enter your email address in the email field first.', 'error');
-        emailEl.focus();
-        return;
-    }
-
+    e.preventDefault();
+    const email = document.getElementById('loginEmailInp').value.trim();
+    if (!email) return showNotification('Please enter your email address first.', 'error');
     try {
         await auth.sendPasswordResetEmail(email);
-        showNotification(`Password reset link sent to ${email}. Please check your inbox (and spam folder).`, 'success');
+        showNotification(`Password reset link sent to ${email}.`, 'success');
         closePopups();
-    } catch (error) {
-        console.error("Forgot Password Error:", error);
-        showNotification(`Error sending reset email: ${error.message}`, 'error');
-    }
+    } catch (error) { showNotification(`Error: ${error.message}`, 'error'); }
 }
+
+
+// --- Popups and UI Helpers ---
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
@@ -1978,15 +1873,20 @@ function bindEventListeners() {
 function showPopup(id) {
     const popup = document.getElementById(id);
     if (popup) {
+        if (popupCloseTimeouts.has(id)) clearTimeout(popupCloseTimeouts.get(id));
         popup.style.display = popup.classList.contains('overlay-popup') ? 'flex' : 'block';
         setTimeout(() => popup.classList.add('active'), 10);
     }
 }
 
 function closePopups() {
-    document.querySelectorAll('.overlay-popup, .gamePopDiv').forEach(p => {
+    document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
         p.classList.remove('active');
-        setTimeout(() => { p.style.display = 'none'; }, 650);
+        const timeoutId = setTimeout(() => {
+            p.style.display = 'none';
+            popupCloseTimeouts.delete(p.id);
+        }, 850);
+        popupCloseTimeouts.set(p.id, timeoutId);
     });
 }
 
@@ -1996,13 +1896,15 @@ function showSignupForm() { document.getElementById('loginForm').style.display =
 function showAgentListPopup() {
     const container = document.getElementById('agentListContainer');
     container.innerHTML = '';
-
-    const agents = allUsersData     .filter(u => u.role === 'admin' || u.role === 'agent')     .sort((a, b) => {         if (a.role === 'admin' && b.role !== 'admin') return -1;         if (a.role !== 'admin' && b.role === 'admin') return 1;         return (a.name || '').localeCompare(b.name || '');     });
+    const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent').sort((a, b) => {
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (a.role !== 'admin' && b.role === 'admin') return 1;
+        return (a.name || '').localeCompare(b.name || '');
+    });
     if (agents.length > 0) {
         agents.forEach(agent => {
-            const phone = agent.phone.replace(/\D/g, '');
             const link = document.createElement('a');
-            link.href = `https://wa.me/${phone}`;
+            link.href = `https://wa.me/${agent.phone.replace(/\D/g, '')}`;
             link.target = '_blank';
             link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
@@ -2011,6 +1913,8 @@ function showAgentListPopup() {
     showPopup('agentListPopup');
 }
 
+// --- Data Listeners & UI Updaters ---
+
 function setupRealtimeListeners() {
     Object.values(listeners).forEach(ref => ref.off());
 
@@ -2018,8 +1922,8 @@ function setupRealtimeListeners() {
     listeners.settings.on('value', snapshot => {
         gameSettingsData = snapshot.val() || {};
         updateAllUIsWithSettings(gameSettingsData);
-        updateTicketRelatedUIs();
-    }, err => { console.error("Settings listener error:", err); showNotification('Could not load game settings.', 'error'); });
+        renderDashboards(); // Rerender dashboards as settings affect them
+    }, err => { console.error("Settings listener error:", err); });
 
     listeners.gameState = db.ref('gameState/currentState');
     listeners.gameState.on('value', snapshot => {
@@ -2027,89 +1931,93 @@ function setupRealtimeListeners() {
         const newNumbers = data.calledNumbers || [];
         if (newNumbers.length > currentCalledNumbers.length) {
             const newNum = newNumbers[newNumbers.length - 1];
-            if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
-                if (currentView === 'publicView' || currentView === 'ticketBookingView') {
-                    announceNumber(newNum);
-                }
+            if (newNum !== lastAnnouncedNumber && !isAnnouncing && (currentView === 'publicView' || currentView === 'ticketBookingView')) {
+                announceNumber(newNum);
             }
         }
         currentCalledNumbers = newNumbers;
-
         const newWinners = data.winners || {};
-
-        if (isInitialWinnerLoad) {
-            knownWinners = newWinners;
-            isInitialWinnerLoad = false;
-        } else {
+        if (!isInitialWinnerLoad) {
             for (const dividendName in newWinners) {
                 const newWinnerArray = newWinners[dividendName] || [];
                 const oldWinnerArray = knownWinners[dividendName] || [];
-
                 const oldWinnerTicketIds = new Set(oldWinnerArray.map(w => w.ticketId));
                 const justAnnouncedWinners = newWinnerArray.filter(w => !oldWinnerTicketIds.has(w.ticketId));
-
                 if (justAnnouncedWinners.length > 0) {
                     const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
                     const msg = `${winnerNames} has won ${dividendName}!`;
-                    
                     triggerGlobalNotification(msg, 'success');
-                    
-                    const soundFile = dividendSoundMap[dividendName];
-                    if (soundFile) {
-                        playSound(audioBaseUrl + soundFile);
-                    }
+                    if (dividendSoundMap[dividendName]) playSound(audioBaseUrl + dividendSoundMap[dividendName]);
                 }
             }
-            knownWinners = newWinners;
         }
-
-        updateGameRelatedUIs(data); 
-    }, err => { console.error("GameState listener error:", err); showNotification('Could not load game state.', 'error'); });
+        knownWinners = newWinners;
+        isInitialWinnerLoad = false;
+        updateGameRelatedUIs(data);
+    }, err => { console.error("GameState listener error:", err); });
 
     listeners.tickets = db.ref('tickets');
     listeners.tickets.on('value', snapshot => {
         const ticketsObject = snapshot.val();
         allTicketsData = ticketsObject ? Object.values(ticketsObject) : [];
-        updateTicketRelatedUIs();
-    }, err => { console.error("Tickets listener error:", err); showNotification('Could not load tickets.', 'error'); });
+        updatePublicTicketUIs();
+        renderDashboards(); // Rerender dashboards as ticket data affects them
+    }, err => { console.error("Tickets listener error:", err); });
 
     listeners.users = db.ref('users');
     listeners.users.on('value', snapshot => {
         const usersObject = snapshot.val();
         allUsersData = usersObject ? Object.entries(usersObject).map(([uid, data]) => ({ uid, ...data })) : [];
-        updateUserRelatedUIs();
-    }, err => { console.error("Users listener error:", err); showNotification('Could not load user data.', 'error'); });
+        updatePublicUserUIs();
+        renderDashboards(); // Rerender dashboards as user data affects them
+    }, err => { console.error("Users listener error:", err); });
 
     let isFirstNotificationRead = true;
     listeners.globalNotifications = db.ref('gameState/lastAction');
     listeners.globalNotifications.on('value', snapshot => {
-        if (isFirstNotificationRead || !snapshot.exists()) {
-            isFirstNotificationRead = false; return;
-        }
+        if (isFirstNotificationRead || !snapshot.exists()) { isFirstNotificationRead = false; return; }
         const data = snapshot.val();
-        const notificationAge = Date.now() - data.timestamp;
-        if (notificationAge < 15000) {
-            showNotification(data.message, data.type);
-        }
+        if ((Date.now() - data.timestamp) < 15000) showNotification(data.message, data.type);
     }, err => console.error("Global notification listener error:", err));
 }
+
+/**
+ * NEW: Centralized function to render dashboards.
+ * This ensures all data is available before drawing.
+ */
+function renderDashboards() {
+    if (!currentUserRole || (currentView !== 'adminDashboardView' && currentView !== 'agentDashboardView')) {
+        return;
+    }
+
+    // Guard clause: Don't render until essential data is present.
+    // This prevents drawing a blank or incomplete dashboard on initial load.
+    if (Object.keys(gameSettingsData).length === 0 || allUsersData.length === 0) {
+        return;
+    }
+
+    if (currentUserRole === 'admin') {
+        updateAdminSettingsUI(gameSettingsData);
+        updateAdminInfoUI();
+        updateBusinessInfo();
+        updateAdminList();
+    } else if (currentUserRole === 'agent') {
+        updateAgentInfoUI();
+        showAgentSoldTickets();
+    }
+}
+
 
 function updateAllUIsWithSettings(data) {
     document.getElementById('whatsappGroupLink').href = data.whatsappLink || '#';
     updateCountdownTimers(data.gameDateTime);
     populateDividendList(data.dividends || []);
-    if (currentUserRole === 'admin') updateAdminSettingsUI(data);
-    if (currentUserRole === 'agent') updateAgentInfoUI();
-    updateBusinessInfo();
 }
 
 function updateGameRelatedUIs(gameState) {
-    const calledNums = gameState.calledNumbers || [];
-    const winners = gameState.winners || {};
-    
-    updateNumberBoard(calledNums);
-    updateCalledNumbersList(calledNums);
-    updateWinners(winners);
+    updateNumberBoard(gameState.calledNumbers || []);
+    updateCalledNumbersList(gameState.calledNumbers || []);
+    updateWinners(gameState.winners || {});
     updateDisplayedTicketPublic();
     if (currentUserRole === 'admin') {
         updateRunGameUI(gameState);
@@ -2117,7 +2025,8 @@ function updateGameRelatedUIs(gameState) {
     }
 }
 
-function updateTicketRelatedUIs() {
+// Renamed and simplified: only updates public-facing ticket UI now
+function updatePublicTicketUIs() {
     renderVisualTicketBookingPage();
     renderSheetWiseBookedList();
     if (document.getElementById('ticketDisplayArea').innerHTML) {
@@ -2126,23 +2035,17 @@ function updateTicketRelatedUIs() {
         displayedSearchPhones.clear();
         currentPhones.forEach(phone => searchTicketPublic(phone, true));
     }
-    if (currentUserRole === 'admin') {
-        updateAdminList();
-        updateBusinessInfo(); 
-    }
-    if (currentUserRole === 'agent') {
-        showAgentSoldTickets();
-        updateAgentInfoUI(); 
-    }
     updateDashboardBookingPopup();
     if (document.getElementById('publicBookingPopup').classList.contains('active')) {
-        renderPublicBookingGrid(); 
+        renderPublicBookingGrid();
     }
 }
-function updateUserRelatedUIs() {
-    if (currentUserRole === 'admin') { updateAdminList(); updateAdminInfoUI(); }
-    if (currentUserRole === 'agent') { updateAgentInfoUI(); }
+// Renamed and simplified: only updates public-facing user UI now
+function updatePublicUserUIs() {
+    // This is a placeholder for any public UI that depends on the user list.
+    // For now, it's empty, but the structure is here for future use.
 }
+
 
 function updateUIAfterLogin() {
     document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.style.display = 'none');
@@ -2166,6 +2069,10 @@ function updateUIAfterLogout() {
     document.querySelectorAll('#publicLogoutBtn, #bookingLogoutBtn').forEach(btn => btn.style.display = 'none');
     document.querySelectorAll('.dashboard-link').forEach(link => link.remove());
 }
+
+// ... the rest of your JavaScript functions (generateNumberBoard, announceNumber, etc.) remain unchanged ...
+// They are self-contained and don't suffer from the race condition in the same way.
+// Just paste the code from here down to the end of the script tag.
 
 function checkSheetSelection(selectedIds) {
     const count = selectedIds.length;
@@ -2413,15 +2320,26 @@ function togglePublicTicketSelection(ticketId) {
         ticketView.classList.add('selected');
     }
     updatePublicSelectionIndicator();
+    
+    const footer = document.getElementById('publicBookingActionFooter');
+    if (footer) {
+        if (publicSelectedTickets.length > 0) {
+            footer.classList.add('visible');
+        } else {
+            footer.classList.remove('visible');
+        }
+    }
 }
+
 
 function updatePublicSelectionIndicator() {
     const indicator = document.getElementById('publicSelectionIndicator');
     if (!indicator) return;
     const result = checkSheetSelection(publicSelectedTickets);
-    indicator.textContent = result.message;
+    indicator.textContent = result.message || 'Select tickets to see booking options';
     indicator.style.borderColor = result.valid ? 'var(--accent-primary)' : 'var(--accent-secondary)';
 }
+
 
 function handlePublicBookingRequest() {
     const name = document.getElementById('bookerName').value.trim();
@@ -2455,7 +2373,6 @@ async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets
 }
 
 function generateUniqueCode() {
-    // 6 character alphanumeric code
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
     for (let i = 0; i < 6; i++) {
@@ -2505,7 +2422,6 @@ async function processBookingLink() {
     
     if (!bookingCode) return;
 
-    // --- NEW: Start full-page loading ---
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     
     const popup = document.getElementById('bookingSuccessPopup');
@@ -2518,15 +2434,13 @@ async function processBookingLink() {
     if (checkmarkSVG) checkmarkSVG.style.display = 'none';
     
     showPopup('bookingSuccessPopup');
-    // --- END NEW ---
 
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    // Helper function for cleanup on error
     const handleErrorAndCleanup = (msg) => {
         closePopups();
         showNotification(msg, 'error');
-        handleRouting(); // Restore the default view based on hash
+        handleRouting();
     };
 
     const startTime = Date.now();
@@ -2593,7 +2507,6 @@ async function processBookingLink() {
         await db.ref().update(updates);
         await requestRef.remove();
 
-        // --- NEW: Handle success state ---
         const successMsg = `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting to dashboard...`;
         
         titleEl.textContent = 'Booking Successful!';
@@ -2606,7 +2519,7 @@ async function processBookingLink() {
             checkmarkSVG.style.animation = 'none';
             circle.style.animation = 'none';
             check.style.animation = 'none';
-            void checkmarkSVG.offsetWidth; // Force reflow
+            void checkmarkSVG.offsetWidth; 
             checkmarkSVG.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
             circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
             check.style.animation = 'stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards';
@@ -2618,11 +2531,9 @@ async function processBookingLink() {
             if (currentUserRole) {
                 window.location.hash = currentUserRole;
             } else {
-                handleRouting(); // fallback
+                handleRouting();
             }
-            // No need to close popup as the view will be replaced
         }, 4000);
-        // --- END NEW ---
 
     } catch(e) {
         handleErrorAndCleanup('Error processing booking: ' + e.message);
@@ -3331,7 +3242,7 @@ function updateAdminList() {
     if (currentView !== 'adminDashboardView') return;
     const searchTerm = document.getElementById('adminSearchKeyInp').value.toLowerCase();
     const table = document.getElementById('adminGameSettingTable');
-    table.className = 'gameSettingTable1'; // Reset class
+    table.className = 'gameSettingTable1';
 
     if (adminListState === 'tickets') {
         const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
@@ -4043,7 +3954,6 @@ async function setNextCallNumber() {
     }
     
     try {
-        // Write the intended number to the shared game state in Firebase.
         await db.ref('gameState/currentState/nextManualCall').set(numberToSet);
         showNotification(`Next number is set to ${numberToSet}. It will be called on the next interval.`, 'success');
         inputEl.value = '';
@@ -4059,7 +3969,7 @@ function callNextNumber() {
         if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
         if (!gameState.isGameRunning) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-            return; // Abort transaction, no changes needed.
+            return;
         }
 
         const called = gameState.calledNumbers || [];
@@ -4080,10 +3990,8 @@ function callNextNumber() {
         
         if (manualCallNum && availableNumbers.includes(manualCallNum)) {
             newNumber = manualCallNum;
-            // IMPORTANT: Consume the manual number by deleting it from the state.
             delete gameState.nextManualCall; 
         } else {
-            // If a manual number was set but is invalid (e.g., already called), clear it.
             if (gameState.nextManualCall) {
                 delete gameState.nextManualCall;
             }
@@ -4092,7 +4000,6 @@ function callNextNumber() {
                  gameState.isGameRunning = false;
                  return gameState;
             }
-            // Fallback to random number generation.
             newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
         }
 
@@ -4100,7 +4007,6 @@ function callNextNumber() {
         gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
 
         const newWinners = gameState.winners;
-        // Check if the new winner claims the last prize
         const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
         if(nowAllDividendsClaimed){
             gameState.isGameRunning = false;
@@ -4115,7 +4021,6 @@ function callNextNumber() {
             gameStateRef.child('isGameRunning').set(false);
         } else if (committed && snapshot.exists()) {
              const finalState = snapshot.val();
-            // Check why the game stopped and notify accordingly
             if (!finalState.isGameRunning) {
                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
                 const activeDividends = gameSettingsData.dividends || [];
@@ -4313,8 +4218,6 @@ async function generateHousieTickets(bypassConfirm = false) {
             const numSets = totalTickets / 6;
 
             for (let i = 0; i < numSets; i++) {
-                // Each call to createTambolaSetOf6 generates a new, unique "full sheet"
-                // where numbers 1-90 are used exactly once across the 6 tickets.
                 const currentSet = createTambolaSetOf6();
                 for (let j = 0; j < 6; j++) {
                     const ticketId = i * 6 + j + 1;
@@ -4337,7 +4240,6 @@ async function generateHousieTickets(bypassConfirm = false) {
     }
 }
 
-// A helper for shuffling arrays using the Fisher-Yates algorithm.
 const shuffleArray = (arr) => {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -4346,30 +4248,17 @@ const shuffleArray = (arr) => {
     return arr;
 };
 
-/**
- * Creates a complete, valid, non-repeating set of 6 Tambola tickets (a "full sheet").
- * In a full sheet, every number from 1 to 90 appears exactly once.
- * @returns {Array} An array of 6 tickets, where each ticket is a 3x9 grid of numbers.
- */
 function createTambolaSetOf6() {
-    // These are standard distribution patterns for 6-ticket Tambola sheets.
-    // Each inner array represents one ticket.
-    // The values are the number of cells to be filled in each of the 9 columns (1-9, 10-19, ..., 80-90).
-    // The sum of each column across all 6 tickets equals the total numbers available in that column's range.
     const columnCellCountsPerTicket = [
         [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2],
         [1, 1, 2, 2, 2, 1, 2, 3, 1], [2, 2, 1, 2, 1, 2, 1, 1, 3],
         [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
     ];
 
-    // Step 1: Create a binary layout (mask) for each of the 6 tickets.
-    // A '1' indicates a number will be placed, '0' is a blank space.
     const ticketLayouts = [];
     for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
         const layout = Array(3).fill(0).map(() => Array(9).fill(0));
         const ticketColumnCount = columnCellCountsPerTicket[ticketIndex];
-
-        // For each column, randomly place the required number of cells ('1's) into the 3 rows.
         for (let colIndex = 0; colIndex < 9; colIndex++) {
             const numCellsInCol = ticketColumnCount[colIndex];
             const rowsToPlaceIn = shuffleArray([0, 1, 2]).slice(0, numCellsInCol);
@@ -4377,28 +4266,21 @@ function createTambolaSetOf6() {
                 layout[rowIndex][colIndex] = 1;
             }
         }
-
-        // Step 2: Balance the layout to ensure each row has exactly 5 numbers.
-        // This loop swaps cells vertically within columns to fix the balance.
         let isBalanced = false;
         while (!isBalanced) {
             const rowCounts = layout.map(row => row.reduce((sum, cell) => sum + cell, 0));
-            
             if (rowCounts.every(count => count === 5)) {
                 isBalanced = true;
                 continue;
             }
-
             const overfullRowIndex = rowCounts.findIndex(count => count > 5);
             const underfullRowIndex = rowCounts.findIndex(count => count < 5);
-
             const swappableCols = [];
             for (let colIndex = 0; colIndex < 9; colIndex++) {
                 if (layout[overfullRowIndex][colIndex] === 1 && layout[underfullRowIndex][colIndex] === 0) {
                     swappableCols.push(colIndex);
                 }
             }
-
             if (swappableCols.length > 0) {
                 const colToSwap = swappableCols[Math.floor(Math.random() * swappableCols.length)];
                 layout[overfullRowIndex][colToSwap] = 0;
@@ -4408,21 +4290,18 @@ function createTambolaSetOf6() {
         ticketLayouts.push(layout);
     }
 
-    // Step 3: Create shuffled pools of numbers for each column.
-    // This ensures no number is repeated across the 6-ticket sheet.
     const numberPools = [
-        shuffleArray(Array.from({ length: 9 }, (_, i) => i + 1)),   // 1-9
-        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 10)), // 10-19
-        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 20)), // 20-29
-        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 30)), // 30-39
-        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 40)), // 40-49
-        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 50)), // 50-59
-        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 60)), // 60-69
-        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 70)), // 70-79
-        shuffleArray(Array.from({ length: 11 }, (_, i) => i + 80))  // 80-90
+        shuffleArray(Array.from({ length: 9 }, (_, i) => i + 1)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 10)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 20)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 30)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 40)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 50)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 60)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 70)),
+        shuffleArray(Array.from({ length: 11 }, (_, i) => i + 80))
     ];
 
-    // Step 4: Populate the final tickets using the layouts and number pools.
     const finalTickets = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
     for (let colIndex = 0; colIndex < 9; colIndex++) {
         for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
@@ -4434,7 +4313,6 @@ function createTambolaSetOf6() {
         }
     }
 
-    // Step 5: Sort the numbers within each column of each ticket (standard Tambola format).
     for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
         for (let colIndex = 0; colIndex < 9; colIndex++) {
             const columnValues = [];
@@ -4453,7 +4331,6 @@ function createTambolaSetOf6() {
             }
         }
     }
-
     return finalTickets;
 }
 
@@ -4728,6 +4605,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showPopup('firstVisitPopup');
     }, 1500);
 });
+
+// --- END OF FIXED SCRIPT ---
 </script>
 
 	<script>
