@@ -1191,6 +1191,112 @@
         box-shadow: inset 0px 0px 0px 50px #2ecc71;
     }
 }
+
+/* --- NEW AGENT LIST CARD STYLES --- */
+#adminGameSettingTable.agent-list-view {
+    display: block;
+}
+#adminGameSettingTable.agent-list-view thead {
+    display: none;
+}
+#adminGameSettingTable.agent-list-view tbody,
+#adminGameSettingTable.agent-list-view tr.agent-row-card {
+    display: block;
+    width: 100%;
+}
+tr.agent-row-card {
+    margin-bottom: 0.5rem !important;
+    padding: 0 !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px;
+    background-color: var(--secondary-bg-dash);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+tr.agent-row-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-color: var(--accent-color-dash) !important;
+}
+tr.agent-row-card td {
+    display: block;
+    padding: 0.8rem !important;
+    border: none !important;
+}
+.agent-card-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+}
+.agent-card-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+.agent-card-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--light-text-dash);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.agent-card-name small {
+    font-weight: 400;
+    font-size: 0.8em;
+    color: var(--muted-color-dash);
+    text-transform: capitalize;
+}
+.agent-card-phone {
+    font-size: 0.85rem;
+    color: var(--muted-color-dash);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.agent-card-stats {
+    display: flex;
+    gap: 1rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+.agent-stat-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 80px;
+}
+.agent-stat-item span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-color-dash);
+}
+.agent-stat-item label {
+    font-size: 0.7rem;
+    color: var(--muted-color-dash);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.agent-card-actions {
+    flex-shrink: 0;
+    padding-left: 0.5rem;
+}
+.agent-card-actions .fa-trash-alt {
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.2s, color 0.2s;
+}
+.agent-card-actions .fa-trash-alt:hover {
+    transform: scale(1.2);
+    color: #ff7675;
+}
+.agent-card-actions span {
+    color: var(--muted-color-dash);
+    font-size: 1.2rem;
+}
+
 </style>
 </head>
 <body>
@@ -3314,9 +3420,9 @@ function updateAdminList() {
     if (currentView !== 'adminDashboardView') return;
     const searchTerm = document.getElementById('adminSearchKeyInp').value.toLowerCase();
     const table = document.getElementById('adminGameSettingTable');
-    table.className = 'gameSettingTable1';
 
     if (adminListState === 'tickets') {
+        table.className = 'gameSettingTable1';
         const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
         table.innerHTML = `<thead><tr><th>Ticket Details</th></tr></thead><tbody>` +
             tickets.sort((a,b) => a.id - b.id).map(t => {
@@ -3348,42 +3454,45 @@ function updateAdminList() {
                 }
             }).join('') + `</tbody>`;
     } else {
-        table.classList.add('agent-list-table');
+        table.className = 'gameSettingTable1 agent-list-view';
         const commissionPerTicket = gameSettingsData.agentCommission || 0;
         const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').toLowerCase().includes(searchTerm));
         
-        let tableHTML = `<thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Phone</th>
-                                <th style="text-align:center;">Sold</th>
-                                <th>Commission</th>
-                                <th style="text-align:center;">Actions</th>
-                            </tr>
-                         </thead>
-                         <tbody>`;
-
-        tableHTML += users.map(u => {
+        const tableHTML = users.map(u => {
             const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
             const commission = soldCount * commissionPerTicket;
             const safeName = u.name ? u.name.replace(/'/g, "\\'") : 'N/A';
             
-            let actionCell = '<td>-</td>';
-            if (u.role === 'agent') {
-                actionCell = `<td style="text-align:center;"><i class="fas fa-trash-alt" style="color: #e74c3c; cursor: pointer;" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i></td>`;
-            }
+            const actionButtonHTML = u.role === 'agent' 
+                ? `<i class="fas fa-trash-alt" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i>` 
+                : '<span>-</span>';
 
-            return `<tr onclick="showAgentBookings('${u.uid}', '${safeName}')" title="Click to see tickets sold by ${safeName}" style="cursor: pointer;">
-                        <td>${u.name || 'N/A'} <span style="opacity:0.7;font-size:0.8em;">(${u.role})</span></td>
-                        <td>${u.phone || 'N/A'}</td>
-                        <td style="text-align:center;">${soldCount}</td>
-                        <td style="text-align:right; padding-right: 5px;">₹ ${commission.toLocaleString()}</td>
-                        ${actionCell}
-                    </tr>`;
+            return `<tr class="agent-row-card" onclick="showAgentBookings('${u.uid}', '${safeName}')" title="Click to see tickets sold by ${safeName}">
+                <td colspan="5">
+                    <div class="agent-card-container">
+                        <div class="agent-card-info">
+                            <div class="agent-card-name">${u.name || 'N/A'} <small>(${u.role})</small></div>
+                            <div class="agent-card-phone"><i class="fas fa-phone-alt"></i> ${u.phone || 'N/A'}</div>
+                        </div>
+                        <div class="agent-card-stats">
+                            <div class="agent-stat-item">
+                                <span>${soldCount}</span>
+                                <label>Tickets Sold</label>
+                            </div>
+                            <div class="agent-stat-item">
+                                <span>₹${commission.toLocaleString()}</span>
+                                <label>Commission</label>
+                            </div>
+                        </div>
+                        <div class="agent-card-actions">
+                            ${actionButtonHTML}
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
         }).join('');
 
-        tableHTML += `</tbody>`;
-        table.innerHTML = tableHTML;
+        table.innerHTML = `<tbody>${tableHTML}</tbody>`;
     }
 }
 
