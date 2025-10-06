@@ -548,16 +548,15 @@
         transform: translateX(-50%);
         width: 120px;
         height: 40px;
-        background: linear-gradient(#1a1a1a, #000);
-        border-radius: 0 0 10px 10px;
-        box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);
+        
+        
     }
     
     #announced-number-display {
         /* This is the ball */
         position: relative;
-        width: 90px;
-        height: 90px;
+        width: 60px;
+        height: 60px;
         background-color: var(--called-color);
         background-image: radial-gradient(circle at 30% 30%, #ffffff, var(--called-color) 80%);
         color: var(--text-dark);
@@ -1346,6 +1345,31 @@ tr.agent-row-card td {
     font-size: 1.2rem;
 }
 
+/* NEW AUDIO STYLES */
+@keyframes mic-live-glow {
+    0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+    50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
+    100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+}
+
+#micToggleBtn.live {
+    background-color: #e74c3c;
+    color: white;
+    animation: mic-live-glow 1.5s infinite;
+}
+#musicUploadBtn {
+    width: auto !important;
+    flex-grow: 0;
+    padding: 0 1rem;
+}
+.music-upload-wrapper {
+    display: flex;
+    gap: 5px;
+}
+.music-upload-wrapper .tableInp {
+    flex-grow: 1;
+}
+
 </style>
 </head>
 <body>
@@ -1498,7 +1522,39 @@ tr.agent-row-card td {
 	    <button class="actionBtn" style="flex-grow: 1;" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
         </div>
     </div>
-    
+    <div class="gameSettingDiv">
+        <button class="titleBtn">AUDIO CONTROLS</button>
+        <table class="gameSettingTable" id="audioControlsTable">
+            <tbody>
+                <tr>
+                    <td>Background Music</td>
+                    <td>
+                        <select class="tableInp" id="bgMusicState" onchange="toggleBgMusic()">
+                            <option value="off">OFF</option>
+                            <option value="on">ON</option>
+                        </select>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>Upload Music (MP3)</td>
+                    <td>
+                        <div class="music-upload-wrapper">
+                            <input class="tableInp" type="file" id="bgMusicUpload" accept=".mp3">
+                            <button class="actionBtn" id="musicUploadBtn" onclick="handleMusicUpload()">Upload</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Live Announcement</td>
+                    <td>
+                        <button class="actionBtn" id="micToggleBtn" style="width:100%; font-size: 1rem;">
+                            <i class="fas fa-microphone-slash"></i> Toggle Mic
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">BUSINESS INFO</button>
         <table class="gameSettingTable" id="businessInfoTable">
@@ -1849,6 +1905,10 @@ tr.agent-row-card td {
     </div>
 </div>
 
+<!-- Global Audio Players -->
+<audio id="backgroundMusicPlayer" loop></audio>
+<audio id="liveAudioPlayer"></audio>
+
 
 <script>
 // --- START OF FIXED SCRIPT ---
@@ -1896,6 +1956,15 @@ let displayedSearchPhones = new Set();
 let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map();
 const listeners = {}; // To keep track of Firebase listeners
+
+// NEW: Audio related variables
+let backgroundMusicPlayer;
+let liveAudioPlayer;
+let localStream;
+let mediaRecorder;
+let isMicOn = false;
+let recordedChunks = [];
+
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2086,10 +2155,16 @@ function bindEventListeners() {
     document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
 }
 
+// ✅ FIXED: More robust popup logic to prevent freezing
 function showPopup(id) {
     const popup = document.getElementById(id);
     if (popup) {
-        if (popupCloseTimeouts.has(id)) clearTimeout(popupCloseTimeouts.get(id));
+        if (popupCloseTimeouts.has(id)) {
+            clearTimeout(popupCloseTimeouts.get(id));
+            popupCloseTimeouts.delete(id);
+        }
+        // Restore pointer events in case it was closed mid-transition
+        popup.style.pointerEvents = 'auto';
         popup.style.display = popup.classList.contains('overlay-popup') ? 'flex' : 'block';
         setTimeout(() => popup.classList.add('active'), 10);
     }
@@ -2097,11 +2172,21 @@ function showPopup(id) {
 
 function closePopups() {
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
+        // Immediately prevent further interaction
+        p.style.pointerEvents = 'none';
         p.classList.remove('active');
+
+        // Clear any previous timeout for this popup to prevent weird states
+        if (popupCloseTimeouts.has(p.id)) {
+            clearTimeout(popupCloseTimeouts.get(p.id));
+        }
+
         const timeoutId = setTimeout(() => {
             p.style.display = 'none';
+            // Reset pointer-events for the next time it's opened
+            p.style.pointerEvents = 'auto';
             popupCloseTimeouts.delete(p.id);
-        }, 850);
+        }, 450); // 400ms transition + 50ms buffer
         popupCloseTimeouts.set(p.id, timeoutId);
     });
 }
@@ -2147,7 +2232,8 @@ function setupRealtimeListeners() {
         const newNumbers = data.calledNumbers || [];
         if (newNumbers.length > currentCalledNumbers.length) {
             const newNum = newNumbers[newNumbers.length - 1];
-            if (newNum !== lastAnnouncedNumber && !isAnnouncing && (currentView === 'publicView' || currentView === 'ticketBookingView')) {
+            // ✅ FIXED: Call announceNumber on all views, not just public ones.
+            if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
                 announceNumber(newNum);
             }
         }
@@ -2195,6 +2281,16 @@ function setupRealtimeListeners() {
         const data = snapshot.val();
         if ((Date.now() - data.timestamp) < 15000) showNotification(data.message, data.type);
     }, err => console.error("Global notification listener error:", err));
+
+    // NEW: Listener for all audio controls
+    listeners.audio = db.ref('settings/audio');
+    listeners.audio.on('value', snapshot => {
+        const audioData = snapshot.val() || {};
+        handleBackgroundMusicState(audioData);
+        if (currentUserRole !== 'admin') {
+            handleLiveAudioState(audioData);
+        }
+    }, err => console.error("Audio listener error:", err));
 }
 
 /**
@@ -4827,7 +4923,131 @@ function updateAdminDisplayedTickets() {
     });
 }
 
+// --- NEW: Audio Control Functions ---
+async function handleMusicUpload() {
+    const fileInput = document.getElementById('bgMusicUpload');
+    const file = fileInput.files[0];
+    if (!file) {
+        return showNotification('Please select an MP3 file first.', 'error');
+    }
+    if (file.type !== "audio/mpeg") {
+        return showNotification('Only MP3 files are allowed.', 'error');
+    }
+
+    showNotification('Uploading music... Please wait.', 'info');
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
+        try {
+            await db.ref('settings/audio/backgroundMusic').set({
+                url: base64String,
+                name: file.name
+            });
+            showNotification(`'${file.name}' uploaded successfully.`, 'success');
+        } catch (e) {
+            showNotification('Error uploading music: ' + e.message, 'error');
+        }
+    };
+    reader.onerror = () => {
+        showNotification('Error reading file.', 'error');
+    };
+    reader.readAsDataURL(file);
+}
+
+function toggleBgMusic() {
+    const state = document.getElementById('bgMusicState').value;
+    db.ref('settings/audio/musicState').set(state)
+        .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
+        .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
+}
+
+async function toggleMic() {
+    if (isMicOn) {
+        // --- Stop Microphone ---
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+        }
+        document.getElementById('micToggleBtn').classList.remove('live');
+        document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
+        isMicOn = false;
+        await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
+        showNotification('Live announcement stopped.', 'info');
+    } else {
+        // --- Start Microphone ---
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const options = { mimeType: 'audio/webm;codecs=opus' };
+            mediaRecorder = new MediaRecorder(localStream, options);
+
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        db.ref('settings/audio/liveAnnouncement/audioChunk').set(reader.result);
+                    };
+                    reader.readAsDataURL(event.data);
+                }
+            };
+            
+            mediaRecorder.onstart = () => {
+                db.ref('settings/audio/liveAnnouncement').set({ isLive: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            };
+
+            mediaRecorder.start(2000); // Create a chunk every 2 seconds
+
+            document.getElementById('micToggleBtn').classList.add('live');
+            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
+            isMicOn = true;
+            showNotification('Live announcement started!', 'success');
+        } catch (err) {
+            showNotification('Could not access microphone: ' + err.message, 'error');
+            console.error(err);
+        }
+    }
+}
+
+function handleBackgroundMusicState(audioData) {
+    const musicInfo = audioData.backgroundMusic;
+    const musicState = audioData.musicState;
+    const musicStateDropdown = document.getElementById('bgMusicState');
+
+    if (musicStateDropdown) {
+        musicStateDropdown.value = musicState || 'off';
+    }
+
+    if (musicState === 'on' && musicInfo && musicInfo.url) {
+        if (backgroundMusicPlayer.src !== musicInfo.url) {
+            backgroundMusicPlayer.src = musicInfo.url;
+        }
+        if (backgroundMusicPlayer.paused) {
+            backgroundMusicPlayer.play().catch(e => console.warn("Autoplay for background music was blocked by the browser."));
+        }
+    } else {
+        backgroundMusicPlayer.pause();
+        backgroundMusicPlayer.currentTime = 0;
+    }
+}
+
+function handleLiveAudioState(audioData) {
+    const liveInfo = audioData.liveAnnouncement;
+    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk) {
+        if(liveAudioPlayer.src !== liveInfo.audioChunk){
+            liveAudioPlayer.src = liveInfo.audioChunk;
+            liveAudioPlayer.play().catch(e => console.warn("Autoplay for live audio was blocked."));
+        }
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
+    // NEW: Initialize audio players
+    backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
+    liveAudioPlayer = document.getElementById('liveAudioPlayer');
+    document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
+
     generateNumberBoard();
     bindEventListeners();
     gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
@@ -4837,7 +5057,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
 });
 
-// --- END OF FIXED SCRIPT ---
 </script>
 
 	<script>
