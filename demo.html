@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUCKY HOUSIE MANIPUR</title>
+    <title>SINTHA HOUSIE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1430,7 +1430,7 @@ tr.agent-row-card td {
     <header class="top-header">
         <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">LUCKY HOUSIE MANIPUR</h1>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
@@ -1493,7 +1493,7 @@ tr.agent-row-card td {
     <header class="top-header">
          <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">LUCKY HOUSIE MANIPUR</h1>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
@@ -1852,7 +1852,17 @@ tr.agent-row-card td {
                 </tr>
             </tbody>
         </table>
-       
+       <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+            <tbody>
+                <tr>
+                    <td>NEXT CALL NUMBER</td>
+                    <td style="display: flex; gap: 5px;">
+                        <input type="number" class="tableInp" id="nextCallInp" placeholder="Num" style="flex-grow: 1;">
+                        <button class="actionBtn" onclick="setNextCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">SET</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -2028,9 +2038,17 @@ let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map();
 const listeners = {}; // To keep track of Firebase listeners
 
-// NEW: Audio related variables
+// --- AUDIO FIX: Variables for Media Source Streaming ---
 let backgroundMusicPlayer;
 let liveAudioPlayer;
+let mediaSource;
+let sourceBuffer;
+let audioQueue = [];
+let isAppending = false;
+let isMediaSourceOpen = false;
+let lastProcessedTimestamp = 0;
+// --- End Audio Fix Variables ---
+
 let localStream;
 let mediaRecorder;
 let isMicOn = false;
@@ -2193,6 +2211,7 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
+    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -2354,7 +2373,8 @@ function setupRealtimeListeners() {
         
         handleBackgroundMusicState(audioData);
         if (currentUserRole !== 'admin') {
-            handleLiveAudioState(audioData);
+            // --- AUDIO FIX: Call the correct streaming handler ---
+            handleLiveAudioStream(audioData);
         } else {
              renderMusicPlaylist();
         }
@@ -3918,7 +3938,7 @@ function handlePosterBgUpload(event) {
 }
 
 function showPosterModal() {
-    const title = "LUCKY HOUSIE MANIPUR";
+    const title = "SINTHA HOUSIE";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -4008,7 +4028,7 @@ async function sharePoster() {
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "LUCKY HOUSIE MANIPUR Game!";
+        const websiteName = "SINTHA HOUSIE Game!";
         const websiteLink = window.location.href.split('#')[0];
         
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
@@ -5106,7 +5126,13 @@ async function toggleMic() {
             mediaRecorder.ondataavailable = event => {
                 if (event.data.size > 0) {
                     const reader = new FileReader();
-                    reader.onload = () => db.ref('settings/audio/liveAnnouncement/audioChunk').set(reader.result);
+                    reader.onload = () => {
+                        // AUDIO FIX: Send timestamp with the chunk
+                        db.ref('settings/audio/liveAnnouncement').update({
+                           audioChunk: reader.result,
+                           timestamp: firebase.database.ServerValue.TIMESTAMP 
+                        });
+                    };
                     reader.readAsDataURL(event.data);
                 }
             };
@@ -5152,16 +5178,76 @@ function handleBackgroundMusicState(audioData) {
     }
 }
 
-function handleLiveAudioState(audioData) {
+// --- AUDIO FIX: New function to handle live stream with Media Source Extensions ---
+function handleLiveAudioStream(audioData) {
     const liveInfo = audioData.liveAnnouncement;
-    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk) {
-        // Use a simple mechanism to prevent re-playing the same chunk
-        if (liveAudioPlayer.src !== liveInfo.audioChunk) {
-            liveAudioPlayer.src = liveInfo.audioChunk;
-            liveAudioPlayer.play().catch(e => {});
+    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
+        lastProcessedTimestamp = liveInfo.timestamp;
+        
+        // Start playing automatically if paused (e.g., after initial load or browser interaction requirement)
+        if (liveAudioPlayer.paused) {
+            liveAudioPlayer.play().catch(e => {
+                // This might fail if user hasn't interacted with the page yet. That's okay.
+            });
+        }
+        
+        audioQueue.push(liveInfo.audioChunk);
+        processAudioQueue();
+    } else if (liveInfo && !liveInfo.isLive && mediaSource && mediaSource.readyState === 'open') {
+        // If the stream ends, we can end the media source stream
+        if (!sourceBuffer.updating) {
+           // mediaSource.endOfStream(); // This might cause issues if admin restarts mic. Better to just let it sit.
         }
     }
 }
+
+async function processAudioQueue() {
+    if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
+        return;
+    }
+    isAppending = true;
+    
+    const dataUrl = audioQueue.shift();
+    try {
+        // Convert Base64 data URL to ArrayBuffer
+        const response = await fetch(dataUrl);
+        const arrayBuffer = await response.arrayBuffer();
+
+        sourceBuffer.appendBuffer(arrayBuffer);
+    } catch (error) {
+        console.error('Error processing audio chunk:', error);
+        isAppending = false; // Reset flag on error
+    }
+}
+
+function initializeMediaSource() {
+    if ('MediaSource' in window) {
+        mediaSource = new MediaSource();
+        liveAudioPlayer.src = URL.createObjectURL(mediaSource);
+
+        mediaSource.addEventListener('sourceopen', () => {
+            try {
+                const mimeCodec = 'audio/webm; codecs="opus"';
+                if (MediaSource.isTypeSupported(mimeCodec)) {
+                    sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+                    sourceBuffer.addEventListener('updateend', () => {
+                        isAppending = false;
+                        processAudioQueue(); // Process next item in queue
+                    });
+                    isMediaSourceOpen = true;
+                } else {
+                    console.error('Unsupported MIME type:', mimeCodec);
+                }
+            } catch (e) {
+                console.error('Exception while creating SourceBuffer:', e);
+            }
+        });
+    } else {
+        console.error('MediaSource API not supported in this browser.');
+        showNotification('Live audio streaming may not work on this browser.', 'error');
+    }
+}
+// --- End of Audio Fix ---
 
 function playNextInPlaylist() {
     if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
@@ -5179,6 +5265,10 @@ function playNextInPlaylist() {
 document.addEventListener('DOMContentLoaded', () => {
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
+    
+    // --- AUDIO FIX: Initialize Media Source for live audio ---
+    initializeMediaSource();
+
     document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
     document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
     document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
