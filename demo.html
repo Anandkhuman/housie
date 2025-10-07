@@ -1899,7 +1899,7 @@ tr.agent-row-card td {
                 </tr>
             </tbody>
         </table>
-       
+    
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -5093,22 +5093,8 @@ async function handleStreamingUrl() {
     const url = urlInput.value.trim();
     if (!url) return showNotification('Please enter a streaming URL.', 'error');
     try {
-        new URL(url); // Basic validation
-    } catch (_) {
-        return showNotification('Invalid URL format.', 'error');
-    }
-    
-    try {
-        const newTrackRef = db.ref('settings/audio/musicLibrary').push();
-        await newTrackRef.set({
-            id: newTrackRef.key,
-            type: 'stream',
-            name: url.substring(url.lastIndexOf('/') + 1) || 'Streaming Link',
-            url: url
-        });
-        showNotification('Streaming URL added to playlist.', 'success');
-        urlInput.value = '';
-    } catch(e) {
+        new URL(url); //
+           } catch(e) {
         showNotification('Error adding URL: ' + e.message, 'error');
     }
 }
@@ -5339,17 +5325,39 @@ async function processAudioQueue() {
         return;
     }
     isAppending = true;
-    
     const dataUrl = audioQueue.shift();
+
     try {
-        const response = await fetch(dataUrl);
-        const arrayBuffer = await response.arrayBuffer();
-        sourceBuffer.appendBuffer(arrayBuffer);
+        // --- START OF FIX ---
+        // The dataUrl is a string like "data:audio/webm;codecs=opus;base64,GkX...". We need the part after the comma.
+        const base64String = dataUrl.split(',')[1];
+        if (!base64String) {
+            throw new Error("Invalid dataURL format received for audio chunk.");
+        }
+
+        // Decode the Base64 string into a binary string.
+        const binaryString = atob(base64String);
+        const len = binaryString.length;
+        // Create a Uint8Array to hold the binary data.
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        // Append the binary data (as an ArrayBuffer) to the source buffer.
+        sourceBuffer.appendBuffer(bytes.buffer);
+        // --- END OF FIX ---
+
     } catch (error) {
-        console.error('Error processing audio chunk:', error);
-        isAppending = false; 
+        console.error('Error processing audio chunk:', error, dataUrl.substring(0, 60)); // Log part of the dataUrl for debugging
+        isAppending = false; // IMPORTANT: Reset the flag on error to prevent the queue from getting stuck.
+        // Try to process the next item if there's more in the queue.
+        if (audioQueue.length > 0) {
+            processAudioQueue();
+        }
     }
 }
+
 
 function initializeMediaSource() {
     if ('MediaSource' in window) {
