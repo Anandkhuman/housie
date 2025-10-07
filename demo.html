@@ -2009,6 +2009,18 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+// --- NEW: For music synchronization ---
+let serverTimeOffset = 0;
+db.ref('.info/serverTimeOffset').on('value', (snap) => {
+    serverTimeOffset = snap.val();
+});
+
+function getEstimatedServerTime() {
+    return Date.now() + serverTimeOffset;
+}
+// --- END NEW ---
+
+
 // State Variables
 const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
 let currentView = 'publicView';
@@ -5053,7 +5065,12 @@ async function handleStreamingUrl() {
 async function playTrack(trackId) {
     if (!trackId || !audioLibrary[trackId]) return;
     try {
-        await db.ref('settings/audio/currentTrackId').set(trackId);
+        // When a new track is played, reset the start time for synchronization
+        const updates = {
+            currentTrackId: trackId,
+            playbackStartTime: firebase.database.ServerValue.TIMESTAMP
+        };
+        await db.ref('settings/audio').update(updates);
         showNotification(`Now playing: ${audioLibrary[trackId].name}`, 'info');
     } catch(e) {
         showNotification('Error setting track: ' + e.message, 'error');
@@ -5064,10 +5081,15 @@ async function deleteTrack(trackId) {
     if (!trackId || !audioLibrary[trackId]) return;
     if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
     try {
-        await db.ref(`settings/audio/musicLibrary/${trackId}`).remove();
+        const updates = {
+            [`musicLibrary/${trackId}`]: null
+        };
         if (currentTrackId === trackId) {
-            await db.ref('settings/audio/currentTrackId').set(null);
+            updates.currentTrackId = null;
+            updates.musicState = 'off'; // Turn off music if the current track is deleted
+            updates.playbackStartTime = null;
         }
+        await db.ref('settings/audio').update(updates);
         showNotification('Track deleted.', 'success');
     } catch (e) {
         showNotification('Error deleting track: ' + e.message, 'error');
@@ -5096,7 +5118,17 @@ function renderMusicPlaylist() {
 
 function toggleBgMusic() {
     const state = document.getElementById('bgMusicState').value;
-    db.ref('settings/audio/musicState').set(state)
+    const updates = {
+        musicState: state
+    };
+    if (state === 'on') {
+        // If turning on, set a start time for synchronization
+        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+    } else {
+        // If turning off, clear the start time
+        updates.playbackStartTime = null;
+    }
+    db.ref('settings/audio').update(updates)
         .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
         .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
 }
@@ -5127,7 +5159,6 @@ async function toggleMic() {
                 if (event.data.size > 0) {
                     const reader = new FileReader();
                     reader.onload = () => {
-                        // AUDIO FIX: Send timestamp with the chunk
                         db.ref('settings/audio/liveAnnouncement').update({
                            audioChunk: reader.result,
                            timestamp: firebase.database.ServerValue.TIMESTAMP 
@@ -5156,6 +5187,7 @@ function handleBackgroundMusicState(audioData) {
     const playlistMode = audioData.playlistMode || 'off';
     const trackId = audioData.currentTrackId;
     const track = trackId ? audioData.musicLibrary?.[trackId] : null;
+    const playbackStartTime = audioData.playbackStartTime || 0;
 
     if (document.getElementById('bgMusicState')) {
         document.getElementById('bgMusicState').value = musicState;
@@ -5166,39 +5198,53 @@ function handleBackgroundMusicState(audioData) {
 
     backgroundMusicPlayer.loop = (playlistMode === 'off');
 
-    if (musicState === 'on' && track && track.url) {
-        if (backgroundMusicPlayer.src !== track.url) {
+    if (musicState === 'on' && track && track.url && playbackStartTime > 0) {
+        const hasSourceChanged = backgroundMusicPlayer.src !== track.url;
+        if (hasSourceChanged) {
             backgroundMusicPlayer.src = track.url;
         }
-        if (backgroundMusicPlayer.paused) {
-            backgroundMusicPlayer.play().catch(e => {});
+
+        const serverTime = getEstimatedServerTime();
+        const elapsedTime = (serverTime - playbackStartTime) / 1000;
+        
+        // Ensure we don't seek before the track is ready
+        const seekAndPlay = () => {
+             // Only seek if the time difference is significant to avoid stuttering
+            if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
+                 backgroundMusicPlayer.currentTime = elapsedTime;
+            }
+             if (backgroundMusicPlayer.paused) {
+                 backgroundMusicPlayer.play().catch(e => {
+                     // Autoplay might be blocked, this is fine. User interaction will start it.
+                 });
+             }
+        };
+
+        if(hasSourceChanged) {
+            backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
+        } else {
+            seekAndPlay();
         }
+
     } else {
         backgroundMusicPlayer.pause();
+        backgroundMusicPlayer.src = ''; // Clear source when not playing
     }
 }
 
-// --- AUDIO FIX: New function to handle live stream with Media Source Extensions ---
+
 function handleLiveAudioStream(audioData) {
     const liveInfo = audioData.liveAnnouncement;
     if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
         lastProcessedTimestamp = liveInfo.timestamp;
         
-        // Start playing automatically if paused (e.g., after initial load or browser interaction requirement)
         if (liveAudioPlayer.paused) {
-            liveAudioPlayer.play().catch(e => {
-                // This might fail if user hasn't interacted with the page yet. That's okay.
-            });
+            liveAudioPlayer.play().catch(e => {});
         }
         
         audioQueue.push(liveInfo.audioChunk);
         processAudioQueue();
-    } else if (liveInfo && !liveInfo.isLive && mediaSource && mediaSource.readyState === 'open') {
-        // If the stream ends, we can end the media source stream
-        if (!sourceBuffer.updating) {
-           // mediaSource.endOfStream(); // This might cause issues if admin restarts mic. Better to just let it sit.
-        }
-    }
+    } 
 }
 
 async function processAudioQueue() {
@@ -5209,14 +5255,12 @@ async function processAudioQueue() {
     
     const dataUrl = audioQueue.shift();
     try {
-        // Convert Base64 data URL to ArrayBuffer
         const response = await fetch(dataUrl);
         const arrayBuffer = await response.arrayBuffer();
-
         sourceBuffer.appendBuffer(arrayBuffer);
     } catch (error) {
         console.error('Error processing audio chunk:', error);
-        isAppending = false; // Reset flag on error
+        isAppending = false; 
     }
 }
 
@@ -5232,7 +5276,7 @@ function initializeMediaSource() {
                     sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
                     sourceBuffer.addEventListener('updateend', () => {
                         isAppending = false;
-                        processAudioQueue(); // Process next item in queue
+                        processAudioQueue(); 
                     });
                     isMediaSourceOpen = true;
                 } else {
@@ -5247,7 +5291,6 @@ function initializeMediaSource() {
         showNotification('Live audio streaming may not work on this browser.', 'error');
     }
 }
-// --- End of Audio Fix ---
 
 function playNextInPlaylist() {
     if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
@@ -5258,7 +5301,7 @@ function playNextInPlaylist() {
     if (currentIndex !== -1) {
         const nextIndex = (currentIndex + 1) % trackIds.length;
         const nextTrackId = trackIds[nextIndex];
-        playTrack(nextTrackId);
+        playTrack(nextTrackId); // This will also reset playbackStartTime for sync
     }
 }
 
@@ -5266,7 +5309,6 @@ document.addEventListener('DOMContentLoaded', () => {
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
     
-    // --- AUDIO FIX: Initialize Media Source for live audio ---
     initializeMediaSource();
 
     document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
