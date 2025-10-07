@@ -1375,15 +1375,21 @@ tr.agent-row-card td {
     padding: 0 1rem;
 }
 
-#musicPlaylist {
-    margin: 1rem 2.5% 0 2.5%;
-    width: 95%;
+#musicPlaylist, #popupMusicPlaylist {
     max-height: 250px;
     overflow-y: auto;
     background: var(--secondary-bg-dash);
     border-radius: 4px;
     padding: 0.5rem;
 }
+#musicPlaylist {
+    margin: 1rem 2.5% 0 2.5%;
+    width: 95%;
+}
+#popupMusicPlaylist {
+    padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
 .playlist-item {
     display: flex;
     align-items: center;
@@ -1391,6 +1397,7 @@ tr.agent-row-card td {
     padding: 0.5rem;
     border-bottom: 1px solid var(--primary-bg-dash);
     color: var(--light-text-dash);
+    transition: background-color 0.3s;
 }
 .playlist-item:last-child {
     border-bottom: none;
@@ -1402,13 +1409,6 @@ tr.agent-row-card td {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-/* FIX: Added styles for the actions container to ensure alignment */
-.playlist-item-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    flex-shrink: 0;
-}
 .playlist-item-actions button {
     background: transparent;
     border: none;
@@ -1419,6 +1419,8 @@ tr.agent-row-card td {
     height: 30px;
     border-radius: 50%;
     transition: background-color 0.2s, transform 0.2s;
+    position: relative; /* For gradient */
+    z-index: 1;
 }
 .playlist-item-actions button:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -1426,6 +1428,38 @@ tr.agent-row-card td {
 }
 .playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
 .playlist-item-actions .fa-trash-alt { color: #e74c3c; }
+
+/* NEW Playlist Animation Styles */
+@keyframes glowing-gradient-border {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes pulse-icon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.playlist-item.playing .playlist-item-actions button:first-child::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px;
+    right: -3px; bottom: -3px;
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary));
+    background-size: 400% 400%;
+    border-radius: 50%;
+    z-index: -1;
+    animation: glowing-gradient-border 4s linear infinite;
+    filter: blur(4px);
+}
+.playlist-item.playing .playlist-item-actions button:first-child {
+    background-color: var(--primary-bg-dash) !important;
+    transform: scale(1.1);
+}
+.playlist-item.playing .playlist-item-actions .fa-play-circle {
+    color: var(--accent-primary);
+    animation: pulse-icon 1.5s infinite ease-in-out;
+}
 
 </style>
 </head>
@@ -1624,6 +1658,14 @@ tr.agent-row-card td {
                     <td>
                         <button class="actionBtn" id="micToggleBtn" style="width:100%; font-size: 1rem;">
                             <i class="fas fa-microphone-slash"></i> Toggle Mic
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Manage Playlist</td>
+                    <td>
+                        <button class="actionBtn" id="viewPlaylistBtn" style="width:100%; font-size: 1rem;">
+                            <i class="fas fa-list-ul"></i> View Playlist
                         </button>
                     </td>
                 </tr>
@@ -1993,6 +2035,18 @@ tr.agent-row-card td {
     </div>
 </div>
 
+<!-- NEW: Playlist Popup -->
+<div class="overlay-popup" id="playlistPopup">
+    <div class="popup-content" style="max-width: 600px; background: var(--primary-bg-dash);">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" style="color: var(--light-text-dash);">Music Playlist</h3>
+        <div id="popupMusicPlaylist" style="max-height: 70vh; overflow-y: auto;">
+            <!-- Playlist will be rendered here -->
+        </div>
+    </div>
+</div>
+
+
 <!-- Global Audio Players -->
 <audio id="backgroundMusicPlayer" loop></audio>
 <audio id="liveAudioPlayer"></audio>
@@ -2066,7 +2120,6 @@ let audioQueue = [];
 let isAppending = false;
 let isMediaSourceOpen = false;
 let lastProcessedTimestamp = 0;
-let isLiveStreamActive = false; // FIX: Added state for live stream
 // --- End Audio Fix Variables ---
 
 let localStream;
@@ -2264,6 +2317,7 @@ function bindEventListeners() {
         adminDisplayedSearchPhones.clear();
     });
     document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
+    document.getElementById('viewPlaylistBtn').addEventListener('click', () => showPopup('playlistPopup'));
 }
 
 function showPopup(id) {
@@ -4748,6 +4802,8 @@ function createTambolaSetOf6() {
             }
         }
     }
+
+    
     return finalTickets;
 }
 
@@ -5022,7 +5078,7 @@ async function handleMusicUpload() {
     if (!file) return showNotification('Please select an MP3 file first.', 'error');
     if (file.type !== "audio/mpeg") return showNotification('Only MP3 files are allowed.', 'error');
 
-    showNotification(`Uploading '${file.name}'...`, 'info', 10000); // Animation via notification
+    showNotification(`Uploading '${file.name}'...`, 'info', 10000);
     const reader = new FileReader();
     reader.onload = async (event) => {
         const base64String = event.target.result;
@@ -5104,35 +5160,46 @@ async function deleteTrack(trackId) {
 }
 
 function renderMusicPlaylist() {
-    const container = document.getElementById('musicPlaylist');
-    if (!container) return;
+    const dashboardContainer = document.getElementById('musicPlaylist');
+    const popupContainer = document.getElementById('popupMusicPlaylist');
 
-    if (Object.keys(audioLibrary).length === 0) {
-        container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls above.</p>`;
-        return;
-    }
-    
-    container.innerHTML = Object.values(audioLibrary).map(track => `
-        <div class="playlist-item" style="background-color: ${track.id === currentTrackId ? 'var(--accent-color-dash)' : 'transparent'};">
-            <div class="playlist-item-name">${track.name}</div>
-            <div class="playlist-item-actions">
-                <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
-                <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
+    const renderTo = (container) => {
+        if (!container) return;
+        if (Object.keys(audioLibrary).length === 0) {
+            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls to add songs.</p>`;
+            return;
+        }
+        
+        container.innerHTML = Object.values(audioLibrary).map(track => `
+            <div class="playlist-item ${track.id === currentTrackId ? 'playing' : ''}">
+                <div class="playlist-item-name">${track.name}</div>
+                <div class="playlist-item-actions">
+                    <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
+                    <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    };
+
+    renderTo(dashboardContainer);
+    renderTo(popupContainer);
 }
+
 
 function toggleBgMusic() {
     const state = document.getElementById('bgMusicState').value;
     const updates = {
         musicState: state
     };
-    if (state === 'on') {
-        // If turning on, set a start time for synchronization
+    if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
+        // If turning on and no track is selected, play the first one
+        const firstTrackId = Object.keys(audioLibrary)[0];
+        updates.currentTrackId = firstTrackId;
         updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
-    } else {
-        // If turning off, clear the start time
+    } else if (state === 'on') {
+        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+    }
+    else {
         updates.playbackStartTime = null;
     }
     db.ref('settings/audio').update(updates)
@@ -5175,8 +5242,8 @@ async function toggleMic() {
                 }
             };
             
-            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            mediaRecorder.start(2000); // Chunk every 2 seconds
+            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            mediaRecorder.start(1500); // Chunk every 1.5 seconds
 
             document.getElementById('micToggleBtn').classList.add('live');
             document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
@@ -5214,52 +5281,67 @@ function handleBackgroundMusicState(audioData) {
         const serverTime = getEstimatedServerTime();
         const elapsedTime = (serverTime - playbackStartTime) / 1000;
         
-        // Ensure we don't seek before the track is ready
         const seekAndPlay = () => {
-             // Only seek if the time difference is significant to avoid stuttering
             if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
-                 backgroundMusicPlayer.currentTime = elapsedTime;
+                 backgroundMusicPlayer.currentTime = elapsedTime % backgroundMusicPlayer.duration;
             }
              if (backgroundMusicPlayer.paused) {
-                 backgroundMusicPlayer.play().catch(e => {
-                     // Autoplay might be blocked, this is fine. User interaction will start it.
-                 });
+                 backgroundMusicPlayer.play().catch(e => {});
              }
         };
 
-        if(hasSourceChanged) {
-            backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
-        } else {
+        if(backgroundMusicPlayer.readyState >= 2) { // HAVE_CURRENT_DATA
             seekAndPlay();
+        } else {
+            backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
         }
 
     } else {
-        backgroundMusicPlayer.pause();
-        backgroundMusicPlayer.src = ''; // Clear source when not playing
+        if (!backgroundMusicPlayer.paused) {
+            backgroundMusicPlayer.pause();
+        }
     }
 }
 
 
 function handleLiveAudioStream(audioData) {
     const liveInfo = audioData.liveAnnouncement;
-    // FIX: Only process new chunks and manage the stream state
-    if (liveInfo && liveInfo.isLive) {
-        if (!isLiveStreamActive) {
-            isLiveStreamActive = true;
-            // Attempt to play to unmute the audio element for autoplay
-            liveAudioPlayer.play().catch(e => { /* Autoplay block is expected */ });
+    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
+        
+        if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
+             console.log("New live stream detected, resetting buffer.");
+             audioQueue = [];
+             if (sourceBuffer && !sourceBuffer.updating) {
+                try {
+                    sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
+                } catch(e) { console.warn("Buffer clear failed, might be empty", e); }
+             }
+             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null); // Mark as processed
         }
-        if (liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
-            lastProcessedTimestamp = liveInfo.timestamp;
-            audioQueue.push(liveInfo.audioChunk);
-            processAudioQueue();
+
+        lastProcessedTimestamp = liveInfo.timestamp;
+        
+        if (liveAudioPlayer.paused) {
+            liveAudioPlayer.play().catch(e => {});
         }
-    } else if (isLiveStreamActive) {
-        // Stream ended, reset state
-        isLiveStreamActive = false;
-        // Optionally, reset the media source if needed, but often not necessary
-        if (!liveAudioPlayer.paused) {
-            liveAudioPlayer.pause();
+        
+        audioQueue.push(liveInfo.audioChunk);
+        processAudioQueue();
+    } else if (liveInfo && !liveInfo.isLive) {
+        // If live stream is off, fade out the audio
+        let vol = liveAudioPlayer.volume;
+        if (vol > 0) {
+            const fadeOutInterval = setInterval(() => {
+                vol -= 0.1;
+                if (vol <= 0) {
+                    liveAudioPlayer.volume = 0;
+                    liveAudioPlayer.pause();
+                    liveAudioPlayer.volume = 1; // Reset for next time
+                    clearInterval(fadeOutInterval);
+                } else {
+                    liveAudioPlayer.volume = vol;
+                }
+            }, 50);
         }
     }
 }
@@ -5318,7 +5400,7 @@ function playNextInPlaylist() {
     if (currentIndex !== -1) {
         const nextIndex = (currentIndex + 1) % trackIds.length;
         const nextTrackId = trackIds[nextIndex];
-        playTrack(nextTrackId); // This will also reset playbackStartTime for sync
+        playTrack(nextTrackId);
     }
 }
 
