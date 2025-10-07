@@ -1402,6 +1402,13 @@ tr.agent-row-card td {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+/* FIX: Added styles for the actions container to ensure alignment */
+.playlist-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-shrink: 0;
+}
 .playlist-item-actions button {
     background: transparent;
     border: none;
@@ -2059,6 +2066,7 @@ let audioQueue = [];
 let isAppending = false;
 let isMediaSourceOpen = false;
 let lastProcessedTimestamp = 0;
+let isLiveStreamActive = false; // FIX: Added state for live stream
 // --- End Audio Fix Variables ---
 
 let localStream;
@@ -2385,7 +2393,6 @@ function setupRealtimeListeners() {
         
         handleBackgroundMusicState(audioData);
         if (currentUserRole !== 'admin') {
-            // --- AUDIO FIX: Call the correct streaming handler ---
             handleLiveAudioStream(audioData);
         } else {
              renderMusicPlaylist();
@@ -5235,16 +5242,26 @@ function handleBackgroundMusicState(audioData) {
 
 function handleLiveAudioStream(audioData) {
     const liveInfo = audioData.liveAnnouncement;
-    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
-        lastProcessedTimestamp = liveInfo.timestamp;
-        
-        if (liveAudioPlayer.paused) {
-            liveAudioPlayer.play().catch(e => {});
+    // FIX: Only process new chunks and manage the stream state
+    if (liveInfo && liveInfo.isLive) {
+        if (!isLiveStreamActive) {
+            isLiveStreamActive = true;
+            // Attempt to play to unmute the audio element for autoplay
+            liveAudioPlayer.play().catch(e => { /* Autoplay block is expected */ });
         }
-        
-        audioQueue.push(liveInfo.audioChunk);
-        processAudioQueue();
-    } 
+        if (liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
+            lastProcessedTimestamp = liveInfo.timestamp;
+            audioQueue.push(liveInfo.audioChunk);
+            processAudioQueue();
+        }
+    } else if (isLiveStreamActive) {
+        // Stream ended, reset state
+        isLiveStreamActive = false;
+        // Optionally, reset the media source if needed, but often not necessary
+        if (!liveAudioPlayer.paused) {
+            liveAudioPlayer.pause();
+        }
+    }
 }
 
 async function processAudioQueue() {
