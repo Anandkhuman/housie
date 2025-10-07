@@ -1375,15 +1375,21 @@ tr.agent-row-card td {
     padding: 0 1rem;
 }
 
-#musicPlaylist {
-    margin: 1rem 2.5% 0 2.5%;
-    width: 95%;
+#musicPlaylist, #popupMusicPlaylist {
     max-height: 250px;
     overflow-y: auto;
     background: var(--secondary-bg-dash);
     border-radius: 4px;
     padding: 0.5rem;
 }
+#musicPlaylist {
+    margin: 1rem 2.5% 0 2.5%;
+    width: 95%;
+}
+#popupMusicPlaylist {
+    padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
 .playlist-item {
     display: flex;
     align-items: center;
@@ -1391,6 +1397,7 @@ tr.agent-row-card td {
     padding: 0.5rem;
     border-bottom: 1px solid var(--primary-bg-dash);
     color: var(--light-text-dash);
+    transition: background-color 0.3s;
 }
 .playlist-item:last-child {
     border-bottom: none;
@@ -1412,6 +1419,8 @@ tr.agent-row-card td {
     height: 30px;
     border-radius: 50%;
     transition: background-color 0.2s, transform 0.2s;
+    position: relative; /* For gradient */
+    z-index: 1;
 }
 .playlist-item-actions button:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -1419,6 +1428,38 @@ tr.agent-row-card td {
 }
 .playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
 .playlist-item-actions .fa-trash-alt { color: #e74c3c; }
+
+/* NEW Playlist Animation Styles */
+@keyframes glowing-gradient-border {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes pulse-icon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.playlist-item.playing .playlist-item-actions button:first-child::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px;
+    right: -3px; bottom: -3px;
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary));
+    background-size: 400% 400%;
+    border-radius: 50%;
+    z-index: -1;
+    animation: glowing-gradient-border 4s linear infinite;
+    filter: blur(4px);
+}
+.playlist-item.playing .playlist-item-actions button:first-child {
+    background-color: var(--primary-bg-dash) !important;
+    transform: scale(1.1);
+}
+.playlist-item.playing .playlist-item-actions .fa-play-circle {
+    color: var(--accent-primary);
+    animation: pulse-icon 1.5s infinite ease-in-out;
+}
 
 </style>
 </head>
@@ -1620,11 +1661,17 @@ tr.agent-row-card td {
                         </button>
                     </td>
                 </tr>
+                <tr>
+                    <td>Manage Playlist</td>
+                    <td>
+                        <button class="actionBtn" id="viewPlaylistBtn" style="width:100%; font-size: 1rem;">
+                            <i class="fas fa-list-ul"></i> View Playlist
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
-        <div id="musicPlaylist">
-            <!-- Playlist items will be rendered here by JavaScript -->
-        </div>
+    
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">BUSINESS INFO</button>
@@ -1986,6 +2033,18 @@ tr.agent-row-card td {
     </div>
 </div>
 
+<!-- NEW: Playlist Popup -->
+<div class="overlay-popup" id="playlistPopup">
+    <div class="popup-content" style="max-width: 600px; background: var(--primary-bg-dash);">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title" style="color: var(--light-text-dash);">Music Playlist</h3>
+        <div id="popupMusicPlaylist" style="max-height: 70vh; overflow-y: auto;">
+            <!-- Playlist will be rendered here -->
+        </div>
+    </div>
+</div>
+
+
 <!-- Global Audio Players -->
 <audio id="backgroundMusicPlayer" loop></audio>
 <audio id="liveAudioPlayer"></audio>
@@ -2009,6 +2068,18 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+
+// --- NEW: For music synchronization ---
+let serverTimeOffset = 0;
+db.ref('.info/serverTimeOffset').on('value', (snap) => {
+    serverTimeOffset = snap.val();
+});
+
+function getEstimatedServerTime() {
+    return Date.now() + serverTimeOffset;
+}
+// --- END NEW ---
+
 
 // State Variables
 const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
@@ -2039,9 +2110,17 @@ let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map();
 const listeners = {}; // To keep track of Firebase listeners
 
-// NEW: Audio related variables
+// --- AUDIO FIX: Variables for Media Source Streaming ---
 let backgroundMusicPlayer;
 let liveAudioPlayer;
+let mediaSource;
+let sourceBuffer;
+let audioQueue = [];
+let isAppending = false;
+let isMediaSourceOpen = false;
+let lastProcessedTimestamp = 0;
+// --- End Audio Fix Variables ---
+
 let localStream;
 let mediaRecorder;
 let isMicOn = false;
@@ -2237,6 +2316,7 @@ function bindEventListeners() {
         adminDisplayedSearchPhones.clear();
     });
     document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
+    document.getElementById('viewPlaylistBtn').addEventListener('click', () => showPopup('playlistPopup'));
 }
 
 function showPopup(id) {
@@ -2366,7 +2446,7 @@ function setupRealtimeListeners() {
         
         handleBackgroundMusicState(audioData);
         if (currentUserRole !== 'admin') {
-            handleLiveAudioState(audioData);
+            handleLiveAudioStream(audioData);
         } else {
              renderMusicPlaylist();
         }
@@ -4721,6 +4801,8 @@ function createTambolaSetOf6() {
             }
         }
     }
+
+    
     return finalTickets;
 }
 
@@ -4995,7 +5077,7 @@ async function handleMusicUpload() {
     if (!file) return showNotification('Please select an MP3 file first.', 'error');
     if (file.type !== "audio/mpeg") return showNotification('Only MP3 files are allowed.', 'error');
 
-    showNotification(`Uploading '${file.name}'...`, 'info', 10000); // Animation via notification
+    showNotification(`Uploading '${file.name}'...`, 'info', 10000);
     const reader = new FileReader();
     reader.onload = async (event) => {
         const base64String = event.target.result;
@@ -5045,7 +5127,12 @@ async function handleStreamingUrl() {
 async function playTrack(trackId) {
     if (!trackId || !audioLibrary[trackId]) return;
     try {
-        await db.ref('settings/audio/currentTrackId').set(trackId);
+        // When a new track is played, reset the start time for synchronization
+        const updates = {
+            currentTrackId: trackId,
+            playbackStartTime: firebase.database.ServerValue.TIMESTAMP
+        };
+        await db.ref('settings/audio').update(updates);
         showNotification(`Now playing: ${audioLibrary[trackId].name}`, 'info');
     } catch(e) {
         showNotification('Error setting track: ' + e.message, 'error');
@@ -5056,10 +5143,15 @@ async function deleteTrack(trackId) {
     if (!trackId || !audioLibrary[trackId]) return;
     if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
     try {
-        await db.ref(`settings/audio/musicLibrary/${trackId}`).remove();
+        const updates = {
+            [`musicLibrary/${trackId}`]: null
+        };
         if (currentTrackId === trackId) {
-            await db.ref('settings/audio/currentTrackId').set(null);
+            updates.currentTrackId = null;
+            updates.musicState = 'off'; // Turn off music if the current track is deleted
+            updates.playbackStartTime = null;
         }
+        await db.ref('settings/audio').update(updates);
         showNotification('Track deleted.', 'success');
     } catch (e) {
         showNotification('Error deleting track: ' + e.message, 'error');
@@ -5067,28 +5159,49 @@ async function deleteTrack(trackId) {
 }
 
 function renderMusicPlaylist() {
-    const container = document.getElementById('musicPlaylist');
-    if (!container) return;
+    const dashboardContainer = document.getElementById('musicPlaylist');
+    const popupContainer = document.getElementById('popupMusicPlaylist');
 
-    if (Object.keys(audioLibrary).length === 0) {
-        container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls above.</p>`;
-        return;
-    }
-    
-    container.innerHTML = Object.values(audioLibrary).map(track => `
-        <div class="playlist-item" style="background-color: ${track.id === currentTrackId ? 'var(--accent-color-dash)' : 'transparent'};">
-            <div class="playlist-item-name">${track.name}</div>
-            <div class="playlist-item-actions">
-                <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
-                <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
+    const renderTo = (container) => {
+        if (!container) return;
+        if (Object.keys(audioLibrary).length === 0) {
+            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls to add songs.</p>`;
+            return;
+        }
+        
+        container.innerHTML = Object.values(audioLibrary).map(track => `
+            <div class="playlist-item ${track.id === currentTrackId ? 'playing' : ''}">
+                <div class="playlist-item-name">${track.name}</div>
+                <div class="playlist-item-actions">
+                    <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
+                    <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    };
+
+    renderTo(dashboardContainer);
+    renderTo(popupContainer);
 }
+
 
 function toggleBgMusic() {
     const state = document.getElementById('bgMusicState').value;
-    db.ref('settings/audio/musicState').set(state)
+    const updates = {
+        musicState: state
+    };
+    if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
+        // If turning on and no track is selected, play the first one
+        const firstTrackId = Object.keys(audioLibrary)[0];
+        updates.currentTrackId = firstTrackId;
+        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+    } else if (state === 'on') {
+        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+    }
+    else {
+        updates.playbackStartTime = null;
+    }
+    db.ref('settings/audio').update(updates)
         .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
         .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
 }
@@ -5118,13 +5231,18 @@ async function toggleMic() {
             mediaRecorder.ondataavailable = event => {
                 if (event.data.size > 0) {
                     const reader = new FileReader();
-                    reader.onload = () => db.ref('settings/audio/liveAnnouncement/audioChunk').set(reader.result);
+                    reader.onload = () => {
+                        db.ref('settings/audio/liveAnnouncement').update({
+                           audioChunk: reader.result,
+                           timestamp: firebase.database.ServerValue.TIMESTAMP 
+                        });
+                    };
                     reader.readAsDataURL(event.data);
                 }
             };
             
-            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            mediaRecorder.start(2000); // Chunk every 2 seconds
+            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            mediaRecorder.start(1500); // Chunk every 1.5 seconds
 
             document.getElementById('micToggleBtn').classList.add('live');
             document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
@@ -5142,6 +5260,7 @@ function handleBackgroundMusicState(audioData) {
     const playlistMode = audioData.playlistMode || 'off';
     const trackId = audioData.currentTrackId;
     const track = trackId ? audioData.musicLibrary?.[trackId] : null;
+    const playbackStartTime = audioData.playbackStartTime || 0;
 
     if (document.getElementById('bgMusicState')) {
         document.getElementById('bgMusicState').value = musicState;
@@ -5152,26 +5271,122 @@ function handleBackgroundMusicState(audioData) {
 
     backgroundMusicPlayer.loop = (playlistMode === 'off');
 
-    if (musicState === 'on' && track && track.url) {
-        if (backgroundMusicPlayer.src !== track.url) {
+    if (musicState === 'on' && track && track.url && playbackStartTime > 0) {
+        const hasSourceChanged = backgroundMusicPlayer.src !== track.url;
+        if (hasSourceChanged) {
             backgroundMusicPlayer.src = track.url;
         }
-        if (backgroundMusicPlayer.paused) {
-            backgroundMusicPlayer.play().catch(e => {});
+
+        const serverTime = getEstimatedServerTime();
+        const elapsedTime = (serverTime - playbackStartTime) / 1000;
+        
+        const seekAndPlay = () => {
+            if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
+                 backgroundMusicPlayer.currentTime = elapsedTime % backgroundMusicPlayer.duration;
+            }
+             if (backgroundMusicPlayer.paused) {
+                 backgroundMusicPlayer.play().catch(e => {});
+             }
+        };
+
+        if(backgroundMusicPlayer.readyState >= 2) { // HAVE_CURRENT_DATA
+            seekAndPlay();
+        } else {
+            backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
         }
+
     } else {
-        backgroundMusicPlayer.pause();
+        if (!backgroundMusicPlayer.paused) {
+            backgroundMusicPlayer.pause();
+        }
     }
 }
 
-function handleLiveAudioState(audioData) {
+
+function handleLiveAudioStream(audioData) {
     const liveInfo = audioData.liveAnnouncement;
-    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk) {
-        // Use a simple mechanism to prevent re-playing the same chunk
-        if (liveAudioPlayer.src !== liveInfo.audioChunk) {
-            liveAudioPlayer.src = liveInfo.audioChunk;
+    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
+        
+        if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
+             console.log("New live stream detected, resetting buffer.");
+             audioQueue = [];
+             if (sourceBuffer && !sourceBuffer.updating) {
+                try {
+                    sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
+                } catch(e) { console.warn("Buffer clear failed, might be empty", e); }
+             }
+             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null); // Mark as processed
+        }
+
+        lastProcessedTimestamp = liveInfo.timestamp;
+        
+        if (liveAudioPlayer.paused) {
             liveAudioPlayer.play().catch(e => {});
         }
+        
+        audioQueue.push(liveInfo.audioChunk);
+        processAudioQueue();
+    } else if (liveInfo && !liveInfo.isLive) {
+        // If live stream is off, fade out the audio
+        let vol = liveAudioPlayer.volume;
+        if (vol > 0) {
+            const fadeOutInterval = setInterval(() => {
+                vol -= 0.1;
+                if (vol <= 0) {
+                    liveAudioPlayer.volume = 0;
+                    liveAudioPlayer.pause();
+                    liveAudioPlayer.volume = 1; // Reset for next time
+                    clearInterval(fadeOutInterval);
+                } else {
+                    liveAudioPlayer.volume = vol;
+                }
+            }, 50);
+        }
+    }
+}
+
+async function processAudioQueue() {
+    if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
+        return;
+    }
+    isAppending = true;
+    
+    const dataUrl = audioQueue.shift();
+    try {
+        const response = await fetch(dataUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        sourceBuffer.appendBuffer(arrayBuffer);
+    } catch (error) {
+        console.error('Error processing audio chunk:', error);
+        isAppending = false; 
+    }
+}
+
+function initializeMediaSource() {
+    if ('MediaSource' in window) {
+        mediaSource = new MediaSource();
+        liveAudioPlayer.src = URL.createObjectURL(mediaSource);
+
+        mediaSource.addEventListener('sourceopen', () => {
+            try {
+                const mimeCodec = 'audio/webm; codecs="opus"';
+                if (MediaSource.isTypeSupported(mimeCodec)) {
+                    sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+                    sourceBuffer.addEventListener('updateend', () => {
+                        isAppending = false;
+                        processAudioQueue(); 
+                    });
+                    isMediaSourceOpen = true;
+                } else {
+                    console.error('Unsupported MIME type:', mimeCodec);
+                }
+            } catch (e) {
+                console.error('Exception while creating SourceBuffer:', e);
+            }
+        });
+    } else {
+        console.error('MediaSource API not supported in this browser.');
+        showNotification('Live audio streaming may not work on this browser.', 'error');
     }
 }
 
@@ -5191,6 +5406,9 @@ function playNextInPlaylist() {
 document.addEventListener('DOMContentLoaded', () => {
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
+    
+    initializeMediaSource();
+
     document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
     document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
     document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
