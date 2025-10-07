@@ -217,6 +217,7 @@
     input[type="tel"],
     input[type="number"],
     input[type="datetime-local"],
+    input[type="url"],
     select,
     .agent-inp,
     .searchInp,
@@ -231,6 +232,12 @@
         border: 1px solid var(--accent-primary);
         color: var(--text-primary);
     }
+    .dashboard-view .tableInp {
+         background-color: white;
+         color: var(--text-dark);
+         border: 1px solid var(--secondary-bg-dash);
+    }
+
 
     .login-form input {
         margin-bottom: 0.8rem;
@@ -523,13 +530,61 @@
     .dividend-table .winner-info .fa-eye { flex-shrink: 0; margin-left: 10px; cursor: pointer; color: var(--accent-primary); font-size: 1.1rem; transition: transform 0.2s; padding-top: 4px; }
     .dividend-table .winner-info .fa-eye:hover { transform: scale(1.2); }
 
+    /* --- Professional Announcement Styles --- */
     #number-announcement-overlay {
-        visibility: hidden;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        pointer-events: none;
+        
+        /* Initial state: Hidden and transparent */
         opacity: 0;
-        background: transparent;
-        backdrop-filter: none;
+        visibility: hidden;
     }
-    #announced-number-display { font-family: var(--font-family-neon); font-size: 45vw; font-weight: 700; color: var(--called-color); text-shadow: 0 0 10px #000, 0 0 20px #000, 0 0 40px var(--called-color), 0 0 80px var(--called-color); transform: scale(0.5); opacity: 0; visibility: hidden; }
+
+    #number-announcement-overlay::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 40px;
+        
+        
+    }
+    
+    #announced-number-display {
+        /* This is the ball */
+        position: relative;
+        width: 60px;
+        height: 60px;
+        background-color: var(--called-color);
+        background-image: radial-gradient(circle at 30% 30%, #ffffff, var(--called-color) 80%);
+        color: var(--text-dark);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 3rem;
+        line-height: 1;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 -3px 5px rgba(0,0,0,0.2);
+        border: 3px solid #b3a500;
+        pointer-events: auto;
+        
+        /* Reset any old properties */
+        padding: 0;
+        text-shadow: none;
+    }
+
+    
     #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 75vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
     
     #bookingGridContainer .ticket-view.sold {
@@ -607,9 +662,6 @@
     .dashboard-view .tableInp {
         margin: 0;
         box-sizing: border-box;
-        background-color: white;
-        color: var(--text-dark);
-        border: 1px solid var(--secondary-bg-dash);
     }
     .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); cursor: pointer;}
     #adminDashboardView .searchInp, #agentDashboardView .searchInp {
@@ -1297,6 +1349,77 @@ tr.agent-row-card td {
     font-size: 1.2rem;
 }
 
+/* NEW AUDIO STYLES */
+@keyframes mic-live-glow {
+    0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+    50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
+    100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+}
+
+#micToggleBtn.live {
+    background-color: #e74c3c;
+    color: white;
+    animation: mic-live-glow 1.5s infinite;
+}
+
+.music-control-wrapper {
+    display: flex;
+    gap: 5px;
+}
+.music-control-wrapper .tableInp {
+    flex-grow: 1;
+}
+.music-control-wrapper .actionBtn {
+    width: auto !important;
+    flex-grow: 0;
+    padding: 0 1rem;
+}
+
+#musicPlaylist {
+    margin: 1rem 2.5% 0 2.5%;
+    width: 95%;
+    max-height: 250px;
+    overflow-y: auto;
+    background: var(--secondary-bg-dash);
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+.playlist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--primary-bg-dash);
+    color: var(--light-text-dash);
+}
+.playlist-item:last-child {
+    border-bottom: none;
+}
+.playlist-item-name {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.playlist-item-actions button {
+    background: transparent;
+    border: none;
+    color: var(--light-text-dash);
+    cursor: pointer;
+    font-size: 1rem;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.playlist-item-actions button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+.playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
+.playlist-item-actions .fa-trash-alt { color: #e74c3c; }
+
 </style>
 </head>
 <body>
@@ -1449,7 +1572,60 @@ tr.agent-row-card td {
 	    <button class="actionBtn" style="flex-grow: 1;" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
         </div>
     </div>
-    
+    <div class="gameSettingDiv">
+        <button class="titleBtn">AUDIO CONTROLS</button>
+        <table class="gameSettingTable" id="audioControlsTable">
+            <tbody>
+                <tr>
+                    <td>Background Music</td>
+                    <td>
+                        <select class="tableInp" id="bgMusicState" onchange="toggleBgMusic()">
+                            <option value="off">OFF</option>
+                            <option value="on">ON</option>
+                        </select>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>Playlist Mode</td>
+                    <td>
+                        <select class="tableInp" id="playlistModeState" onchange="togglePlaylistMode()">
+                            <option value="off">OFF (Loop Current)</option>
+                            <option value="on">ON (Play All)</option>
+                        </select>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>Upload MP3</td>
+                    <td>
+                        <div class="music-control-wrapper">
+                            <input class="tableInp" type="file" id="bgMusicUpload" accept=".mp3" style="text-align: left; padding: 0.7rem 0.5rem;">
+                            <button class="actionBtn" id="musicUploadBtn">Upload</button>
+                        </div>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>Streaming URL</td>
+                    <td>
+                        <div class="music-control-wrapper">
+                            <input class="tableInp" type="url" id="streamingUrlInp" placeholder="https://.../stream.mp3" style="text-align: left;">
+                            <button class="actionBtn" id="setStreamingUrlBtn">Add</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Live Announcement</td>
+                    <td>
+                        <button class="actionBtn" id="micToggleBtn" style="width:100%; font-size: 1rem;">
+                            <i class="fas fa-microphone-slash"></i> Toggle Mic
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="musicPlaylist">
+            <!-- Playlist items will be rendered here by JavaScript -->
+        </div>
+    </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">BUSINESS INFO</button>
         <table class="gameSettingTable" id="businessInfoTable">
@@ -1559,7 +1735,7 @@ tr.agent-row-card td {
         <div class="agent-list" id="agentListContainer"></div>
     </div>
 </div>
-<div class="overlay-popup" id="number-announcement-overlay">
+<div id="number-announcement-overlay">
     <div id="announced-number-display">--</div>
 </div>
 <div class="overlay-popup" id="agentSelectionPopup">
@@ -1676,7 +1852,7 @@ tr.agent-row-card td {
                 </tr>
             </tbody>
         </table>
-            <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
+       <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
             <tbody>
                 <tr>
                     <td>NEXT CALL NUMBER</td>
@@ -1712,7 +1888,7 @@ tr.agent-row-card td {
             </table>
         </section>
 
-	<div style="font-weight:bold;font-size:14px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
+	<div style="font-weight:bold;font-size:10px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
 
       </div>
 </div>
@@ -1810,6 +1986,10 @@ tr.agent-row-card td {
     </div>
 </div>
 
+<!-- Global Audio Players -->
+<audio id="backgroundMusicPlayer" loop></audio>
+<audio id="liveAudioPlayer"></audio>
+
 
 <script>
 // --- START OF FIXED SCRIPT ---
@@ -1858,6 +2038,16 @@ let displayedSearchPhones = new Set();
 let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map();
 const listeners = {}; // To keep track of Firebase listeners
+
+// NEW: Audio related variables
+let backgroundMusicPlayer;
+let liveAudioPlayer;
+let localStream;
+let mediaRecorder;
+let isMicOn = false;
+let audioLibrary = {};
+let currentTrackId = null;
+
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2014,6 +2204,7 @@ async function handleForgotPassword(e) {
 
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
+    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -2051,7 +2242,11 @@ function bindEventListeners() {
 function showPopup(id) {
     const popup = document.getElementById(id);
     if (popup) {
-        if (popupCloseTimeouts.has(id)) clearTimeout(popupCloseTimeouts.get(id));
+        if (popupCloseTimeouts.has(id)) {
+            clearTimeout(popupCloseTimeouts.get(id));
+            popupCloseTimeouts.delete(id);
+        }
+        popup.style.pointerEvents = 'auto';
         popup.style.display = popup.classList.contains('overlay-popup') ? 'flex' : 'block';
         setTimeout(() => popup.classList.add('active'), 10);
     }
@@ -2059,11 +2254,16 @@ function showPopup(id) {
 
 function closePopups() {
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
+        p.style.pointerEvents = 'none';
         p.classList.remove('active');
+        if (popupCloseTimeouts.has(p.id)) {
+            clearTimeout(popupCloseTimeouts.get(p.id));
+        }
         const timeoutId = setTimeout(() => {
             p.style.display = 'none';
+            p.style.pointerEvents = 'auto';
             popupCloseTimeouts.delete(p.id);
-        }, 850);
+        }, 450);
         popupCloseTimeouts.set(p.id, timeoutId);
     });
 }
@@ -2100,7 +2300,7 @@ function setupRealtimeListeners() {
     listeners.settings.on('value', snapshot => {
         gameSettingsData = snapshot.val() || {};
         updateAllUIsWithSettings(gameSettingsData);
-        renderDashboards(); // Rerender dashboards as settings affect them
+        renderDashboards();
     }, err => { console.error("Settings listener error:", err); });
 
     listeners.gameState = db.ref('gameState/currentState');
@@ -2109,7 +2309,7 @@ function setupRealtimeListeners() {
         const newNumbers = data.calledNumbers || [];
         if (newNumbers.length > currentCalledNumbers.length) {
             const newNum = newNumbers[newNumbers.length - 1];
-            if (newNum !== lastAnnouncedNumber && !isAnnouncing && (currentView === 'publicView' || currentView === 'ticketBookingView')) {
+            if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
                 announceNumber(newNum);
             }
         }
@@ -2139,7 +2339,7 @@ function setupRealtimeListeners() {
         const ticketsObject = snapshot.val();
         allTicketsData = ticketsObject ? Object.values(ticketsObject) : [];
         updatePublicTicketUIs();
-        renderDashboards(); // Rerender dashboards as ticket data affects them
+        renderDashboards();
     }, err => { console.error("Tickets listener error:", err); });
 
     listeners.users = db.ref('users');
@@ -2147,7 +2347,7 @@ function setupRealtimeListeners() {
         const usersObject = snapshot.val();
         allUsersData = usersObject ? Object.entries(usersObject).map(([uid, data]) => ({ uid, ...data })) : [];
         updatePublicUserUIs();
-        renderDashboards(); // Rerender dashboards as user data affects them
+        renderDashboards();
     }, err => { console.error("Users listener error:", err); });
 
     let isFirstNotificationRead = true;
@@ -2157,19 +2357,26 @@ function setupRealtimeListeners() {
         const data = snapshot.val();
         if ((Date.now() - data.timestamp) < 15000) showNotification(data.message, data.type);
     }, err => console.error("Global notification listener error:", err));
+
+    listeners.audio = db.ref('settings/audio');
+    listeners.audio.on('value', snapshot => {
+        const audioData = snapshot.val() || {};
+        audioLibrary = audioData.musicLibrary || {};
+        currentTrackId = audioData.currentTrackId || null;
+        
+        handleBackgroundMusicState(audioData);
+        if (currentUserRole !== 'admin') {
+            handleLiveAudioState(audioData);
+        } else {
+             renderMusicPlaylist();
+        }
+    }, err => console.error("Audio listener error:", err));
 }
 
-/**
- * NEW: Centralized function to render dashboards.
- * This ensures all data is available before drawing.
- */
 function renderDashboards() {
     if (!currentUserRole || (currentView !== 'adminDashboardView' && currentView !== 'agentDashboardView')) {
         return;
     }
-
-    // Guard clause: Don't render until essential data is present.
-    // This prevents drawing a blank or incomplete dashboard on initial load.
     if (Object.keys(gameSettingsData).length === 0 || allUsersData.length === 0) {
         return;
     }
@@ -2202,8 +2409,6 @@ function updateGameRelatedUIs(gameState) {
         updateAdminDisplayedTickets();
     }
 }
-
-// Renamed and simplified: only updates public-facing ticket UI now
 function updatePublicTicketUIs() {
     renderVisualTicketBookingPage();
     renderSheetWiseBookedList();
@@ -2218,11 +2423,7 @@ function updatePublicTicketUIs() {
         renderPublicBookingGrid();
     }
 }
-// Renamed and simplified: only updates public-facing user UI now
-function updatePublicUserUIs() {
-    // This is a placeholder for any public UI that depends on the user list.
-    // For now, it's empty, but the structure is here for future use.
-}
+function updatePublicUserUIs() { }
 
 
 function updateUIAfterLogin() {
@@ -2247,10 +2448,6 @@ function updateUIAfterLogout() {
     document.querySelectorAll('#publicLogoutBtn, #bookingLogoutBtn').forEach(btn => btn.style.display = 'none');
     document.querySelectorAll('.dashboard-link').forEach(link => link.remove());
 }
-
-// ... the rest of your JavaScript functions (generateNumberBoard, announceNumber, etc.) remain unchanged ...
-// They are self-contained and don't suffer from the race condition in the same way.
-// Just paste the code from here down to the end of the script tag.
 
 function checkSheetSelection(selectedIds) {
     const count = selectedIds.length;
@@ -2333,6 +2530,7 @@ function generateNumberBoard() {
     if(adminPopupBoard) adminPopupBoard.innerHTML = adminPopupBoardHtml;
 }
 
+// --- Professional announceNumber function ---
 function announceNumber(number) {
     isAnnouncing = true;
     lastAnnouncedNumber = number;
@@ -2342,14 +2540,25 @@ function announceNumber(number) {
     const overlay = document.getElementById('number-announcement-overlay');
     const numberDisplay = document.getElementById('announced-number-display');
     if (!overlay || !numberDisplay) { isAnnouncing = false; return; }
+    
+    numberDisplay.textContent = number;
+
+    // Kill any previous animation to prevent overlap
+    gsap.killTweensOf([overlay, numberDisplay]);
 
     gsap.timeline({ onComplete: () => { isAnnouncing = false; } })
-      .set(overlay, { display: 'flex' })
-      .set(numberDisplay, { textContent: number, y: '50%', scale: 0.5, autoAlpha: 0 })
-      .to(overlay, { autoAlpha: 1, duration: 0.3 })
-      .to(numberDisplay, { y: '0%', scale: 1, autoAlpha: 1, duration: 0.8, ease: 'elastic.out(1, 0.6)' }, '-=0.1')
-      .to(numberDisplay, { duration: 1.5 }, '+=0.2')
-      .to(overlay, { autoAlpha: 0, duration: 0.5, onComplete: () => overlay.style.display = 'none' }, '+=0.5');
+      .set(numberDisplay, { y: '-100px' }) // Start ball hidden 'inside' dispenser
+      .to(overlay, { autoAlpha: 1, duration: 0.2 }) // Show dispenser
+      .to(numberDisplay, { 
+          y: 0, // Drop ball down to its final position
+          duration: 1.2, 
+          ease: 'elastic.out(1, 0.7)' // Bouncy effect
+      })
+      .to(overlay, { 
+          autoAlpha: 0, // Fade out the whole thing
+          duration: 0.5, 
+          ease: 'power2.in' 
+      }, "+=2.5"); // Wait 2.5 seconds before fading out
 }
 
 function updateCountdownTimers(targetDateString) {
@@ -4726,6 +4935,8 @@ function searchTicketAdmin() {
         
         let ticketsHTML = '';
         ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+       
+        
             let gridHTML;
             if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
                  gridHTML = ticket.numbers.flat().map(n =>
@@ -4777,7 +4988,220 @@ function updateAdminDisplayedTickets() {
     });
 }
 
+// --- NEW: Audio Control Functions ---
+async function handleMusicUpload() {
+    const fileInput = document.getElementById('bgMusicUpload');
+    const file = fileInput.files[0];
+    if (!file) return showNotification('Please select an MP3 file first.', 'error');
+    if (file.type !== "audio/mpeg") return showNotification('Only MP3 files are allowed.', 'error');
+
+    showNotification(`Uploading '${file.name}'...`, 'info', 10000); // Animation via notification
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
+        try {
+            const newTrackRef = db.ref('settings/audio/musicLibrary').push();
+            await newTrackRef.set({
+                id: newTrackRef.key,
+                type: 'mp3',
+                name: file.name,
+                url: base64String
+            });
+            showNotification(`'${file.name}' uploaded successfully.`, 'success');
+            fileInput.value = ''; // Reset file input
+        } catch (e) {
+            showNotification('Error uploading music: ' + e.message, 'error');
+        }
+    };
+    reader.onerror = () => showNotification('Error reading file.', 'error');
+    reader.readAsDataURL(file);
+}
+
+async function handleStreamingUrl() {
+    const urlInput = document.getElementById('streamingUrlInp');
+    const url = urlInput.value.trim();
+    if (!url) return showNotification('Please enter a streaming URL.', 'error');
+    try {
+        new URL(url); // Basic validation
+    } catch (_) {
+        return showNotification('Invalid URL format.', 'error');
+    }
+    
+    try {
+        const newTrackRef = db.ref('settings/audio/musicLibrary').push();
+        await newTrackRef.set({
+            id: newTrackRef.key,
+            type: 'stream',
+            name: url.substring(url.lastIndexOf('/') + 1) || 'Streaming Link',
+            url: url
+        });
+        showNotification('Streaming URL added to playlist.', 'success');
+        urlInput.value = '';
+    } catch(e) {
+        showNotification('Error adding URL: ' + e.message, 'error');
+    }
+}
+
+async function playTrack(trackId) {
+    if (!trackId || !audioLibrary[trackId]) return;
+    try {
+        await db.ref('settings/audio/currentTrackId').set(trackId);
+        showNotification(`Now playing: ${audioLibrary[trackId].name}`, 'info');
+    } catch(e) {
+        showNotification('Error setting track: ' + e.message, 'error');
+    }
+}
+
+async function deleteTrack(trackId) {
+    if (!trackId || !audioLibrary[trackId]) return;
+    if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
+    try {
+        await db.ref(`settings/audio/musicLibrary/${trackId}`).remove();
+        if (currentTrackId === trackId) {
+            await db.ref('settings/audio/currentTrackId').set(null);
+        }
+        showNotification('Track deleted.', 'success');
+    } catch (e) {
+        showNotification('Error deleting track: ' + e.message, 'error');
+    }
+}
+
+function renderMusicPlaylist() {
+    const container = document.getElementById('musicPlaylist');
+    if (!container) return;
+
+    if (Object.keys(audioLibrary).length === 0) {
+        container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls above.</p>`;
+        return;
+    }
+    
+    container.innerHTML = Object.values(audioLibrary).map(track => `
+        <div class="playlist-item" style="background-color: ${track.id === currentTrackId ? 'var(--accent-color-dash)' : 'transparent'};">
+            <div class="playlist-item-name">${track.name}</div>
+            <div class="playlist-item-actions">
+                <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
+                <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleBgMusic() {
+    const state = document.getElementById('bgMusicState').value;
+    db.ref('settings/audio/musicState').set(state)
+        .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
+        .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
+}
+
+function togglePlaylistMode() {
+    const state = document.getElementById('playlistModeState').value;
+    db.ref('settings/audio/playlistMode').set(state)
+        .then(() => showNotification(`Playlist mode is now ${state.toUpperCase()}.`, 'info'))
+        .catch(e => showNotification('Error updating playlist mode: ' + e.message, 'error'));
+}
+
+async function toggleMic() {
+    if (isMicOn) {
+        if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+        if (localStream) localStream.getTracks().forEach(track => track.stop());
+        document.getElementById('micToggleBtn').classList.remove('live');
+        document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
+        isMicOn = false;
+        await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
+        showNotification('Live announcement stopped.', 'info');
+    } else {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const options = { mimeType: 'audio/webm;codecs=opus' };
+            mediaRecorder = new MediaRecorder(localStream, options);
+
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = () => db.ref('settings/audio/liveAnnouncement/audioChunk').set(reader.result);
+                    reader.readAsDataURL(event.data);
+                }
+            };
+            
+            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            mediaRecorder.start(2000); // Chunk every 2 seconds
+
+            document.getElementById('micToggleBtn').classList.add('live');
+            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
+            isMicOn = true;
+            showNotification('Live announcement started!', 'success');
+        } catch (err) {
+            showNotification('Could not access microphone: ' + err.message, 'error');
+            console.error(err);
+        }
+    }
+}
+
+function handleBackgroundMusicState(audioData) {
+    const musicState = audioData.musicState || 'off';
+    const playlistMode = audioData.playlistMode || 'off';
+    const trackId = audioData.currentTrackId;
+    const track = trackId ? audioData.musicLibrary?.[trackId] : null;
+
+    if (document.getElementById('bgMusicState')) {
+        document.getElementById('bgMusicState').value = musicState;
+    }
+    if (document.getElementById('playlistModeState')) {
+        document.getElementById('playlistModeState').value = playlistMode;
+    }
+
+    backgroundMusicPlayer.loop = (playlistMode === 'off');
+
+    if (musicState === 'on' && track && track.url) {
+        if (backgroundMusicPlayer.src !== track.url) {
+            backgroundMusicPlayer.src = track.url;
+        }
+        if (backgroundMusicPlayer.paused) {
+            backgroundMusicPlayer.play().catch(e => {});
+        }
+    } else {
+        backgroundMusicPlayer.pause();
+    }
+}
+
+function handleLiveAudioState(audioData) {
+    const liveInfo = audioData.liveAnnouncement;
+    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk) {
+        // Use a simple mechanism to prevent re-playing the same chunk
+        if (liveAudioPlayer.src !== liveInfo.audioChunk) {
+            liveAudioPlayer.src = liveInfo.audioChunk;
+            liveAudioPlayer.play().catch(e => {});
+        }
+    }
+}
+
+function playNextInPlaylist() {
+    if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
+    
+    const trackIds = Object.keys(audioLibrary);
+    const currentIndex = trackIds.indexOf(currentTrackId);
+    
+    if (currentIndex !== -1) {
+        const nextIndex = (currentIndex + 1) % trackIds.length;
+        const nextTrackId = trackIds[nextIndex];
+        playTrack(nextTrackId);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
+    liveAudioPlayer = document.getElementById('liveAudioPlayer');
+    document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
+    document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
+    document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
+
+    backgroundMusicPlayer.addEventListener('ended', () => {
+        const playlistMode = document.getElementById('playlistModeState')?.value || 'off';
+        if (playlistMode === 'on' && currentUserRole === 'admin') {
+            playNextInPlaylist();
+        }
+    });
+
     generateNumberBoard();
     bindEventListeners();
     gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
@@ -4787,7 +5211,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
 });
 
-// --- END OF FIXED SCRIPT ---
 </script>
 
 	<script>
