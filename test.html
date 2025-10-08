@@ -2096,6 +2096,7 @@ let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
 let knownWinners = {};
 let isInitialWinnerLoad = true;
+let notifiedWinners = new Set(); // <<< FIX FOR WINNER NOTIFICATION
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
@@ -2117,7 +2118,7 @@ let audioQueue = [];
 let isAppending = false;
 let isMediaSourceOpen = false;
 let lastProcessedTimestamp = 0;
-// --- End Audio Fix Variables ---
+let isAudioUnlocked = false; // <<< FIX FOR LIVE AUDIO
 
 let localStream;
 let mediaRecorder;
@@ -2140,9 +2141,51 @@ const allPossibleDividends = [
 // --- Core App Logic ---
 
 function playSound(src) {
+    if (!isAudioUnlocked) return; // Don't play if audio is locked
     const sound = new Audio(src);
     sound.play().catch(error => {});
 }
+
+// <<< NEW FUNCTION TO UNLOCK AUDIO ON USER INTERACTION
+function unlockAudio() {
+    if (isAudioUnlocked) return;
+    
+    // Create a dummy silent audio buffer
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const buffer = audioContext.createBuffer(1, 1, 22050);
+    const source = audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioContext.destination);
+    source.start(0);
+
+    // Try to play all audio elements silently to unlock them
+    liveAudioPlayer.muted = true;
+    backgroundMusicPlayer.muted = true;
+
+    const livePromise = liveAudioPlayer.play();
+    const bgPromise = backgroundMusicPlayer.play();
+
+    Promise.all([livePromise, bgPromise]).then(() => {
+        liveAudioPlayer.pause();
+        backgroundMusicPlayer.pause();
+        liveAudioPlayer.currentTime = 0;
+        backgroundMusicPlayer.currentTime = 0;
+        liveAudioPlayer.muted = false;
+        backgroundMusicPlayer.muted = false;
+        isAudioUnlocked = true;
+        console.log("Audio context unlocked successfully!");
+        // Remove the one-time event listener after it's been used
+        document.body.removeEventListener('click', unlockAudio);
+        document.body.removeEventListener('touchend', unlockAudio);
+    }).catch(error => {
+        // This might fail on some browsers, but the audio context trick should still work
+        console.warn("Silent play failed, but audio context might be unlocked.", error);
+        isAudioUnlocked = true; 
+        document.body.removeEventListener('click', unlockAudio);
+        document.body.removeEventListener('touchend', unlockAudio);
+    });
+}
+
 
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -2393,20 +2436,27 @@ function setupRealtimeListeners() {
         }
         currentCalledNumbers = newNumbers;
         const newWinners = data.winners || {};
+        
+        // <<< WINNER NOTIFICATION FIX START
         if (!isInitialWinnerLoad) {
             for (const dividendName in newWinners) {
                 const newWinnerArray = newWinners[dividendName] || [];
-                const oldWinnerArray = knownWinners[dividendName] || [];
-                const oldWinnerTicketIds = new Set(oldWinnerArray.map(w => w.ticketId));
-                const justAnnouncedWinners = newWinnerArray.filter(w => !oldWinnerTicketIds.has(w.ticketId));
-                if (justAnnouncedWinners.length > 0) {
-                    const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
-                    const msg = `${winnerNames} has won ${dividendName}!`;
-                    triggerGlobalNotification(msg, 'success');
-                    if (dividendSoundMap[dividendName]) playSound(audioBaseUrl + dividendSoundMap[dividendName]);
+                
+                for(const winner of newWinnerArray) {
+                    const winnerId = `${dividendName}-${winner.ticketId}-${winner.name}`;
+                    if (!notifiedWinners.has(winnerId)) {
+                        const msg = `${winner.name} (Tkt: ${winner.ticketId}) has won ${dividendName}!`;
+                        triggerGlobalNotification(msg, 'success');
+                        if (dividendSoundMap[dividendName]) {
+                            playSound(audioBaseUrl + dividendSoundMap[dividendName]);
+                        }
+                        notifiedWinners.add(winnerId);
+                    }
                 }
             }
         }
+        // <<< WINNER NOTIFICATION FIX END
+        
         knownWinners = newWinners;
         isInitialWinnerLoad = false;
         updateGameRelatedUIs(data);
@@ -3571,6 +3621,7 @@ async function resetCallNum() {
             isGameRunning: false,
             gameStartedAt: null 
         });
+        notifiedWinners.clear(); // <<< FIX FOR WINNER NOTIFICATION
         showNotification('Game state has been reset.', 'success');
         await triggerGlobalNotification('Admin has reset the game board.', 'info');
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
@@ -5254,6 +5305,8 @@ async function toggleMic() {
 }
 
 function handleBackgroundMusicState(audioData) {
+    if (!isAudioUnlocked) return; // Don't process if audio is locked
+
     const musicState = audioData.musicState || 'off';
     const playlistMode = audioData.playlistMode || 'off';
     const trackId = audioData.currentTrackId;
@@ -5279,7 +5332,7 @@ function handleBackgroundMusicState(audioData) {
         const elapsedTime = (serverTime - playbackStartTime) / 1000;
         
         const seekAndPlay = () => {
-            if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
+            if (backgroundMusicPlayer.duration && Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
                  backgroundMusicPlayer.currentTime = elapsedTime % backgroundMusicPlayer.duration;
             }
              if (backgroundMusicPlayer.paused) {
@@ -5302,6 +5355,8 @@ function handleBackgroundMusicState(audioData) {
 
 
 function handleLiveAudioStream(audioData) {
+    if (!isAudioUnlocked) return; // Don't process if audio is locked
+
     const liveInfo = audioData.liveAnnouncement;
     if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
         
@@ -5309,7 +5364,7 @@ function handleLiveAudioStream(audioData) {
              console.log("New live stream detected, resetting buffer.");
              audioQueue = [];
              if (sourceBuffer && !sourceBuffer.updating) {
-                try {
+                 try {
                     const bufferedTimeRanges = sourceBuffer.buffered;
                     if (bufferedTimeRanges.length > 0) {
                         sourceBuffer.remove(0, bufferedTimeRanges.end(bufferedTimeRanges.length - 1));
@@ -5322,7 +5377,11 @@ function handleLiveAudioStream(audioData) {
         lastProcessedTimestamp = liveInfo.timestamp;
         
         if (liveAudioPlayer.paused) {
-            liveAudioPlayer.play().catch(e => {});
+            liveAudioPlayer.play().catch(e => {
+                // If play fails, it's likely due to user not interacting yet.
+                // The 'unlockAudio' function will handle this.
+                console.warn("Live audio play() failed. Waiting for user interaction to unlock.", e);
+            });
         }
         
         audioQueue.push(liveInfo.audioChunk);
@@ -5330,7 +5389,7 @@ function handleLiveAudioStream(audioData) {
     } else if (liveInfo && !liveInfo.isLive) {
         // If live stream is off, fade out the audio
         let vol = liveAudioPlayer.volume;
-        if (vol > 0) {
+        if (vol > 0 && !liveAudioPlayer.paused) {
             const fadeOutInterval = setInterval(() => {
                 vol -= 0.1;
                 if (vol <= 0) {
@@ -5346,9 +5405,7 @@ function handleLiveAudioStream(audioData) {
     }
 }
 
-// =================================================================
-// ===== START: THIS IS THE FIXED AND IMPROVED FUNCTION        =====
-// =================================================================
+
 async function processAudioQueue() {
     if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
         return;
@@ -5357,35 +5414,27 @@ async function processAudioQueue() {
     
     const dataUrl = audioQueue.shift();
     try {
-        // 1. Find the start of the base64 data (after the comma)
         const commaIndex = dataUrl.indexOf(',');
         if (commaIndex === -1) {
             throw new Error('Invalid Data URL format');
         }
         const base64String = dataUrl.substring(commaIndex + 1);
-        
-        // 2. Decode the base64 string into a binary string
         const binaryString = window.atob(base64String);
-        
-        // 3. Convert the binary string to a Uint8Array, which is a binary format
         const len = binaryString.length;
         const bytes = new Uint8Array(len);
         for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
         
-        // 4. Append the binary data (as a buffer) to the MediaSource
-        //    `.buffer` gets the underlying ArrayBuffer from the Uint8Array
         sourceBuffer.appendBuffer(bytes.buffer);
 
     } catch (error) {
         console.error('Error processing audio chunk:', error);
         
-        // --- IMPROVEMENT: Handle buffer full error ---
         if (error.name === 'QuotaExceededError' && sourceBuffer && sourceBuffer.buffered.length > 0) {
              console.warn('SourceBuffer full. Clearing old data to make space.');
-             // Keep the last 5 seconds of audio and clear everything before that
-             const clearTo = Math.max(0, liveAudioPlayer.currentTime - 5); 
+             // Clear all buffered data except the last 5 seconds to catch up
+             const clearTo = Math.max(0, sourceBuffer.buffered.end(0) - 5); 
              if (clearTo > 0) {
                 try {
                     sourceBuffer.remove(0, clearTo);
@@ -5394,12 +5443,9 @@ async function processAudioQueue() {
                 }
              }
         }
-        isAppending = false; // Ensure we can process the next chunk even on error
+        isAppending = false; 
     }
 }
-// =================================================================
-// ===== END: THIS IS THE FIXED AND IMPROVED FUNCTION          =====
-// =================================================================
 
 
 function initializeMediaSource() {
@@ -5414,6 +5460,11 @@ function initializeMediaSource() {
                     sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
                     sourceBuffer.addEventListener('updateend', () => {
                         isAppending = false;
+                        // Seek to live point if falling behind
+                        if (liveAudioPlayer.buffered.length > 0 && liveAudioPlayer.buffered.end(0) - liveAudioPlayer.currentTime > 3) {
+                           console.log("Audio latency high, seeking to live point.");
+                           liveAudioPlayer.currentTime = liveAudioPlayer.buffered.end(0);
+                        }
                         processAudioQueue(); 
                     });
                     isMediaSourceOpen = true;
@@ -5447,6 +5498,10 @@ document.addEventListener('DOMContentLoaded', () => {
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
     
+    // <<< LISTEN FOR FIRST USER INTERACTION TO UNLOCK AUDIO
+    document.body.addEventListener('click', unlockAudio, { once: true });
+    document.body.addEventListener('touchend', unlockAudio, { once: true });
+
     initializeMediaSource();
 
     document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
