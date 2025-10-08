@@ -37,7 +37,7 @@
       display: flex;
       justify-content: center;
       min-height: 100%;
-      overflow: hidden;
+      overflow: hidden; /* For fixed background */
     }
 
     #three-canvas {
@@ -47,7 +47,8 @@
     .app-container {
       width: 100%;
       max-width: 500px;
-      height: 100vh;
+      /* CHANGE 1: Use dynamic viewport height for better mobile support */
+      height: 100dvh; 
       display: flex;
       flex-direction: column;
       z-index: 1;
@@ -111,6 +112,8 @@
       flex-direction: column;
       gap: 15px;
       overflow-y: auto;
+       /* For smooth scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
     }
 
     .content-card {
@@ -123,12 +126,14 @@
     
     .current-number-display {
       font-weight: 700;
-      font-size: 6rem;
+      /* CHANGE 2: Responsive font-size. Min 4.5rem, preferred 20vw, max 6.5rem */
+      font-size: clamp(4.5rem, 20vw, 6.5rem);
       text-align: center;
       color: var(--primary-accent);
       text-shadow: 0 0 15px var(--accent-glow);
       line-height: 1;
-      min-height: 90px;
+      /* CHANGE 3: Flexible height based on font size */
+      min-height: 1.1em; 
       display: flex;
       align-items: center;
       justify-content: center;
@@ -138,7 +143,8 @@
     .number-grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
-      gap: 6px;
+      /* CHANGE 4: Flexible gap */
+      gap: clamp(3px, 1.5vw, 6px);
     }
     .num {
       background: transparent;
@@ -149,7 +155,8 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 1rem;
+      /* CHANGE 5: Flexible font size for numbers in the grid */
+      font-size: clamp(0.7rem, 2.5vw, 1rem);
       color: var(--text-color-dark);
       cursor: default;
       transition: all 0.3s ease;
@@ -163,7 +170,6 @@
       transform: scale(1.05);
     }
 
-    /* --- NEW CSS for Called Numbers List --- */
     .called-numbers-container h3 {
         font-size: 0.9rem;
         font-weight: 600;
@@ -211,6 +217,27 @@
     #resetBtn { background: var(--border-color); color: var(--text-color-light); }
 
     .hidden { display: none; }
+
+    /* CHANGE 6: Media Query for small screens */
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 1.5rem; /* Title thoda chhota */
+        }
+        .settings-grid {
+            grid-template-columns: 1fr; /* Settings ko ek ke niche ek rakho */
+            gap: 12px;
+        }
+        .app-header, .app-content, .app-footer, .content-card {
+            padding: 10px; /* Padding kam karo */
+        }
+        .app-content {
+            gap: 10px; /* Cards ke beech ka gap kam karo */
+        }
+        .button {
+            padding: 12px;
+            font-size: 0.9rem; /* Button ka text thoda chhota */
+        }
+    }
   </style>
 </head>
 <body>
@@ -255,7 +282,6 @@
         <div class="number-grid" id="grid"></div>
       </div>
 
-      <!-- --- NEW HTML: Called Numbers Display --- -->
       <div class="content-card called-numbers-container">
         <h3>Called Numbers (<span id="calledCount">0</span>/90)</h3>
         <div id="calledNumbersList"></div>
@@ -301,8 +327,8 @@
   </script>
 
   <script>
+    // --- Javascript code is unchanged, so keeping it as is ---
     document.addEventListener('DOMContentLoaded', () => {
-        // --- DOM Elements ---
         const grid = document.getElementById('grid');
         const currentNumberSpan = document.getElementById('current-number');
         const playPauseBtn = document.getElementById('playPauseBtn');
@@ -312,18 +338,13 @@
         const intervalSlider = document.getElementById('intervalSlider');
         const intervalValue = document.getElementById('intervalValue');
         const baseUrlContainer = document.getElementById('baseUrlContainer');
-        // --- NEW DOM Elements ---
         const calledNumbersList = document.getElementById('calledNumbersList');
         const calledCountSpan = document.getElementById('calledCount');
-
-        // --- State Variables ---
         const STORAGE_KEY = 'goldenTambolaState';
         let deck = [];
         let calledNumbers = [];
         let intervalId = null;
-        let gameState = 'stopped'; // 'stopped', 'playing', 'paused'
-
-        // --- NEW: Local Storage Functions ---
+        let gameState = 'stopped';
         const saveGameState = () => {
             const state = {
                 deck: deck,
@@ -331,7 +352,6 @@
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         };
-
         const loadGameState = () => {
             const savedState = localStorage.getItem(STORAGE_KEY);
             if (savedState) {
@@ -342,16 +362,12 @@
             }
             return false;
         };
-
-        // --- Game Logic ---
         const initGame = () => {
             clearInterval(intervalId);
-            localStorage.removeItem(STORAGE_KEY); // Reset karte waqt storage clear karo
+            localStorage.removeItem(STORAGE_KEY);
             deck = Array.from({ length: 90 }, (_, i) => i + 1);
             shuffle(deck);
             calledNumbers = [];
-            
-            // UI ko reset karo
             updateBoard();
             updateCalledNumbersDisplay();
             currentNumberSpan.textContent = '--';
@@ -359,33 +375,26 @@
             playPauseBtn.textContent = 'Start Game';
             playPauseBtn.disabled = false;
         };
-        
-        // --- NEW: Function to update the board based on calledNumbers array ---
         const updateBoard = () => {
             const allNums = grid.querySelectorAll('.num');
-            allNums.forEach(numEl => numEl.classList.remove('called')); // Pehle sab 'called' class hatao
+            allNums.forEach(numEl => numEl.classList.remove('called'));
             calledNumbers.forEach(num => {
                 const el = document.getElementById('n' + num);
                 if (el) el.classList.add('called');
             });
-            // Display last called number
              const lastNumber = calledNumbers.length > 0 ? calledNumbers[calledNumbers.length - 1] : '--';
              currentNumberSpan.textContent = lastNumber;
         };
-        
-        // --- NEW: Function to display the list of called numbers ---
         const updateCalledNumbersDisplay = () => {
             calledNumbersList.textContent = calledNumbers.join(', ');
             calledCountSpan.textContent = calledNumbers.length;
         };
-
         const shuffle = (array) => {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
         };
-
         const createGrid = () => {
             grid.innerHTML = '';
             for (let i = 1; i <= 90; i++) {
@@ -396,24 +405,20 @@
                 grid.appendChild(el);
             }
         };
-        
         const playAudio = (num) => {
             const source = sourceSelect.value;
             let audioSrc = null;
-
             if (source === 'sintha') {
                  audioSrc = `https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/${num}.mp3`;
             } else if (source === 'baseurl' && baseUrlInput.value.trim()) {
                 audioSrc = baseUrlInput.value.trim() + `${num}.mp3`;
             }
-
             if (audioSrc) {
                 new Audio(audioSrc).play().catch(() => speakNumber(num));
             } else {
                 speakNumber(num);
             }
         };
-
         const speakNumber = (num) => {
             if (!('speechSynthesis' in window)) {
                 console.error("Sorry, your browser doesn't support text-to-speech.");
@@ -427,7 +432,6 @@
               console.error("Speech Synthesis failed.", e);
             }
         };
-
         const callNextNumber = () => {
             if (deck.length === 0) {
                 handleGameEnd();
@@ -435,21 +439,17 @@
             }
             const num = deck.shift();
             calledNumbers.push(num);
-            
-            saveGameState(); // Har naye number ke baad state save karo
-
+            saveGameState();
             gsap.timeline()
                 .to(currentNumberSpan, { scale: 0.5, opacity: 0, duration: 0.3, ease: 'power2.in' })
                 .call(() => {
                     document.getElementById('n' + num)?.classList.add('called');
-                    updateCalledNumbersDisplay(); // Niche wali list update karo
+                    updateCalledNumbersDisplay();
                 })
                 .set(currentNumberSpan, { textContent: num })
                 .to(currentNumberSpan, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' });
-
             playAudio(num);
         };
-
         const handleGameEnd = () => {
              clearInterval(intervalId);
              gameState = 'stopped';
@@ -457,33 +457,26 @@
              playPauseBtn.textContent = 'Game Over';
              playPauseBtn.disabled = true;
         }
-
-        // --- Event Handlers ---
         const handlePlayPause = () => {
-            if (gameState === 'playing') { // Pause
+            if (gameState === 'playing') {
                 clearInterval(intervalId);
                 gameState = 'paused';
                 playPauseBtn.textContent = 'Resume';
-            } else { // Play or Resume
+            } else {
                 if (gameState === 'stopped' && calledNumbers.length === 0) {
-                    callNextNumber(); // First number
-                } else if (gameState === 'stopped' && calledNumbers.length > 0) {
-                    // This is resuming a loaded game
-                }
+                    callNextNumber();
+                } else if (gameState === 'stopped' && calledNumbers.length > 0) {}
                 const intervalTime = Math.max(2, Number(intervalSlider.value));
                 intervalId = setInterval(callNextNumber, intervalTime * 1000);
                 gameState = 'playing';
                 playPauseBtn.textContent = 'Pause';
             }
         };
-
         playPauseBtn.addEventListener('click', handlePlayPause);
         resetBtn.addEventListener('click', initGame);
-        
         sourceSelect.addEventListener('change', () => {
             baseUrlContainer.classList.toggle('hidden', sourceSelect.value !== 'baseurl');
         });
-
         intervalSlider.addEventListener('input', () => {
             intervalValue.textContent = `${intervalSlider.value}s`;
             if (gameState === 'playing') {
@@ -492,12 +485,9 @@
                 intervalId = setInterval(callNextNumber, intervalTime * 1000);
             }
         });
-
-        // --- Initial Setup on Page Load ---
         const setupGame = () => {
-            createGrid(); // Hamesha grid banao
+            createGrid();
             if (loadGameState()) {
-                // Agar saved game hai, to use load karo
                 updateBoard();
                 updateCalledNumbersDisplay();
                 if (deck.length === 0) {
@@ -506,12 +496,10 @@
                     playPauseBtn.textContent = 'Resume Game';
                 }
             } else {
-                // Warna naya game shuru karo
                 initGame();
             }
              gsap.from('.app-container > *', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1, ease: 'power2.out' });
         };
-
         setupGame();
     });
   </script>
