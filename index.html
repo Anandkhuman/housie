@@ -4076,6 +4076,7 @@ function savePosterAsImage() {
         useCORS: true, 
         allowTaint: true,
         logging: false,
+        scale: 3,
     }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'sintha-housie-poster.png';
@@ -4095,7 +4096,7 @@ async function sharePoster() {
     showNotification('Preparing poster for sharing...', 'info');
 
     try {
-        const canvas = await html2canvas(posterElement, { useCORS: true, allowTaint: true });
+        const canvas = await html2canvas(posterElement, { useCORS: true, allowTaint: true, scale: 3});
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
@@ -5447,5 +5448,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
-
