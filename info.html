@@ -326,13 +326,13 @@
 
             <div class="assignment-section">
                 <h3><i class="fas fa-user-shield"></i> Admin Adjustments</h3>
-                <p class="info-text">Enter manual free/bonus tickets given by an admin. This will reduce their paid ticket count.</p>
+                <p class="info-text">Enter manual free/bonus tickets given by an admin. These are applied first.</p>
                 <div id="admin-adjustment-list" class="assignment-list"></div>
             </div>
             
             <div class="assignment-section">
                 <h3><i class="fas fa-user-tie"></i> Agent Inclusion & Assignment</h3>
-                <p class="info-text">Uncheck agent to exclude them. Enter manual free/bonus tickets to reduce their paid ticket count.</p>
+                <p class="info-text">Uncheck agent to exclude them. Enter manual free/bonus tickets. These are applied first.</p>
                 <div id="agent-assignment-list" class="assignment-list"></div>
             </div>
             <div class="assignment-section">
@@ -488,59 +488,94 @@
         const includedAgentUids = Array.from(document.querySelectorAll('#agent-assignment-list .include-checkbox:checked')).map(cb => cb.dataset.uid);
         const initialSoldTickets = allTickets.filter(t => t.is_sold && t.owner_phone && (allUsers.find(u => u.uid === t.agent_uid)?.role === 'admin' || includedAgentUids.includes(t.agent_uid)));
 
-        const processedTickets = JSON.parse(JSON.stringify(initialSoldTickets));
-        const bookings = processedTickets.reduce((acc, t) => { acc[t.owner_phone] = (acc[t.owner_phone] || []).concat(t); return acc; }, {});
-        for (const phone in bookings) {
-            let ticketsInBooking = bookings[phone];
-            const sheets = ticketsInBooking.reduce((acc, t) => { const s = Math.floor((t.id - 1) / 6); acc[s] = (acc[s] || 0) + 1; return acc; }, {});
-            let freeCount = 0;
-            for (const sheet in sheets) {
-                freeCount += (Math.floor(sheets[sheet] / 6) * freePerFull) + (Math.floor((sheets[sheet] % 6) / 3) * freePerHalf);
+        // --- START: NEW CALCULATION LOGIC ---
+
+        // 1. Get manual extra/bonus tickets for each seller
+        const extraTicketsMap = {};
+        document.querySelectorAll('.extra-tickets-input').forEach(input => {
+            const uid = input.dataset.uid;
+            const count = parseInt(input.value, 10) || 0;
+            if (count > 0) {
+                extraTicketsMap[uid] = count;
             }
-            ticketsInBooking.sort((a,b) => a.id - b.id);
-            for(let i=0; i < ticketsInBooking.length && i < freeCount; i++) {
-                ticketsInBooking[i].isFree = true;
+        });
+
+        // Create a modifiable copy of all tickets and initialize properties
+        let processedTickets = JSON.parse(JSON.stringify(initialSoldTickets));
+        processedTickets.forEach(t => {
+            t.isFree = false;
+            t.freeReason = null;
+        });
+
+        // 2. Apply MANUAL free tickets first
+        for (const uid in extraTicketsMap) {
+            let ticketsToFree = extraTicketsMap[uid];
+            const userTickets = processedTickets
+                .filter(t => t.agent_uid === uid && !t.isFree)
+                .sort((a, b) => a.id - b.id);
+
+            for (let i = 0; i < ticketsToFree && i < userTickets.length; i++) {
+                const ticketToMark = processedTickets.find(pt => pt.id === userTickets[i].id);
+                if (ticketToMark) {
+                    ticketToMark.isFree = true;
+                    ticketToMark.freeReason = 'manual';
+                }
+            }
+        }
+
+        // 3. Apply AUTOMATIC free tickets on the remaining pool
+        const remainingTicketsForAuto = processedTickets.filter(t => !t.isFree);
+        const bookingsForAutoFree = remainingTicketsForAuto.reduce((acc, t) => {
+            acc[t.owner_phone] = (acc[t.owner_phone] || []).concat(t);
+            return acc;
+        }, {});
+
+        for (const phone in bookingsForAutoFree) {
+            let ticketsInBooking = bookingsForAutoFree[phone];
+            const sheets = ticketsInBooking.reduce((acc, t) => {
+                const s = Math.floor((t.id - 1) / 6);
+                acc[s] = (acc[s] || 0) + 1;
+                return acc;
+            }, {});
+            
+            let autoFreeCount = 0;
+            for (const sheet in sheets) {
+                autoFreeCount += (Math.floor(sheets[sheet] / 6) * freePerFull) + (Math.floor((sheets[sheet] % 6) / 3) * freePerHalf);
+            }
+            
+            ticketsInBooking.sort((a, b) => a.id - b.id);
+            
+            for (let i = 0; i < autoFreeCount && i < ticketsInBooking.length; i++) {
+                const ticketToMark = processedTickets.find(pt => pt.id === ticketsInBooking[i].id);
+                if (ticketToMark) {
+                    ticketToMark.isFree = true;
+                    ticketToMark.freeReason = 'auto';
+                }
             }
         }
         
-        const paidTickets = processedTickets.filter(t => !t.isFree);
-        const freeTickets = processedTickets.filter(t => t.isFree);
+        // 4. Final Tally and Financial Calculations
+        const finalPaidTickets = processedTickets.filter(t => !t.isFree);
 
         const adminBalances = admins.map(admin => ({ name: admin.name, uid: admin.uid, ticketsSold: 0, freeTicketsGenerated: 0, extraTickets: 0, commission: 0, directCollection: 0, transfersInFromAgents: 0, prizesPaid: 0 }));
         const agentSettlements = agents.map(agent => ({ name: agent.name, uid: agent.uid, ticketsSold: 0, freeTicketsGenerated: 0, extraTickets: 0, collection: 0, commission: 0, netTransfer: 0, transferToAdminName: 'N/A (Excluded)'}));
 
-        paidTickets.forEach(t => {
-            const seller = adminBalances.find(a => a.uid === t.agent_uid) || agentSettlements.find(a => a.uid === t.agent_uid);
-            if (seller) seller.ticketsSold++;
-        });
-        freeTickets.forEach(t => {
-            const seller = adminBalances.find(a => a.uid === t.agent_uid) || agentSettlements.find(a => a.uid === t.agent_uid);
-            if (seller) seller.freeTicketsGenerated++;
-        });
+        const totalTicketsBySeller = initialSoldTickets.reduce((acc, t) => {
+            acc[t.agent_uid] = (acc[t.agent_uid] || 0) + 1;
+            return acc;
+        }, {});
         
-        document.querySelectorAll('#winner-assignment-list .assignment-item').forEach(item => {
-            if (item.querySelector('.include-checkbox:checked')) {
-                const admin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value);
-                if(admin) admin.prizesPaid += parseFloat(item.querySelector('.include-checkbox').dataset.prizeAmount);
-            }
+        const allSellers = [...adminBalances, ...agentSettlements];
+        allSellers.forEach(seller => {
+            seller.extraTickets = extraTicketsMap[seller.uid] || 0;
+            seller.ticketsSold = finalPaidTickets.filter(t => t.agent_uid === seller.uid).length;
+            seller.freeTicketsGenerated = processedTickets.filter(t => t.agent_uid === seller.uid && t.isFree && t.freeReason === 'auto').length;
         });
-
-        // --- START: FIX FOR EXTRA/BONUS TICKETS ---
-        let totalExtraTicketsAsFree = 0;
 
         agentSettlements.forEach(agent => {
-            const extraTicketsInput = document.querySelector(`#agent-assignment-list .extra-tickets-input[data-uid="${agent.uid}"]`);
-            agent.extraTickets = extraTicketsInput ? parseInt(extraTicketsInput.value, 10) || 0 : 0;
-            
-            totalExtraTicketsAsFree += agent.extraTickets;
-
-            // Commission is based on ALL tickets handled (initial paid + initial free)
-            const totalTicketsHandledForCommission = agent.ticketsSold + agent.freeTicketsGenerated;
-            agent.commission = totalTicketsHandledForCommission * commissionRate;
-
-            // Subtract the extra/bonus tickets from the "paid" count for collection purposes
-            agent.ticketsSold = Math.max(0, agent.ticketsSold - agent.extraTickets);
             agent.collection = agent.ticketsSold * ticketPrice;
+            const initialTotalHandled = totalTicketsBySeller[agent.uid] || 0;
+            agent.commission = initialTotalHandled * commissionRate;
             
             if (includedAgentUids.includes(agent.uid)) {
                 const item = document.querySelector(`#agent-assignment-list .agent-checkbox[data-uid="${agent.uid}"]`).closest('.assignment-item');
@@ -554,44 +589,36 @@
         });
 
         adminBalances.forEach(admin => {
-            const extraTicketsInput = document.querySelector(`#admin-adjustment-list .extra-tickets-input[data-uid="${admin.uid}"]`);
-            admin.extraTickets = extraTicketsInput ? parseInt(extraTicketsInput.value, 10) || 0 : 0;
-            
-            totalExtraTicketsAsFree += admin.extraTickets;
-
-            admin.commission = 0; // Admins don't get commission
-
-            // Subtract the extra/bonus tickets from the "paid" count for collection purposes
-            admin.ticketsSold = Math.max(0, admin.ticketsSold - admin.extraTickets);
+            admin.commission = 0;
             admin.directCollection = admin.ticketsSold * ticketPrice;
         });
-        
+
+        document.querySelectorAll('#winner-assignment-list .assignment-item').forEach(item => {
+            if (item.querySelector('.include-checkbox:checked')) {
+                const admin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value);
+                if(admin) admin.prizesPaid += parseFloat(item.querySelector('.include-checkbox').dataset.prizeAmount);
+            }
+        });
+
         const totalAgentCommissions = agentSettlements.reduce((sum, agent) => sum + agent.commission, 0);
         const totalAdminCommissions = 0;
-
-        // Adjust summary based on the re-classified extra tickets
-        const finalPaidTicketsCount = Math.max(0, paidTickets.length - totalExtraTicketsAsFree);
-        const finalFreeTicketsCount = freeTickets.length + totalExtraTicketsAsFree;
-
+        
         const summary = {
-            totalSoldTickets: finalPaidTicketsCount,
-            totalFreeTickets: finalFreeTicketsCount,
-            totalCollection: finalPaidTicketsCount * ticketPrice,
+            totalSoldTickets: finalPaidTickets.length,
+            totalFreeTickets: processedTickets.length - finalPaidTickets.length,
+            totalCollection: finalPaidTickets.length * ticketPrice,
             totalPrizesPaid: adminBalances.reduce((sum, admin) => sum + admin.prizesPaid, 0),
             totalCommissionsPaid: totalAgentCommissions + totalAdminCommissions
         };
-        // --- END: FIX ---
 
         summary.netProfit = summary.totalCollection - (summary.totalPrizesPaid + summary.totalCommissionsPaid);
+
+        // --- END: NEW CALCULATION LOGIC ---
 
         const historyEntry = {
             timestamp: Date.now(),
             calculatedBy: currentUser.name,
-            results: {
-                summary: summary,
-                admins: adminBalances,
-                agents: agentSettlements
-            }
+            results: { summary, admins: adminBalances, agents: agentSettlements }
         };
         db.ref('calculationHistory').push(historyEntry);
 
