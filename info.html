@@ -165,10 +165,8 @@
     .header-buttons { display: flex; align-items: center; gap: 0.8rem; }
     #logout-btn { background: var(--error-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
     #logout-btn:hover { background-color: #c0392b; }
-    /* HISTORY BUTTON STYLE - START */
     #view-history-btn { background: var(--info-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
     #view-history-btn:hover { background-color: #2980b9; }
-    /* HISTORY BUTTON STYLE - END */
     .container-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
     .calc-card { background-color: var(--secondary-bg-dash); padding: 1.5rem; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
     .calc-card h2 { color: var(--accent-color-dash); margin-bottom: 1.5rem; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; }
@@ -213,149 +211,59 @@
 
     /* --- NEW: MODAL STYLES --- */
     .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        backdrop-filter: blur(5px);
-        padding: 1rem;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); display: flex; align-items: center;
+        justify-content: center; z-index: 1000; backdrop-filter: blur(5px); padding: 1rem;
     }
     .modal-content {
-        background-color: var(--secondary-bg-dash);
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        width: 90%;
-        max-width: 450px;
-        text-align: center;
-        border-top: 4px solid var(--accent-color-dash);
-        transform: scale(0.9);
-        animation: modal-pop 0.3s ease-out forwards;
-        position: relative;
+        background-color: var(--secondary-bg-dash); padding: 2rem; border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); width: 90%; max-width: 450px;
+        text-align: center; border-top: 4px solid var(--accent-color-dash);
+        transform: scale(0.9); animation: modal-pop 0.3s ease-out forwards; position: relative;
     }
-    @keyframes modal-pop {
-        to { transform: scale(1); }
-    }
-    .modal-content h2 {
-        color: var(--accent-color-dash);
-        margin-bottom: 1rem;
-    }
-    .modal-content p {
-        color: var(--light-text-dash);
-        margin-bottom: 1.5rem;
-        line-height: 1.7;
-    }
+    @keyframes modal-pop { to { transform: scale(1); } }
+    .modal-content h2 { color: var(--accent-color-dash); margin-bottom: 1rem; }
+    .modal-content p { color: var(--light-text-dash); margin-bottom: 1.5rem; line-height: 1.7; }
     .modal-content button {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        border: none;
-        border-radius: 4px;
-        background-color: var(--success-color);
-        color: white;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.2s;
+        width: 100%; padding: 0.8rem 1rem; border: none; border-radius: 4px;
+        background-color: var(--success-color); color: white; font-size: 1.1rem;
+        font-weight: 600; cursor: pointer; transition: background-color 0.3s, transform 0.2s;
     }
-    .modal-content button:hover {
-        background-color: #27ae60;
-        transform: translateY(-2px);
-    }
-    /* CLOSE BUTTON FOR MODALS - START */
+    .modal-content button:hover { background-color: #27ae60; transform: translateY(-2px); }
     .modal-close-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        background: transparent;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--muted-color-dash);
-        cursor: pointer;
-        line-height: 1;
-        padding: 0.5rem;
-        transition: color 0.2s, transform 0.2s;
+        position: absolute; top: 0.5rem; right: 0.5rem; background: transparent; border: none;
+        font-size: 1.5rem; color: var(--muted-color-dash); cursor: pointer; line-height: 1;
+        padding: 0.5rem; transition: color 0.2s, transform 0.2s;
     }
-    .modal-close-btn:hover {
-        color: var(--light-text-dash);
-        transform: rotate(90deg);
-    }
-    /* CLOSE BUTTON FOR MODALS - END */
+    .modal-close-btn:hover { color: var(--light-text-dash); transform: rotate(90deg); }
 
     /* --- NEW: HISTORY STYLES --- */
-    #history-list {
-        max-height: 60vh; /* Allow more height in modal */
-        overflow-y: auto;
+    #history-list { max-height: 60vh; overflow-y: auto; }
+    .history-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0.8rem; border-bottom: 1px solid var(--primary-bg-dash); cursor: pointer;
     }
-    #history-list .history-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.8rem;
-        border-bottom: 1px solid var(--primary-bg-dash);
-        cursor: pointer; /* Make item look clickable */
+    .history-item:hover { background-color: var(--primary-bg-dash); }
+    .history-item:last-child { border-bottom: none; }
+    .history-info { flex-grow: 1; pointer-events: none; }
+    .history-info .date { font-weight: 600; color: var(--light-text-dash); }
+    .history-info .details { font-size: 0.85rem; color: var(--muted-color-dash); }
+    .delete-history-btn {
+        background: none; border: none; color: var(--error-color); font-size: 1.1rem;
+        cursor: pointer; padding: 5px; transition: color 0.2s, transform 0.2s;
     }
-    #history-list .history-item:hover {
-        background-color: var(--primary-bg-dash);
-    }
-    #history-list .history-item:last-child {
-        border-bottom: none;
-    }
-    #history-list .history-info {
-        flex-grow: 1;
-        /* Make the info div non-clickable for pointer events so the parent div receives the click */
-        pointer-events: none; 
-    }
-    #history-list .history-info .date {
-        font-weight: 600;
-        color: var(--light-text-dash);
-    }
-    #history-list .history-info .details {
-        font-size: 0.85rem;
-        color: var(--muted-color-dash);
-    }
-    #history-list .delete-history-btn {
-        background: none;
-        border: none;
-        color: var(--error-color);
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 5px;
-        transition: color 0.2s, transform 0.2s;
-    }
-    #history-list .delete-history-btn:hover {
-        color: #c0392b;
-        transform: scale(1.1);
-    }
-    #clear-all-history-btn:hover {
-        background-color: #c0392b !important;
-    }
+    .delete-history-btn:hover { color: #c0392b; transform: scale(1.1); }
+    #clear-all-history-btn:hover { background-color: #c0392b !important; }
 
     /* --- NEW: SETTLEMENT STYLES --- */
     .settlement-block {
-        background-color: var(--primary-bg-dash);
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-radius: 5px;
-        border-left: 3px solid var(--warning-color);
+        background-color: var(--primary-bg-dash); padding: 1rem; margin-bottom: 1rem;
+        border-radius: 5px; border-left: 3px solid var(--warning-color);
     }
     .settlement-block:last-child { margin-bottom: 0; }
-    .results-area h3:has(+ .settlement-block) {
-        color: var(--warning-color);
-    }
-    .settlement-instruction {
-        font-size: 1rem;
-        padding: 0.5rem 0;
-        color: var(--light-text-dash);
-    }
-    .settlement-instruction strong {
-        color: var(--accent-color-dash);
-    }
+    .results-area h3:has(+ .settlement-block) { color: var(--warning-color); }
+    .settlement-instruction { font-size: 1rem; padding: 0.5rem 0; color: var(--light-text-dash); }
+    .settlement-instruction strong { color: var(--accent-color-dash); }
 </style>
 </head>
 <body>
@@ -397,13 +305,10 @@
         <h1>Admin Settlement Panel</h1>
         <div class="header-buttons">
             <span id="admin-name" style="margin-right: 1rem;"></span>
-            <!-- HISTORY FIX: ADDED VIEW HISTORY BUTTON -->
             <button id="view-history-btn"><i class="fas fa-history"></i> View History</button>
             <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </header>
-
-    <!-- HISTORY FIX: HISTORY VIEW IS NOW A MODAL (SEE BELOW), REMOVED FROM HERE -->
 
     <div id="calculator-view">
          <div class="calc-card">
@@ -419,16 +324,15 @@
                 </div>
             </div>
 
-            <!-- NEW: Admin Adjustments Section -->
             <div class="assignment-section">
                 <h3><i class="fas fa-user-shield"></i> Admin Adjustments</h3>
-                <p class="info-text">Add/remove tickets for an Admin's commission calculation.</p>
+                <p class="info-text">Enter manual free/bonus tickets given by an admin. This will reduce their paid ticket count.</p>
                 <div id="admin-adjustment-list" class="assignment-list"></div>
             </div>
             
             <div class="assignment-section">
                 <h3><i class="fas fa-user-tie"></i> Agent Inclusion & Assignment</h3>
-                <p class="info-text">Uncheck an agent to exclude them and their prize payouts. Add/remove tickets for commission calculation.</p>
+                <p class="info-text">Uncheck agent to exclude them. Enter manual free/bonus tickets to reduce their paid ticket count.</p>
                 <div id="agent-assignment-list" class="assignment-list"></div>
             </div>
             <div class="assignment-section">
@@ -454,7 +358,6 @@
     </div>
 </div>
 
-<!-- HISTORY FIX: CREATED HISTORY MODAL -->
 <div id="history-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content" style="max-width: 700px; text-align: left;">
         <button class="modal-close-btn" id="close-history-modal">&times;</button>
@@ -491,7 +394,6 @@
     const mainContainer = document.getElementById('main-container');
     const calcView = document.getElementById('calculator-view');
     const resultsView = document.getElementById('results-view');
-    // HISTORY FIX: Get reference to the new history modal
     const historyModal = document.getElementById('history-modal');
     const bgMusic = document.getElementById('background-music');
     const verificationContainer = document.getElementById('verification-container');
@@ -623,12 +525,22 @@
             }
         });
 
-        // --- NEW: Calculate Extra Tickets and Commissions ---
+        // --- START: FIX FOR EXTRA/BONUS TICKETS ---
+        let totalExtraTicketsAsFree = 0;
+
         agentSettlements.forEach(agent => {
             const extraTicketsInput = document.querySelector(`#agent-assignment-list .extra-tickets-input[data-uid="${agent.uid}"]`);
             agent.extraTickets = extraTicketsInput ? parseInt(extraTicketsInput.value, 10) || 0 : 0;
+            
+            totalExtraTicketsAsFree += agent.extraTickets;
+
+            // Commission is based on ALL tickets handled (initial paid + initial free)
+            const totalTicketsHandledForCommission = agent.ticketsSold + agent.freeTicketsGenerated;
+            agent.commission = totalTicketsHandledForCommission * commissionRate;
+
+            // Subtract the extra/bonus tickets from the "paid" count for collection purposes
+            agent.ticketsSold = Math.max(0, agent.ticketsSold - agent.extraTickets);
             agent.collection = agent.ticketsSold * ticketPrice;
-            agent.commission = (agent.ticketsSold + agent.freeTicketsGenerated + agent.extraTickets) * commissionRate;
             
             if (includedAgentUids.includes(agent.uid)) {
                 const item = document.querySelector(`#agent-assignment-list .agent-checkbox[data-uid="${agent.uid}"]`).closest('.assignment-item');
@@ -644,22 +556,32 @@
         adminBalances.forEach(admin => {
             const extraTicketsInput = document.querySelector(`#admin-adjustment-list .extra-tickets-input[data-uid="${admin.uid}"]`);
             admin.extraTickets = extraTicketsInput ? parseInt(extraTicketsInput.value, 10) || 0 : 0;
-            // --- MODIFICATION: Admin commission is set to 0 as per request ---
-            admin.commission = 0;
+            
+            totalExtraTicketsAsFree += admin.extraTickets;
+
+            admin.commission = 0; // Admins don't get commission
+
+            // Subtract the extra/bonus tickets from the "paid" count for collection purposes
+            admin.ticketsSold = Math.max(0, admin.ticketsSold - admin.extraTickets);
             admin.directCollection = admin.ticketsSold * ticketPrice;
         });
-        // --- END NEW ---
-
+        
         const totalAgentCommissions = agentSettlements.reduce((sum, agent) => sum + agent.commission, 0);
-        const totalAdminCommissions = adminBalances.reduce((sum, admin) => sum + admin.commission, 0);
+        const totalAdminCommissions = 0;
+
+        // Adjust summary based on the re-classified extra tickets
+        const finalPaidTicketsCount = Math.max(0, paidTickets.length - totalExtraTicketsAsFree);
+        const finalFreeTicketsCount = freeTickets.length + totalExtraTicketsAsFree;
 
         const summary = {
-            totalSoldTickets: paidTickets.length,
-            totalFreeTickets: freeTickets.length,
-            totalCollection: paidTickets.length * ticketPrice,
+            totalSoldTickets: finalPaidTicketsCount,
+            totalFreeTickets: finalFreeTicketsCount,
+            totalCollection: finalPaidTicketsCount * ticketPrice,
             totalPrizesPaid: adminBalances.reduce((sum, admin) => sum + admin.prizesPaid, 0),
             totalCommissionsPaid: totalAgentCommissions + totalAdminCommissions
         };
+        // --- END: FIX ---
+
         summary.netProfit = summary.totalCollection - (summary.totalPrizesPaid + summary.totalCommissionsPaid);
 
         const historyEntry = {
@@ -679,19 +601,14 @@
     function renderResults(summary, admins, agents) {
         let resultsHtml = `<h1>Settlement Report</h1>`;
 
-        // Business Summary
         resultsHtml += `<div class="results-area"><h3>Business Summary</h3><div class="result-block"><div class="result-item"><span>Total Paid Tickets</span><span>${summary.totalSoldTickets}</span></div><div class="result-item"><span>Total Free Tickets Given</span><span>${summary.totalFreeTickets}</span></div><div class="result-item"><span>(+) Total Collection</span><span>₹ ${summary.totalCollection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Prizes Paid</span><span>₹ ${Math.round(summary.totalPrizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Commissions</span><span>₹ ${Math.round(summary.totalCommissionsPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit / Loss</span><span>₹ ${Math.round(summary.netProfit).toLocaleString('en-IN')}</span></div></div></div>`;
         
-        // Admin Balances
-        // --- MODIFICATION: Removed the "Commission Earned" line from this section ---
-        resultsHtml += `<div class="results-area"><h3>Admin Balances</h3>${admins.map(admin => { const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid; return `<div class="result-block"><h4>${admin.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${admin.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${admin.extraTickets}</span></div><div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString('en-IN')}</span></div><div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance in Hand</span><span>₹ ${Math.round(finalBalance).toLocaleString('en-IN')}</span></div></div>`; }).join('')}</div>`;
+        resultsHtml += `<div class="results-area"><h3>Admin Balances</h3>${admins.map(admin => { const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid; return `<div class="result-block"><h4>${admin.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div><div class="result-item"><span>Free Tickets (Auto)</span><span>${admin.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${admin.extraTickets}</span></div><div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString('en-IN')}</span></div><div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance in Hand</span><span>₹ ${Math.round(finalBalance).toLocaleString('en-IN')}</span></div></div>`; }).join('')}</div>`;
 
-        // Profit Distribution
         const numAdmins = admins.length > 0 ? admins.length : 1;
         const profitPerAdmin = summary.netProfit / numAdmins;
         if (admins.length > 0) { resultsHtml += `<div class="results-area"><h3>Profit Distribution</h3><div class="result-block"><div class="result-item total"><span>Profit Share per Admin</span><span>₹ ${Math.round(profitPerAdmin).toLocaleString('en-IN')}</span></div>${admins.map(admin => `<div class="result-item"><span>${admin.name}'s Share</span><span>₹ ${Math.round(profitPerAdmin).toLocaleString('en-IN')}</span></div>`).join('')}</div></div>`; }
 
-        // Settlement Calculation
         if (admins.length > 1) {
             const payers = []; const receivers = [];
             admins.forEach(admin => {
@@ -714,8 +631,7 @@
             resultsHtml += `<div class="results-area"><h3>Settlement Actions (ꯂꯣꯊꯣꯛ-ꯂꯣꯁꯤꯟ)</h3><div class="settlement-block">${transactions.length > 0 ? transactions.map(t => `<p class="settlement-instruction">${t}</p>`).join('') : '<p class="settlement-instruction">All balances are already settled.</p>'}</div></div>`;
         }
 
-        // Agent Settlements
-        resultsHtml += `<div class="results-area"><h3>Agent Settlements</h3>${agents.map(agent => `<div class="result-block"><h4>${agent.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div><div class="result-item"><span>Free Tickets</span><span>${agent.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${agent.extraTickets}</span></div><div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>Commission Earned</span><span>₹ ${Math.round(agent.commission).toLocaleString('en-IN')}</span></div><div class="result-item total"><span>Net Transfer to ${agent.transferToAdminName}</span><span>₹ ${agent.netTransfer > 0 ? Math.round(agent.netTransfer).toLocaleString('en-IN') : 0}</span></div></div>`).join('')}</div>`;
+        resultsHtml += `<div class="results-area"><h3>Agent Settlements</h3>${agents.map(agent => `<div class="result-block"><h4>${agent.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div><div class="result-item"><span>Free Tickets (Auto)</span><span>${agent.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${agent.extraTickets}</span></div><div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>Commission Earned</span><span>₹ ${Math.round(agent.commission).toLocaleString('en-IN')}</span></div><div class="result-item total"><span>Net Transfer to ${agent.transferToAdminName}</span><span>₹ ${agent.netTransfer > 0 ? Math.round(agent.netTransfer).toLocaleString('en-IN') : 0}</span></div></div>`).join('')}</div>`;
 
         resultsHtml += `<button class="calculate-btn" id="back-to-calc-btn">Back to Calculator</button>`;
         resultsView.innerHTML = resultsHtml;
@@ -723,10 +639,8 @@
         document.getElementById('back-to-calc-btn').addEventListener('click', () => { 
             resultsView.style.display = 'none'; 
             calcView.style.display = 'block'; 
-            // HISTORY FIX: No need to show history view here anymore
         });
         calcView.style.display = 'none';
-        // HISTORY FIX: No need to hide history view here anymore
         resultsView.style.display = 'block';
         window.scrollTo(0, 0);
     }
@@ -752,7 +666,6 @@
         }
     }
 
-    // HISTORY FIX: Added event listeners for the new history modal
     document.getElementById('view-history-btn').addEventListener('click', () => {
         historyModal.style.display = 'flex';
     });
@@ -781,7 +694,7 @@
             const key = historyItem.dataset.key;
             const entry = calculationHistory[key];
             if (entry && entry.results) {
-                historyModal.style.display = 'none'; // Hide modal after clicking an item
+                historyModal.style.display = 'none';
                 renderResults(entry.results.summary, entry.results.admins, entry.results.agents);
             }
         }
@@ -814,8 +727,7 @@
                     <span class="name">${admin.name}</span>
                 </div>
                  <div style="width: 120px; text-align: right;">
-                  
-                    <input type="number" class="extra-tickets-input" data-uid="${admin.uid}" placeholder="free tkt" style="width: 100%; padding: 0.4rem;">
+                    <input type="number" class="extra-tickets-input" data-uid="${admin.uid}" placeholder="Bonus/Free" style="width: 100%; padding: 0.4rem;">
                 </div>
             </div>
         `).join('') || '<p>No admins found.</p>';
@@ -829,8 +741,7 @@
                     </div>
                 </div>
                 <div style="width: 100px; text-align: right;">
-                
-                    <input type="number" class="extra-tickets-input" data-uid="${agent.uid}" placeholder="free tkt" style="width: 100%; padding: 0.4rem;">
+                    <input type="number" class="extra-tickets-input" data-uid="${agent.uid}" placeholder="Bonus/Free" style="width: 100%; padding: 0.4rem;">
                 </div>
                 <select class="admin-selector">${adminOptionsHtml}</select>
             </div>
@@ -850,21 +761,16 @@
                                 allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: winnerPrize });
                             }
                         } else if (typeof winner.ticketId === 'string') {
-                            // <!-- START: BUG FIX FOR BONUS WINNER AGENT-->
                             let agentUidForBonus = null;
-                            // Extract ticket numbers from the bonus string (e.g., "Full Sheet (1,2,3,4,5,6)")
                             const ticketIdsInBonus = winner.ticketId.match(/\d+/g);
                             if (ticketIdsInBonus && ticketIdsInBonus.length > 0) {
-                                // Find the first ticket mentioned in the bonus
                                 const firstTicketId = parseInt(ticketIdsInBonus[0], 10);
                                 const representativeTicket = allTickets.find(t => t.id === firstTicketId);
                                 if (representativeTicket) {
-                                    // Get the agent_uid from that ticket, which is much more reliable
                                     agentUidForBonus = representativeTicket.agent_uid;
                                 }
                             }
                             allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name, agent_uid: agentUidForBonus }, prizeName: dividendName, prizeAmount: winnerPrize });
-                             // <!-- END: BUG FIX -->
                         }
                     });
                 }
@@ -897,11 +803,9 @@
             agentCb.addEventListener('change', e => {
                 const agentUid = e.target.dataset.uid;
                 const isChecked = e.target.checked;
-                // This will now correctly find ALL prizes associated with the agent, including bonuses,
-                // because the data-agent-uid attribute is now being set reliably.
                 document.querySelectorAll(`.prize-checkbox[data-agent-uid="${agentUid}"]`).forEach(prizeCb => {
                     prizeCb.checked = isChecked;
-                    prizeCb.dispatchEvent(new Event('change', { bubbles: true })); // Trigger change event to update style
+                    prizeCb.dispatchEvent(new Event('change', { bubbles: true }));
                 });
             });
         });
