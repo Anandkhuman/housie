@@ -2870,7 +2870,7 @@ async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
 
         const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
         
-        const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm (Admin/Agent Only):*\n${bookingLink}`;
+        const message = `Hello, I would like to book tickets(Bumper Booking).\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm (Admin/Agent Only):*\n${bookingLink}`;
         
         const cleanPhone = agentPhone.replace(/\D/g, '');
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
