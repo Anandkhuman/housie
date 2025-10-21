@@ -1208,291 +1208,327 @@
             margin-bottom: 0.8rem;
         }
     }
-.success-animation {
-    margin: 0 auto 1rem auto;
-    width: 100px;
-    height: 100px;
-}
-
-.checkmark {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    display: block;
-    stroke-width: 2;
-    stroke: #ffffff;
-    stroke-miterlimit: 10;
-    box-shadow: inset 0px 0px 0px #2ecc71;
-    margin: 0 auto;
-    animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
-}
-
-.checkmark__circle {
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    stroke-width: 2;
-    stroke-miterlimit: 10;
-    stroke: #2ecc71;
-    fill: none;
-    animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-
-.checkmark__check {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-}
-
-@keyframes stroke_anim {
-    100% {
-        stroke-dashoffset: 0;
+    
+    /* --- NEW: STYLISH LOADING SPINNER --- */
+    .loading-spinner-container {
+        display: none; /* Hidden by default */
+        margin: 0 auto 1.5rem auto;
+        width: 80px;
+        height: 80px;
     }
-}
-
-@keyframes scale_anim {
-    0% {
-        transform: none;
+    .loading-spinner {
+        display: inline-block;
+        width: 80px;
+        height: 80px;
     }
-    20% {
-        transform: scale3d(1.1, 1.1, 1);
+    .loading-spinner:after {
+        content: " ";
+        display: block;
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        border-radius: 50%;
+        border: 6px solid var(--accent-primary);
+        border-color: var(--accent-primary) transparent var(--accent-primary) transparent;
+        animation: lds-dual-ring 1.2s linear infinite;
     }
-    40% {
-        transform: scale3d(0.9, 0.9, 1);
+    @keyframes lds-dual-ring {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
-    60% {
-        transform: scale3d(1.03, 1.03, 1);
+    /* Show spinner and hide checkmark when popup is in processing state */
+    #bookingSuccessPopup.processing .success-animation {
+        display: none;
     }
-    80% {
-        transform: scale3d(0.97, 0.97, 1);
+    #bookingSuccessPopup.processing .loading-spinner-container {
+        display: block;
     }
-    100% {
-        transform: none;
+    
+    .success-animation {
+        margin: 0 auto 1rem auto;
+        width: 100px;
+        height: 100px;
     }
-}
 
-@keyframes fill_anim {
-    100% {
-        box-shadow: inset 0px 0px 0px 50px #2ecc71;
+    .checkmark {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 2;
+        stroke: #ffffff;
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px #2ecc71;
+        margin: 0 auto;
+        animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
     }
-}
 
-/* --- NEW AGENT LIST CARD STYLES --- */
-#adminGameSettingTable.agent-list-view {
-    display: block;
-}
-#adminGameSettingTable.agent-list-view thead {
-    display: none;
-}
-#adminGameSettingTable.agent-list-view tbody,
-#adminGameSettingTable.agent-list-view tr.agent-row-card {
-    display: block;
-    width: 100%;
-}
-tr.agent-row-card {
-    margin-bottom: 0.5rem !important;
-    padding: 0 !important;
-    border: 1px solid transparent !important;
-    border-radius: 6px;
-    background-color: var(--secondary-bg-dash);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-tr.agent-row-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    border-color: var(--accent-color-dash) !important;
-}
-tr.agent-row-card td {
-    display: block;
-    padding: 0.8rem !important;
-    border: none !important;
-}
-.agent-card-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    width: 100%;
-}
-.agent-card-info {
-    flex-grow: 1;
-    min-width: 0;
-}
-.agent-card-name {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--light-text-dash);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.agent-card-name small {
-    font-weight: 400;
-    font-size: 0.8em;
-    color: var(--muted-color-dash);
-    text-transform: capitalize;
-}
-.agent-card-phone {
-    font-size: 0.85rem;
-    color: var(--muted-color-dash);
-    margin-top: 4px;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-.agent-card-stats {
-    display: flex;
-    gap: 1rem;
-    text-align: center;
-    flex-shrink: 0;
-}
-.agent-stat-item {
-    display: flex;
-    flex-direction: column;
-    min-width: 80px;
-}
-.agent-stat-item span {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--accent-color-dash);
-}
-.agent-stat-item label {
-    font-size: 0.7rem;
-    color: var(--muted-color-dash);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.agent-card-actions {
-    flex-shrink: 0;
-    padding-left: 0.5rem;
-}
-.agent-card-actions .fa-trash-alt {
-    color: #e74c3c;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: transform 0.2s, color 0.2s;
-}
-.agent-card-actions .fa-trash-alt:hover {
-    transform: scale(1.2);
-    color: #ff7675;
-}
-.agent-card-actions span {
-    color: var(--muted-color-dash);
-    font-size: 1.2rem;
-}
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #2ecc71;
+        fill: none;
+        animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
 
-/* NEW AUDIO STYLES */
-@keyframes mic-live-glow {
-    0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-    50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
-    100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-}
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
 
-#micToggleBtn.live {
-    background-color: #e74c3c;
-    color: white;
-    animation: mic-live-glow 1.5s infinite;
-}
+    @keyframes stroke_anim {
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
 
-.music-control-wrapper {
-    display: flex;
-    gap: 5px;
-}
-.music-control-wrapper .tableInp {
-    flex-grow: 1;
-}
-.music-control-wrapper .actionBtn {
-    width: auto !important;
-    flex-grow: 0;
-    padding: 0 1rem;
-}
+    @keyframes scale_anim {
+        0% {
+            transform: none;
+        }
+        20% {
+            transform: scale3d(1.1, 1.1, 1);
+        }
+        40% {
+            transform: scale3d(0.9, 0.9, 1);
+        }
+        60% {
+            transform: scale3d(1.03, 1.03, 1);
+        }
+        80% {
+            transform: scale3d(0.97, 0.97, 1);
+        }
+        100% {
+            transform: none;
+        }
+    }
 
-#musicPlaylist, #popupMusicPlaylist {
-    max-height: 250px;
-    overflow-y: auto;
-    background: var(--secondary-bg-dash);
-    border-radius: 4px;
-    padding: 0.5rem;
-}
-#musicPlaylist {
-    margin: 1rem 2.5% 0 2.5%;
-    width: 95%;
-}
-#popupMusicPlaylist {
-    padding: 0 0.5rem 0.5rem 0.5rem;
-}
+    @keyframes fill_anim {
+        100% {
+            box-shadow: inset 0px 0px 0px 50px #2ecc71;
+        }
+    }
 
-.playlist-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--primary-bg-dash);
-    color: var(--light-text-dash);
-    transition: background-color 0.3s;
-}
-.playlist-item:last-child {
-    border-bottom: none;
-}
-.playlist-item-name {
-    flex-grow: 1;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.playlist-item-actions button {
-    background: transparent;
-    border: none;
-    color: var(--light-text-dash);
-    cursor: pointer;
-    font-size: 1rem;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    transition: background-color 0.2s, transform 0.2s;
-    position: relative; /* For gradient */
-    z-index: 1;
-}
-.playlist-item-actions button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
-}
-.playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
-.playlist-item-actions .fa-trash-alt { color: #e74c3c; }
+    /* --- NEW AGENT LIST CARD STYLES --- */
+    #adminGameSettingTable.agent-list-view {
+        display: block;
+    }
+    #adminGameSettingTable.agent-list-view thead {
+        display: none;
+    }
+    #adminGameSettingTable.agent-list-view tbody,
+    #adminGameSettingTable.agent-list-view tr.agent-row-card {
+        display: block;
+        width: 100%;
+    }
+    tr.agent-row-card {
+        margin-bottom: 0.5rem !important;
+        padding: 0 !important;
+        border: 1px solid transparent !important;
+        border-radius: 6px;
+        background-color: var(--secondary-bg-dash);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    tr.agent-row-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-color: var(--accent-color-dash) !important;
+    }
+    tr.agent-row-card td {
+        display: block;
+        padding: 0.8rem !important;
+        border: none !important;
+    }
+    .agent-card-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+    }
+    .agent-card-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+    .agent-card-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--light-text-dash);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .agent-card-name small {
+        font-weight: 400;
+        font-size: 0.8em;
+        color: var(--muted-color-dash);
+        text-transform: capitalize;
+    }
+    .agent-card-phone {
+        font-size: 0.85rem;
+        color: var(--muted-color-dash);
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .agent-card-stats {
+        display: flex;
+        gap: 1rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .agent-stat-item {
+        display: flex;
+        flex-direction: column;
+        min-width: 80px;
+    }
+    .agent-stat-item span {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--accent-color-dash);
+    }
+    .agent-stat-item label {
+        font-size: 0.7rem;
+        color: var(--muted-color-dash);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .agent-card-actions {
+        flex-shrink: 0;
+        padding-left: 0.5rem;
+    }
+    .agent-card-actions .fa-trash-alt {
+        color: #e74c3c;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.2s, color 0.2s;
+    }
+    .agent-card-actions .fa-trash-alt:hover {
+        transform: scale(1.2);
+        color: #ff7675;
+    }
+    .agent-card-actions span {
+        color: var(--muted-color-dash);
+        font-size: 1.2rem;
+    }
 
-/* NEW Playlist Animation Styles */
-@keyframes glowing-gradient-border {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-@keyframes pulse-icon {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-}
+    /* NEW AUDIO STYLES */
+    @keyframes mic-live-glow {
+        0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+        50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
+        100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+    }
 
-.playlist-item.playing .playlist-item-actions button:first-child::before {
-    content: '';
-    position: absolute;
-    top: -3px; left: -3px;
-    right: -3px; bottom: -3px;
-    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary));
-    background-size: 400% 400%;
-    border-radius: 50%;
-    z-index: -1;
-    animation: glowing-gradient-border 4s linear infinite;
-    filter: blur(4px);
-}
-.playlist-item.playing .playlist-item-actions button:first-child {
-    background-color: var(--primary-bg-dash) !important;
-    transform: scale(1.1);
-}
-.playlist-item.playing .playlist-item-actions .fa-play-circle {
-    color: var(--accent-primary);
-    animation: pulse-icon 1.5s infinite ease-in-out;
-}
+    #micToggleBtn.live {
+        background-color: #e74c3c;
+        color: white;
+        animation: mic-live-glow 1.5s infinite;
+    }
+
+    .music-control-wrapper {
+        display: flex;
+        gap: 5px;
+    }
+    .music-control-wrapper .tableInp {
+        flex-grow: 1;
+    }
+    .music-control-wrapper .actionBtn {
+        width: auto !important;
+        flex-grow: 0;
+        padding: 0 1rem;
+    }
+
+    #musicPlaylist, #popupMusicPlaylist {
+        max-height: 250px;
+        overflow-y: auto;
+        background: var(--secondary-bg-dash);
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+    #musicPlaylist {
+        margin: 1rem 2.5% 0 2.5%;
+        width: 95%;
+    }
+    #popupMusicPlaylist {
+        padding: 0 0.5rem 0.5rem 0.5rem;
+    }
+
+    .playlist-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--primary-bg-dash);
+        color: var(--light-text-dash);
+        transition: background-color 0.3s;
+    }
+    .playlist-item:last-child {
+        border-bottom: none;
+    }
+    .playlist-item-name {
+        flex-grow: 1;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .playlist-item-actions button {
+        background: transparent;
+        border: none;
+        color: var(--light-text-dash);
+        cursor: pointer;
+        font-size: 1rem;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        transition: background-color 0.2s, transform 0.2s;
+        position: relative; /* For gradient */
+        z-index: 1;
+    }
+    .playlist-item-actions button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+    }
+    .playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
+    .playlist-item-actions .fa-trash-alt { color: #e74c3c; }
+
+    /* NEW Playlist Animation Styles */
+    @keyframes glowing-gradient-border {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    @keyframes pulse-icon {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+
+    .playlist-item.playing .playlist-item-actions button:first-child::before {
+        content: '';
+        position: absolute;
+        top: -3px; left: -3px;
+        right: -3px; bottom: -3px;
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary));
+        background-size: 400% 400%;
+        border-radius: 50%;
+        z-index: -1;
+        animation: glowing-gradient-border 4s linear infinite;
+        filter: blur(4px);
+    }
+    .playlist-item.playing .playlist-item-actions button:first-child {
+        background-color: var(--primary-bg-dash) !important;
+        transform: scale(1.1);
+    }
+    .playlist-item.playing .playlist-item-actions .fa-play-circle {
+        color: var(--accent-primary);
+        animation: pulse-icon 1.5s infinite ease-in-out;
+    }
 
 </style>
 </head>
@@ -2055,6 +2091,12 @@ tr.agent-row-card td {
 <!-- NEW: Booking Success Popup -->
 <div class="overlay-popup" id="bookingSuccessPopup">
     <div class="popup-content" style="background: var(--primary-surface); border-color: #2ecc71; box-shadow: 0 0 20px rgba(46, 204, 113, 0.5); padding: 2rem;">
+        
+        <!-- NEW: Loading Spinner -->
+        <div class="loading-spinner-container">
+            <div class="loading-spinner"></div>
+        </div>
+        
         <div class="success-animation">
             <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                 <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
@@ -2925,16 +2967,17 @@ async function processBookingLink() {
     const bookingCode = urlParams.get('book');
     if (!bookingCode) return;
 
-    // --- IMMEDIATE UI FEEDBACK ---
+    // --- IMMEDIATE UI FEEDBACK WITH SPINNER ---
     const popup = document.getElementById('bookingSuccessPopup');
     const titleEl = document.getElementById('bookingSuccessTitle');
     const messageEl = document.getElementById('bookingSuccessMessage');
-    const checkmarkSVG = popup.querySelector('.checkmark');
 
-    // Setup processing state
-    if (checkmarkSVG) checkmarkSVG.style.display = 'none';
+    // Setup processing state with spinner
+    popup.classList.add('processing'); 
     titleEl.textContent = 'Confirming Booking...';
-    messageEl.textContent = 'Verifying ticket availability...';
+    titleEl.style.color = 'var(--accent-primary)'; 
+    titleEl.style.textShadow = '0 0 8px var(--accent-primary)';
+    messageEl.textContent = 'Please wait while we verify ticket availability...';
     showPopup('bookingSuccessPopup');
     window.history.replaceState({}, document.title, window.location.pathname);
 
@@ -3015,10 +3058,13 @@ async function processBookingLink() {
         ]);
 
         // --- UPDATE UI TO SUCCESS STATE ---
+        popup.classList.remove('processing');
         titleEl.textContent = 'Booking Successful!';
+        titleEl.style.color = '#2ecc71';
+        titleEl.style.textShadow = '0 0 8px #2ecc71';
         messageEl.textContent = successMsg;
+        const checkmarkSVG = popup.querySelector('.checkmark');
         if (checkmarkSVG) {
-            checkmarkSVG.style.display = 'block';
             // This logic forces the browser to restart the CSS animation
             const circle = popup.querySelector('.checkmark__circle');
             const check = popup.querySelector('.checkmark__check');
@@ -3042,6 +3088,7 @@ async function processBookingLink() {
         }, 2500);
 
     } catch(e) {
+        popup.classList.remove('processing');
         closePopups(); // Close the processing popup on error
         showNotification(e.message, 'error'); // Show the specific error message
         if (e.message.includes('must be logged in')) {
@@ -3051,6 +3098,7 @@ async function processBookingLink() {
         }
     }
 }
+
 
 function searchTicketPublic(searchTermOverride = null, isRerender = false) {
     const searchTerm = searchTermOverride || document.getElementById('ticketSearchInp').value.trim();
