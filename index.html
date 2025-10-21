@@ -2931,13 +2931,14 @@ async function processBookingLink() {
     const messageEl = document.getElementById('bookingSuccessMessage');
     const checkmarkSVG = popup.querySelector('.checkmark');
 
+    // Reset and restart animation
     if (checkmarkSVG) {
         checkmarkSVG.style.display = 'block';
         const circle = popup.querySelector('.checkmark__circle');
         const check = popup.querySelector('.checkmark__check');
         [checkmarkSVG, circle, check].forEach(el => {
             el.style.animation = 'none';
-            void el.offsetWidth;
+            void el.offsetWidth; // Trigger reflow to restart animation
         });
         checkmarkSVG.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
         circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
@@ -2945,10 +2946,9 @@ async function processBookingLink() {
     }
 
     titleEl.textContent = 'Confirming Booking...';
-    messageEl.textContent = 'Your tickets are being secured!';
+    messageEl.textContent = 'Verifying ticket availability...';
     showPopup('bookingSuccessPopup');
     window.history.replaceState({}, document.title, window.location.pathname);
-    // --- END IMMEDIATE UI FEEDBACK ---
 
     const bookingLogic = async () => {
         const startTime = Date.now();
@@ -2959,13 +2959,6 @@ async function processBookingLink() {
             throw new Error('You must be logged in as an Admin or Agent to confirm a booking.');
         }
 
-        while (allTicketsData.length === 0 && Date.now() - startTime < 15000) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        if (allTicketsData.length === 0) {
-            throw new Error('Could not load ticket data. Please refresh and try again.');
-        }
-        
         const requestRef = db.ref(`bookingRequests/${bookingCode}`);
         const snapshot = await requestRef.once('value');
         if (!snapshot.exists()) {
@@ -2980,40 +2973,52 @@ async function processBookingLink() {
             throw new Error('Invalid data in booking link.');
         }
 
-        const alreadySold = [];
-        for (const id of ticketIdsToBook) {
-            const ticketData = allTicketsData.find(t => t.id === id);
-            if (ticketData && ticketData.is_sold) {
-                alreadySold.push(id);
-            }
-        }
-        
-        if (alreadySold.length > 0) {
-             await requestRef.remove();
-             throw new Error(`Cannot book. Ticket(s) ${alreadySold.join(', ')} are already sold.`);
-        }
+        const ticketsRef = db.ref('tickets');
+        const transactionResult = await ticketsRef.transaction(currentTickets => {
+            if (currentTickets === null) return; // Abort if tickets node doesn't exist
 
-        const updates = {};
-        const timestamp = firebase.database.ServerValue.TIMESTAMP;
-        ticketIdsToBook.forEach(id => {
-            updates[`/tickets/${id}/is_sold`] = true;
-            updates[`/tickets/${id}/owner_name`] = name;
-            updates[`/tickets/${id}/owner_name_lower`] = name.toLowerCase();
-            updates[`/tickets/${id}/owner_phone`] = phone;
-            updates[`/tickets/${id}/agent_uid`] = currentUser.uid;
-            updates[`/tickets/${id}/sold_at`] = timestamp;
+            for (const id of ticketIdsToBook) {
+                if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
+                    return; // Abort if a ticket is missing or already sold
+                }
+            }
+
+            // All good, book them
+            const timestamp = firebase.database.ServerValue.TIMESTAMP;
+            ticketIdsToBook.forEach(id => {
+                currentTickets[id].is_sold = true;
+                currentTickets[id].owner_name = name;
+                currentTickets[id].owner_name_lower = name.toLowerCase();
+                currentTickets[id].owner_phone = phone;
+                currentTickets[id].agent_uid = currentUser.uid;
+                currentTickets[id].sold_at = timestamp;
+            });
+            return currentTickets;
         });
 
-        await db.ref().update(updates);
-        await requestRef.remove();
+        await requestRef.remove(); // Clean up request regardless of outcome
+
+        if (!transactionResult.committed) {
+            // Transaction failed, find out why for a better error message
+            const freshSnapshot = await ticketsRef.once('value');
+            const freshTickets = freshSnapshot.val();
+            const soldTickets = ticketIdsToBook.filter(id => freshTickets[id] && freshTickets[id].is_sold);
+            if (soldTickets.length > 0) {
+                throw new Error(`Booking failed. Ticket(s) ${soldTickets.join(', ')} were already sold.`);
+            } else {
+                throw new Error('Booking failed due to a data conflict. Please refresh and try again.');
+            }
+        }
+
+        // Success
         triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
-        return `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting to dashboard...`;
+        return `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting...`;
     };
 
     try {
         const [successMsg] = await Promise.all([
             bookingLogic(),
-            new Promise(resolve => setTimeout(resolve, 2000)) // Ensure animation plays for at least 2s
+            new Promise(resolve => setTimeout(resolve, 1500)) // Reduced animation delay
         ]);
 
         titleEl.textContent = 'Booking Successful!';
@@ -3026,7 +3031,7 @@ async function processBookingLink() {
                 handleRouting();
             }
             closePopups();
-        }, 4000);
+        }, 2500); // Reduced redirect delay
 
     } catch(e) {
         closePopups();
@@ -4971,516 +4976,479 @@ async function downloadTicketAsPDF(ticketId) {
 async function downloadWinnersPDF() {
     if (Object.keys(knownWinners).length === 0) {
         showNotification("No winners to download yet.", "info");
-        return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text("Housie Game - Winners List", 105, 15, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text(new Date().toLocaleString(), 105, 20, { align: 'center' });
-
-    const tableData = Object.entries(knownWinners).flatMap(([dividend, winnerArray]) => 
-        winnerArray.map(winner => [
-            dividend,
-            winner.name,
-            String(winner.ticketId)
-        ])
-    );
-    
-    let y = 35;
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text("Dividend", 15, y);
-    doc.text("Winner Name", 80, y);
-    doc.text("Ticket ID", 150, y);
-    doc.setFont(undefined, 'normal');
-    y += 7;
-
-    tableData.forEach(row => {
-        doc.text(row[0], 15, y);
-        doc.text(row[1], 80, y);
-        doc.text(row[2], 150, y);
-        y += 7;
-        if (y > 280) {
-            doc.addPage();
-            y = 15;
-        }
-    });
-
-    doc.save("Housie-Winners.pdf");
 }
-
-function updateRunGameUI(gameState) {
-    if(document.getElementById('runGameWindowDiv').classList.contains('active')){
-        const isRunning = gameState.isGameRunning || false;
-        document.getElementById('callStatusInp').value = isRunning ? 'on' : 'off';
     }
-}
 
-function searchTicketAdmin() {
-    const searchTerm = document.getElementById('adminTicketSearchInp').value.trim();
-    if (!searchTerm) return;
-    
-    let ticketsToDisplay = [];
-    const searchNumber = parseInt(searchTerm, 10);
-
-    if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
-        const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
-        if (initialTicket) {
-            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+    function updateRunGameUI(gameState) {
+        if(document.getElementById('runGameWindowDiv').classList.contains('active')){
+            const isRunning = gameState.isGameRunning || false;
+            document.getElementById('callStatusInp').value = isRunning ? 'on' : 'off';
         }
-    } else {
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
-            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
-        );
     }
-    
-    if (ticketsToDisplay.length > 0) {
-        const ownerPhone = ticketsToDisplay[0].owner_phone;
-        const ownerName = ticketsToDisplay[0].owner_name;
 
-        if (adminDisplayedSearchPhones.has(ownerPhone)) {
-            showNotification(`${ownerName}'s tickets are already displayed.`, 'info');
-            return;
-        }
-        adminDisplayedSearchPhones.add(ownerPhone);
+    function searchTicketAdmin() {
+        const searchTerm = document.getElementById('adminTicketSearchInp').value.trim();
+        if (!searchTerm) return;
+        
+        let ticketsToDisplay = [];
+        const searchNumber = parseInt(searchTerm, 10);
 
-        const groupWrapper = document.createElement('div');
-        groupWrapper.className = 'sheet-view';
-        groupWrapper.dataset.phone = ownerPhone;
-        
-        let ticketsHTML = '';
-        ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-       
-        
-            let gridHTML;
-            if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
-                 gridHTML = ticket.numbers.flat().map(n =>
-                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
-                ).join('');
-            } else {
-                gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
+        if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
+            const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
+            if (initialTicket) {
+                ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
             }
-            
-            ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="ticket-header">Ticket ${ticket.id}</div>
-                        <div class="ticket-grid">${gridHTML}</div>
-                    </div>`;
-        });
+        } else {
+            const lowerCaseSearchTerm = searchTerm.toLowerCase();
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
+                ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+            );
+        }
         
-        groupWrapper.innerHTML = `
-            <div class="sheet-header" style="position: relative; padding-right: 30px;">
-                <span>${ownerName} - ${ownerPhone}</span>
-                <button class="clear-search-btn" style="background: #e74c3c;" onclick="clearAdminSearchResult('${ownerPhone}')" title="Clear this result">&times;</button>
-            </div>
-            <div class="sheet-content">${ticketsHTML}</div>`;
+        if (ticketsToDisplay.length > 0) {
+            const ownerPhone = ticketsToDisplay[0].owner_phone;
+            const ownerName = ticketsToDisplay[0].owner_name;
+
+            if (adminDisplayedSearchPhones.has(ownerPhone)) {
+                showNotification(`${ownerName}'s tickets are already displayed.`, 'info');
+                return;
+            }
+            adminDisplayedSearchPhones.add(ownerPhone);
+
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = 'sheet-view';
+            groupWrapper.dataset.phone = ownerPhone;
             
-        document.getElementById('adminTicketDisplayArea').prepend(groupWrapper);
-        updateAdminDisplayedTickets();
-    } else {
-        showNotification('No tickets found for that search term.', 'error');
-    }
-}
-
-function clearAdminSearchResult(phone) {
-    const group = document.querySelector(`#adminTicketDisplayArea .sheet-view[data-phone="${phone}"]`);
-    if (group) group.remove();
-    adminDisplayedSearchPhones.delete(phone);
-}
-
-function updateAdminDisplayedTickets() {
-    document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
-        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
-            const num = parseInt(cell.dataset.num, 10);
-            if (num > 0) {
-                const isCalled = currentCalledNumbers.includes(num);
-                cell.classList.toggle('ticked', isCalled);
-                cell.classList.remove('last-called-highlight');
-                if (num === lastAnnouncedNumber) {
-                    cell.classList.add('last-called-highlight');
+            let ticketsHTML = '';
+            ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+        
+            
+                let gridHTML;
+                if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                     gridHTML = ticket.numbers.flat().map(n =>
+                        `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                    ).join('');
+                } else {
+                    gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
                 }
-            }
+                
+                ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
+                            <div class="ticket-header">Ticket ${ticket.id}</div>
+                            <div class="ticket-grid">${gridHTML}</div>
+                        </div>`;
+            });
+            
+            groupWrapper.innerHTML = `
+                <div class="sheet-header" style="position: relative; padding-right: 30px;">
+                    <span>${ownerName} - ${ownerPhone}</span>
+                    <button class="clear-search-btn" style="background: #e74c3c;" onclick="clearAdminSearchResult('${ownerPhone}')" title="Clear this result">&times;</button>
+                </div>
+                <div class="sheet-content">${ticketsHTML}</div>`;
+                
+            document.getElementById('adminTicketDisplayArea').prepend(groupWrapper);
+            updateAdminDisplayedTickets();
+        } else {
+            showNotification('No tickets found for that search term.', 'error');
+        }
+    }
+
+    function clearAdminSearchResult(phone) {
+        const group = document.querySelector(`#adminTicketDisplayArea .sheet-view[data-phone="${phone}"]`);
+        if (group) group.remove();
+        adminDisplayedSearchPhones.delete(phone);
+    }
+
+    function updateAdminDisplayedTickets() {
+        document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
+            ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
+                const num = parseInt(cell.dataset.num, 10);
+                if (num > 0) {
+                    const isCalled = currentCalledNumbers.includes(num);
+                    cell.classList.toggle('ticked', isCalled);
+                    cell.classList.remove('last-called-highlight');
+                    if (num === lastAnnouncedNumber) {
+                        cell.classList.add('last-called-highlight');
+                    }
+                }
+            });
         });
-    });
-}
+    }
 
-// --- NEW: Audio Control Functions ---
-async function handleMusicUpload() {
-    const fileInput = document.getElementById('bgMusicUpload');
-    const file = fileInput.files[0];
-    if (!file) return showNotification('Please select an MP3 file first.', 'error');
-    if (file.type !== "audio/mpeg") return showNotification('Only MP3 files are allowed.', 'error');
+    // --- NEW: Audio Control Functions ---
+    async function handleMusicUpload() {
+        const fileInput = document.getElementById('bgMusicUpload');
+        const file = fileInput.files[0];
+        if (!file) return showNotification('Please select an MP3 file first.', 'error');
+        if (file.type !== "audio/mpeg") return showNotification('Only MP3 files are allowed.', 'error');
 
-    showNotification(`Uploading '${file.name}'...`, 'info', 10000);
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        const base64String = event.target.result;
+        showNotification(`Uploading '${file.name}'...`, 'info', 10000);
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const base64String = event.target.result;
+            try {
+                const newTrackRef = db.ref('settings/audio/musicLibrary').push();
+                await newTrackRef.set({
+                    id: newTrackRef.key,
+                    type: 'mp3',
+                    name: file.name,
+                    url: base64String
+                });
+                showNotification(`'${file.name}' uploaded successfully.`, 'success');
+                fileInput.value = ''; // Reset file input
+            } catch (e) {
+                showNotification('Error uploading music: ' + e.message, 'error');
+            }
+        };
+        reader.onerror = () => showNotification('Error reading file.', 'error');
+        reader.readAsDataURL(file);
+    }
+
+    async function handleStreamingUrl() {
+        const urlInput = document.getElementById('streamingUrlInp');
+        const url = urlInput.value.trim();
+        if (!url) return showNotification('Please enter a streaming URL.', 'error');
+        try {
+            new URL(url); // Basic validation
+        } catch (_) {
+            return showNotification('Invalid URL format.', 'error');
+        }
+        
         try {
             const newTrackRef = db.ref('settings/audio/musicLibrary').push();
             await newTrackRef.set({
                 id: newTrackRef.key,
-                type: 'mp3',
-                name: file.name,
-                url: base64String
+                type: 'stream',
+                name: url.substring(url.lastIndexOf('/') + 1) || 'Streaming Link',
+                url: url
             });
-            showNotification(`'${file.name}' uploaded successfully.`, 'success');
-            fileInput.value = ''; // Reset file input
-        } catch (e) {
-            showNotification('Error uploading music: ' + e.message, 'error');
+            showNotification('Streaming URL added to playlist.', 'success');
+            urlInput.value = '';
+        } catch(e) {
+            showNotification('Error adding URL: ' + e.message, 'error');
         }
-    };
-    reader.onerror = () => showNotification('Error reading file.', 'error');
-    reader.readAsDataURL(file);
-}
-
-async function handleStreamingUrl() {
-    const urlInput = document.getElementById('streamingUrlInp');
-    const url = urlInput.value.trim();
-    if (!url) return showNotification('Please enter a streaming URL.', 'error');
-    try {
-        new URL(url); // Basic validation
-    } catch (_) {
-        return showNotification('Invalid URL format.', 'error');
     }
-    
-    try {
-        const newTrackRef = db.ref('settings/audio/musicLibrary').push();
-        await newTrackRef.set({
-            id: newTrackRef.key,
-            type: 'stream',
-            name: url.substring(url.lastIndexOf('/') + 1) || 'Streaming Link',
-            url: url
-        });
-        showNotification('Streaming URL added to playlist.', 'success');
-        urlInput.value = '';
-    } catch(e) {
-        showNotification('Error adding URL: ' + e.message, 'error');
-    }
-}
 
-async function playTrack(trackId) {
-    if (!trackId || !audioLibrary[trackId]) return;
-    try {
-        // When a new track is played, reset the start time for synchronization
-        const updates = {
-            currentTrackId: trackId,
-            playbackStartTime: firebase.database.ServerValue.TIMESTAMP
+    async function playTrack(trackId) {
+        if (!trackId || !audioLibrary[trackId]) return;
+        try {
+            // When a new track is played, reset the start time for synchronization
+            const updates = {
+                currentTrackId: trackId,
+                playbackStartTime: firebase.database.ServerValue.TIMESTAMP
+            };
+            await db.ref('settings/audio').update(updates);
+            showNotification(`Now playing: ${audioLibrary[trackId].name}`, 'info');
+        } catch(e) {
+            showNotification('Error setting track: ' + e.message, 'error');
+        }
+    }
+
+    async function deleteTrack(trackId) {
+        if (!trackId || !audioLibrary[trackId]) return;
+        if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
+        try {
+            const updates = {
+                [`musicLibrary/${trackId}`]: null
+            };
+            if (currentTrackId === trackId) {
+                updates.currentTrackId = null;
+                updates.musicState = 'off'; // Turn off music if the current track is deleted
+                updates.playbackStartTime = null;
+            }
+            await db.ref('settings/audio').update(updates);
+            showNotification('Track deleted.', 'success');
+        } catch (e) {
+            showNotification('Error deleting track: ' + e.message, 'error');
+        }
+    }
+
+    function renderMusicPlaylist() {
+        const dashboardContainer = document.getElementById('musicPlaylist');
+        const popupContainer = document.getElementById('popupMusicPlaylist');
+
+        const renderTo = (container) => {
+            if (!container) return;
+            if (Object.keys(audioLibrary).length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls to add songs.</p>`;
+                return;
+            }
+            
+            container.innerHTML = Object.values(audioLibrary).map(track => `
+                <div class="playlist-item ${track.id === currentTrackId ? 'playing' : ''}">
+                    <div class="playlist-item-name">${track.name}</div>
+                    <div class="playlist-item-actions">
+                        <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
+                        <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            `).join('');
         };
-        await db.ref('settings/audio').update(updates);
-        showNotification(`Now playing: ${audioLibrary[trackId].name}`, 'info');
-    } catch(e) {
-        showNotification('Error setting track: ' + e.message, 'error');
-    }
-}
 
-async function deleteTrack(trackId) {
-    if (!trackId || !audioLibrary[trackId]) return;
-    if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
-    try {
+        renderTo(dashboardContainer);
+        renderTo(popupContainer);
+    }
+
+
+    function toggleBgMusic() {
+        const state = document.getElementById('bgMusicState').value;
         const updates = {
-            [`musicLibrary/${trackId}`]: null
+            musicState: state
         };
-        if (currentTrackId === trackId) {
-            updates.currentTrackId = null;
-            updates.musicState = 'off'; // Turn off music if the current track is deleted
+        if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
+            // If turning on and no track is selected, play the first one
+            const firstTrackId = Object.keys(audioLibrary)[0];
+            updates.currentTrackId = firstTrackId;
+            updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+        } else if (state === 'on') {
+            updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+        }
+        else {
             updates.playbackStartTime = null;
         }
-        await db.ref('settings/audio').update(updates);
-        showNotification('Track deleted.', 'success');
-    } catch (e) {
-        showNotification('Error deleting track: ' + e.message, 'error');
+        db.ref('settings/audio').update(updates)
+            .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
+            .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
     }
-}
 
-function renderMusicPlaylist() {
-    const dashboardContainer = document.getElementById('musicPlaylist');
-    const popupContainer = document.getElementById('popupMusicPlaylist');
+    function togglePlaylistMode() {
+        const state = document.getElementById('playlistModeState').value;
+        db.ref('settings/audio/playlistMode').set(state)
+            .then(() => showNotification(`Playlist mode is now ${state.toUpperCase()}.`, 'info'))
+            .catch(e => showNotification('Error updating playlist mode: ' + e.message, 'error'));
+    }
 
-    const renderTo = (container) => {
-        if (!container) return;
-        if (Object.keys(audioLibrary).length === 0) {
-            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls to add songs.</p>`;
+    async function toggleMic() {
+        if (isMicOn) {
+            if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+            if (localStream) localStream.getTracks().forEach(track => track.stop());
+            document.getElementById('micToggleBtn').classList.remove('live');
+            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
+            isMicOn = false;
+            await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
+            showNotification('Live announcement stopped.', 'info');
+        } else {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const options = { mimeType: 'audio/webm;codecs=opus' };
+                mediaRecorder = new MediaRecorder(localStream, options);
+
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            db.ref('settings/audio/liveAnnouncement').update({
+                               audioChunk: reader.result,
+                               timestamp: firebase.database.ServerValue.TIMESTAMP 
+                            });
+                        };
+                        reader.readAsDataURL(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                mediaRecorder.start(1500); // Chunk every 1.5 seconds
+
+                document.getElementById('micToggleBtn').classList.add('live');
+                document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
+                isMicOn = true;
+                showNotification('Live announcement started!', 'success');
+            } catch (err) {
+                showNotification('Could not access microphone: ' + err.message, 'error');
+                console.error(err);
+            }
+        }
+    }
+
+    function handleBackgroundMusicState(audioData) {
+        const musicState = audioData.musicState || 'off';
+        const playlistMode = audioData.playlistMode || 'off';
+        const trackId = audioData.currentTrackId;
+        const track = trackId ? audioData.musicLibrary?.[trackId] : null;
+        const playbackStartTime = audioData.playbackStartTime || 0;
+
+        if (document.getElementById('bgMusicState')) {
+            document.getElementById('bgMusicState').value = musicState;
+        }
+        if (document.getElementById('playlistModeState')) {
+            document.getElementById('playlistModeState').value = playlistMode;
+        }
+
+        backgroundMusicPlayer.loop = (playlistMode === 'off');
+
+        if (musicState === 'on' && track && track.url && playbackStartTime > 0) {
+            const hasSourceChanged = backgroundMusicPlayer.src !== track.url;
+            if (hasSourceChanged) {
+                backgroundMusicPlayer.src = track.url;
+            }
+
+            const serverTime = getEstimatedServerTime();
+            const elapsedTime = (serverTime - playbackStartTime) / 1000;
+            
+            const seekAndPlay = () => {
+                if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
+                     backgroundMusicPlayer.currentTime = elapsedTime % backgroundMusicPlayer.duration;
+                }
+                 if (backgroundMusicPlayer.paused) {
+                     backgroundMusicPlayer.play().catch(e => {});
+                 }
+            };
+
+            if(backgroundMusicPlayer.readyState >= 2) { // HAVE_CURRENT_DATA
+                seekAndPlay();
+            } else {
+                backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
+            }
+
+        } else {
+            if (!backgroundMusicPlayer.paused) {
+                backgroundMusicPlayer.pause();
+            }
+        }
+    }
+
+
+    function handleLiveAudioStream(audioData) {
+        const liveInfo = audioData.liveAnnouncement;
+        if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
+            
+            if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
+                 console.log("New live stream detected, resetting buffer.");
+                 audioQueue = [];
+                 if (sourceBuffer && !sourceBuffer.updating) {
+                    try {
+                        sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
+                    } catch(e) { console.warn("Buffer clear failed, might be empty", e); }
+                 }
+                 db.ref('settings/audio/liveAnnouncement/isNewStream').set(null); // Mark as processed
+            }
+
+            lastProcessedTimestamp = liveInfo.timestamp;
+            
+            if (liveAudioPlayer.paused) {
+                liveAudioPlayer.play().catch(e => {});
+            }
+            
+            audioQueue.push(liveInfo.audioChunk);
+            processAudioQueue();
+        } else if (liveInfo && !liveInfo.isLive) {
+            // If live stream is off, fade out the audio
+            let vol = liveAudioPlayer.volume;
+            if (vol > 0) {
+                const fadeOutInterval = setInterval(() => {
+                    vol -= 0.1;
+                    if (vol <= 0) {
+                        liveAudioPlayer.volume = 0;
+                        liveAudioPlayer.pause();
+                        liveAudioPlayer.volume = 1; // Reset for next time
+                        clearInterval(fadeOutInterval);
+                    } else {
+                        liveAudioPlayer.volume = vol;
+                    }
+                }, 50);
+            }
+        }
+    }
+
+    async function processAudioQueue() {
+        if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
             return;
         }
+        isAppending = true;
         
-        container.innerHTML = Object.values(audioLibrary).map(track => `
-            <div class="playlist-item ${track.id === currentTrackId ? 'playing' : ''}">
-                <div class="playlist-item-name">${track.name}</div>
-                <div class="playlist-item-actions">
-                    <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
-                    <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            </div>
-        `).join('');
-    };
-
-    renderTo(dashboardContainer);
-    renderTo(popupContainer);
-}
-
-
-function toggleBgMusic() {
-    const state = document.getElementById('bgMusicState').value;
-    const updates = {
-        musicState: state
-    };
-    if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
-        // If turning on and no track is selected, play the first one
-        const firstTrackId = Object.keys(audioLibrary)[0];
-        updates.currentTrackId = firstTrackId;
-        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
-    } else if (state === 'on') {
-        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
-    }
-    else {
-        updates.playbackStartTime = null;
-    }
-    db.ref('settings/audio').update(updates)
-        .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
-        .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
-}
-
-function togglePlaylistMode() {
-    const state = document.getElementById('playlistModeState').value;
-    db.ref('settings/audio/playlistMode').set(state)
-        .then(() => showNotification(`Playlist mode is now ${state.toUpperCase()}.`, 'info'))
-        .catch(e => showNotification('Error updating playlist mode: ' + e.message, 'error'));
-}
-
-async function toggleMic() {
-    if (isMicOn) {
-        if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
-        if (localStream) localStream.getTracks().forEach(track => track.stop());
-        document.getElementById('micToggleBtn').classList.remove('live');
-        document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
-        isMicOn = false;
-        await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
-        showNotification('Live announcement stopped.', 'info');
-    } else {
+        const dataUrl = audioQueue.shift();
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const options = { mimeType: 'audio/webm;codecs=opus' };
-            mediaRecorder = new MediaRecorder(localStream, options);
-
-            mediaRecorder.ondataavailable = event => {
-                if (event.data.size > 0) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        db.ref('settings/audio/liveAnnouncement').update({
-                           audioChunk: reader.result,
-                           timestamp: firebase.database.ServerValue.TIMESTAMP 
-                        });
-                    };
-                    reader.readAsDataURL(event.data);
-                }
-            };
-            
-            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            mediaRecorder.start(1500); // Chunk every 1.5 seconds
-
-            document.getElementById('micToggleBtn').classList.add('live');
-            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
-            isMicOn = true;
-            showNotification('Live announcement started!', 'success');
-        } catch (err) {
-            showNotification('Could not access microphone: ' + err.message, 'error');
-            console.error(err);
+            const response = await fetch(dataUrl);
+            const arrayBuffer = await response.arrayBuffer();
+            sourceBuffer.appendBuffer(arrayBuffer);
+        } catch (error) {
+            console.error('Error processing audio chunk:', error);
+            isAppending = false; 
         }
     }
-}
 
-function handleBackgroundMusicState(audioData) {
-    const musicState = audioData.musicState || 'off';
-    const playlistMode = audioData.playlistMode || 'off';
-    const trackId = audioData.currentTrackId;
-    const track = trackId ? audioData.musicLibrary?.[trackId] : null;
-    const playbackStartTime = audioData.playbackStartTime || 0;
+    function initializeMediaSource() {
+        if ('MediaSource' in window) {
+            mediaSource = new MediaSource();
+            liveAudioPlayer.src = URL.createObjectURL(mediaSource);
 
-    if (document.getElementById('bgMusicState')) {
-        document.getElementById('bgMusicState').value = musicState;
-    }
-    if (document.getElementById('playlistModeState')) {
-        document.getElementById('playlistModeState').value = playlistMode;
-    }
-
-    backgroundMusicPlayer.loop = (playlistMode === 'off');
-
-    if (musicState === 'on' && track && track.url && playbackStartTime > 0) {
-        const hasSourceChanged = backgroundMusicPlayer.src !== track.url;
-        if (hasSourceChanged) {
-            backgroundMusicPlayer.src = track.url;
-        }
-
-        const serverTime = getEstimatedServerTime();
-        const elapsedTime = (serverTime - playbackStartTime) / 1000;
-        
-        const seekAndPlay = () => {
-            if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
-                 backgroundMusicPlayer.currentTime = elapsedTime % backgroundMusicPlayer.duration;
-            }
-             if (backgroundMusicPlayer.paused) {
-                 backgroundMusicPlayer.play().catch(e => {});
-             }
-        };
-
-        if(backgroundMusicPlayer.readyState >= 2) { // HAVE_CURRENT_DATA
-            seekAndPlay();
-        } else {
-            backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
-        }
-
-    } else {
-        if (!backgroundMusicPlayer.paused) {
-            backgroundMusicPlayer.pause();
-        }
-    }
-}
-
-
-function handleLiveAudioStream(audioData) {
-    const liveInfo = audioData.liveAnnouncement;
-    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
-        
-        if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
-             console.log("New live stream detected, resetting buffer.");
-             audioQueue = [];
-             if (sourceBuffer && !sourceBuffer.updating) {
+            mediaSource.addEventListener('sourceopen', () => {
                 try {
-                    sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
-                } catch(e) { console.warn("Buffer clear failed, might be empty", e); }
-             }
-             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null); // Mark as processed
-        }
-
-        lastProcessedTimestamp = liveInfo.timestamp;
-        
-        if (liveAudioPlayer.paused) {
-            liveAudioPlayer.play().catch(e => {});
-        }
-        
-        audioQueue.push(liveInfo.audioChunk);
-        processAudioQueue();
-    } else if (liveInfo && !liveInfo.isLive) {
-        // If live stream is off, fade out the audio
-        let vol = liveAudioPlayer.volume;
-        if (vol > 0) {
-            const fadeOutInterval = setInterval(() => {
-                vol -= 0.1;
-                if (vol <= 0) {
-                    liveAudioPlayer.volume = 0;
-                    liveAudioPlayer.pause();
-                    liveAudioPlayer.volume = 1; // Reset for next time
-                    clearInterval(fadeOutInterval);
-                } else {
-                    liveAudioPlayer.volume = vol;
+                    const mimeCodec = 'audio/webm; codecs="opus"';
+                    if (MediaSource.isTypeSupported(mimeCodec)) {
+                        sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+                        sourceBuffer.addEventListener('updateend', () => {
+                            isAppending = false;
+                            processAudioQueue(); 
+                        });
+                        isMediaSourceOpen = true;
+                    } else {
+                        console.error('Unsupported MIME type:', mimeCodec);
+                    }
+                } catch (e) {
+                    console.error('Exception while creating SourceBuffer:', e);
                 }
-            }, 50);
+            });
+        } else {
+            console.error('MediaSource API not supported in this browser.');
+            showNotification('Live audio streaming may not work on this browser.', 'error');
         }
     }
-}
 
-async function processAudioQueue() {
-    if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
-        return;
+    function playNextInPlaylist() {
+        if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
+        
+        const trackIds = Object.keys(audioLibrary);
+        const currentIndex = trackIds.indexOf(currentTrackId);
+        
+        if (currentIndex !== -1) {
+            const nextIndex = (currentIndex + 1) % trackIds.length;
+            const nextTrackId = trackIds[nextIndex];
+            playTrack(nextTrackId);
+        }
     }
-    isAppending = true;
-    
-    const dataUrl = audioQueue.shift();
-    try {
-        const response = await fetch(dataUrl);
-        const arrayBuffer = await response.arrayBuffer();
-        sourceBuffer.appendBuffer(arrayBuffer);
-    } catch (error) {
-        console.error('Error processing audio chunk:', error);
-        isAppending = false; 
-    }
-}
 
-function initializeMediaSource() {
-    if ('MediaSource' in window) {
-        mediaSource = new MediaSource();
-        liveAudioPlayer.src = URL.createObjectURL(mediaSource);
+    document.addEventListener('DOMContentLoaded', () => {
+        backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
+        liveAudioPlayer = document.getElementById('liveAudioPlayer');
+        
+        initializeMediaSource();
 
-        mediaSource.addEventListener('sourceopen', () => {
-            try {
-                const mimeCodec = 'audio/webm; codecs="opus"';
-                if (MediaSource.isTypeSupported(mimeCodec)) {
-                    sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-                    sourceBuffer.addEventListener('updateend', () => {
-                        isAppending = false;
-                        processAudioQueue(); 
-                    });
-                    isMediaSourceOpen = true;
-                } else {
-                    console.error('Unsupported MIME type:', mimeCodec);
-                }
-            } catch (e) {
-                console.error('Exception while creating SourceBuffer:', e);
+        document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
+        document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
+        document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
+
+        backgroundMusicPlayer.addEventListener('ended', () => {
+            const playlistMode = document.getElementById('playlistModeState')?.value || 'off';
+            if (playlistMode === 'on' && currentUserRole === 'admin') {
+                playNextInPlaylist();
             }
         });
-    } else {
-        console.error('MediaSource API not supported in this browser.');
-        showNotification('Live audio streaming may not work on this browser.', 'error');
-    }
-}
 
-function playNextInPlaylist() {
-    if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
-    
-    const trackIds = Object.keys(audioLibrary);
-    const currentIndex = trackIds.indexOf(currentTrackId);
-    
-    if (currentIndex !== -1) {
-        const nextIndex = (currentIndex + 1) % trackIds.length;
-        const nextTrackId = trackIds[nextIndex];
-        playTrack(nextTrackId);
-    }
-}
+        generateNumberBoard();
+        bindEventListeners();
+        gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
-document.addEventListener('DOMContentLoaded', () => {
-    backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
-    liveAudioPlayer = document.getElementById('liveAudioPlayer');
-    
-    initializeMediaSource();
-
-    document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
-    document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
-    document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
-
-    backgroundMusicPlayer.addEventListener('ended', () => {
-        const playlistMode = document.getElementById('playlistModeState')?.value || 'off';
-        if (playlistMode === 'on' && currentUserRole === 'admin') {
-            playNextInPlaylist();
-        }
+        setTimeout(() => {
+            showPopup('firstVisitPopup');
+        }, 1500);
     });
 
-    generateNumberBoard();
-    bindEventListeners();
-    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+    </script>
 
-    setTimeout(() => {
-        showPopup('firstVisitPopup');
-    }, 1500);
-});
+    <script>
+    (function(){
+        function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
+        document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
+        document['addEventListener']('keydown',function(_0x2){
+            if(_0x2['key']==='F12'){_0x2['preventDefault']();}
+            if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
+               (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
+                _0x2['preventDefault']();
+            }
+        });
+    })();
+    </script>
 
-</script>
-
-	<script>
-(function(){
-    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
-    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
-    document['addEventListener']('keydown',function(_0x2){
-        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
-        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
-           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
-            _0x2['preventDefault']();
-        }
-    });
-})();
-	</script>
-
-</body>
-</html>
+    </body>
+    </html>
