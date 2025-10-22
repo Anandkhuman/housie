@@ -2974,10 +2974,10 @@ async function processBookingLink() {
 
     // Setup processing state with spinner
     popup.classList.add('processing'); 
-    titleEl.textContent = 'Confirming Booking...';
+    titleEl.textContent = 'Processing Booking...';
     titleEl.style.color = 'var(--accent-primary)'; 
     titleEl.style.textShadow = '0 0 8px var(--accent-primary)';
-    messageEl.textContent = 'Please wait while we verify ticket availability...';
+    messageEl.textContent = 'Please wait while verify ticket availability...';
     showPopup('bookingSuccessPopup');
     window.history.replaceState({}, document.title, window.location.pathname);
 
