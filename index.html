@@ -219,6 +219,7 @@
     input[type="datetime-local"],
     input[type="url"],
     select,
+    textarea.tableInp, /* Added textarea */
     .agent-inp,
     .searchInp,
     .tableInp {
@@ -1529,6 +1530,48 @@
         color: var(--accent-primary);
         animation: pulse-icon 1.5s infinite ease-in-out;
     }
+    
+    /* NEW: Announcement Image Popup Style */
+    #liveImagePopup .popup-content {
+        padding: 0.5rem;
+        background: var(--primary-surface);
+    }
+    #liveImagePopup img {
+        max-width: 100%;
+        max-height: 85vh;
+        height: auto;
+        display: block;
+        border-radius: 4px;
+    }
+    
+    /* --- NEW: Styles for the improved announcement panel --- */
+    .announcement-controls {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .announcement-controls label {
+        font-weight: bold;
+        color: var(--muted-color-dash);
+        font-size: 0.9rem;
+    }
+
+    .announcement-controls textarea.tableInp {
+        background-color: white;
+        color: var(--text-dark);
+        border: 1px solid var(--secondary-bg-dash);
+        min-height: 100px; /* Set a minimum height */
+        resize: vertical; /* Allow user to resize vertically */
+        text-align: left !important; /* Override centered text for better readability */
+        padding: 0.7rem 1rem !important; /* Ensure padding is consistent */
+    }
+
+    .announcement-controls .actionBtn {
+        width: 100%; /* Make the button full-width */
+        margin: 0.25rem 0 0 0;
+    }
 
 </style>
 </head>
@@ -1665,9 +1708,9 @@
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
             <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
             <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
-            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TICKETS</button>
+            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TKT</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
-        </div>
+           </div>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">START GAME CALLING</button>
@@ -1684,7 +1727,7 @@
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">AUDIO CONTROLS</button>
-        <table class="gameSettingTable" id="audioControlsTable">
+        <table class="announcement-controls" id="audioControlsTable">
             <tbody>
                 <tr>
                     <td>Background Music</td>
@@ -1740,7 +1783,23 @@
                 </tr>
             </tbody>
         </table>
-    
+    </div>
+    <!-- UPDATED: REAL-TIME ANNOUNCEMENT PANEL -->
+    <div class="gameSettingDiv">
+        <button class="titleBtn">REAL-TIME ANNOUNCEMENTS</button>
+        <div class="announcement-controls">
+            <!-- Text Announcement Section -->
+            <label for="liveTextAnnounceInp">Text Message</label>
+            <textarea id="liveTextAnnounceInp" class="tableInp" rows="4" placeholder="Enter your full announcement here. It will be visible to all users."></textarea>
+            <button class="actionBtn" id="sendLiveTextBtn">Send Text</button>
+
+            <!-- Image Announcement Section -->
+            <label for="liveImageAnnounceInp" style="margin-top: 1rem; border-top: 1px solid var(--secondary-bg-dash); padding-top: 1rem;">Image Upload (advertise)</label>
+            <div class="music-control-wrapper">
+                <input class="tableInp" type="file" id="liveImageAnnounceInp" accept="image/*" style="text-align: left; padding: 0.7rem 0.5rem;">
+                <button class="actionBtn" id="sendLiveImageBtn">Send Image</button>
+            </div>
+        </div>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">BUSINESS INFO</button>
@@ -2119,6 +2178,31 @@
     </div>
 </div>
 
+<!-- NEW: Live Image Announcement Popup -->
+<div class="overlay-popup" id="liveImagePopup">
+    <div class="popup-content">
+         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+         <img id="liveImageDisplay" src="" alt="Live Announcement">
+    </div>
+</div>
+
+<!-- NEW: Manual Call Log Popup -->
+<div class="overlay-popup" id="manualCallLogPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Manual Call Log</h3>
+        <div id="manualCallLogContent" style="padding: 1rem;">
+            <div id="currentManualCallDisplay" style="text-align: center; margin-bottom: 1.5rem; padding: 1rem; border: 2px dashed var(--accent-primary); border-radius: 8px;">
+                <!-- Current manual number will be displayed here -->
+            </div>
+            <h4>Log History:</h4>
+            <ul id="manualCallLogList" style="list-style: none; padding: 0; max-height: 50vh; overflow-y: auto;">
+                <!-- Log items will be populated here -->
+            </ul>
+        </div>
+    </div>
+</div>
+
 
 <!-- Global Audio Players -->
 <audio id="backgroundMusicPlayer" loop></audio>
@@ -2171,8 +2255,8 @@ let isAnnouncing = false;
 let countdownInterval = null;
 let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
-let knownWinners = {};
-let isInitialWinnerLoad = true;
+let knownWinners = {}; // FIX: To track announced winners
+let isInitialWinnerLoad = true; // FIX: To prevent notifications on first load
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
@@ -2185,23 +2269,17 @@ let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map();
 const listeners = {}; // To keep track of Firebase listeners
 
-// --- AUDIO FIX: Variables for Media Source Streaming ---
-let backgroundMusicPlayer;
-let liveAudioPlayer;
-let mediaSource;
-let sourceBuffer;
+// --- NEW: Audio/Announcement Variables ---
+let backgroundMusicPlayer, liveAudioPlayer;
+let mediaSource, sourceBuffer;
 let audioQueue = [];
 let isAppending = false;
 let isMediaSourceOpen = false;
 let lastProcessedTimestamp = 0;
-// --- End Audio Fix Variables ---
-
-let localStream;
-let mediaRecorder;
+let localStream, mediaRecorder;
 let isMicOn = false;
 let audioLibrary = {};
 let currentTrackId = null;
-
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2230,7 +2308,6 @@ function showView(viewId) {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
         const isDashboard = viewId === 'adminDashboardView' || viewId === 'agentDashboardView';
         document.body.classList.toggle('dashboard-view-active', isDashboard);
-        // After changing view, re-render dashboards if necessary
         renderDashboards();
     }
 }
@@ -2392,6 +2469,10 @@ function bindEventListeners() {
     });
     document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
     document.getElementById('viewPlaylistBtn').addEventListener('click', () => showPopup('playlistPopup'));
+    
+    // NEW: Bind announcement buttons
+    document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
+    document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
 }
 
 function showPopup(id) {
@@ -2469,13 +2550,17 @@ function setupRealtimeListeners() {
             }
         }
         currentCalledNumbers = newNumbers;
+        
+        // --- WINNER NOTIFICATION FIX ---
         const newWinners = data.winners || {};
         if (!isInitialWinnerLoad) {
             for (const dividendName in newWinners) {
                 const newWinnerArray = newWinners[dividendName] || [];
                 const oldWinnerArray = knownWinners[dividendName] || [];
                 const oldWinnerTicketIds = new Set(oldWinnerArray.map(w => w.ticketId));
+
                 const justAnnouncedWinners = newWinnerArray.filter(w => !oldWinnerTicketIds.has(w.ticketId));
+
                 if (justAnnouncedWinners.length > 0) {
                     const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
                     const msg = `${winnerNames} has won ${dividendName}!`;
@@ -2486,6 +2571,8 @@ function setupRealtimeListeners() {
         }
         knownWinners = newWinners;
         isInitialWinnerLoad = false;
+        // --- END OF FIX ---
+
         updateGameRelatedUIs(data);
     }, err => { console.error("GameState listener error:", err); });
 
@@ -2526,6 +2613,26 @@ function setupRealtimeListeners() {
              renderMusicPlaylist();
         }
     }, err => console.error("Audio listener error:", err));
+
+    // --- NEW: ANNOUNCEMENT LISTENERS ---
+    listeners.liveText = db.ref('announcements/liveText');
+    listeners.liveText.on('value', snapshot => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        if (data && (Date.now() - data.timestamp) < 20000) {
+            showNotification(`📢 Admin: ${data.text}`, 'info', 10000);
+        }
+    });
+
+    listeners.liveImage = db.ref('announcements/liveImage');
+    listeners.liveImage.on('value', snapshot => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        if (data && data.image && (Date.now() - data.timestamp) < 30000) {
+            document.getElementById('liveImageDisplay').src = data.image;
+            showPopup('liveImagePopup');
+        }
+    });
 }
 
 function renderDashboards() {
@@ -4516,8 +4623,30 @@ async function setNextCallNumber() {
         return;
     }
     
+    // NEW: Check for current user and get their name
+    if (!currentUser) {
+        showNotification('You must be logged in to perform this action.', 'error');
+        return;
+    }
+    const adminUser = allUsersData.find(u => u.uid === currentUser.uid);
+    const adminName = adminUser ? adminUser.name : 'Unknown Admin';
+    
     try {
-        await db.ref('gameState/currentState/nextManualCall').set(numberToSet);
+        // Create a log entry
+        const logEntry = {
+            number: numberToSet,
+            adminUid: currentUser.uid,
+            adminName: adminName,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        // Use multi-path update to set number and log atomically
+        const updates = {};
+        updates['/gameState/currentState/nextManualCall'] = numberToSet;
+        updates['/logs/manualNumberSets/' + db.ref().child('logs/manualNumberSets').push().key] = logEntry;
+
+        await db.ref().update(updates);
+
         showNotification(`Next number is set to ${numberToSet}. It will be called on the next interval.`, 'success');
         inputEl.value = '';
     } catch (error) {
@@ -4525,6 +4654,49 @@ async function setNextCallNumber() {
         console.error("Error in setNextCallNumber:", error);
     }
 }
+
+async function showManualCallLog() {
+    try {
+        // 1. Fetch current manual number
+        const manualCallSnapshot = await db.ref('gameState/currentState/nextManualCall').once('value');
+        const currentManualCall = manualCallSnapshot.val();
+        
+        const currentDisplayEl = document.getElementById('currentManualCallDisplay');
+        if (currentManualCall) {
+            currentDisplayEl.innerHTML = `Current Manual Number Set: <strong style="font-size: 2rem; display: block; color: var(--called-color);">${currentManualCall}</strong>`;
+        } else {
+            currentDisplayEl.innerHTML = `No manual number is currently set. The next call will be random.`;
+        }
+
+        // 2. Fetch log history
+        const logListEl = document.getElementById('manualCallLogList');
+        const logSnapshot = await db.ref('logs/manualNumberSets').orderByChild('timestamp').limitToLast(50).once('value');
+        const logs = logSnapshot.val();
+
+        if (!logs || Object.keys(logs).length === 0) {
+            logListEl.innerHTML = '<li>No history found.</li>';
+        } else {
+            // Convert to array and reverse to show latest first
+            const logArray = Object.values(logs).sort((a, b) => b.timestamp - a.timestamp);
+            logListEl.innerHTML = logArray.map(log => {
+                const date = new Date(log.timestamp);
+                const formattedTime = date.toLocaleString();
+                return `<li style="padding: 0.8rem; border-bottom: 1px solid var(--secondary-surface);">
+                            <div>Number <strong style="color: var(--accent-primary);">${log.number}</strong> was set by <strong style="color: var(--accent-secondary);">${log.adminName || 'N/A'}</strong></div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary);">${formattedTime}</div>
+                        </li>`;
+            }).join('');
+        }
+
+        // 3. Show the popup
+        showPopup('manualCallLogPopup');
+
+    } catch(error) {
+        showNotification("Error fetching manual call log: " + error.message, 'error');
+        console.error("Error in showManualCallLog:", error);
+    }
+}
+
 
 function callNextNumber() {
     const gameStateRef = db.ref('gameState/currentState');
@@ -4731,11 +4903,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                                     ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
                                     winningNumber: lastCalledNumber,
                                     won_at: firebase.database.ServerValue.TIMESTAMP,
-
-
-
-
-
                                     dividendName: dividend.name
                                 });
                                 winnerFoundInSheet = true;
@@ -4855,6 +5022,7 @@ function createTambolaSetOf6() {
                 layout[underfullRowIndex][colToSwap] = 1;
             }
         }
+
         ticketLayouts.push(layout);
     }
 
@@ -5169,6 +5337,48 @@ function updateAdminDisplayedTickets() {
     });
 }
 
+// --- NEW: Live Announcement Functions ---
+async function sendLiveText() {
+    const input = document.getElementById('liveTextAnnounceInp'); // This is now a textarea
+    const text = input.value.trim();
+    if (!text) return showNotification('Please enter a message to announce.', 'error');
+    
+    try {
+        await db.ref('announcements/liveText').set({
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        showNotification('Text announcement sent!', 'success');
+        input.value = '';
+    } catch(e) {
+        showNotification('Error sending announcement: ' + e.message, 'error');
+    }
+}
+
+async function sendLiveImage() {
+    const input = document.getElementById('liveImageAnnounceInp');
+    const file = input.files[0];
+    if (!file) return showNotification('Please select an image file.', 'error');
+
+    showNotification('Uploading and sending image...', 'info');
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
+        try {
+            await db.ref('announcements/liveImage').set({
+                image: base64String,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            showNotification('Image announcement sent!', 'success');
+            input.value = ''; // Reset file input
+        } catch (e) {
+            showNotification('Error sending image: ' + e.message, 'error');
+        }
+    };
+    reader.onerror = () => showNotification('Error reading image file.', 'error');
+    reader.readAsDataURL(file);
+}
+
 // --- NEW: Audio Control Functions ---
 async function handleMusicUpload() {
     const fileInput = document.getElementById('bgMusicUpload');
@@ -5226,7 +5436,6 @@ async function handleStreamingUrl() {
 async function playTrack(trackId) {
     if (!trackId || !audioLibrary[trackId]) return;
     try {
-        // When a new track is played, reset the start time for synchronization
         const updates = {
             currentTrackId: trackId,
             playbackStartTime: firebase.database.ServerValue.TIMESTAMP
@@ -5247,7 +5456,7 @@ async function deleteTrack(trackId) {
         };
         if (currentTrackId === trackId) {
             updates.currentTrackId = null;
-            updates.musicState = 'off'; // Turn off music if the current track is deleted
+            updates.musicState = 'off';
             updates.playbackStartTime = null;
         }
         await db.ref('settings/audio').update(updates);
@@ -5264,7 +5473,7 @@ function renderMusicPlaylist() {
     const renderTo = (container) => {
         if (!container) return;
         if (Object.keys(audioLibrary).length === 0) {
-            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls to add songs.</p>`;
+            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded.</p>`;
             return;
         }
         
@@ -5290,7 +5499,6 @@ function toggleBgMusic() {
         musicState: state
     };
     if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
-        // If turning on and no track is selected, play the first one
         const firstTrackId = Object.keys(audioLibrary)[0];
         updates.currentTrackId = firstTrackId;
         updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
@@ -5388,7 +5596,7 @@ function handleBackgroundMusicState(audioData) {
              }
         };
 
-        if(backgroundMusicPlayer.readyState >= 2) { // HAVE_CURRENT_DATA
+        if(backgroundMusicPlayer.readyState >= 2) {
             seekAndPlay();
         } else {
             backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
@@ -5407,14 +5615,13 @@ function handleLiveAudioStream(audioData) {
     if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
         
         if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
-             console.log("New live stream detected, resetting buffer.");
              audioQueue = [];
              if (sourceBuffer && !sourceBuffer.updating) {
                 try {
                     sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
-                } catch(e) { console.warn("Buffer clear failed, might be empty", e); }
+                } catch(e) { console.warn("Buffer clear failed", e); }
              }
-             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null); // Mark as processed
+             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null);
         }
 
         lastProcessedTimestamp = liveInfo.timestamp;
@@ -5426,7 +5633,6 @@ function handleLiveAudioStream(audioData) {
         audioQueue.push(liveInfo.audioChunk);
         processAudioQueue();
     } else if (liveInfo && !liveInfo.isLive) {
-        // If live stream is off, fade out the audio
         let vol = liveAudioPlayer.volume;
         if (vol > 0) {
             const fadeOutInterval = setInterval(() => {
@@ -5434,7 +5640,7 @@ function handleLiveAudioStream(audioData) {
                 if (vol <= 0) {
                     liveAudioPlayer.volume = 0;
                     liveAudioPlayer.pause();
-                    liveAudioPlayer.volume = 1; // Reset for next time
+                    liveAudioPlayer.volume = 1;
                     clearInterval(fadeOutInterval);
                 } else {
                     liveAudioPlayer.volume = vol;
@@ -5484,7 +5690,7 @@ function initializeMediaSource() {
             }
         });
     } else {
-        console.error('MediaSource API not supported in this browser.');
+        console.error('MediaSource API not supported.');
         showNotification('Live audio streaming may not work on this browser.', 'error');
     }
 }
