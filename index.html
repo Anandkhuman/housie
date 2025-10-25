@@ -5348,7 +5348,7 @@ async function sendLiveText() {
             text: text,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
-        showNotification('Text announcement sent!', 'success');
+        
         input.value = '';
     } catch(e) {
         showNotification('Error sending announcement: ' + e.message, 'error');
@@ -5360,7 +5360,7 @@ async function sendLiveImage() {
     const file = input.files[0];
     if (!file) return showNotification('Please select an image file.', 'error');
 
-    showNotification('Uploading and sending image...', 'info');
+    
     const reader = new FileReader();
     reader.onload = async (event) => {
         const base64String = event.target.result;
@@ -5752,4 +5752,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
