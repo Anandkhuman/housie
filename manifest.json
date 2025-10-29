@@ -1,0 +1,21 @@
+{
+  "name": "SINTHA HOUSIE",
+  "short_name": "Housie",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#100c2A",
+  "theme_color": "#100c2A",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "gcm_sender_id": "103953800507"
+}
