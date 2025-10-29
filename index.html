@@ -16,15 +16,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- START: Added for Push Notifications -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
-    <link rel="manifest" href="/manifest.json">
-    <!-- END: Added for Push Notifications -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></radialGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
 
 
 <style>
-    /* ... (All existing CSS styles are here, unchanged) ... */
     :root {
         --bg-color: #100c2A;
         --primary-surface: #19153a;
@@ -1578,65 +1573,13 @@
         margin: 0.25rem 0 0 0;
     }
 
-    /* --- NEW: Push Notification Permission Banner --- */
-    #notification-permission-banner {
-        display: none;
-        position: fixed;
-        top: 55px; /* Position below header */
-        left: 50%;
-        transform: translateX(-50%);
-        width: 95%;
-        max-width: 600px;
-        background-color: var(--secondary-surface);
-        color: var(--text-primary);
-        padding: 0.8rem 1rem;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        z-index: 10000;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        font-size: 0.9rem;
-    }
-    #notification-permission-banner span {
-        flex-grow: 1;
-    }
-    #notification-permission-banner button {
-        background-color: var(--accent-primary);
-        color: var(--text-dark);
-        border: none;
-        border-radius: 4px;
-        padding: 0.4rem 0.8rem;
-        cursor: pointer;
-        font-weight: 600;
-        transition: filter 0.2s;
-        flex-shrink: 0;
-    }
-    #notification-permission-banner button:hover {
-        filter: brightness(1.1);
-    }
-    #notification-permission-banner button.dismiss {
-        background: transparent;
-        color: var(--text-secondary);
-        font-size: 1.2rem;
-        padding: 0.2rem 0.5rem;
-    }
 </style>
 </head>
 <body>
 
-
 <div id="notification-container"></div>
-<div id="notification-permission-banner">
-  <span>Get instant game updates via push notifications!</span>
-  <div>
-    <button id="allow-notifications-btn">Allow</button>
-    <button id="dismiss-notifications-btn" class="dismiss">&Dismiss;</button>
-  </div>
-</div>
 
 <div id="publicView" class="view neon-view active">
-    <!-- ... (Existing publicView HTML is here, unchanged) ... -->
     <header class="top-header">
         <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
@@ -1698,7 +1641,7 @@
         </div>
     </nav>
 </div>
-<!-- ... (All other view divs and popups are here, unchanged) ... -->
+
 <div id="ticketBookingView" class="view neon-view">
     <header class="top-header">
          <div class="title-container">
@@ -2286,7 +2229,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
-let messaging; // To be initialized later
 
 // --- NEW: For music synchronization ---
 let serverTimeOffset = 0;
@@ -2351,107 +2293,6 @@ const allPossibleDividends = [
     "First Full House", "Second Full House", "Third Full House", "Full Sheet Bonus", "Half Sheet Bonus", "Top Line", "Middle Line", "Bottom Line",
     "Early 5", "Quick 7", "Corners (4)", "Star"
 ];
-
-// --- Push Notification Functions ---
-
-function initializeFirebaseMessaging() {
-    // Check for browser support
-    if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
-        messaging = firebase.messaging();
-
-        // Register the service worker
-        navigator.serviceWorker.register('/firebase-messaging-sw.js')
-            .then((registration) => {
-                messaging.useServiceWorker(registration);
-                handleNotificationPermission();
-            }).catch((err) => {
-                console.error('Service worker registration failed, error:', err);
-            });
-    } else {
-        console.warn('Push messaging is not supported in this browser.');
-    }
-}
-
-function handleNotificationPermission() {
-    // If user has dismissed the prompt in this session, do nothing.
-    if (sessionStorage.getItem('notification-prompt-dismissed') === 'true') {
-        return;
-    }
-
-    const permission = Notification.permission;
-
-    if (permission === 'default') {
-        // Show our custom, user-friendly banner to ask for permission
-        const banner = document.getElementById('notification-permission-banner');
-        banner.style.display = 'flex';
-
-        document.getElementById('allow-notifications-btn').onclick = () => {
-            banner.style.display = 'none';
-            requestAndSaveToken();
-        };
-
-        document.getElementById('dismiss-notifications-btn').onclick = () => {
-            banner.style.display = 'none';
-            sessionStorage.setItem('notification-prompt-dismissed', 'true');
-        };
-    } else if (permission === 'granted') {
-        // Permission is already granted, ensure we have the latest token
-        getTokenAndSave(false); // false means don't show notifications for this action
-    }
-    // If permission is 'denied', we respect the user's choice and do nothing.
-}
-
-async function requestAndSaveToken() {
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-            showNotification('Notifications Enabled!', 'success');
-            await getTokenAndSave(true);
-        } else {
-            showNotification('Notifications permission was not granted.', 'info');
-        }
-    } catch (error) {
-        console.error('Error requesting notification permission: ', error);
-    }
-}
-
-async function getTokenAndSave(showSuccessNotification) {
-    try {
-        const currentToken = await messaging.getToken({
-            vapidKey: 'NVdXBkGxhqWOw7wqaeZNM1YAcptVUHwJlws-J3JpBj4' // <-- IMPORTANT: REPLACE THIS
-        });
-
-        if (currentToken) {
-            // Save the token to the database. Using the token as a key prevents duplicates.
-            await db.ref('fcmTokens/' + currentToken).set(true);
-            console.log('FCM token saved to database.');
-            if (showSuccessNotification) {
-                 showNotification('You are now subscribed to game updates!', 'success');
-            }
-        } else {
-            console.warn('No registration token available. Request permission to generate one.');
-        }
-    } catch (err) {
-        console.error('An error occurred while retrieving token. ', err);
-    }
-}
-
-function triggerPushNotification(title, body) {
-    if (currentUserRole !== 'admin') return;
-
-    console.log(`Triggering push notification: "${title}"`);
-    
-    // This adds the notification payload to a queue in the database.
-    // A server-side component (like a Firebase Cloud Function) should listen to this
-    // path and send the actual push notification to all stored FCM tokens.
-    // This is the secure way to handle sending notifications.
-    db.ref('notificationQueue').push({
-        title,
-        body,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-    });
-}
-
 
 // --- Core App Logic ---
 
@@ -2536,7 +2377,6 @@ auth.onAuthStateChanged(async (user) => {
         authInitialized = true;
         setupRealtimeListeners();
         processBookingLink();
-        initializeFirebaseMessaging(); // Initialize push notifications
     }
     handleRouting();
 });
@@ -3739,55 +3579,41 @@ function updateAdminInfoUI() {
 async function saveGameSetting() {
     const oldTotalTickets = gameSettingsData.totalTickets || 0;
     const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
-    const newGameDateTime = document.getElementById('dateTimeInp').value;
 
     const settingsToSave = {
-        gameDateTime: newGameDateTime,
+        gameDateTime: document.getElementById('dateTimeInp').value,
         totalTickets: newTotalTickets,
         ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
         agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
     };
 
-    const saveAndNotify = async (isResettingTickets) => {
-        try {
-            await db.ref('settings/gameConfig').update(settingsToSave);
-            
-            if (isResettingTickets) {
-                await generateHousieTickets(true);
-                showNotification('Settings saved and all tickets regenerated.', 'success');
-            } else if (oldTotalTickets !== newTotalTickets) {
-                 await updateTicketCountWithoutReset(newTotalTickets, oldTotalTickets);
-                 showNotification('Settings saved and ticket count adjusted.', 'success');
-            } else {
-                 showNotification('Game settings saved successfully!', 'success');
-            }
-            
-            await triggerGlobalNotification('Admin has updated the game settings.', 'info');
-            // Trigger Push Notification for game time change
-            if (newGameDateTime && newGameDateTime !== gameSettingsData.gameDateTime) {
-                const date = new Date(newGameDateTime);
-                const formattedTime = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                triggerPushNotification('Game Time Changed!', `The game is now scheduled for ${formattedTime}.`);
-            }
-
-        } catch (e) {
-            showNotification('Error saving settings: ' + e.message, 'error');
-        } finally {
-            closePopups();
-        }
-    };
-
-
     if (oldTotalTickets !== newTotalTickets && newTotalTickets > 0) {
         const confirmText = document.getElementById('ticketResetConfirmText');
         confirmText.innerHTML = `You are changing the ticket count from <b>${oldTotalTickets}</b> to <b>${newTotalTickets}</b>. <br/><br/> 'Adjust' will add/remove tickets without affecting existing bookings. <br/> 'Reset' will delete all tickets and generate new ones.`;
 
-        document.getElementById('confirmResetBtn').onclick = () => saveAndNotify(true);
-        document.getElementById('confirmNoResetBtn').onclick = () => saveAndNotify(false);
+        document.getElementById('confirmResetBtn').onclick = async () => {
+            closePopups();
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            await generateHousieTickets(true);
+            showNotification('Settings saved and all tickets regenerated.', 'success');
+        };
+
+        document.getElementById('confirmNoResetBtn').onclick = async () => {
+            closePopups();
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            await updateTicketCountWithoutReset(newTotalTickets, oldTotalTickets);
+            showNotification('Settings saved and ticket count adjusted.', 'success');
+        };
 
         showPopup('ticketResetConfirmPopup');
     } else {
-        await saveAndNotify(false);
+        try {
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            showNotification('Game settings saved successfully!', 'success');
+            await triggerGlobalNotification('Admin has updated the game settings.', 'info');
+        } catch (e) {
+            showNotification('Error saving settings: ' + e.message, 'error');
+        }
     }
 }
 
@@ -4767,9 +4593,6 @@ async function toggleGameRunner() {
             playSound(audioBaseUrl + "gamehasstarted.mp3");
 
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
-            // Trigger Push Notification for game start
-            triggerPushNotification("Game Started!", "The Housie game has just begun. Join now and good luck!");
-            
             const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
             if (isNaN(intervalSeconds) || intervalSeconds < 1) {
                 showNotification("Set a valid call interval (>= 1 second).", 'error');
@@ -4859,9 +4682,7 @@ async function showManualCallLog() {
             const logArray = Object.values(logs).sort((a, b) => b.timestamp - a.timestamp);
             logListEl.innerHTML = logArray.map(log => {
                 const date = new Date(log.timestamp);
-                const formattedTime =date.toLocaleString();
-
-
+                const formattedTime = date.toLocaleString();
                 return `<li style="padding: 0.8rem; border-bottom: 1px solid var(--secondary-surface);">
                             <div>Number <strong style="color: var(--accent-primary);">${log.number}</strong> was set by <strong style="color: var(--accent-secondary);">${log.adminName || 'N/A'}</strong></div>
                             <div style="font-size: 0.8em; color: var(--text-secondary);">${formattedTime}</div>
@@ -5530,9 +5351,6 @@ async function sendLiveText() {
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
         
-        // Trigger Push Notification for text announcement
-        triggerPushNotification("Admin Announcement", text);
-
         input.value = '';
     } catch(e) {
         showNotification('Error sending announcement: ' + e.message, 'error');
@@ -5936,3 +5754,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
+
+
+
+
