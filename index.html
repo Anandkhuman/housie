@@ -1695,14 +1695,14 @@
                 <tr><td>Total ticket limit</td><td><input class="tableInp" id="totalTicketInp" type="number" value="600"></td></tr>
                 <tr><td>Ticket price</td><td><input class="tableInp" id="ticketPriceInp" type="number" value="300"></td></tr>
                 <tr><td>Agent commission</td><td><input class="tableInp" id="agentCommissionInp" type="number" value="50"></td></tr>
-                <tr><td colspan="2"><input class="tableInp" id="saveGameBtn" type="button" onclick="saveGameSetting()" value="SAVE SETTINGS" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
+                <tr><td colspan="2"><input class="tableInp" id="saveGameBtn" type="button" onclick="saveGameSetting()" value="SAVE SETTINGS & GENERATE WINNERS" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
             </tbody>
         </table>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">ACTION BUTTONS</button>
         <div class="actionBtnDiv">
-            <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
+         <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
             <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
             <button class="actionBtn" onclick="resetAgent()">RESET AGENT</button>
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
@@ -1710,13 +1710,14 @@
             <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
             <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TKT</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
-			<button class="actionBtn" onclick="showManualCallLog()">MANUAL CALL LOG</button>
-        
+			<button class="actionBtn" onclick="showManualCallLog()">CALL LOG</button>
+            <button class="actionBtn" onclick="showView('winningTicketsView')">VIEW WINNING TICKETS</button>
+            
            </div>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">START GAME CALLING</button>
-        <button class="runBtn" onclick="showPopup('runGameWindowDiv')" id="runGameBtn">RUN GAME</button>
+        <button class="runBtn" onclick="prepareAndShowRunGame()" id="runGameBtn">RUN GAME</button>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">DIVIDEND SETTINGS</button>
@@ -1844,6 +1845,23 @@
     </div>
     <button class="bookFloatBtn" id="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
 </div>
+
+
+<div id="winningTicketsView" class="view dashboard-view">
+    <div class="gameSettingDiv">
+         <button class="titleBtn" onclick="showView('adminDashboardView')" style="cursor: pointer; text-align: left; padding-left: 1rem;">
+            <i class="fas fa-arrow-left"></i> BACK TO DASHBOARD
+        </button>
+    </div>
+    <div class="gameSettingDiv" style="margin-bottom: 80px;">
+        <button class="titleBtn">GAME WINNER</button>
+        <div id="winningTicketsListContainer" style="padding: 1rem; color: var(--light-text-dash);">
+            <p style="text-align:center; padding: 2rem; font-style: italic;">Winning ticket will appear here.</p>
+        </div>
+    </div>
+</div>
+
+
 <div id="agentDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
         <div class="titleBtn">AGENT DASHBOARD</div>
@@ -2029,17 +2047,7 @@
                 </tr>
             </tbody>
         </table>
-      <table class="runGameTable gameSettingTable" style="margin-top: 0.5rem;">
-            <tbody>
-                <tr>
-                    <td>NEXT CALL NUMBER</td>
-                    <td style="display: flex; gap: 5px;">
-                        <input type="number" class="tableInp" id="nextCallInp" placeholder="Num" style="flex-grow: 1;">
-                        <button class="actionBtn" onclick="setNextCallNumber()" style="flex-grow: 2; height: auto; margin: 0;">SET</button>
-                    </td>
-                </tr>
-            </tbody>
-	  </table>
+
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
             <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
@@ -2270,6 +2278,7 @@ let displayedSearchPhones = new Set();
 let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map();
 const listeners = {}; // To keep track of Firebase listeners
+let predeterminedCallSequence = []; // <-- NEW: For predicted game
 
 // --- NEW: Audio/Announcement Variables ---
 let backgroundMusicPlayer, liveAudioPlayer;
@@ -2303,16 +2312,23 @@ function playSound(src) {
 
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    const newView = document.getElementById(viewId);
-    if (newView) {
-        newView.classList.add('active');
-        currentView = viewId;
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-        const isDashboard = viewId === 'adminDashboardView' || viewId === 'agentDashboardView';
-        document.body.classList.toggle('dashboard-view-active', isDashboard);
-        renderDashboards();
-    }
+    document.querySelectorAll('.view').forEach(v => {
+        if (v.id === viewId) {
+             v.style.display = 'block';
+             setTimeout(() => v.classList.add('active'), 10);
+        } else {
+             v.classList.remove('active');
+             v.style.display = 'none';
+        }
+    });
+
+    currentView = viewId;
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+    const isDashboard = viewId.includes('DashboardView') || viewId.includes('winningTicketsView');
+    document.body.classList.toggle('dashboard-view-active', isDashboard);
+    renderDashboards();
 }
+
 
 function handleRouting() {
     const hash = window.location.hash.replace('#', '');
@@ -2635,6 +2651,15 @@ function setupRealtimeListeners() {
             showPopup('liveImagePopup');
         }
     });
+
+    // --- NEW: WINNING TICKET PREDICTION LISTENER ---
+    listeners.winningTickets = db.ref('gameSecrets/upcomingGame/winningTickets');
+    listeners.winningTickets.on('value', snapshot => {
+        if(currentUserRole === 'admin') {
+            const predictions = snapshot.val() || [];
+            renderWinningTicketsList(predictions);
+        }
+    }, err => { console.error("Winning tickets listener error:", err); });
 }
 
 function renderDashboards() {
@@ -3579,13 +3604,30 @@ function updateAdminInfoUI() {
 async function saveGameSetting() {
     const oldTotalTickets = gameSettingsData.totalTickets || 0;
     const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
+    const oldDateTime = gameSettingsData.gameDateTime || '';
+    const newDateTime = document.getElementById('dateTimeInp').value;
 
     const settingsToSave = {
-        gameDateTime: document.getElementById('dateTimeInp').value,
+        gameDateTime: newDateTime,
         totalTickets: newTotalTickets,
         ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
         agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
     };
+    
+    const processSave = async () => {
+        try {
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            // NEW: Generate predictions if game time is set for the future
+            if (newDateTime && newDateTime !== oldDateTime && new Date(newDateTime) > new Date()) {
+                await generatePredictions(); // This will show its own notifications
+            } else {
+                showNotification('Game settings saved successfully!', 'success');
+            }
+             
+        } catch (e) {
+             showNotification('Error saving settings: ' + e.message, 'error');
+        }
+    }
 
     if (oldTotalTickets !== newTotalTickets && newTotalTickets > 0) {
         const confirmText = document.getElementById('ticketResetConfirmText');
@@ -3596,6 +3638,10 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             await generateHousieTickets(true);
             showNotification('Settings saved and all tickets regenerated.', 'success');
+            // Regenerate predictions after ticket reset
+            if (newDateTime && new Date(newDateTime) > new Date()) {
+                await generatePredictions();
+            }
         };
 
         document.getElementById('confirmNoResetBtn').onclick = async () => {
@@ -3603,19 +3649,18 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             await updateTicketCountWithoutReset(newTotalTickets, oldTotalTickets);
             showNotification('Settings saved and ticket count adjusted.', 'success');
+             // Regenerate predictions after ticket adjustment
+            if (newDateTime && new Date(newDateTime) > new Date()) {
+                await generatePredictions();
+            }
         };
 
         showPopup('ticketResetConfirmPopup');
     } else {
-        try {
-            await db.ref('settings/gameConfig').update(settingsToSave);
-            showNotification('Game settings saved successfully!', 'success');
-            await triggerGlobalNotification('Admin has updated the game settings.', 'info');
-        } catch (e) {
-            showNotification('Error saving settings: ' + e.message, 'error');
-        }
+        await processSave();
     }
 }
+
 
 async function updateTicketCountWithoutReset(newCount, oldCount) {
     if (newCount > oldCount) {
@@ -3695,7 +3740,7 @@ async function saveDividendSettings() {
     try {
         await db.ref('settings/gameConfig/dividends').set(activeDividends);
         showNotification('Dividend settings saved!', 'success');
-        await triggerGlobalNotification('Admin has updated the dividend settings.', 'info');
+
     } catch (e) { showNotification('Error saving dividends: ' + e.message, 'error'); }
 }
 
@@ -3718,7 +3763,7 @@ async function saveAdminInfo() {
         } else {
             showNotification('Admin info updated!', 'success');
         }
-        await triggerGlobalNotification('Admin info has been updated.', 'info');
+
         document.getElementById('adminPassInp').value = '';
     } catch(e) {
         showNotification("Error updating info: " + e.message, 'error');
@@ -3750,7 +3795,7 @@ async function createAgentByAdmin() {
 
         await secondaryAuth.signOut();
         const successMsg = `Agent '${name}' created successfully!`;
-        showNotification(successMsg, 'success');
+
         await triggerGlobalNotification(successMsg, 'success');
 
         document.getElementById('createAgentNameInp').value = '';
@@ -3775,7 +3820,7 @@ async function resetCallNum() {
             gameStartedAt: null 
         });
         showNotification('Game state has been reset.', 'success');
-        await triggerGlobalNotification('Admin has reset the game board.', 'info');
+
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
 }
 async function resetTicket() {
@@ -3796,7 +3841,7 @@ async function resetTicket() {
            await db.ref().update(updates);
         }
         showNotification('All sold tickets have been reset.', 'success');
-        await triggerGlobalNotification('Admin has reset all sold tickets.', 'info');
+
     } catch (e) { showNotification('Error resetting tickets: ' + e.message, 'error'); }
 }
 
@@ -3814,7 +3859,7 @@ async function resetAgent() {
 
         const msg = `${agents.length} agent account(s) deleted.`;
         showNotification(msg, 'success');
-        await triggerGlobalNotification(msg, 'info');
+
     } catch (e) { showNotification('Error deleting agents: ' + e.message, 'error'); }
 }
 
@@ -4144,7 +4189,6 @@ async function performDelete(identifier, deleteAll) {
         });
 
         await db.ref().update(updates);
-        showNotification(successMessage, 'success');
         triggerGlobalNotification(`Admin made ${ticketsToReset.length} ticket(s) available again.`, 'info');
 
     } catch (e) {
@@ -4171,7 +4215,7 @@ async function deleteUser(uid, name) {
         await db.ref(`users/${uid}`).remove();
         const msg = `Agent '${name}' has been deleted.`;
         showNotification(msg, 'success');
-        await triggerGlobalNotification(msg, 'info');
+
     } catch (e) {
         showNotification('Error deleting user: ' + e.message, 'error');
     }
@@ -4573,6 +4617,22 @@ function handlePublicPopupBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
 }
 
+// --- NEW: Prepare and Show Run Game Popup ---
+async function prepareAndShowRunGame() {
+    try {
+        const snapshot = await db.ref('gameSecrets/upcomingGame/callSequence').once('value');
+        if (snapshot.exists() && Array.isArray(snapshot.val()) && snapshot.val().length > 0) {
+            predeterminedCallSequence = snapshot.val();
+            showPopup('runGameWindowDiv');
+        } else {
+            predeterminedCallSequence = [];
+            showNotification('No game sequence found. Please save game settings with a future date to generate one.', 'error');
+        }
+    } catch (e) {
+        showNotification('Error fetching game sequence: ' + e.message, 'error');
+    }
+}
+
 async function toggleGameRunner() {
     const gameStateRef = db.ref('gameState/currentState');
     const isRunning = document.getElementById('callStatusInp').value === 'on';
@@ -4580,6 +4640,12 @@ async function toggleGameRunner() {
 
     try {
         if (isRunning) {
+            if (predeterminedCallSequence.length !== 90) {
+                showNotification('Cannot start game. The predetermined call sequence is missing or invalid.', 'error');
+                document.getElementById('callStatusInp').value = 'off';
+                return;
+            }
+
             await gameStateRef.child('isGameRunning').set(true);
             await gameStateRef.transaction(currentData => {
                 if (currentData) {
@@ -4612,49 +4678,8 @@ async function toggleGameRunner() {
 }
 
 async function setNextCallNumber() {
-    const inputEl = document.getElementById('nextCallInp');
-    const numberToSet = parseInt(inputEl.value, 10);
-
-    if (isNaN(numberToSet) || numberToSet < 1 || numberToSet > 90) {
-        showNotification('Please enter a valid number between 1 and 90.', 'error');
-        return;
-    }
-
-    if (currentCalledNumbers.includes(numberToSet)) {
-        showNotification(`Number ${numberToSet} has already been called.`, 'error');
-        return;
-    }
-    
-    // NEW: Check for current user and get their name
-    if (!currentUser) {
-        showNotification('You must be logged in to perform this action.', 'error');
-        return;
-    }
-    const adminUser = allUsersData.find(u => u.uid === currentUser.uid);
-    const adminName = adminUser ? adminUser.name : 'Unknown Admin';
-    
-    try {
-        // Create a log entry
-        const logEntry = {
-            number: numberToSet,
-            adminUid: currentUser.uid,
-            adminName: adminName,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        };
-        
-        // Use multi-path update to set number and log atomically
-        const updates = {};
-        updates['/gameState/currentState/nextManualCall'] = numberToSet;
-        updates['/logs/manualNumberSets/' + db.ref().child('logs/manualNumberSets').push().key] = logEntry;
-
-        await db.ref().update(updates);
-
-        showNotification(`Next number is set to ${numberToSet}. It will be called on the next interval.`, 'success');
-        inputEl.value = '';
-    } catch (error) {
-        showNotification(`Error setting next number: ${error.message}`, 'error');
-        console.error("Error in setNextCallNumber:", error);
-    }
+    // This function is now disabled when a pre-determined sequence is used.
+    showNotification('Manual number setting is disabled when a game sequence is active.', 'error');
 }
 
 async function showManualCallLog() {
@@ -4714,30 +4739,26 @@ function callNextNumber() {
         const currentWinners = gameState.winners || {};
         const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
 
-        if (called.length >= 90 || areAllDividendsClaimed) {
-            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+        if (areAllDividendsClaimed) {
+             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameState.isGameRunning = false;
             return gameState;
         }
 
-        let newNumber;
-        const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
-        
-        const manualCallNum = gameState.nextManualCall;
-        
-        if (manualCallNum && availableNumbers.includes(manualCallNum)) {
-            newNumber = manualCallNum;
-            delete gameState.nextManualCall; 
-        } else {
-            if (gameState.nextManualCall) {
-                delete gameState.nextManualCall;
-            }
-            if (availableNumbers.length === 0) {
-                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                 gameState.isGameRunning = false;
-                 return gameState;
-            }
-            newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+        const nextNumberIndex = called.length;
+        if (predeterminedCallSequence.length === 0 || nextNumberIndex >= predeterminedCallSequence.length) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameState.isGameRunning = false;
+            console.error("Game stopped: End of sequence or sequence is missing.");
+            return gameState;
+        }
+
+        const newNumber = predeterminedCallSequence[nextNumberIndex];
+
+        if (called.includes(newNumber)) {
+            // This case should not happen with a valid sequence, but as a safeguard:
+            console.error(`Attempted to call duplicate number ${newNumber} from sequence.`);
+            return; // Abort transaction to prevent data corruption
         }
 
         gameState.calledNumbers = [...called, newNumber];
@@ -4764,10 +4785,8 @@ function callNextNumber() {
                 const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
 
                 if (allClaimed) {
-                    showNotification("All dividends won! Game over.", 'info');
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
                 } else if (finalState.calledNumbers?.length >= 90) {
-                    showNotification("All 90 numbers called! Game over.", 'info');
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
                 }
             }
@@ -4937,6 +4956,103 @@ function checkAllWinners(calledNumbers, currentWinners) {
     return updatedWinners;
 }
 
+// --- NEW: Functions for Winner Prediction ---
+async function generatePredictions() {
+    showNotification('Generating winner predictions... This may take a moment.', 'info');
+    
+    // 1. Generate a fixed, shuffled sequence of numbers 1-90
+    const sequence = shuffleArray(Array.from({ length: 90 }, (_, i) => i + 1));
+    
+    // 2. Simulate the game with this sequence to find winners
+    let simulatedWinners = {};
+    let simulatedCalledNumbers = [];
+    
+    // Make a temporary copy of active dividends
+    const activeDividends = gameSettingsData.dividends || [];
+    if (activeDividends.length === 0) {
+        showNotification('No active dividends set. Cannot generate predictions.', 'error');
+        return;
+    }
+    
+    // Simulate number by number
+    for (const num of sequence) {
+        simulatedCalledNumbers.push(num);
+        simulatedWinners = checkAllWinners(simulatedCalledNumbers, simulatedWinners);
+
+        // Stop if all dividends are claimed
+        if (activeDividends.every(div => simulatedWinners[div.name])) {
+            break;
+        }
+    }
+    
+    // 3. Format the results
+    const winningTicketsList = [];
+    for (const dividendName in simulatedWinners) {
+        const winnersArray = simulatedWinners[dividendName];
+        winnersArray.forEach(winner => {
+            const callNumberIndex = sequence.indexOf(winner.winningNumber) + 1;
+            winningTicketsList.push({
+                dividendName: dividendName,
+                ticketId: winner.ticketId,
+                winningNumber: winner.winningNumber,
+                callNumber: callNumberIndex
+            });
+        });
+    }
+
+    // 4. Save the sequence and the results to a secure location
+    try {
+        await db.ref('gameSecrets/upcomingGame').set({
+            callSequence: sequence,
+            winningTickets: winningTicketsList,
+            generatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        showNotification('Winner predictions generated successfully and saved.', 'success');
+    } catch (e) {
+        showNotification('Error saving predictions: ' + e.message, 'error');
+    }
+}
+
+function renderWinningTicketsList(predictions) {
+    const container = document.getElementById('winningTicketsListContainer');
+    if (!container) return;
+
+    if (!predictions || predictions.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding: 2rem; font-style: italic;">No winner predictions found. Save new game settings to generate them.</p>';
+        return;
+    }
+
+    // Group by dividend
+    const groupedByDividend = predictions.reduce((acc, current) => {
+        if (!acc[current.dividendName]) {
+            acc[current.dividendName] = [];
+        }
+        acc[current.dividendName].push(current);
+        return acc;
+    }, {});
+    
+    let html = '';
+    for (const dividendName in groupedByDividend) {
+        html += `<div class="gameSettingDiv" style="margin-top: 1rem;">
+                    <div class="titleBtn">${dividendName}</div>
+                    <table class="gameSettingTable" style="width: 100%; margin: 0; padding: 0.5rem;">
+                        <tbody>`;
+        
+        groupedByDividend[dividendName].forEach(winner => {
+            html += `<tr style="grid-template-columns: 1fr 1fr;">
+                        <td style="font-weight: normal;">Ticket: <strong style="color: var(--accent-color-dash);">${winner.ticketId}</strong></td>
+                        <td style="font-weight: normal; text-align: right;">Wins on Number <strong>${winner.winningNumber}</strong> (Call #${winner.callNumber})</td>
+                     </tr>`;
+        });
+
+        html += `   </tbody>
+                 </table>
+               </div>`;
+    }
+
+    container.innerHTML = html;
+}
+
 async function generateHousieTickets(bypassConfirm = false) {
     const totalTicketsStr = document.getElementById('totalTicketInp').value;
     if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
@@ -4946,7 +5062,7 @@ async function generateHousieTickets(bypassConfirm = false) {
     if (!bypassConfirm && !confirm(`This will DELETE ALL existing tickets and generate ${totalTickets} new ones. Are you sure?`)) return;
 
     showNotification(`Generating ${totalTickets} new tickets... This may take a moment.`, 'info');
-    await triggerGlobalNotification('Admin is generating new tickets...', 'info');
+
 
     try {
         await db.ref('/tickets').set(null); 
@@ -4969,7 +5085,6 @@ async function generateHousieTickets(bypassConfirm = false) {
             await db.ref('/tickets').set(newTicketsObject);
             const successMsg = `${totalTickets} new tickets generated successfully!`;
             showNotification(successMsg, 'success');
-            await triggerGlobalNotification(successMsg, 'success');
         }, 50);
 
     } catch (e) {
@@ -5754,8 +5869,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
-
-
-
-
