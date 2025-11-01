@@ -86,7 +86,7 @@
         }
 
         .container {
-            padding: 20px;
+            padding: 15px; /* MODIFIED */
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -95,13 +95,13 @@
         .page.active { display: block; }
 
         h1, h2, h3, h4 { color: var(--text-primary-light); margin-bottom: 1rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
-        h1 { font-size: 2rem; }
-        h2 { font-size: 1.6rem; }
+        h1 { font-size: 1.6rem; } /* MODIFIED */
+        h2 { font-size: 1.3rem; } /* MODIFIED */
         
         /* --- 2. Buttons, Inputs & Forms (Glassmorphism Style) --- */
         button, .btn {
-            padding: 12px 20px; border: 1px solid var(--glass-border); border-radius: 10px; cursor: pointer;
-            font-size: 1rem; font-weight: 600; transition: all 0.25s ease-in-out; text-align: center;
+            padding: 8px 14px; border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer; /* MODIFIED */
+            font-size: 0.85rem; font-weight: 600; transition: all 0.25s ease-in-out; text-align: center; /* MODIFIED */
             background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary-light);
         }
@@ -117,7 +117,7 @@
         .btn-danger { background: var(--loss-color); border-color: var(--loss-color); }
         
         .btn-icon {
-            background: none; padding: 8px 12px; font-size: 1.2rem; box-shadow: none; color: var(--text-secondary-light); border: none;
+            background: none; padding: 5px 8px; font-size: 1rem; box-shadow: none; color: var(--text-secondary-light); border: none; /* MODIFIED */
         }
         .btn-icon:hover { background-color: rgba(255,255,255,0.1); transform: scale(1.1); }
         .btn-icon.edit { color: var(--primary-color); }
@@ -127,8 +127,8 @@
         .btn-icon-reject { color: var(--loss-color); }
 
         input, select, textarea {
-            width: 100%; padding: 12px; margin-bottom: 1rem;
-            border-radius: 10px; font-size: 1rem;
+            width: 100%; padding: 8px; margin-bottom: 1rem; /* MODIFIED */
+            border-radius: 8px; font-size: 0.85rem; /* MODIFIED */
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             color: var(--text-primary-light);
@@ -138,12 +138,12 @@
         select option { background: #333; }
 
         input[type="file"] {
-            padding: 8px;
+            padding: 4px; /* MODIFIED */
         }
         input[type="file"]::-webkit-file-upload-button {
              background: var(--primary-color);
              border: none;
-             padding: 8px 12px;
+             padding: 5px 8px; /* MODIFIED */
              border-radius: 6px;
              color: white;
              cursor: pointer;
@@ -178,16 +178,15 @@
              background: var(--glass-bg-hover);
         }
         .lottery-card[onclick] { cursor: pointer; }
-        /* MOBILE-FIRST: Use aspect-ratio for responsive images */
+        
         .lottery-card img { 
             width: 100%; 
-            aspect-ratio: 16 / 9;
-            object-fit: cover; 
+            height: auto; 
             display: block;
         }
-        .lottery-card-content { padding: 20px; }
-        .lottery-card-content h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.3rem; text-align: center; }
-        .lottery-card-content p { color: var(--text-secondary-light); font-size: 0.9rem; margin-bottom: 8px; }
+        .lottery-card-content { padding: 15px; } /* MODIFIED */
+        .lottery-card-content h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1rem; text-align: center; } /* MODIFIED */
+        .lottery-card-content p { color: var(--text-secondary-light); font-size: 0.8rem; margin-bottom: 8px; } /* MODIFIED */
         .lottery-card-buttons { display: flex; gap: 10px; margin-top: 15px; }
         .lottery-card-buttons button { flex-grow: 1; }
 
@@ -207,14 +206,15 @@
             width: 100%; border-collapse: collapse;
         }
         th, td {
-            padding: 14px 10px; text-align: left;
+            padding: 10px 6px; text-align: left; /* MODIFIED */
             border-bottom: 1px solid var(--glass-border);
             color: var(--text-secondary-light);
+            font-size: 0.8rem; /* MODIFIED */
         }
         th { 
             background-color: rgba(255,255,255,0.1); 
             color: var(--text-primary-light); 
-            font-weight: 600; font-size: 0.9rem; text-transform: uppercase; 
+            font-weight: 600; font-size: 0.75rem; text-transform: uppercase; /* MODIFIED */
         }
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: rgba(255,255,255,0.08); }
@@ -238,7 +238,7 @@
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
-            margin: auto; padding: 25px;
+            margin: auto; padding: 20px; /* MODIFIED */
             width: 90%; max-width: 500px; border-radius: var(--glass-radius); position: relative;
         }
         .close-btn {
@@ -260,7 +260,7 @@
         }
         .nav-btn {
             background: none; border: none; color: #bbb; display: flex; flex-direction: column;
-            align-items: center; font-size: 0.75rem; cursor: pointer; transition: color 0.2s, transform 0.2s; 
+            align-items: center; font-size: 0.7rem; /* MODIFIED */ cursor: pointer; transition: color 0.2s, transform 0.2s; 
             flex-grow: 1; height: 100%; justify-content: center;
         }
         .nav-btn.active { 
@@ -271,17 +271,15 @@
         .nav-btn:hover {
              color: var(--text-primary-light);
         }
-        .nav-btn .fas { font-size: 22px; margin-bottom: 5px; }
+        .nav-btn .fas { font-size: 20px; margin-bottom: 5px; }
 
         /* --- 7. Admin Dashboard & Reports (Glassmorphism Style) --- */
-        /* MOBILE-FIRST: Admin nav stacks vertically by default */
         #admin-dashboard-page .admin-nav {
             display: flex;
             flex-direction: column; /* Stack buttons on mobile */
             gap: 10px;
             margin-bottom: 20px;
         }
-        /* NEW: Active state for admin tab buttons */
         #admin-dashboard-page .admin-nav .btn.active {
             background: var(--primary-color);
             color: var(--text-primary-light);
@@ -296,12 +294,14 @@
         .admin-tab-content.active { display: block; }
         .manageable-lottery-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; border-radius: 12px; margin-bottom: 10px;
+            padding: 10px; border-radius: 12px; margin-bottom: 10px; /* MODIFIED */
             background: var(--glass-bg); border: 1px solid var(--glass-border);
             transition: background-color 0.2s;
         }
         .manageable-lottery-item:hover { background-color: var(--glass-bg-hover); }
         .manageable-lottery-item-info { flex-grow: 1; cursor: pointer; padding-right: 10px; }
+        .manageable-lottery-item-info strong { font-size: 0.9rem; } /* MODIFIED */
+        .manageable-lottery-item-info small { font-size: 0.7rem; } /* MODIFIED */
         .manageable-lottery-item-actions { display: flex; align-items: center; }
 
         .report-lottery-item {
@@ -320,12 +320,12 @@
         /* --- 8. LIVE DRAW PAGE STYLES --- */
         .live-draw-container {
             background: radial-gradient(circle, #185a9d 0%, #1a2a45 100%);
-            padding: 30px 20px; border-radius: var(--glass-radius);
+            padding: 20px 15px; border-radius: var(--glass-radius); /* MODIFIED */
             box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.5);
             border: 2px solid var(--secondary-color);
         }
         #live-status {
-            text-align: center; font-size: 1.5rem; font-weight: bold;
+            text-align: center; font-size: 1.1rem; font-weight: bold; /* MODIFIED */
             color: white; text-shadow: 2px 2px 4px black; margin-bottom: 20px;
         }
         #admin-controls {
@@ -345,14 +345,13 @@
         .spinner-wrapper { text-align: center; }
         .spinner-wrapper h3 {
             color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-            font-size: 1.2rem; margin-bottom: 15px;
+            font-size: 1rem; margin-bottom: 15px; /* MODIFIED */
         }
 
-        /* Generic Spinner Styles */
         .spinner-container {
             position: relative;
-            width: min(75vw, 280px); /* Responsive size for mobile */
-            height: min(75vw, 280px);
+            width: min(75vw, 250px); /* MODIFIED: Responsive size for mobile */
+            height: min(75vw, 250px); /* MODIFIED */
             margin: 0 auto;
             border-radius: 50%;
             box-shadow: 0 0 20px var(--glow-color);
@@ -382,7 +381,6 @@
             filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
         }
         
-        /* Tablet & Desktop styles using min-width (Mobile-First approach) */
         @media (min-width: 768px) {
             .spinners-container { 
                 flex-direction: row; 
@@ -421,13 +419,19 @@
             width: 100%;
             height: 100%;
             background: var(--dark-bg-gradient);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: grid; 
+            place-items: center; 
             z-index: 9999;
             transition: opacity 0.5s ease-out;
+            text-align: center; 
         }
+        /* Wrapper for positioning the icon and rotating border */
+        .loader-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        /* The rotating border */
         .loader {
             width: 80px;
             height: 80px;
@@ -435,18 +439,23 @@
             border-top-color: var(--secondary-color);
             border-radius: 50%;
             animation: spin 1.5s linear infinite;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             box-shadow: var(--glass-shadow);
         }
-        .loader .fas {
+        /* The static icon in the center */
+        .loader-icon {
+            position: absolute;
+            top: 50%;
+            left: 42%;
+            transform: translate(-50%, -50%);
             font-size: 30px;
             color: var(--secondary-color);
             animation: pulse 2s infinite ease-in-out;
         }
         #loading-overlay p {
-            margin-top: 20px;
+            position: absolute; 
+            top: calc(50% + 60px); 
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 1.1rem;
             color: var(--text-primary-light);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
@@ -456,18 +465,19 @@
             to { transform: rotate(360deg); }
         }
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <!-- NEW: Loading Overlay -->
+    <!-- Loading Overlay -->
     <div id="loading-overlay">
-        <div class="loader">
-            <i class="fas fa-hands-helping"></i>
+        <div class="loader-wrapper">
+            <div class="loader"></div>
+            <i class="fas fa-hands-helping loader-icon"></i>
         </div>
         <p>Loading Sintha Helping Hand...</p>
     </div>
@@ -633,14 +643,14 @@
                             <div class="lottery-card-content">
                                 <form id="upload-lottery-form">
                                     <input type="hidden" id="editing-lottery-id">
-                                    <input type="hidden" id="existing-image-url"> <!-- To keep old URL if no new file is selected -->
+                                    <input type="hidden" id="existing-image-url"> <!-- To keep old base64 if no new file is selected -->
                                     <h4 id="upload-form-title">Upload New Lottery</h4>
                                     <input type="text" id="lottery-title" placeholder="Lottery Title" required>
                                     <textarea id="lottery-details" placeholder="Lottery Details/Description" required></textarea>
                                     
                                     <label for="lottery-image-file">Lottery Image</label>
                                     <input type="file" id="lottery-image-file" accept="image/*">
-                                    <img id="image-preview" src="" alt="Image Preview" style="max-width: 100%; max-height: 150px; margin-top: 10px; display: none; border-radius: 8px;">
+                                    <img id="image-preview" src="" alt="Image Preview" style="max-width: 100%; max-height: 200px; margin-top: 10px; display: none; border-radius: 8px;">
 
                                     <input type="number" id="lottery-ticket-price" placeholder="Ticket Price (₹)" required style="margin-top: 1rem;">
                                     <label for="lottery-datetime">Draw Date & Time</label>
@@ -713,7 +723,7 @@
     <div id="admin-select-modal" class="modal"><div class="modal-content"><span class="close-btn">&times;</span><h2>Contact an Admin</h2><p>Please select an admin to send your ticket request via WhatsApp.</p><ul id="admin-list" style="list-style:none; padding:0;"></ul></div></div>
     <div id="edit-ticket-modal" class="modal"><div class="modal-content"><span class="close-btn">&times;</span><h2>Edit Ticket Holder Info</h2><form id="edit-ticket-form"><input type="hidden" id="edit-purchase-id"><label for="edit-buyer-name">Buyer's Name</label><input type="text" id="edit-buyer-name" required><label for="edit-buyer-mobile">Buyer's Mobile</label><input type="tel" id="edit-buyer-mobile" required><label for="edit-ticket-status">Status</label><select id="edit-ticket-status"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="rejected">Rejected</option></select><button type="submit" class="btn btn-primary" style="width:100%;">Save Changes</button></form></div></div>
     
-    <!-- NEW: Admin Book Ticket Modal -->
+    <!-- Admin Book Ticket Modal -->
     <div id="admin-book-ticket-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -929,7 +939,7 @@
                 const card = document.createElement('div');
                 card.className = 'lottery-card';
                 let contentHtml = `
-                    <img src="${lottery.imageUrl || 'https://via.placeholder.com/400x180.png?text=Lottery+Image'}" alt="${lottery.title}" loading="lazy">
+                    <img src="${lottery.imageUrl || 'https://via.placeholder.com/600x400.png?text=No+Image'}" alt="${lottery.title}" loading="lazy">
                     <div class="lottery-card-content">
                         <h3>${lottery.title}</h3>
                         <p>${lottery.details || 'No description available.'}</p>
@@ -1265,21 +1275,12 @@
         };
         document.getElementById('add-prize-btn').addEventListener('click', () => addPrizeInput());
         
-        async function uploadImage(file) {
-            showStatus('Simulating image upload...');
-            console.log(`Uploading ${file.name}...`);
-            const submitBtn = document.getElementById('upload-lottery-submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Uploading Image...';
-            
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    const placeholderUrl = `https://placehold.co/600x300/185a9d/FFFFFF/png?text=${encodeURIComponent(file.name)}`;
-                    console.log('Upload complete. Using placeholder URL:', placeholderUrl);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Upload Lottery';
-                    resolve(placeholderUrl);
-                }, 1500); // Simulate upload time
+        function uploadImageAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
             });
         }
 
@@ -1294,7 +1295,6 @@
                 preview.src = '';
             }
         });
-
 
         const resetUploadForm = () => {
             document.getElementById('upload-lottery-form').reset();
@@ -1312,6 +1312,7 @@
         
         document.getElementById('upload-lottery-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = document.getElementById('upload-lottery-submit-btn');
             const editingId = document.getElementById('editing-lottery-id').value;
             const prizeInputs = document.querySelectorAll('.lottery-prize-input');
             const prizes = Array.from(prizeInputs).map(input => input.value.trim()).filter(p => p);
@@ -1324,7 +1325,19 @@
             const imageFile = document.getElementById('lottery-image-file').files[0];
 
             if (imageFile) {
-                imageUrl = await uploadImage(imageFile);
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Converting Image...';
+                try {
+                    imageUrl = await uploadImageAsBase64(imageFile); 
+                } catch (error) {
+                    showStatus('Image conversion failed: ' + error.message, false);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery';
+                    return; 
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery';
+                }
             } else if (!editingId) {
                 showStatus('Please select an image for the new lottery.', false);
                 return;
@@ -1333,19 +1346,24 @@
             const lotteryData = {
                 title: document.getElementById('lottery-title').value,
                 details: document.getElementById('lottery-details').value,
-                imageUrl: imageUrl,
+                imageUrl: imageUrl, 
                 price: document.getElementById('lottery-ticket-price').value,
                 datetime: document.getElementById('lottery-datetime').value,
                 prizes: prizes
             };
-
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
             const ref = editingId ? db.ref('lotteries/' + editingId) : db.ref('lotteries').push();
             ref.set(lotteryData)
                 .then(() => {
                     showStatus(`Lottery ${editingId ? 'updated' : 'uploaded'} successfully!`);
                     resetUploadForm();
                 })
-                .catch(err => showStatus(err.message, false));
+                .catch(err => showStatus(err.message, false))
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery';
+                });
         });
         
         const processTicketCounts = () => {
@@ -1392,7 +1410,7 @@
             
             document.getElementById('existing-image-url').value = lottery.imageUrl;
             const preview = document.getElementById('image-preview');
-            preview.src = lottery.imageUrl;
+            preview.src = lottery.imageUrl; 
             preview.style.display = 'block';
 
             document.getElementById('lottery-ticket-price').value = lottery.price;
@@ -1496,7 +1514,7 @@
                 mobile: document.getElementById('admin-book-buyer-mobile').value,
                 quantity: quantity,
                 tickets: Array.from({ length: quantity }, () => Math.floor(100000 + Math.random() * 900000)),
-                status: 'confirmed',
+                status: 'confirmed', 
                 timestamp: new Date().toISOString()
             };
             
