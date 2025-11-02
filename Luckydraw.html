@@ -436,9 +436,8 @@
             width: 200%;
             height: 200%;
             transform-origin: 0% 0%;
-         
         }
-      
+  
 
         .segment-text {
             position: absolute;
@@ -1210,6 +1209,9 @@
             });
         };
         
+        // ===================================
+        // === SPIN RESULT WHEEL (CORRECTED) ===
+        // ===================================
         const spinResultWheel = (resultStatus) => {
             const possibleIndices = [];
             resultSegments.forEach((segment, index) => {
@@ -1233,10 +1235,11 @@
             const randomOffset = (Math.random() - 0.5) * (arcSizeDegrees * 0.8);
             const stopAngle = targetAngle + randomOffset;
             
-            // The pointer is at the top (270 degrees in CSS transform's coordinate system).
-            // We need to rotate the wheel so that the `stopAngle` ends up at 270 degrees.
-            // The final rotation value will be: multiple full spins + (270 - stopAngle)
-            const totalRotation = (360 * 8) + 270 - stopAngle;
+            // --- THE FIX IS HERE ---
+            // Pointer is at the top (12 o'clock), which is 270 degrees in CSS transform.
+            // However, our CSS pie chart construction creates a 90-degree offset.
+            // The correct value is 270 - 90 = 180.
+            const totalRotation = (360 * 8) + 180 - stopAngle;
             
             // This part ensures a smooth re-spin without a jarring jump
             resultSpinnerWheel.style.transition = 'none';
@@ -1272,9 +1275,7 @@
             }
         };
         
-        // ===================================================================
-        // === CLIENT-SIDE LIVE DRAW LISTENER (HEAVILY MODIFIED FOR SYNC) ===
-        // ===================================================================
+        // CLIENT-SIDE LIVE DRAW LISTENER
         liveDrawRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
@@ -1346,13 +1347,14 @@
             }
         });
 
-        // ===================================================================
-        // === ADMIN-SIDE LIVE DRAW LOGIC (FIXED & IMPROVED) ===
-        // ===================================================================
+        // ========================================================
+        // === ADMIN-SIDE LIVE DRAW LOGIC (ROBUST & CORRECTED) ===
+        // ========================================================
         const performSingleDraw = () => {
             liveDrawRef.once('value', snapshot => {
                 const data = snapshot.val();
                 
+                // If draw is stopped by admin, do nothing.
                 if (!data || !data.isAutoDrawing) {
                     if (autoDrawTimeout) clearTimeout(autoDrawTimeout); 
                     autoDrawTimeout = null; 
@@ -1363,6 +1365,7 @@
                 const allWinners = data.allWinners || [];
                 const prizes = data.prizes || [];
 
+                // Check if the draw should end
                 if (participants.length === 0 || allWinners.length >= prizes.length) {
                     let finalStatus = "Auto-draw finished: No participants left.";
                     if (allWinners.length >= prizes.length) {
@@ -1372,6 +1375,7 @@
                     return;
                 }
 
+                // Pick a participant
                 const pickedParticipant = participants.shift(); 
                 liveDrawRef.update({
                     status: `Picking next participant...`,
@@ -1385,15 +1389,17 @@
                 const resultSpinTime = 5000;
                 const pauseAfterResult = 3000;
 
+                // --- NAME PICKING STAGE ---
                 setTimeout(() => {
                     liveDrawRef.once('value', latestDataSnap => {
                         const latestData = latestDataSnap.val();
-                        if (!latestData.isAutoDrawing) return;
+                        // Check again if draw is still running before proceeding
+                        if (!latestData || !latestData.isAutoDrawing) return;
 
                         const currentWinners = latestData.allWinners || [];
                         const currentPrizes = latestData.prizes || ['Winner'];
                         const prizesLeft = currentPrizes.length - currentWinners.length;
-                        const participantsLeft = (latestData.participants || []).length + 1;
+                        const participantsLeft = (latestData.participants || []).length + 1; // +1 for the current participant
                         
                         const winChance = prizesLeft > 0 ? (prizesLeft / participantsLeft) : 0;
                         const isWin = Math.random() < winChance;
@@ -1405,13 +1411,16 @@
                             result: { status: resultStatus, timestamp: Date.now() }
                         });
 
+                        // --- RESULT ANNOUNCEMENT STAGE ---
                         setTimeout(() => {
                             liveDrawRef.once('value', finalDataSnap => {
-                                if (!finalDataSnap.val().isAutoDrawing) return;
+                                const finalData = finalDataSnap.val();
+                                // Final check for safety
+                                if (!finalData || !finalData.isAutoDrawing) return;
 
-                                const finalWinners = finalDataSnap.val().allWinners || [];
-                                const finalLosers = finalDataSnap.val().allLosers || [];
-                                const finalPrizes = finalDataSnap.val().prizes || ['Winner'];
+                                const finalWinners = finalData.allWinners || [];
+                                const finalLosers = finalData.allLosers || [];
+                                const finalPrizes = finalData.prizes || ['Winner'];
 
                                 if (isWin) {
                                     pickedParticipant.prize = finalPrizes[finalWinners.length];
@@ -1436,10 +1445,11 @@
                                         result: resultStatus,
                                         timestamp: Date.now()
                                     }
+                                }).then(() => {
+                                    // Schedule the next draw only after the update is successful
+                                    if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
+                                    autoDrawTimeout = setTimeout(performSingleDraw, pauseAfterResult);
                                 });
-                                
-                                if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
-                                autoDrawTimeout = setTimeout(performSingleDraw, pauseAfterResult);
                             });
                         }, resultSpinTime);
                     });
