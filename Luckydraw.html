@@ -26,9 +26,9 @@
             --text-primary-light: #ffffff;
             --text-secondary-light: #ffffff;
             
-            --success-color: #ffffff;
+            --success-color: #4caf50; /* Green for Win */
             --pending-color: orange;
-            --loss-color: red;
+            --loss-color: #f44336; /* Red for Loss */
             --reject-color: #ffffff;
 
             /* Glassmorphism Variables */
@@ -40,7 +40,7 @@
             --glass-radius: 16px;
             
             --glow-color: rgba(255, 235, 59, 0.8);
-            --spin-duration: 8s;
+            --spin-duration: 5s;
         }
         
         * {
@@ -86,7 +86,7 @@
         }
 
         .container {
-            padding: 15px; /* MODIFIED */
+            padding: 15px;
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -95,13 +95,13 @@
         .page.active { display: block; }
 
         h1, h2, h3, h4 { color: var(--text-primary-light); margin-bottom: 0.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); text-align: center; }
-        h1 { font-size: 1.6rem; } /* MODIFIED */
-        h2 { font-size: 1.3rem; } /* MODIFIED */
+        h1 { font-size: 1.6rem; }
+        h2 { font-size: 1.3rem; }
         
         /* --- 2. Buttons, Inputs & Forms (Glassmorphism Style) --- */
         button, .btn {
-            padding: 8px 14px; border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer; /* MODIFIED */
-            font-size: 0.85rem; font-weight: 600; transition: all 0.25s ease-in-out; text-align: center; /* MODIFIED */
+            padding: 8px 14px; border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 600; transition: all 0.25s ease-in-out; text-align: center;
             background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary-light);
         }
@@ -117,7 +117,7 @@
         .btn-danger { background: var(--loss-color); border-color: var(--loss-color); }
         
         .btn-icon {
-            background: none; padding: 5px 8px; font-size: 1rem; box-shadow: none; color: var(--text-secondary-light); border: none; /* MODIFIED */
+            background: none; padding: 5px 8px; font-size: 1rem; box-shadow: none; color: var(--text-secondary-light); border: none;
         }
         .btn-icon:hover { background-color: rgba(255,255,255,0.1); transform: scale(1); }
         .btn-icon.edit { color: var(--primary-color); }
@@ -127,8 +127,8 @@
         .btn-icon-reject { color: var(--loss-color); }
 
         input, select, textarea {
-            width: 100%; padding: 8px; margin-bottom: 1rem; /* MODIFIED */
-            border-radius: 8px; font-size: 0.85rem; /* MODIFIED */
+            width: 100%; padding: 8px; margin-bottom: 1rem;
+            border-radius: 8px; font-size: 0.85rem;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             color: var(--text-primary-light);
@@ -138,12 +138,12 @@
         select option { background: #333; }
 
         input[type="file"] {
-            padding: 4px; /* MODIFIED */
+            padding: 4px;
         }
         input[type="file"]::-webkit-file-upload-button {
              background: var(--primary-color);
              border: none;
-             padding: 5px 8px; /* MODIFIED */
+             padding: 5px 8px;
              border-radius: 6px;
              color: white;
              cursor: pointer;
@@ -184,9 +184,9 @@
             height: auto; 
             display: block;
         }
-        .lottery-card-content { padding: 15px; } /* MODIFIED */
-        .lottery-card-content h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1rem; text-align: center; } /* MODIFIED */
-        .lottery-card-content p { color: var(--text-secondary-light); font-size: 0.8rem; margin-bottom: 8px; } /* MODIFIED */
+        .lottery-card-content { padding: 15px; }
+        .lottery-card-content h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1rem; text-align: center; }
+        .lottery-card-content p { color: var(--text-secondary-light); font-size: 0.8rem; margin-bottom: 8px; }
         .lottery-card-buttons { display: flex; gap: 10px; margin-top: 15px; }
         .lottery-card-buttons button { flex-grow: 1; }
 
@@ -206,15 +206,15 @@
             width: 100%; border-collapse: collapse;
         }
         th, td {
-            padding: 10px 6px; text-align: left; /* MODIFIED */
+            padding: 10px 6px; text-align: left;
             border-bottom: 1px solid var(--glass-border);
             color: var(--text-secondary-light);
-            font-size: 0.8rem; /* MODIFIED */
+            font-size: 0.8rem;
         }
         th { 
             background-color: rgba(255,255,255,0.1); 
             color: var(--text-primary-light); 
-            font-weight: 600; font-size: 0.75rem; text-transform: uppercase; /* MODIFIED */
+            font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
         }
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: rgba(255,255,255,0.08); }
@@ -238,7 +238,7 @@
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
-            margin: auto; padding: 20px; /* MODIFIED */
+            margin: auto; padding: 20px;
             width: 90%; max-width: 500px; border-radius: var(--glass-radius); position: relative;
         }
         .close-btn {
@@ -260,7 +260,7 @@
         }
         .nav-btn {
             background: none; border: none; color: #bbb; display: flex; flex-direction: column;
-            align-items: center; font-size: 0.7rem; /* MODIFIED */ cursor: pointer; transition: color 0.2s, transform 0.2s; 
+            align-items: center; font-size: 0.7rem; cursor: pointer; transition: color 0.2s, transform 0.2s; 
             flex-grow: 1; height: 100%; justify-content: center;
         }
         .nav-btn.active { 
@@ -294,14 +294,14 @@
         .admin-tab-content.active { display: block; }
         .manageable-lottery-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; border-radius: 12px; margin-bottom: 10px; /* MODIFIED */
+            padding: 10px; border-radius: 12px; margin-bottom: 10px;
             background: var(--glass-bg); border: 1px solid var(--glass-border);
             transition: background-color 0.2s;
         }
         .manageable-lottery-item:hover { background-color: var(--glass-bg-hover); }
         .manageable-lottery-item-info { flex-grow: 1; cursor: pointer; padding-right: 10px; }
-        .manageable-lottery-item-info strong { font-size: 0.9rem; } /* MODIFIED */
-        .manageable-lottery-item-info small { font-size: 0.7rem; } /* MODIFIED */
+        .manageable-lottery-item-info strong { font-size: 0.9rem; }
+        .manageable-lottery-item-info small { font-size: 0.7rem; }
         .manageable-lottery-item-actions { display: flex; align-items: center; }
 
         .report-lottery-item {
@@ -320,12 +320,12 @@
         /* --- 8. LIVE DRAW PAGE STYLES --- */
         .live-draw-container {
             background: radial-gradient(circle, #185a9d 0%, #1a2a45 100%);
-            padding: 20px 15px; border-radius: var(--glass-radius); /* MODIFIED */
+            padding: 20px 15px; border-radius: var(--glass-radius);
             box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.5);
             border: 1px solid var(--secondary-color);
         }
         #live-status {
-            text-align: center; font-size: 1.1rem; font-weight: bold; /* MODIFIED */
+            text-align: center; font-size: 1.1rem; font-weight: bold;
             color: white; text-shadow: 2px 2px 4px black; margin-bottom: 20px;
             min-height: 1.2em;
         }
@@ -346,7 +346,7 @@
         .spinner-wrapper { text-align: center; }
         .spinner-wrapper h3 {
             color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-            font-size: 1rem; margin-bottom: 15px; /* MODIFIED */
+            font-size: 1rem; margin-bottom: 15px;
         }
         
         .spinner-container {
@@ -356,11 +356,11 @@
             margin: 0 auto;
         }
 
-        /* --- MODIFIED: NAME PICKER SLOP BOX --- */
+        /* --- NAME PICKER --- */
         #name-spinner-container {
             width: min(85vw, 350px);
             height: min(30vw, 120px);
-            border-radius: var(--glass-radius); /* Use theme radius for rectangle */
+            border-radius: var(--glass-radius);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -368,7 +368,7 @@
             background: #1a2a45;
             border: 5px solid var(--secondary-color);
             box-shadow: 0 0 20px var(--glow-color);
-            overflow: hidden; /* Hide overflowing text during animation */
+            overflow: hidden;
         }
 
         #name-picker-display {
@@ -380,7 +380,7 @@
             text-align: center;
         }
         #name-picker-display span {
-            font-size: 1.8rem; /* Increased size */
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--secondary-color);
             text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
@@ -403,7 +403,7 @@
             #name-picker-display span { font-size: 1.4rem; }
         }
 
-        /* --- NEW: HTML/CSS RESULT SPINNER --- */
+        /* --- HTML/CSS RESULT SPINNER (FIXED) --- */
         #result-spinner-container {
             border-radius: 50%;
             box-shadow: 0 0 20px var(--glow-color);
@@ -417,8 +417,7 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            /* The transition defines the spin animation: 8 seconds, with a slow-fast-slow curve */
-            transition: transform 8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: transform var(--spin-duration) cubic-bezier(0.25, 0.1, 0.25, 1);
             transform: rotate(0deg);
         }
 
@@ -428,7 +427,6 @@
             height: 50%;
             transform-origin: 100% 100%;
             overflow: hidden;
-            /* NEW: Add a subtle border to create a separator line between segments */
             border-right: 1px solid rgba(255, 255, 255, 0.15);
         }
 
@@ -438,33 +436,29 @@
             width: 200%;
             height: 200%;
             transform-origin: 0% 0%;
-            /* Skew creates the wedge shape */
-            transform: skewX(82.8deg); /* 90deg - 7.2deg (angle of a 50-segment slice) */
+         
         }
-        
-        .spinner-segment.win::before { background-color: var(--success-color); }
-        .spinner-segment.loss::before { background-color: var(--loss-color); }
+      
 
         .segment-text {
             position: absolute;
-            left: -100%;
+            left: -115%;
             width: 200%;
             height: 200%;
             text-align: center;
             color: white;
             font-weight: bold;
-            font-size: clamp(8px, 3vw, 12px); /* Responsive font size for small segments */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            font-size: clamp(8px, 2.5vw, 10px); 
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
             user-select: none;
-            /* Rotate the text to be upright */
-            transform: rotate(48.6deg); /* (7.2 / 2) + 45 */
-            padding-top: 5%;
+            /* This value is now dynamically set by JavaScript using a CSS variable */
+            transform: rotate(var(--segment-text-rotation, 48.6deg)); 
+            padding-top: 8%;
         }
-
 
         .spinner-pointer {
             position: absolute;
-            top: -5px; /* Position it slightly over the border */
+            top: -5px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
@@ -519,13 +513,11 @@
             transition: opacity 0.5s ease-out;
             text-align: center; 
         }
-        /* Wrapper for positioning the icon and rotating border */
         .loader-wrapper {
             position: relative;
             width: 80px;
             height: 80px;
         }
-        /* The rotating border */
         .loader {
             width: 80px;
             height: 80px;
@@ -535,7 +527,6 @@
             animation: spin 1.5s linear infinite;
             box-shadow: var(--glass-shadow);
         }
-        /* The static icon in the center */
         .loader-icon {
             position: absolute;
             top: 50%;
@@ -600,8 +591,6 @@
                     <p id="live-status">Game not Start...</p>
                     
                     <div id="admin-controls">
-                         <label for="spin-interval">Name Animation Duration (seconds)</label>
-                         <input type="number" id="spin-interval" value="5" min="2">
                          <div class="admin-controls-buttons">
                              <button id="start-draw-btn" class="btn btn-primary">Start Auto-Draw</button>
                              <button id="reset-draw-btn" class="btn btn-secondary">Reset Lottery</button>
@@ -856,15 +845,17 @@
 
     <script>
         // --- PASTE YOUR FIREBASE CONFIGURATION HERE ---
-        const firebaseConfig = {
-          apiKey: "AIzaSyBVRvgTNHgL288wHQNuLxaeiF4UQV4xSIQ", // Replace with your actual API key
-          authDomain: "sinthateamtambola.firebaseapp.com", // Replace with your actual auth domain
-          databaseURL: "https://sinthateamtambola-default-rtdb.firebaseio.com", // Replace with your actual database URL
-          projectId: "sinthateamtambola", // Replace with your actual project ID
-          storageBucket: "sinthateamtambola.appspot.com", // Replace with your actual storage bucket
-          messagingSenderId: "678704264927", // Replace with your actual sender ID
-          appId: "1:678704264927:web:f6f1e06531bbb890179b6a", // Replace with your actual app ID
+          const firebaseConfig = {
+          apiKey: "AIzaSyBVRvgTNHgL288wHQNuLxaeiF4UQV4xSIQ",
+          authDomain: "sinthateamtambola.firebaseapp.com",
+          databaseURL: "https://sinthateamtambola-default-rtdb.firebaseio.com",
+          projectId: "sinthateamtambola",
+          storageBucket: "sinthateamtambola.appspot.com",
+          messagingSenderId: "678704264927",
+          appId: "1:678704264927:web:f6f1e06531bbb890179b6a",
         };
+
+
 
         // --- INITIALIZE FIREBASE ---
         firebase.initializeApp(firebaseConfig);
@@ -879,23 +870,21 @@
         let allTicketsCache = {};
         let lotteryTicketCounts = {};
         let countdownInterval;
-        let autoDrawInterval = null; // For the admin's auto-draw interval
-        let ttsEnabled = false; // NEW: For enabling Text-to-Speech on user interaction
+        let autoDrawTimeout = null; 
+        let ttsEnabled = false;
+        let currentWheelLotteryId = null; 
+        let resultSegments = []; 
+        let lastAnnouncementTimestamp = 0;
 
         // --- DOM ELEMENTS ---
         const pages = document.querySelectorAll('.page');
         const navButtons = document.querySelectorAll('.nav-btn');
         const modals = document.querySelectorAll('.modal');
         const statusPopup = document.getElementById('status-popup');
-
-        // Name Picker Elements
         const namePickerDisplay = document.getElementById('name-picker-display');
         let namePickerInterval = null;
-
-        // Result Spinner Elements
         const resultSpinnerWheel = document.getElementById('result-spinner-wheel');
-        let resultSegments = [];
-
+        
         // --- CORE APP LOGIC ---
 
         // 1. PAGE NAVIGATION
@@ -936,8 +925,8 @@
         // 3. UTILITY FUNCTIONS
         const showStatus = (message, isSuccess = true) => {
             statusPopup.textContent = message;
-            const successColor = "rgba(129, 199, 132, 0.7)"; // From --success-color
-            const errorColor = "rgba(229, 115, 115, 0.7)"; // From --loss-color
+            const successColor = "rgba(129, 199, 132, 0.7)";
+            const errorColor = "rgba(229, 115, 115, 0.7)";
             statusPopup.style.backgroundColor = isSuccess ? successColor : errorColor;
             statusPopup.classList.add('show');
             setTimeout(() => statusPopup.classList.remove('show'), 3000);
@@ -973,11 +962,10 @@
             }
         }
 
-        // 4. DATA LISTENERS (FOR REAL-TIME UPDATES)
+        // 4. DATA LISTENERS
         db.ref('lotteries').on('value', (snapshot) => {
             allLotteriesCache = snapshot.val() || {};
             renderAllLotteryLists();
-            // Also refresh admin view if it's active
             if (auth.currentUser && document.getElementById('manage-lottery-tab').classList.contains('active')) {
                 loadManageableLotteries();
             }
@@ -985,14 +973,13 @@
         
         db.ref('tickets').on('value', snapshot => {
             const ticketsData = snapshot.val() || {};
-            // Add keys to ticket objects for easier reference
             Object.keys(ticketsData).forEach(key => {
                 ticketsData[key].key = key;
             });
             allTicketsCache = ticketsData;
             processTicketCounts(); 
             if (auth.currentUser) {
-                loadManageableLotteries(); // Refresh counts on lotteries
+                loadManageableLotteries();
                 loadAllTicketsManagementTable();
                 if (document.getElementById('reports-tab').classList.contains('active')) {
                     loadReportsData();
@@ -1131,7 +1118,7 @@
             if (ticketsSnapshot.exists()) {
                 ticketsSnapshot.forEach(purchaseSnap => {
                     const p = purchaseSnap.val();
-                    if(p.status === 'confirmed') { // Only show confirmed tickets publicly
+                    if(p.status === 'confirmed') { 
                         p.tickets.forEach(ticketNum => {
                             ticketsHtml += `<tr><td>${ticketNum}</td><td>${p.name}</td><td class="status-${p.status}">${p.status}</td></tr>`;
                         });
@@ -1162,7 +1149,6 @@
 
         // 8. LIVE DRAW PAGE & SPINNER LOGIC
 
-        // --- Name Picker Animation Logic ---
         const runNamePickerAnimation = (allParticipants, finalName, duration) => {
             if (namePickerInterval) clearInterval(namePickerInterval);
             if (allParticipants.length === 0) {
@@ -1188,22 +1174,31 @@
             }, duration);
         };
 
-        // --- Result Spinner Logic ---
-        const buildHtmlSpinner = () => {
-            const segments = [];
-            for (let i = 0; i < 10; i++) { segments.push({ text: 'WIN', type: 'win' }); }
-            for (let i = 0; i < 40; i++) { segments.push({ text: 'LOSS', type: 'loss' }); }
-            shuffleArray(segments);
-            resultSegments = segments; // Store the shuffled segments globally
+        const buildHtmlSpinner = (segmentsToBuild) => {
+            if (!segmentsToBuild || segmentsToBuild.length === 0) {
+                 resultSpinnerWheel.innerHTML = '';
+                 return;
+            }
+            resultSegments = segmentsToBuild; 
             
             const numSegments = resultSegments.length;
-            const arcSize = 360 / numSegments; // 7.2 degrees
+            const arcSize = 360 / numSegments;
+            
+            // Calculate dynamic CSS values for the segments
+            const segmentSkew = 90 - arcSize;
+            // This magic number is for positioning text with the current CSS layout.
+            const textRotation = (arcSize / 2) + 45; 
+
+            // Set these values as CSS variables on the wheel container
+            resultSpinnerWheel.style.setProperty('--segment-skew', `${segmentSkew}deg`);
+            resultSpinnerWheel.style.setProperty('--segment-text-rotation', `${textRotation}deg`);
+
             resultSpinnerWheel.innerHTML = '';
 
-            for (let i = 0; i < numSegments; i++) {
-                const segmentData = resultSegments[i];
+            resultSegments.forEach((segmentData, i) => {
                 const segment = document.createElement('div');
-                segment.className = `spinner-segment ${segmentData.type}`;
+                // The type 'win' or 'loss' is added as a class for coloring
+                segment.className = `spinner-segment ${segmentData.type.toLowerCase()}`;
                 segment.style.transform = `rotate(${i * arcSize}deg)`;
                 
                 const text = document.createElement('span');
@@ -1212,61 +1207,63 @@
                 segment.appendChild(text);
 
                 resultSpinnerWheel.appendChild(segment);
-            }
+            });
         };
-
+        
         const spinResultWheel = (resultStatus) => {
             const possibleIndices = [];
             resultSegments.forEach((segment, index) => {
-                if (segment.type.toUpperCase() === resultStatus.toUpperCase()) {
+                if (segment.type.toLowerCase() === resultStatus.toLowerCase()) {
                     possibleIndices.push(index);
                 }
             });
 
-            if (possibleIndices.length === 0) return; // Should not happen
+            if (possibleIndices.length === 0) {
+                console.error(`Cannot spin: No segments found for result type "${resultStatus}"`);
+                return;
+            }
 
             const winningIndex = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
             const numSegments = resultSegments.length;
             const arcSizeDegrees = 360 / numSegments;
 
-            // Target the middle of the winning segment
+            // Find the center of the winning segment
             const targetAngle = winningIndex * arcSizeDegrees + (arcSizeDegrees / 2);
-            // Add a random offset within the segment for variety
+            // Add a random offset so it doesn't stop at the exact same spot
             const randomOffset = (Math.random() - 0.5) * (arcSizeDegrees * 0.8);
             const stopAngle = targetAngle + randomOffset;
             
-            // The pointer is at the top (270 degrees from right=0). Adjust for this.
-            // We also add multiple full spins for visual effect.
-            const totalRotation = (360 * 8) - stopAngle + 270;
+            // The pointer is at the top (270 degrees in CSS transform's coordinate system).
+            // We need to rotate the wheel so that the `stopAngle` ends up at 270 degrees.
+            // The final rotation value will be: multiple full spins + (270 - stopAngle)
+            const totalRotation = (360 * 8) + 270 - stopAngle;
             
-            // Reset transition and position before spinning to ensure smooth animation
+            // This part ensures a smooth re-spin without a jarring jump
             resultSpinnerWheel.style.transition = 'none';
-            const currentRotation = (resultSpinnerWheel.style.transform.match(/rotate\((.+)deg\)/) || [null, 0])[1];
+            const currentRotationMatch = resultSpinnerWheel.style.transform.match(/rotate\((.+)deg\)/);
+            const currentRotation = currentRotationMatch ? parseFloat(currentRotationMatch[1]) : 0;
+            // Set the transform to its current visual position before starting the new animation
             resultSpinnerWheel.style.transform = `rotate(${currentRotation % 360}deg)`;
             
-            // Force browser to repaint before applying the new transition
+            // Force a DOM reflow to apply the 'none' transition before setting the new one.
             resultSpinnerWheel.offsetHeight; 
 
-            resultSpinnerWheel.style.transition = `transform 8s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+            // Set the final animation
+            resultSpinnerWheel.style.transition = `transform var(--spin-duration) cubic-bezier(0.25, 0.1, 0.25, 1)`;
             resultSpinnerWheel.style.transform = `rotate(${totalRotation}deg)`;
         };
         
-        // --- Text to Speech & Notification ---
         const announceResult = (ticket, name, result) => {
             const resultText = result.toLowerCase();
-            // MODIFIED: Improved announcement text
             const message = `Result for ${name}, ticket number ${ticket}. The result is ${resultText}.`;
             
-            // Always show visual notification
             showStatus(message, resultText === 'win');
 
-            // If TTS is enabled by user interaction, then speak
             if (!ttsEnabled) return;
 
             try {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(message);
-                    // MODIFIED: Request Indian English voice. Falls back if not available.
                     utterance.lang = 'en-IN';
                     speechSynthesis.speak(utterance);
                 }
@@ -1274,17 +1271,24 @@
                 console.error("Text-to-Speech failed:", error);
             }
         };
-
-        // --- Central Live Draw Listener ---
+        
+        // ===================================================================
+        // === CLIENT-SIDE LIVE DRAW LISTENER (HEAVILY MODIFIED FOR SYNC) ===
+        // ===================================================================
         liveDrawRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
             document.getElementById('live-status').textContent = data.lotteryTitle ? `${data.lotteryTitle}: ${data.status}` : data.status;
 
+            if (data.wheelSegments && (data.lotteryId !== currentWheelLotteryId || data.isReset)) {
+                buildHtmlSpinner(data.wheelSegments);
+                currentWheelLotteryId = data.lotteryId;
+            }
+
             if (auth.currentUser) {
                 const startDrawBtn = document.getElementById('start-draw-btn');
-                startDrawBtn.disabled = false;
+                startDrawBtn.disabled = data.isAutoDrawing && (data.isPicking || data.result);
                 if (data.isAutoDrawing) {
                     startDrawBtn.textContent = 'Stop Auto-Draw';
                     startDrawBtn.classList.remove('btn-primary');
@@ -1296,35 +1300,33 @@
                 }
             }
             
-            // This logic ensures the sequence:
-            // 1. A new name is picked. The name picker animation starts.
-            if (data.currentPick && namePickerDisplay.dataset.lastPickId !== data.currentPick.ticket) {
-                const allParticipants = (data.participants || []).concat(data.allWinners || [], data.allLosers || [], data.currentPick);
-                const nameSpinTime = (document.getElementById('spin-interval').value || 5) * 1000;
-                runNamePickerAnimation(allParticipants, data.currentPick.name, nameSpinTime);
+            if (data.isPicking && data.currentPick && namePickerDisplay.dataset.lastPickId !== data.currentPick.ticket) {
+                const allParticipants = (data.participants || []).concat(data.allWinners || [], data.allLosers || []);
+                runNamePickerAnimation(allParticipants, data.currentPick.name, 4000);
                 namePickerDisplay.dataset.lastPickId = data.currentPick.ticket;
+            } 
+            else if (!data.isPicking && data.currentPick) {
+                 namePickerDisplay.querySelector('span').textContent = data.currentPick.name;
+                 namePickerDisplay.classList.remove('picking');
             }
 
-            // 2. After the name is picked, a result is generated. The result spinner starts.
             if (data.result && resultSpinnerWheel.dataset.lastResultTimestamp !== data.result.timestamp) {
                 spinResultWheel(data.result.status);
                 resultSpinnerWheel.dataset.lastResultTimestamp = data.result.timestamp;
-
-                // 3. After the spinner animation finishes, the result is announced.
-                // The next cycle will start after this.
-                setTimeout(() => {
-                    announceResult(data.currentPick.ticket, data.currentPick.name, data.result.status);
-                }, 8000); // 8000ms is the spinner's animation duration from CSS
+            }
+            
+            if (data.announcement && data.announcement.timestamp > lastAnnouncementTimestamp) {
+                lastAnnouncementTimestamp = data.announcement.timestamp;
+                announceResult(data.announcement.ticket, data.announcement.name, data.announcement.result);
             }
 
-            // Update winners and losers tables
             const winnersTbody = document.querySelector('#winners-table tbody');
             const losersTbody = document.querySelector('#losers-table tbody');
-            winnersTbody.innerHTML = ''; losersTbody.innerHTML = '';
+            winnersTbody.innerHTML = ''; 
+            losersTbody.innerHTML = '';
             (data.allWinners || []).forEach(p => { winnersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-win">${p.prize || 'Winner'}</td></tr>`; });
             (data.allLosers || []).forEach(p => { losersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-loss">Not a winner</td></tr>`; });
             
-            // Handle reset state
             if (data.isReset) {
                  namePickerDisplay.classList.remove('picking', 'picked');
                  namePickerDisplay.querySelector('span').textContent = 'STARTING SOON';
@@ -1332,88 +1334,113 @@
                  resultSpinnerWheel.style.transition = 'none';
                  resultSpinnerWheel.style.transform = 'rotate(0deg)';
                  resultSpinnerWheel.dataset.lastResultTimestamp = "";
-                 if (autoDrawInterval) {
-                    clearInterval(autoDrawInterval);
-                    autoDrawInterval = null;
+                 if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
+                 autoDrawTimeout = null;
+                 
+                 if (!data.wheelSegments) {
+                    currentWheelLotteryId = null;
+                    resultSpinnerWheel.innerHTML = '';
                  }
-                 if(auth.currentUser) {
-                    liveDrawRef.update({ isReset: null });
-                 }
+                 
+                 if(auth.currentUser) liveDrawRef.update({ isReset: null });
             }
         });
 
-        // --- Continuous Auto-Draw Logic (Admin side) ---
+        // ===================================================================
+        // === ADMIN-SIDE LIVE DRAW LOGIC (FIXED & IMPROVED) ===
+        // ===================================================================
         const performSingleDraw = () => {
             liveDrawRef.once('value', snapshot => {
                 const data = snapshot.val();
+                
                 if (!data || !data.isAutoDrawing) {
-                    if(autoDrawInterval) clearInterval(autoDrawInterval);
-                    autoDrawInterval = null;
+                    if (autoDrawTimeout) clearTimeout(autoDrawTimeout); 
+                    autoDrawTimeout = null; 
                     return;
                 }
 
-                if (!data.participants || data.participants.length === 0 || (data.allWinners && data.prizes && data.allWinners.length >= data.prizes.length)) {
-                    if (autoDrawInterval) clearInterval(autoDrawInterval);
-                    autoDrawInterval = null;
+                const participants = data.participants || [];
+                const allWinners = data.allWinners || [];
+                const prizes = data.prizes || [];
+
+                if (participants.length === 0 || allWinners.length >= prizes.length) {
                     let finalStatus = "Auto-draw finished: No participants left.";
-                    if (data.prizes && data.allWinners && data.allWinners.length >= data.prizes.length) {
+                    if (allWinners.length >= prizes.length) {
                         finalStatus = "Auto-draw finished: All prizes have been awarded!";
                     }
-                    liveDrawRef.update({ isAutoDrawing: false, status: finalStatus });
+                    liveDrawRef.update({ isAutoDrawing: false, status: finalStatus, isPicking: false, currentPick: null, result: null });
                     return;
                 }
 
-                const nameSpinTime = (document.getElementById('spin-interval').value || 5) * 1000;
-                const resultSpinTime = 8000; // From CSS transition
-
-                // Part 1: Pick a name. This triggers the name picker animation.
-                const participants = data.participants;
                 const pickedParticipant = participants.shift(); 
                 liveDrawRef.update({
                     status: `Picking next participant...`,
+                    isPicking: true,
                     currentPick: pickedParticipant,
                     participants: participants,
                     result: null
                 });
 
-                // Part 2: Wait for name animation, then decide and spin for the result.
+                const nameSpinTime = 5000;
+                const resultSpinTime = 5000;
+                const pauseAfterResult = 3000;
+
                 setTimeout(() => {
                     liveDrawRef.once('value', latestDataSnap => {
                         const latestData = latestDataSnap.val();
                         if (!latestData.isAutoDrawing) return;
 
-                        const allWinners = latestData.allWinners || [];
-                        const prizes = latestData.prizes || ['Winner'];
-                        const allLosers = latestData.allLosers || [];
-                        
-                        const prizesLeft = prizes.length - allWinners.length;
+                        const currentWinners = latestData.allWinners || [];
+                        const currentPrizes = latestData.prizes || ['Winner'];
+                        const prizesLeft = currentPrizes.length - currentWinners.length;
                         const participantsLeft = (latestData.participants || []).length + 1;
                         
                         const winChance = prizesLeft > 0 ? (prizesLeft / participantsLeft) : 0;
                         const isWin = Math.random() < winChance;
-                        const finalResultStatus = isWin ? 'WIN' : 'LOSS';
-                        
-                        if (isWin) {
-                            pickedParticipant.prize = prizes[allWinners.length];
-                            allWinners.push(pickedParticipant);
-                        } else {
-                            allLosers.push(pickedParticipant);
-                        }
+                        const resultStatus = isWin ? 'WIN' : 'LOSS';
 
-                        // Update Firebase. This triggers the result spinner animation.
                         liveDrawRef.update({
                             status: `Spinning result for ${pickedParticipant.name}...`,
-                            result: { status: finalResultStatus, timestamp: Date.now() },
-                            allWinners: allWinners,
-                            allLosers: allLosers
+                            isPicking: false,
+                            result: { status: resultStatus, timestamp: Date.now() }
                         });
 
-                        // Part 3: Wait for the result animation, then update the final status text.
                         setTimeout(() => {
-                            const finalStatusText = isWin
-                                ? `🎉 ${pickedParticipant.name} WINS ${pickedParticipant.prize}! 🎉`
-                                : `${pickedParticipant.name} did not win. Better luck next time!`;
-                            liveDrawRef.child('status').set(finalStatusText);
+                            liveDrawRef.once('value', finalDataSnap => {
+                                if (!finalDataSnap.val().isAutoDrawing) return;
+
+                                const finalWinners = finalDataSnap.val().allWinners || [];
+                                const finalLosers = finalDataSnap.val().allLosers || [];
+                                const finalPrizes = finalDataSnap.val().prizes || ['Winner'];
+
+                                if (isWin) {
+                                    pickedParticipant.prize = finalPrizes[finalWinners.length];
+                                    finalWinners.push(pickedParticipant);
+                                } else {
+                                    finalLosers.push(pickedParticipant);
+                                }
+                                
+                                const finalStatusText = isWin
+                                    ? `🎉 ${pickedParticipant.name} WINS ${pickedParticipant.prize}! 🎉`
+                                    : `${pickedParticipant.name} did not win. Better luck next time!`;
+                                
+                                liveDrawRef.update({
+                                    status: finalStatusText,
+                                    allWinners: finalWinners,
+                                    allLosers: finalLosers,
+                                    currentPick: null, 
+                                    result: null,
+                                    announcement: {
+                                        ticket: pickedParticipant.ticket,
+                                        name: pickedParticipant.name,
+                                        result: resultStatus,
+                                        timestamp: Date.now()
+                                    }
+                                });
+                                
+                                if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
+                                autoDrawTimeout = setTimeout(performSingleDraw, pauseAfterResult);
+                            });
                         }, resultSpinTime);
                     });
                 }, nameSpinTime);
@@ -1426,12 +1453,13 @@
 
             liveDrawRef.once('value', snapshot => {
                 const data = snapshot.val();
-                if (!data) return;
+                if (!data) { btn.disabled = false; return; }
+                
                 const isCurrentlyDrawing = data.isAutoDrawing || false;
                 
                 if (isCurrentlyDrawing) {
-                    if (autoDrawInterval) clearInterval(autoDrawInterval);
-                    autoDrawInterval = null;
+                    if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
+                    autoDrawTimeout = null;
                     liveDrawRef.update({ isAutoDrawing: false, status: "Auto-draw paused by admin." });
                 } else {
                     if (!data.participants || data.participants.length === 0) {
@@ -1440,23 +1468,23 @@
                     if (data.allWinners && data.prizes && data.allWinners.length >= data.prizes.length) {
                         showStatus("All prizes have been awarded.", false); btn.disabled = false; return;
                     }
-
                     liveDrawRef.update({ isAutoDrawing: true });
-                    const nameSpinTime = (document.getElementById('spin-interval').value || 5) * 1000;
-                    const resultSpinTime = 8000;
-                    const buffer = 2000; // Extra time for updates and announcement
-                    // The total time for one full cycle determines when the next one starts.
-                    const totalDrawTime = nameSpinTime + resultSpinTime + buffer;
-                    
-                    performSingleDraw(); // Start the first draw immediately
-                    autoDrawInterval = setInterval(performSingleDraw, totalDrawTime);
+                    performSingleDraw(); 
                 }
             });
         });
 
         document.getElementById('reset-draw-btn').addEventListener('click', () => {
-             if(confirm('This will clear the live draw board. Are you sure?')) {
-                 liveDrawRef.set({ status: "Waiting for Admin...", isReset: true, participants: [], allWinners: [], allLosers: [] });
+             if(confirm('This will clear the live draw board and stop any running draw. Are you sure?')) {
+                 if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
+                 autoDrawTimeout = null;
+                 liveDrawRef.set({ 
+                     status: "Waiting for Admin...", isReset: true, 
+                     participants: [], allWinners: [], allLosers: [], 
+                     isAutoDrawing: false, isPicking: false,
+                     currentPick: null, result: null,
+                     wheelSegments: null, announcement: null
+                 });
              }
         });
 
@@ -1644,7 +1672,7 @@
             renderList(upcoming, upcomingListEl);
             renderList(past, pastListEl);
         };
-
+        
         window.setupLiveDraw = (e, lotteryId) => {
             e.stopPropagation();
             const lottery = allLotteriesCache[lotteryId];
@@ -1665,14 +1693,22 @@
             }
             shuffleArray(participantsList);
 
+            const wheelSegments = [];
+            for (let i = 0; i < 10; i++) { wheelSegments.push({ text: 'WIN', type: 'win' }); }
+            for (let i = 0; i < 40; i++) { wheelSegments.push({ text: 'LOSS', type: 'loss' }); }
+            shuffleArray(wheelSegments);
+
             liveDrawRef.set({
-                lotteryId: lotteryId, lotteryTitle: lottery.title,
+                lotteryId: lotteryId,
+                lotteryTitle: lottery.title,
                 status: `Ready to start draw for ${lottery.title}.`,
                 prizes: lottery.prizes || ['Winner'],
                 participants: participantsList,
+                wheelSegments: wheelSegments,
                 allWinners: [], allLosers: [],
                 currentPick: null, result: null,
-                isAutoDrawing: false, isReset: true
+                isAutoDrawing: false, isReset: true,
+                isPicking: false, announcement: null
             }).then(() => {
                 showStatus(`Live draw for ${lottery.title} is ready!`, true);
                 showPage('live-page');
@@ -1719,7 +1755,7 @@
             window.scrollTo(0, 0);
         };
         
-        // 11. ADMIN: TICKET VIEW & MANAGEMENT (INCLUDING NEW "BOOK" FLOW)
+        // 11. ADMIN: TICKET VIEW & MANAGEMENT
         window.viewAdminLotteryTickets = (lotteryId) => { 
             const lottery = allLotteriesCache[lotteryId];
             const adminTicketView = document.getElementById('admin-lottery-ticket-view');
@@ -1862,19 +1898,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             const loader = document.getElementById('loading-overlay');
             
-            // NEW: Add event listener to enable TTS on first user interaction anywhere on the page.
-            // This is required by modern browsers to allow audio playback.
             const enableAudioHandler = () => {
                 if (ttsEnabled || !('speechSynthesis' in window)) return;
                 ttsEnabled = true;
-                // A simple way to "wake up" the speech synthesis API
                 const synth = window.speechSynthesis;
-                // Speaking an empty string can often initialize the speech engine without making a sound
                 synth.speak(new SpeechSynthesisUtterance('')); 
                 showStatus('Announcements Enabled');
             };
 
-            // Use { once: true } to automatically remove the listener after it runs
             document.body.addEventListener('click', enableAudioHandler, { once: true });
             document.body.addEventListener('touchstart', enableAudioHandler, { once: true });
 
@@ -1887,9 +1918,6 @@
                 renderAllLotteryLists();
                 showPage('lottery-page');
                 addPrizeInput();
-
-                // Initialize the HTML spinner wheel
-                buildHtmlSpinner();
 
                 loader.style.opacity = '0';
                 setTimeout(() => { loader.style.display = 'none'; }, 500);
