@@ -21,22 +21,22 @@
         :root {
             --primary-color: #185a9d; /* Vibrant Purple */
             --secondary-color: #ffeb3b; /* Bright Yellow */
-            --dark-bg-gradient: linear-gradient(145deg, #42cea2 0%, #185a9d 100%);
+            --dark-bg-gradient: linear-gradient(145deg, #42cea2 0%, #185a9d 50%);
             
             --text-primary-light: #ffffff;
-            --text-secondary-light: rgba(230, 230, 230, 0.8);
+            --text-secondary-light: #ffffff;
             
-            --success-color: #81c784; /* Light Green */
-            --pending-color: #ffb74d; /* Light Orange */
-            --loss-color: #e57373; /* Light Red */
-            --reject-color: #9e9e9e; /* Grey */
+            --success-color: #ffffff;
+            --pending-color: orange;
+            --loss-color: red;
+            --reject-color: #ffffff;
 
             /* Glassmorphism Variables */
             --glass-bg: rgba(255, 255, 255, 0.1);
             --glass-bg-hover: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.2);
             --glass-shadow: 0 8px 32px 0 rgba(10, 0, 30, 0.37);
-            --glass-blur: 2px;
+            --glass-blur: 1px;
             --glass-radius: 16px;
             
             --glow-color: rgba(255, 235, 59, 0.8);
@@ -327,6 +327,7 @@
         #live-status {
             text-align: center; font-size: 1.1rem; font-weight: bold; /* MODIFIED */
             color: white; text-shadow: 2px 2px 4px black; margin-bottom: 20px;
+            min-height: 1.2em;
         }
         #admin-controls {
             display: none;
@@ -347,40 +348,134 @@
             color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
             font-size: 1rem; margin-bottom: 15px; /* MODIFIED */
         }
-
+        
         .spinner-container {
             position: relative;
-            width: min(75vw, 250px); /* MODIFIED: Responsive size for mobile */
-            height: min(75vw, 250px); /* MODIFIED */
+            width: min(75vw, 250px);
+            height: min(75vw, 250px);
             margin: 0 auto;
+        }
+
+        /* --- MODIFIED: NAME PICKER SLOP BOX --- */
+        #name-spinner-container {
+            width: min(85vw, 350px);
+            height: min(30vw, 120px);
+            border-radius: var(--glass-radius); /* Use theme radius for rectangle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            background: #1a2a45;
+            border: 5px solid var(--secondary-color);
+            box-shadow: 0 0 20px var(--glow-color);
+            overflow: hidden; /* Hide overflowing text during animation */
+        }
+
+        #name-picker-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+        #name-picker-display span {
+            font-size: 1.8rem; /* Increased size */
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+            display: inline-block;
+        }
+        #name-picker-display.picking span {
+            opacity: 0.7;
+            transform: scale(0.95);
+        }
+        #name-picker-display.picked span {
+            transform: scale(1.1);
+            animation: winner-glow 1s ease-in-out;
+        }
+        @keyframes winner-glow {
+            0%, 100% { text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color); }
+            50% { text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px var(--secondary-color); }
+        }
+        @media (max-width: 400px) {
+            #name-picker-display span { font-size: 1.4rem; }
+        }
+
+        /* --- NEW: HTML/CSS RESULT SPINNER --- */
+        #result-spinner-container {
             border-radius: 50%;
             box-shadow: 0 0 20px var(--glow-color);
             background: #1a2a45;
             border: 5px solid var(--secondary-color);
             overflow: hidden;
-            transition: transform var(--spin-duration) cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .spinner-container canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
+        
+        #result-spinner-wheel {
+            position: relative;
             width: 100%;
             height: 100%;
+            border-radius: 50%;
+            /* The transition defines the spin animation: 8 seconds, with a slow-fast-slow curve */
+            transition: transform 8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform: rotate(0deg);
         }
+
+        .spinner-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            overflow: hidden;
+            /* NEW: Add a subtle border to create a separator line between segments */
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .spinner-segment::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            transform-origin: 0% 0%;
+            /* Skew creates the wedge shape */
+            transform: skewX(82.8deg); /* 90deg - 7.2deg (angle of a 50-segment slice) */
+        }
+        
+        .spinner-segment.win::before { background-color: var(--success-color); }
+        .spinner-segment.loss::before { background-color: var(--loss-color); }
+
+        .segment-text {
+            position: absolute;
+            left: -100%;
+            width: 200%;
+            height: 200%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: clamp(8px, 3vw, 12px); /* Responsive font size for small segments */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            user-select: none;
+            /* Rotate the text to be upright */
+            transform: rotate(48.6deg); /* (7.2 / 2) + 45 */
+            padding-top: 5%;
+        }
+
+
         .spinner-pointer {
             position: absolute;
-            top: -20px;
+            top: -5px; /* Position it slightly over the border */
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 30px solid var(--loss-color);
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid var(--secondary-color);
             z-index: 2;
             filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
         }
-        
+
         @media (min-width: 768px) {
             .spinners-container { 
                 flex-direction: row; 
@@ -505,28 +600,28 @@
                     <p id="live-status">Game not Start...</p>
                     
                     <div id="admin-controls">
-                         
-                         <label for="spin-interval">Spin Duration (seconds)</label>
-                         <input type="number" id="spin-interval" value="8" min="2">
+                         <label for="spin-interval">Name Animation Duration (seconds)</label>
+                         <input type="number" id="spin-interval" value="5" min="2">
                          <div class="admin-controls-buttons">
-                             <button id="start-draw-btn" class="btn btn-primary">Start Draw!</button>
+                             <button id="start-draw-btn" class="btn btn-primary">Start Auto-Draw</button>
                              <button id="reset-draw-btn" class="btn btn-secondary">Reset Lottery</button>
                          </div>
                     </div>
 
                     <div class="spinners-container">
                         <div class="spinner-wrapper">
-                            <h3>Next Participant</h3>
+                             <h3>Next Participant</h3>
                             <div id="name-spinner-container" class="spinner-container">
-                                <canvas id="wheelCanvas"></canvas>
-                                <div class="spinner-pointer"></div>
+                                <div id="name-picker-display" data-last-pick-id="">
+                                    <span>STARTING SOON</span>
+                                </div>
                             </div>
                         </div>
                         <div class="spinner-wrapper">
                             <h3>Result</h3>
                             <div id="result-spinner-container" class="spinner-container">
-                                <canvas id="resultCanvas"></canvas>
                                 <div class="spinner-pointer"></div>
+                                <div id="result-spinner-wheel" data-last-result-timestamp=""></div>
                             </div>
                         </div>
                     </div>
@@ -535,7 +630,7 @@
                 <h3>🏆 Winners List</h3>
                 <div class="table-wrapper">
                     <table id="winners-table">
-                        <thead><tr><th>Ticket No.</th><th>Name</th><th>Status</th></tr></thead>
+                        <thead><tr><th>Ticket No.</th><th>Name</th><th>Prize</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -780,11 +875,12 @@
         // --- GLOBAL STATE & CACHES ---
         let currentLotteryId = null;
         let purchaseData = {};
-        let isSpinning = false;
         let allLotteriesCache = {};
         let allTicketsCache = {};
         let lotteryTicketCounts = {};
         let countdownInterval;
+        let autoDrawInterval = null; // For the admin's auto-draw interval
+        let ttsEnabled = false; // NEW: For enabling Text-to-Speech on user interaction
 
         // --- DOM ELEMENTS ---
         const pages = document.querySelectorAll('.page');
@@ -792,14 +888,13 @@
         const modals = document.querySelectorAll('.modal');
         const statusPopup = document.getElementById('status-popup');
 
-        // Spinner Elements
-        const wheelCanvas = document.getElementById('wheelCanvas');
-        const ctx = wheelCanvas.getContext('2d');
-        const nameSpinnerContainer = document.getElementById('name-spinner-container');
-        const resultCanvas = document.getElementById('resultCanvas');
-        const resultCtx = resultCanvas.getContext('2d');
-        const resultSpinnerContainer = document.getElementById('result-spinner-container');
+        // Name Picker Elements
+        const namePickerDisplay = document.getElementById('name-picker-display');
+        let namePickerInterval = null;
 
+        // Result Spinner Elements
+        const resultSpinnerWheel = document.getElementById('result-spinner-wheel');
+        let resultSegments = [];
 
         // --- CORE APP LOGIC ---
 
@@ -871,6 +966,13 @@
             });
         });
 
+        const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
         // 4. DATA LISTENERS (FOR REAL-TIME UPDATES)
         db.ref('lotteries').on('value', (snapshot) => {
             allLotteriesCache = snapshot.val() || {};
@@ -882,7 +984,12 @@
         });
         
         db.ref('tickets').on('value', snapshot => {
-            allTicketsCache = snapshot.val() || {};
+            const ticketsData = snapshot.val() || {};
+            // Add keys to ticket objects for easier reference
+            Object.keys(ticketsData).forEach(key => {
+                ticketsData[key].key = key;
+            });
+            allTicketsCache = ticketsData;
             processTicketCounts(); 
             if (auth.currentUser) {
                 loadManageableLotteries(); // Refresh counts on lotteries
@@ -1054,174 +1161,297 @@
         };
 
         // 8. LIVE DRAW PAGE & SPINNER LOGIC
-        const colors = ['#ffeb3b', '#81c784', '#64b5f6', '#fdd835', '#aed581', '#4dd0e1'];
-        let participants = [];
 
-        const drawWheel = () => {
-            const numParticipants = participants.length;
-            if (numParticipants === 0) {
-                 ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-                 return;
+        // --- Name Picker Animation Logic ---
+        const runNamePickerAnimation = (allParticipants, finalName, duration) => {
+            if (namePickerInterval) clearInterval(namePickerInterval);
+            if (allParticipants.length === 0) {
+                namePickerDisplay.querySelector('span').textContent = '...';
+                return;
             };
-            const arcSize = (2 * Math.PI) / numParticipants;
-            const radius = wheelCanvas.width / 2;
-            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-            ctx.save();
-            ctx.translate(radius, radius);
-            for (let i = 0; i < numParticipants; i++) {
-                const angle = i * arcSize;
-                ctx.beginPath();
-                ctx.arc(0, 0, radius, angle, angle + arcSize);
-                ctx.lineTo(0,0);
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.fill();
-                ctx.save();
-                ctx.fillStyle = '#333';
-                ctx.font = 'bold 12px Poppins';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const textAngle = angle + arcSize / 2;
-                ctx.rotate(textAngle);
-                ctx.fillText(participants[i].name.split(" ")[0], radius * 0.7, 0);
-                ctx.restore();
-            }
-            ctx.restore();
+
+            const displaySpan = namePickerDisplay.querySelector('span');
+            namePickerDisplay.classList.add('picking');
+            namePickerDisplay.classList.remove('picked');
+            
+            namePickerInterval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * allParticipants.length);
+                displaySpan.textContent = allParticipants[randomIndex].name;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(namePickerInterval);
+                namePickerInterval = null;
+                displaySpan.textContent = finalName;
+                namePickerDisplay.classList.remove('picking');
+                namePickerDisplay.classList.add('picked');
+            }, duration);
         };
 
-        const drawResultWheel = () => {
-            const segments = [
-                { text: 'WIN', color: 'var(--success-color)' },
-                { text: 'LOSS', color: 'var(--loss-color)' }
-            ];
-            const numSegments = segments.length;
-            const arcSize = (2 * Math.PI) / numSegments;
-            const radius = resultCanvas.width / 2;
-
-            resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
-            resultCtx.save();
-            resultCtx.translate(radius, radius);
+        // --- Result Spinner Logic ---
+        const buildHtmlSpinner = () => {
+            const segments = [];
+            for (let i = 0; i < 10; i++) { segments.push({ text: 'WIN', type: 'win' }); }
+            for (let i = 0; i < 40; i++) { segments.push({ text: 'LOSS', type: 'loss' }); }
+            shuffleArray(segments);
+            resultSegments = segments; // Store the shuffled segments globally
+            
+            const numSegments = resultSegments.length;
+            const arcSize = 360 / numSegments; // 7.2 degrees
+            resultSpinnerWheel.innerHTML = '';
 
             for (let i = 0; i < numSegments; i++) {
-                const angle = i * arcSize;
-                resultCtx.beginPath();
-                resultCtx.arc(0, 0, radius, angle, angle + arcSize);
-                resultCtx.lineTo(0,0);
-                resultCtx.fillStyle = segments[i].color;
-                resultCtx.fill();
+                const segmentData = resultSegments[i];
+                const segment = document.createElement('div');
+                segment.className = `spinner-segment ${segmentData.type}`;
+                segment.style.transform = `rotate(${i * arcSize}deg)`;
+                
+                const text = document.createElement('span');
+                text.className = 'segment-text';
+                text.textContent = segmentData.text;
+                segment.appendChild(text);
 
-                resultCtx.save();
-                resultCtx.fillStyle = 'white';
-                resultCtx.font = 'bold 24px Poppins'; // Bigger font for just two segments
-                resultCtx.textAlign = 'center';
-                resultCtx.textBaseline = 'middle';
-                const textAngle = angle + arcSize / 2;
-                resultCtx.rotate(textAngle);
-                resultCtx.fillText(segments[i].text, radius * 0.6, 0);
-                resultCtx.restore();
+                resultSpinnerWheel.appendChild(segment);
             }
-            resultCtx.restore();
         };
 
-        const spinNameWheel = (winningIndex) => {
-            if (isSpinning || participants.length === 0) return;
-            isSpinning = true;
-            document.getElementById('start-draw-btn').disabled = true;
-            const arcSize = 360 / participants.length;
-            const randomOffset = Math.random() * arcSize * 0.8 - (arcSize * 0.4);
-            const stopAngle = (winningIndex * arcSize) + randomOffset;
-            const totalRotation = 360 * 10 - stopAngle;
-            const spinDuration = document.getElementById('spin-interval').value || 8;
-            nameSpinnerContainer.style.transition = `transform ${spinDuration}s cubic-bezier(0.2, 0.8, 0.2, 1)`;
-            nameSpinnerContainer.style.transform = `rotate(${totalRotation}deg)`;
-            setTimeout(() => {
-                isSpinning = false;
-                document.getElementById('start-draw-btn').disabled = false;
-            }, spinDuration * 1000);
-        };
+        const spinResultWheel = (resultStatus) => {
+            const possibleIndices = [];
+            resultSegments.forEach((segment, index) => {
+                if (segment.type.toUpperCase() === resultStatus.toUpperCase()) {
+                    possibleIndices.push(index);
+                }
+            });
 
-        const spinResultWheel = (isWin) => {
-            const winningIndex = isWin ? 0 : 1; // 0 for WIN, 1 for LOSS
-            const numSegments = 2;
-            const arcSize = 360 / numSegments;
+            if (possibleIndices.length === 0) return; // Should not happen
+
+            const winningIndex = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
+            const numSegments = resultSegments.length;
+            const arcSizeDegrees = 360 / numSegments;
+
+            // Target the middle of the winning segment
+            const targetAngle = winningIndex * arcSizeDegrees + (arcSizeDegrees / 2);
+            // Add a random offset within the segment for variety
+            const randomOffset = (Math.random() - 0.5) * (arcSizeDegrees * 0.8);
+            const stopAngle = targetAngle + randomOffset;
             
-            const randomOffset = Math.random() * arcSize * 0.6 - (arcSize * 0.3);
-            const stopAngle = (winningIndex * arcSize) + randomOffset;
+            // The pointer is at the top (270 degrees from right=0). Adjust for this.
+            // We also add multiple full spins for visual effect.
+            const totalRotation = (360 * 8) - stopAngle + 270;
             
-            const totalRotation = 360 * 5 - stopAngle;
-            const spinDuration = 4;
+            // Reset transition and position before spinning to ensure smooth animation
+            resultSpinnerWheel.style.transition = 'none';
+            const currentRotation = (resultSpinnerWheel.style.transform.match(/rotate\((.+)deg\)/) || [null, 0])[1];
+            resultSpinnerWheel.style.transform = `rotate(${currentRotation % 360}deg)`;
             
-            resultSpinnerContainer.style.transition = `transform ${spinDuration}s cubic-bezier(0.25, 1, 0.5, 1)`;
-            resultSpinnerContainer.style.transform = `rotate(${totalRotation}deg)`;
+            // Force browser to repaint before applying the new transition
+            resultSpinnerWheel.offsetHeight; 
+
+            resultSpinnerWheel.style.transition = `transform 8s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+            resultSpinnerWheel.style.transform = `rotate(${totalRotation}deg)`;
         };
         
+        // --- Text to Speech & Notification ---
+        const announceResult = (ticket, name, result) => {
+            const resultText = result.toLowerCase();
+            // MODIFIED: Improved announcement text
+            const message = `Result for ${name}, ticket number ${ticket}. The result is ${resultText}.`;
+            
+            // Always show visual notification
+            showStatus(message, resultText === 'win');
+
+            // If TTS is enabled by user interaction, then speak
+            if (!ttsEnabled) return;
+
+            try {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(message);
+                    // MODIFIED: Request Indian English voice. Falls back if not available.
+                    utterance.lang = 'en-IN';
+                    speechSynthesis.speak(utterance);
+                }
+            } catch (error) {
+                console.error("Text-to-Speech failed:", error);
+            }
+        };
+
+        // --- Central Live Draw Listener ---
         liveDrawRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
-            participants = data.participants || [];
-            
-            if(wheelCanvas.width !== nameSpinnerContainer.clientWidth || wheelCanvas.width === 0) {
-                wheelCanvas.width = wheelCanvas.height = nameSpinnerContainer.clientWidth;
-                resultCanvas.width = resultCanvas.height = resultSpinnerContainer.clientWidth;
-                drawResultWheel();
-            }
-            drawWheel();
 
-            document.getElementById('live-status').textContent = data.status || 'Waiting to start...';
-            
-            if (data.spinTo !== null && data.spinTo !== undefined && !isSpinning) {
-                spinNameWheel(data.spinTo);
-            }
+            document.getElementById('live-status').textContent = data.lotteryTitle ? `${data.lotteryTitle}: ${data.status}` : data.status;
 
-            if (data.result) {
-                if (resultSpinnerContainer.dataset.lastResult !== data.result.status) {
-                    spinResultWheel(data.result.status === 'WIN');
-                    resultSpinnerContainer.dataset.lastResult = data.result.status;
+            if (auth.currentUser) {
+                const startDrawBtn = document.getElementById('start-draw-btn');
+                startDrawBtn.disabled = false;
+                if (data.isAutoDrawing) {
+                    startDrawBtn.textContent = 'Stop Auto-Draw';
+                    startDrawBtn.classList.remove('btn-primary');
+                    startDrawBtn.classList.add('btn-danger');
+                } else {
+                    startDrawBtn.textContent = 'Start Auto-Draw';
+                    startDrawBtn.classList.add('btn-primary');
+                    startDrawBtn.classList.remove('btn-danger');
                 }
-            } else {
-                resultSpinnerContainer.dataset.lastResult = "";
+            }
+            
+            // This logic ensures the sequence:
+            // 1. A new name is picked. The name picker animation starts.
+            if (data.currentPick && namePickerDisplay.dataset.lastPickId !== data.currentPick.ticket) {
+                const allParticipants = (data.participants || []).concat(data.allWinners || [], data.allLosers || [], data.currentPick);
+                const nameSpinTime = (document.getElementById('spin-interval').value || 5) * 1000;
+                runNamePickerAnimation(allParticipants, data.currentPick.name, nameSpinTime);
+                namePickerDisplay.dataset.lastPickId = data.currentPick.ticket;
             }
 
+            // 2. After the name is picked, a result is generated. The result spinner starts.
+            if (data.result && resultSpinnerWheel.dataset.lastResultTimestamp !== data.result.timestamp) {
+                spinResultWheel(data.result.status);
+                resultSpinnerWheel.dataset.lastResultTimestamp = data.result.timestamp;
+
+                // 3. After the spinner animation finishes, the result is announced.
+                // The next cycle will start after this.
+                setTimeout(() => {
+                    announceResult(data.currentPick.ticket, data.currentPick.name, data.result.status);
+                }, 8000); // 8000ms is the spinner's animation duration from CSS
+            }
+
+            // Update winners and losers tables
             const winnersTbody = document.querySelector('#winners-table tbody');
             const losersTbody = document.querySelector('#losers-table tbody');
             winnersTbody.innerHTML = ''; losersTbody.innerHTML = '';
-            (data.allWinners || []).forEach(p => { winnersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-win">${p.status}</td></tr>`; });
-            (data.allLosers || []).forEach(p => { losersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-loss">${p.status}</td></tr>`; });
+            (data.allWinners || []).forEach(p => { winnersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-win">${p.prize || 'Winner'}</td></tr>`; });
+            (data.allLosers || []).forEach(p => { losersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-loss">Not a winner</td></tr>`; });
             
+            // Handle reset state
             if (data.isReset) {
-                 nameSpinnerContainer.style.transition = 'none';
-                 nameSpinnerContainer.style.transform = 'rotate(0deg)';
-                 resultSpinnerContainer.style.transition = 'none';
-                 resultSpinnerContainer.style.transform = 'rotate(0deg)';
-                 isSpinning = false;
-                 document.getElementById('start-draw-btn').disabled = false;
-                 liveDrawRef.update({ isReset: false });
+                 namePickerDisplay.classList.remove('picking', 'picked');
+                 namePickerDisplay.querySelector('span').textContent = 'STARTING SOON';
+                 namePickerDisplay.dataset.lastPickId = "";
+                 resultSpinnerWheel.style.transition = 'none';
+                 resultSpinnerWheel.style.transform = 'rotate(0deg)';
+                 resultSpinnerWheel.dataset.lastResultTimestamp = "";
+                 if (autoDrawInterval) {
+                    clearInterval(autoDrawInterval);
+                    autoDrawInterval = null;
+                 }
+                 if(auth.currentUser) {
+                    liveDrawRef.update({ isReset: null });
+                 }
             }
         });
 
-        document.getElementById('start-draw-btn').addEventListener('click', () => {
-             if (participants.length > 0) {
-                 const winnerIndex = Math.floor(Math.random() * participants.length);
-                 const winner = participants[winnerIndex];
-                 
-                 const isWinner = Math.random() < 0.2; // 20% chance to win
-                 const result = isWinner ? { status: "WIN" } : { status: "LOSS" };
-                 
-                 liveDrawRef.update({
-                     status: `Spinning for ${winner.name}...`,
-                     spinTo: winnerIndex,
-                     result: null
-                 });
+        // --- Continuous Auto-Draw Logic (Admin side) ---
+        const performSingleDraw = () => {
+            liveDrawRef.once('value', snapshot => {
+                const data = snapshot.val();
+                if (!data || !data.isAutoDrawing) {
+                    if(autoDrawInterval) clearInterval(autoDrawInterval);
+                    autoDrawInterval = null;
+                    return;
+                }
 
-                 const spinDuration = (document.getElementById('spin-interval').value || 8) * 1000;
-                 setTimeout(() => {
-                    liveDrawRef.update({ 
-                        status: `${winner.name} got ${result.status}!`,
-                        result: result,
-                     });
-                 }, spinDuration + 500);
-             } else {
-                 alert('No participants to draw from! Load a lottery first.');
-             }
+                if (!data.participants || data.participants.length === 0 || (data.allWinners && data.prizes && data.allWinners.length >= data.prizes.length)) {
+                    if (autoDrawInterval) clearInterval(autoDrawInterval);
+                    autoDrawInterval = null;
+                    let finalStatus = "Auto-draw finished: No participants left.";
+                    if (data.prizes && data.allWinners && data.allWinners.length >= data.prizes.length) {
+                        finalStatus = "Auto-draw finished: All prizes have been awarded!";
+                    }
+                    liveDrawRef.update({ isAutoDrawing: false, status: finalStatus });
+                    return;
+                }
+
+                const nameSpinTime = (document.getElementById('spin-interval').value || 5) * 1000;
+                const resultSpinTime = 8000; // From CSS transition
+
+                // Part 1: Pick a name. This triggers the name picker animation.
+                const participants = data.participants;
+                const pickedParticipant = participants.shift(); 
+                liveDrawRef.update({
+                    status: `Picking next participant...`,
+                    currentPick: pickedParticipant,
+                    participants: participants,
+                    result: null
+                });
+
+                // Part 2: Wait for name animation, then decide and spin for the result.
+                setTimeout(() => {
+                    liveDrawRef.once('value', latestDataSnap => {
+                        const latestData = latestDataSnap.val();
+                        if (!latestData.isAutoDrawing) return;
+
+                        const allWinners = latestData.allWinners || [];
+                        const prizes = latestData.prizes || ['Winner'];
+                        const allLosers = latestData.allLosers || [];
+                        
+                        const prizesLeft = prizes.length - allWinners.length;
+                        const participantsLeft = (latestData.participants || []).length + 1;
+                        
+                        const winChance = prizesLeft > 0 ? (prizesLeft / participantsLeft) : 0;
+                        const isWin = Math.random() < winChance;
+                        const finalResultStatus = isWin ? 'WIN' : 'LOSS';
+                        
+                        if (isWin) {
+                            pickedParticipant.prize = prizes[allWinners.length];
+                            allWinners.push(pickedParticipant);
+                        } else {
+                            allLosers.push(pickedParticipant);
+                        }
+
+                        // Update Firebase. This triggers the result spinner animation.
+                        liveDrawRef.update({
+                            status: `Spinning result for ${pickedParticipant.name}...`,
+                            result: { status: finalResultStatus, timestamp: Date.now() },
+                            allWinners: allWinners,
+                            allLosers: allLosers
+                        });
+
+                        // Part 3: Wait for the result animation, then update the final status text.
+                        setTimeout(() => {
+                            const finalStatusText = isWin
+                                ? `🎉 ${pickedParticipant.name} WINS ${pickedParticipant.prize}! 🎉`
+                                : `${pickedParticipant.name} did not win. Better luck next time!`;
+                            liveDrawRef.child('status').set(finalStatusText);
+                        }, resultSpinTime);
+                    });
+                }, nameSpinTime);
+            });
+        };
+
+        document.getElementById('start-draw-btn').addEventListener('click', (e) => {
+            const btn = e.target;
+            btn.disabled = true;
+
+            liveDrawRef.once('value', snapshot => {
+                const data = snapshot.val();
+                if (!data) return;
+                const isCurrentlyDrawing = data.isAutoDrawing || false;
+                
+                if (isCurrentlyDrawing) {
+                    if (autoDrawInterval) clearInterval(autoDrawInterval);
+                    autoDrawInterval = null;
+                    liveDrawRef.update({ isAutoDrawing: false, status: "Auto-draw paused by admin." });
+                } else {
+                    if (!data.participants || data.participants.length === 0) {
+                        showStatus("No participants left to draw.", false); btn.disabled = false; return;
+                    }
+                    if (data.allWinners && data.prizes && data.allWinners.length >= data.prizes.length) {
+                        showStatus("All prizes have been awarded.", false); btn.disabled = false; return;
+                    }
+
+                    liveDrawRef.update({ isAutoDrawing: true });
+                    const nameSpinTime = (document.getElementById('spin-interval').value || 5) * 1000;
+                    const resultSpinTime = 8000;
+                    const buffer = 2000; // Extra time for updates and announcement
+                    // The total time for one full cycle determines when the next one starts.
+                    const totalDrawTime = nameSpinTime + resultSpinTime + buffer;
+                    
+                    performSingleDraw(); // Start the first draw immediately
+                    autoDrawInterval = setInterval(performSingleDraw, totalDrawTime);
+                }
+            });
         });
 
         document.getElementById('reset-draw-btn').addEventListener('click', () => {
@@ -1234,11 +1464,8 @@
         auth.onAuthStateChanged(user => {
             document.getElementById('admin-controls').style.display = user ? 'block' : 'none';
             const pageId = document.querySelector('.page.active').id;
-            // if user logs out while on an admin page, redirect them home
-            if (!user && (pageId.startsWith('admin-'))) { 
-                showPage('lottery-page'); 
-            }
-            showPage(pageId); // Re-run to update nav bar text
+            if (!user && (pageId.startsWith('admin-'))) { showPage('lottery-page'); }
+            showPage(pageId);
             if (user) {
                 loadAllTicketsManagementTable();
                 loadManageableLotteries();
@@ -1382,12 +1609,10 @@
             lotteryTicketCounts = tempCounts;
         };
         
-        // **IMPLEMENTED REQUEST: Show and manage past lotteries (history)**
         const loadManageableLotteries = () => {
             const upcomingListEl = document.getElementById('upcoming-lottery-list');
             const pastListEl = document.getElementById('past-lottery-list');
-            upcomingListEl.innerHTML = '';
-            pastListEl.innerHTML = '';
+            upcomingListEl.innerHTML = ''; pastListEl.innerHTML = '';
 
             const now = new Date();
             const all = Object.entries(allLotteriesCache);
@@ -1396,8 +1621,7 @@
 
             const renderList = (lotteries, element) => {
                 if (lotteries.length === 0) { 
-                    element.innerHTML = '<p>No lotteries found in this category.</p>'; 
-                    return; 
+                    element.innerHTML = '<p>No lotteries found in this category.</p>'; return; 
                 }
                 lotteries.forEach(([id, lottery]) => {
                     const soldCount = lotteryTicketCounts[id] ? lotteryTicketCounts[id].confirmed : 0;
@@ -1410,27 +1634,58 @@
                         </div>
                         <div class="manageable-lottery-item-actions">
                             <button class="btn-icon book" onclick="openAdminBookModal(event, '${id}')" title="Book Ticket"><i class="fas fa-ticket-alt"></i></button>
+                            <button class="btn-icon" onclick="setupLiveDraw(event, '${id}')" title="Go Live" style="color: var(--secondary-color);"><i class="fas fa-broadcast-tower"></i></button>
                             <button class="btn-icon edit" onclick="editLottery(event, '${id}')" title="Edit"><i class="fas fa-edit"></i></button>
                             <button class="btn-icon delete" onclick="removeLottery(event, '${id}')" title="Delete"><i class="fas fa-trash"></i></button>
                         </div>`;
                     element.appendChild(item);
                 });
             };
-
             renderList(upcoming, upcomingListEl);
             renderList(past, pastListEl);
+        };
+
+        window.setupLiveDraw = (e, lotteryId) => {
+            e.stopPropagation();
+            const lottery = allLotteriesCache[lotteryId];
+            if (!confirm(`This will reset the current live draw and set up a new one for "${lottery.title}". Are you sure?`)) return;
+
+            const confirmedPurchases = Object.values(allTicketsCache).filter(p => p.lotteryId === lotteryId && p.status === 'confirmed');
+            
+            const participantsList = [];
+            confirmedPurchases.forEach(p => {
+                p.tickets.forEach(ticketNum => {
+                    participantsList.push({ name: p.name, ticket: ticketNum, purchaseId: p.key });
+                });
+            });
+
+            if (participantsList.length === 0) {
+                showStatus('No confirmed tickets for this lottery to start a draw.', false);
+                return;
+            }
+            shuffleArray(participantsList);
+
+            liveDrawRef.set({
+                lotteryId: lotteryId, lotteryTitle: lottery.title,
+                status: `Ready to start draw for ${lottery.title}.`,
+                prizes: lottery.prizes || ['Winner'],
+                participants: participantsList,
+                allWinners: [], allLosers: [],
+                currentPick: null, result: null,
+                isAutoDrawing: false, isReset: true
+            }).then(() => {
+                showStatus(`Live draw for ${lottery.title} is ready!`, true);
+                showPage('live-page');
+            });
         };
 
         window.removeLottery = (e, id) => { 
             e.stopPropagation(); 
             if (confirm('Are you sure you want to permanently delete this lottery and all associated ticket data? This action cannot be undone.')) {
                 db.ref('lotteries/' + id).remove().then(() => {
-                    // Also remove associated tickets
                     db.ref('tickets').orderByChild('lotteryId').equalTo(id).once('value', snapshot => {
                         const updates = {};
-                        snapshot.forEach(child => {
-                            updates[child.key] = null;
-                        });
+                        snapshot.forEach(child => { updates[child.key] = null; });
                         db.ref('tickets').update(updates);
                     });
                     showStatus('Lottery deleted successfully.', true);
@@ -1444,12 +1699,10 @@
             document.getElementById('editing-lottery-id').value = id;
             document.getElementById('lottery-title').value = lottery.title;
             document.getElementById('lottery-details').value = lottery.details;
-            
             document.getElementById('existing-image-url').value = lottery.imageUrl;
             const preview = document.getElementById('image-preview');
             preview.src = lottery.imageUrl; 
             preview.style.display = 'block';
-
             document.getElementById('lottery-ticket-price').value = lottery.price;
             document.getElementById('lottery-datetime').value = lottery.datetime;
             document.getElementById('upload-form-title').textContent = 'Edit Lottery';
@@ -1474,12 +1727,12 @@
             document.getElementById('admin-ticket-lottery-details-container').innerHTML = `<h3>Tickets for: ${lottery.title}</h3>`;
             const tableBody = document.querySelector('#admin-specific-ticket-table tbody');
             tableBody.innerHTML = '';
-            Object.entries(allTicketsCache)
-                .filter(([,p]) => p.lotteryId === lotteryId)
-                .forEach(([id, p]) => {
+            Object.values(allTicketsCache)
+                .filter(p => p.lotteryId === lotteryId)
+                .forEach(p => {
                     p.tickets.forEach(ticketNum => {
                         const row = tableBody.insertRow();
-                        row.innerHTML = `<td>${ticketNum}</td><td>${p.name}</td><td>${p.mobile}</td><td class="status-${p.status}">${p.status}</td><td class="ticket-actions">${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${id}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${id}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}<button class="btn-icon edit" title="Edit" onclick="editTicket('${id}')"><i class="fas fa-edit"></i></button><button class="btn-icon delete" title="Delete" onclick="removeTicket('${id}')"><i class="fas fa-trash"></i></button></td>`;
+                        row.innerHTML = `<td>${ticketNum}</td><td>${p.name}</td><td>${p.mobile}</td><td class="status-${p.status}">${p.status}</td><td class="ticket-actions">${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${p.key}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${p.key}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}<button class="btn-icon edit" title="Edit" onclick="editTicket('${p.key}')"><i class="fas fa-edit"></i></button><button class="btn-icon delete" title="Delete" onclick="removeTicket('${p.key}')"><i class="fas fa-trash"></i></button></td>`;
                     });
                 });
             document.getElementById('admin-lottery-main-view').style.display = 'none';
@@ -1495,8 +1748,8 @@
         const loadAllTicketsManagementTable = () => {
              const tableBody = document.querySelector('#ticket-management-table tbody');
              tableBody.innerHTML = '';
-             const purchases = Object.entries(allTicketsCache).reverse();
-             purchases.forEach(([id, p]) => {
+             const purchases = Object.values(allTicketsCache).reverse();
+             purchases.forEach(p => {
                  const lotteryTitle = allLotteriesCache[p.lotteryId] ? allLotteriesCache[p.lotteryId].title : 'Unknown Lottery';
                  p.tickets.forEach(ticketNum => {
                      const row = tableBody.insertRow();
@@ -1504,9 +1757,9 @@
                          <td>${ticketNum}</td><td>${p.name}</td><td>${p.mobile}</td><td>${lotteryTitle}</td>
                          <td class="status-${p.status}">${p.status}</td>
                          <td class="ticket-actions">
-                             ${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${id}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${id}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}
-                             <button class="btn-icon edit" title="Edit" onclick="editTicket('${id}')"><i class="fas fa-edit"></i></button>
-                             <button class="btn-icon delete" title="Delete" onclick="removeTicket('${id}')"><i class="fas fa-trash"></i></button>
+                             ${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${p.key}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${p.key}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}
+                             <button class="btn-icon edit" title="Edit" onclick="editTicket('${p.key}')"><i class="fas fa-edit"></i></button>
+                             <button class="btn-icon delete" title="Delete" onclick="removeTicket('${p.key}')"><i class="fas fa-trash"></i></button>
                          </td>`;
                  });
              });
@@ -1608,33 +1861,42 @@
         // --- APP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             const loader = document.getElementById('loading-overlay');
+            
+            // NEW: Add event listener to enable TTS on first user interaction anywhere on the page.
+            // This is required by modern browsers to allow audio playback.
+            const enableAudioHandler = () => {
+                if (ttsEnabled || !('speechSynthesis' in window)) return;
+                ttsEnabled = true;
+                // A simple way to "wake up" the speech synthesis API
+                const synth = window.speechSynthesis;
+                // Speaking an empty string can often initialize the speech engine without making a sound
+                synth.speak(new SpeechSynthesisUtterance('')); 
+                showStatus('Announcements Enabled');
+            };
 
-            // Wait for both lotteries and tickets to load before hiding the loader
+            // Use { once: true } to automatically remove the listener after it runs
+            document.body.addEventListener('click', enableAudioHandler, { once: true });
+            document.body.addEventListener('touchstart', enableAudioHandler, { once: true });
+
+
             const lotteriesPromise = db.ref('lotteries').once('value');
             const ticketsPromise = db.ref('tickets').once('value');
 
             Promise.all([lotteriesPromise, ticketsPromise]).then(() => {
-                // Initial data processing
                 processTicketCounts();
                 renderAllLotteryLists();
-                
                 showPage('lottery-page');
-                addPrizeInput(); // Add one prize input to the form by default
+                addPrizeInput();
 
-                // Initialize spinner canvases
-                wheelCanvas.width = wheelCanvas.height = nameSpinnerContainer.clientWidth;
-                resultCanvas.width = resultCanvas.height = resultSpinnerContainer.clientWidth;
-                drawResultWheel(); // Draw the static result wheel initially
+                // Initialize the HTML spinner wheel
+                buildHtmlSpinner();
 
-                // Fade out the loader
                 loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 500);
+                setTimeout(() => { loader.style.display = 'none'; }, 500);
 
             }).catch(error => {
                 console.error("Firebase initial data load failed:", error);
-                loader.innerHTML = '<p style="color:var(--loss-color); text-align:center; padding: 20px;">Failed to load data from the server.<br>Please check your connection and refresh the page.</p>';
+                loader.innerHTML = '<p style="color:var(--loss-color); text-align:center; padding: 20px;">Failed to load data.<br>Please check your connection and refresh.</p>';
             });
         });
     </script>
