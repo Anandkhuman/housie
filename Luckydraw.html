@@ -26,9 +26,9 @@
             --text-primary-light: #ffffff;
             --text-secondary-light: #ffffff;
             
-            --success-color: #ffffff;
-            --pending-color: #ffffff;
-            --loss-color: #ffffff;
+            --success-color: #4caf50; /* Green for Win */
+            --pending-color: orange;
+            --loss-color: #f44336; /* Red for Loss */
             --reject-color: #ffffff;
 
             /* Glassmorphism Variables */
@@ -403,7 +403,7 @@
             #name-picker-display span { font-size: 1.4rem; }
         }
 
-        /* --- HTML/CSS RESULT SPINNER (FIXED) --- */
+        /* --- HTML/CSS RESULT SPINNER (FIXED & ADDED COLORS) --- */
         #result-spinner-container {
             border-radius: 50%;
             box-shadow: 0 0 20px var(--glow-color);
@@ -436,9 +436,18 @@
             width: 200%;
             height: 200%;
             transform-origin: 0% 0%;
+            /* This value is now dynamically set by JavaScript using a CSS variable */
+            transform: skewX(var(--segment-skew));
+        }
+        
+        /* ADDED: Segment coloring */
+        .spinner-segment.win::before {
+            background-color: var(--success-color);
+        }
+        .spinner-segment.loss::before {
+            background-color: var(--loss-color);
         }
   
-
         .segment-text {
             position: absolute;
             left: -115%;
@@ -553,6 +562,29 @@
             50% { transform: translate(-50%, -50%) scale(1.1); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
+
+        /* --- 11. LOGIN PAGE TABS --- */
+        .login-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .login-tab-button {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: var(--text-secondary-light);
+            cursor: pointer;
+            font-size: 1rem;
+            border-bottom: 3px solid transparent;
+        }
+        .login-tab-button.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+        .login-form-container { display: none; }
+        .login-form-container.active { display: block; }
     </style>
 </head>
 <body>
@@ -695,17 +727,50 @@
             </div>
         </div>
 
-        <!-- ADMIN LOGIN PAGE -->
+        <!-- LOGIN PAGE (Admin & User) -->
         <div id="login-page" class="page">
              <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
-                <form id="login-form" class="lottery-card" style="width: 100%; max-width: 400px; padding: 20px;">
-                    <h2>Admin Login</h2>
-                    <input type="email" id="login-email" placeholder="Email" required>
-                    <input type="password" id="login-password" placeholder="Password" required>
-                    <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
-                </form>
+                <div class="lottery-card" style="width: 100%; max-width: 400px; padding: 20px;">
+                    <div class="login-tabs">
+                        <button class="login-tab-button active" data-form="admin-login-form">Admin Login</button>
+                        <button class="login-tab-button" data-form="user-login-form">User Login</button>
+                    </div>
+                    
+                    <div id="admin-login-form-container" class="login-form-container active">
+                        <form id="login-form">
+                            <h2>Admin Login</h2>
+                            <input type="email" id="login-email" placeholder="Email" required>
+                            <input type="password" id="login-password" placeholder="Password" required>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+                        </form>
+                    </div>
+
+                    <div id="user-login-form-container" class="login-form-container">
+                        <form id="user-login-form">
+                            <h2>User Login</h2>
+                            <p style="font-size: 0.8rem; text-align: center; margin-bottom: 1rem;">Use the Name and Mobile Number you used for booking.</p>
+                            <input type="text" id="user-login-name" placeholder="Your Name (as on ticket)" required>
+                            <input type="tel" id="user-login-mobile" placeholder="Your Mobile Number" required>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">View My Tickets</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
+        
+        <!-- USER DASHBOARD PAGE -->
+        <div id="user-dashboard-page" class="page">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 id="user-welcome-message" style="margin-bottom:0;"></h2>
+                    <button id="user-logout-btn" class="btn btn-danger">Logout</button>
+                </div>
+                <div id="user-tickets-container">
+                    <!-- User's tickets will be rendered here -->
+                </div>
+            </div>
+        </div>
+
 
         <!-- ADMIN DASHBOARD PAGE -->
         <div id="admin-dashboard-page" class="page">
@@ -834,7 +899,7 @@
         <button class="nav-btn" data-page="live-page"><i class="fas fa-play-circle"></i> Live</button>
         <button class="nav-btn" data-page="history-page"><i class="fas fa-history"></i> History</button>
         <button class="nav-btn" data-page="lottery-for-tickets-page"><i class="fas fa-clipboard-list"></i> Tickets</button>
-        <button class="nav-btn" data-page="login-page"><i class="fas fa-user-shield"></i> Admin</button>
+        <button id="auth-nav-btn" class="nav-btn" data-page="login-page"><i class="fas fa-sign-in-alt"></i> Login</button>
     </nav>
     
     <!-- Firebase SDK -->
@@ -844,17 +909,15 @@
 
     <script>
         // --- PASTE YOUR FIREBASE CONFIGURATION HERE ---
-          const firebaseConfig = {
-          apiKey: "AIzaSyBVRvgTNHgL288wHQNuLxaeiF4UQV4xSIQ",
-          authDomain: "sinthateamtambola.firebaseapp.com",
-          databaseURL: "https://sinthateamtambola-default-rtdb.firebaseio.com",
-          projectId: "sinthateamtambola",
-          storageBucket: "sinthateamtambola.appspot.com",
-          messagingSenderId: "678704264927",
-          appId: "1:678704264927:web:f6f1e06531bbb890179b6a",
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVRvgTNHgL288wHQNuLxaeiF4UQV4xSIQ",
+            authDomain: "sinthateamtambola.firebaseapp.com",
+            databaseURL: "https://sinthateamtambola-default-rtdb.firebaseio.com",
+            projectId: "sinthateamtambola",
+            storageBucket: "sinthateamtambola.appspot.com",
+            messagingSenderId: "678704264927",
+            appId: "1:678704264927:web:f6f1e06531bbb890179b6a",
         };
-
-
 
         // --- INITIALIZE FIREBASE ---
         firebase.initializeApp(firebaseConfig);
@@ -867,6 +930,7 @@
         let purchaseData = {};
         let allLotteriesCache = {};
         let allTicketsCache = {};
+        let allResultsCache = {};
         let lotteryTicketCounts = {};
         let countdownInterval;
         let autoDrawTimeout = null; 
@@ -883,35 +947,45 @@
         const namePickerDisplay = document.getElementById('name-picker-display');
         let namePickerInterval = null;
         const resultSpinnerWheel = document.getElementById('result-spinner-wheel');
+        const authNavBtn = document.getElementById('auth-nav-btn');
         
         // --- CORE APP LOGIC ---
 
-        // 1. PAGE NAVIGATION
+        // 1. PAGE NAVIGATION & AUTH STATE UI
+        const updateUserNav = () => {
+            const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            
+            if (auth.currentUser) { // Admin logged in
+                authNavBtn.innerHTML = `<i class="fas fa-tachometer-alt"></i> Dashboard`;
+                authNavBtn.dataset.page = 'admin-dashboard-page';
+            } else if (loggedInUser) { // User logged in
+                authNavBtn.innerHTML = `<i class="fas fa-user-circle"></i> My Account`;
+                authNavBtn.dataset.page = 'user-dashboard-page';
+            } else { // Guest
+                authNavBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> Login`;
+                authNavBtn.dataset.page = 'login-page';
+            }
+        };
+
         const showPage = (pageId) => {
             pages.forEach(page => page.classList.toggle('active', page.id === pageId));
             navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.page === pageId));
-            const adminNavBtn = document.querySelector('.nav-btn[data-page="login-page"]');
-            if (auth.currentUser) {
-                adminNavBtn.innerHTML = `<i class="fas fa-tachometer-alt"></i> Dashboard`;
-            } else {
-                adminNavBtn.innerHTML = `<i class="fas fa-user-shield"></i> Admin`;
-            }
+            updateUserNav(); // Update nav on every page change
             if (pageId === 'lottery-page') {
                 startCountdownTimers();
             } else {
                 if (countdownInterval) clearInterval(countdownInterval);
             }
+            if (pageId === 'user-dashboard-page') {
+                renderUserDashboard();
+            }
             window.scrollTo(0, 0);
         };
-
+        
         navButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const pageId = btn.dataset.page;
-                if (pageId === 'login-page' && auth.currentUser) {
-                    showPage('admin-dashboard-page');
-                } else {
-                    showPage(pageId);
-                }
+                showPage(pageId);
             });
         });
         
@@ -931,6 +1005,16 @@
             setTimeout(() => statusPopup.classList.remove('show'), 3000);
         };
         
+        const generateAlphaNumeric = (length) => {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        };
+
         const filterTable = (input, table) => {
             const filter = input.value.toUpperCase();
             const rows = table.getElementsByTagName("tr");
@@ -988,6 +1072,10 @@
                     viewAdminLotteryTickets(adminTicketView.dataset.currentLottery);
                 }
             }
+        });
+
+        db.ref('lotteryResults').on('value', (snapshot) => {
+            allResultsCache = snapshot.val() || {};
         });
 
         // 5. RENDER LOTTERY LISTS & COUNTDOWN
@@ -1061,7 +1149,7 @@
             });
         };
 
-        // 6. TICKET PURCHASE FLOW
+        // 6. TICKET PURCHASE FLOW & CONFIRMATION LINK
         document.getElementById('lottery-list').addEventListener('click', (e) => {
             if (e.target.classList.contains('buy-btn')) {
                 e.stopPropagation();
@@ -1096,15 +1184,53 @@
 
         document.getElementById('admin-list').addEventListener('click', (e) => {
             if (e.target.tagName !== 'LI' || !e.target.dataset.number) return;
+            
+            const confirmationCode = generateAlphaNumeric(6);
+            const confirmationLink = `${window.location.href.split('#')[0]}#confirm=${confirmationCode}`;
+            
             const newPurchaseRef = db.ref('tickets').push();
             const tickets = Array.from({length: purchaseData.quantity}, () => Math.floor(100000 + Math.random() * 900000));
-            newPurchaseRef.set({ ...purchaseData, tickets, status: 'pending', timestamp: new Date().toISOString() });
+            newPurchaseRef.set({ 
+                ...purchaseData, 
+                tickets, 
+                status: 'pending', 
+                timestamp: new Date().toISOString(),
+                confirmationCode: confirmationCode 
+            });
+
             const lotteryTitle = allLotteriesCache[purchaseData.lotteryId].title;
-            const message = `Hello, I'd like to buy ${purchaseData.quantity} ticket(s) for "${lotteryTitle}".\nName: ${purchaseData.name}\nMobile: ${purchaseData.mobile}`;
+            const message = `Hello, I'd like to buy ${purchaseData.quantity} ticket(s) for "${lotteryTitle}".\nName: ${purchaseData.name}\nMobile: ${purchaseData.mobile}\n\n-----\nFor Admin Use:\nClick to confirm after payment: ${confirmationLink}`;
             window.open(`https://wa.me/${e.target.dataset.number}?text=${encodeURIComponent(message)}`, '_blank');
             closeModal(); showStatus('Request sent! Please complete payment on WhatsApp.');
             document.getElementById('buy-ticket-form').reset();
         });
+
+        const handleUrlConfirmation = () => {
+            if (!window.location.hash.startsWith('#confirm=')) return;
+            
+            const code = window.location.hash.substring(9);
+            history.pushState("", document.title, window.location.pathname + window.location.search); // Clean URL
+            
+            if (!auth.currentUser) {
+                showStatus("Please log in as an Admin to confirm tickets.", false);
+                showPage('login-page');
+                return;
+            }
+
+            db.ref('tickets').orderByChild('confirmationCode').equalTo(code).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    const [purchaseId, purchaseData] = Object.entries(snapshot.val())[0];
+                    db.ref(`tickets/${purchaseId}`).update({
+                        status: 'confirmed',
+                        confirmationCode: null // Invalidate the code
+                    }).then(() => {
+                        showStatus(`Ticket for ${purchaseData.name} confirmed successfully!`, true);
+                    });
+                } else {
+                    showStatus("Confirmation link is invalid or already used.", false);
+                }
+            });
+        };
         
         // 7. PUBLIC-FACING PAGE VIEWS
         window.viewPublicLotteryTickets = async (lotteryId) => {
@@ -1130,8 +1256,7 @@
 
         window.viewHistoryDetails = async (lotteryId) => {
             const lottery = allLotteriesCache[lotteryId];
-            const resultSnap = await db.ref(`lotteryResults/${lotteryId}`).once('value');
-            const result = resultSnap.val();
+            const result = allResultsCache[lotteryId];
             document.getElementById('details-lottery-title').textContent = lottery.title;
             document.getElementById('details-lottery-img').src = lottery.imageUrl;
             document.getElementById('details-lottery-datetime').textContent = new Date(lottery.datetime).toLocaleString();
@@ -1147,7 +1272,6 @@
         };
 
         // 8. LIVE DRAW PAGE & SPINNER LOGIC
-
         const runNamePickerAnimation = (allParticipants, finalName, duration) => {
             if (namePickerInterval) clearInterval(namePickerInterval);
             if (allParticipants.length === 0) {
@@ -1183,12 +1307,9 @@
             const numSegments = resultSegments.length;
             const arcSize = 360 / numSegments;
             
-            // Calculate dynamic CSS values for the segments
             const segmentSkew = 90 - arcSize;
-            // This magic number is for positioning text with the current CSS layout.
             const textRotation = (arcSize / 2) + 45; 
 
-            // Set these values as CSS variables on the wheel container
             resultSpinnerWheel.style.setProperty('--segment-skew', `${segmentSkew}deg`);
             resultSpinnerWheel.style.setProperty('--segment-text-rotation', `${textRotation}deg`);
 
@@ -1196,7 +1317,6 @@
 
             resultSegments.forEach((segmentData, i) => {
                 const segment = document.createElement('div');
-                // The type 'win' or 'loss' is added as a class for coloring
                 segment.className = `spinner-segment ${segmentData.type.toLowerCase()}`;
                 segment.style.transform = `rotate(${i * arcSize}deg)`;
                 
@@ -1209,9 +1329,6 @@
             });
         };
         
-        // ===================================
-        // === SPIN RESULT WHEEL (CORRECTED) ===
-        // ===================================
         const spinResultWheel = (resultStatus) => {
             const possibleIndices = [];
             resultSegments.forEach((segment, index) => {
@@ -1229,29 +1346,19 @@
             const numSegments = resultSegments.length;
             const arcSizeDegrees = 360 / numSegments;
 
-            // Find the center of the winning segment
             const targetAngle = winningIndex * arcSizeDegrees + (arcSizeDegrees / 2);
-            // Add a random offset so it doesn't stop at the exact same spot
             const randomOffset = (Math.random() - 0.5) * (arcSizeDegrees * 0.8);
             const stopAngle = targetAngle + randomOffset;
             
-            // --- THE FIX IS HERE ---
-            // Pointer is at the top (12 o'clock), which is 270 degrees in CSS transform.
-            // However, our CSS pie chart construction creates a 90-degree offset.
-            // The correct value is 270 - 90 = 180.
             const totalRotation = (360 * 8) + 180 - stopAngle;
             
-            // This part ensures a smooth re-spin without a jarring jump
             resultSpinnerWheel.style.transition = 'none';
             const currentRotationMatch = resultSpinnerWheel.style.transform.match(/rotate\((.+)deg\)/);
             const currentRotation = currentRotationMatch ? parseFloat(currentRotationMatch[1]) : 0;
-            // Set the transform to its current visual position before starting the new animation
             resultSpinnerWheel.style.transform = `rotate(${currentRotation % 360}deg)`;
             
-            // Force a DOM reflow to apply the 'none' transition before setting the new one.
             resultSpinnerWheel.offsetHeight; 
 
-            // Set the final animation
             resultSpinnerWheel.style.transition = `transform var(--spin-duration) cubic-bezier(0.25, 0.1, 0.25, 1)`;
             resultSpinnerWheel.style.transform = `rotate(${totalRotation}deg)`;
         };
@@ -1275,7 +1382,6 @@
             }
         };
         
-        // CLIENT-SIDE LIVE DRAW LISTENER
         liveDrawRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
@@ -1346,138 +1452,125 @@
                  if(auth.currentUser) liveDrawRef.update({ isReset: null });
             }
         });
-
-        // ========================================================
-        // === ADMIN-SIDE LIVE DRAW LOGIC (ROBUST & CORRECTED) ===
-        // ========================================================
+        
+        // ===============================================
+        // === FIXED & ROBUST SINGLE DRAW LOGIC (START) ===
+        // ===============================================
         const performSingleDraw = () => {
             liveDrawRef.once('value', snapshot => {
                 const data = snapshot.val();
-                
-                // If draw is stopped by admin, do nothing.
+
+                // --- 1. GUARD CLAUSES: Check if draw should stop ---
                 if (!data || !data.isAutoDrawing) {
-                    if (autoDrawTimeout) clearTimeout(autoDrawTimeout); 
-                    autoDrawTimeout = null; 
+                    if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
+                    autoDrawTimeout = null;
                     return;
                 }
-
+                
                 const participants = data.participants || [];
                 const allWinners = data.allWinners || [];
                 const prizes = data.prizes || [];
 
-                // Check if the draw should end
                 if (participants.length === 0 || allWinners.length >= prizes.length) {
                     let finalStatus = "Auto-draw finished: No participants left.";
                     if (allWinners.length >= prizes.length) {
                         finalStatus = "Auto-draw finished: All prizes have been awarded!";
+                        // Save final results for history page
+                        db.ref(`lotteryResults/${data.lotteryId}`).set({ allWinners: data.allWinners, allLosers: data.allLosers });
                     }
                     liveDrawRef.update({ isAutoDrawing: false, status: finalStatus, isPicking: false, currentPick: null, result: null });
                     return;
                 }
 
-                // Pick a participant
-                const pickedParticipant = participants.shift(); 
-                liveDrawRef.update({
-                    status: `Picking next participant...`,
-                    isPicking: true,
-                    currentPick: pickedParticipant,
-                    participants: participants,
-                    result: null
-                });
+                // --- 2. DECISION PHASE: Make all decisions based on the current state ---
+                const pickedParticipant = participants.shift(); // Pick winner from top
+                
+                const prizesLeft = prizes.length - allWinners.length;
+                const participantsLeft = participants.length + 1; // +1 for the one just picked
+                const winChance = prizesLeft > 0 ? (prizesLeft / participantsLeft) : 0;
+                const isWin = Math.random() < winChance;
+                const resultStatus = isWin ? 'WIN' : 'LOSS';
 
+                // Prepare the final arrays and text *before* any animations
+                const finalWinners = [...allWinners];
+                const finalLosers = [...(data.allLosers || [])];
+                let prizeWon = null;
+                
+                if (isWin) {
+                    prizeWon = prizes[finalWinners.length];
+                    pickedParticipant.prize = prizeWon;
+                    finalWinners.push(pickedParticipant);
+                } else {
+                    finalLosers.push(pickedParticipant);
+                }
+                
+                const finalStatusText = isWin
+                    ? `🎉 ${pickedParticipant.name} WINS ${prizeWon}! 🎉`
+                    : `${pickedParticipant.name} did not win. Better luck next time!`;
+                
+                // --- 3. ANIMATION & UPDATE PHASE: Update Firebase in timed stages ---
                 const nameSpinTime = 5000;
                 const resultSpinTime = 5000;
                 const pauseAfterResult = 3000;
 
-                // --- NAME PICKING STAGE ---
+                // Stage 1: Start Name Picking Animation
+                liveDrawRef.update({
+                    status: `Picking next participant...`,
+                    isPicking: true,
+                    currentPick: pickedParticipant,
+                    participants: participants, // Update participant list in DB
+                    result: null
+                });
+
+                // Stage 2: Stop Name Picking, Start Result Spinner
                 setTimeout(() => {
-                    liveDrawRef.once('value', latestDataSnap => {
-                        const latestData = latestDataSnap.val();
-                        // Check again if draw is still running before proceeding
-                        if (!latestData || !latestData.isAutoDrawing) return;
-
-                        const currentWinners = latestData.allWinners || [];
-                        const currentPrizes = latestData.prizes || ['Winner'];
-                        const prizesLeft = currentPrizes.length - currentWinners.length;
-                        const participantsLeft = (latestData.participants || []).length + 1; // +1 for the current participant
-                        
-                        const winChance = prizesLeft > 0 ? (prizesLeft / participantsLeft) : 0;
-                        const isWin = Math.random() < winChance;
-                        const resultStatus = isWin ? 'WIN' : 'LOSS';
-
-                        liveDrawRef.update({
-                            status: `Spinning result for ${pickedParticipant.name}...`,
-                            isPicking: false,
-                            result: { status: resultStatus, timestamp: Date.now() }
-                        });
-
-                        // --- RESULT ANNOUNCEMENT STAGE ---
-                        setTimeout(() => {
-                            liveDrawRef.once('value', finalDataSnap => {
-                                const finalData = finalDataSnap.val();
-                                // Final check for safety
-                                if (!finalData || !finalData.isAutoDrawing) return;
-
-                                const finalWinners = finalData.allWinners || [];
-                                const finalLosers = finalData.allLosers || [];
-                                const finalPrizes = finalData.prizes || ['Winner'];
-
-                                if (isWin) {
-                                    pickedParticipant.prize = finalPrizes[finalWinners.length];
-                                    finalWinners.push(pickedParticipant);
-                                } else {
-                                    finalLosers.push(pickedParticipant);
-                                }
-                                
-                                const finalStatusText = isWin
-                                    ? `🎉 ${pickedParticipant.name} WINS ${pickedParticipant.prize}! 🎉`
-                                    : `${pickedParticipant.name} did not win. Better luck next time!`;
-                                
-                                liveDrawRef.update({
-                                    status: finalStatusText,
-                                    allWinners: finalWinners,
-                                    allLosers: finalLosers,
-                                    currentPick: null, 
-                                    result: null,
-                                    announcement: {
-                                        ticket: pickedParticipant.ticket,
-                                        name: pickedParticipant.name,
-                                        result: resultStatus,
-                                        timestamp: Date.now()
-                                    }
-                                }).then(() => {
-                                    // Schedule the next draw only after the update is successful
-                                    if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
-                                    autoDrawTimeout = setTimeout(performSingleDraw, pauseAfterResult);
-                                });
-                            });
-                        }, resultSpinTime);
+                    liveDrawRef.update({
+                        status: `Spinning result for ${pickedParticipant.name}...`,
+                        isPicking: false,
+                        result: { status: resultStatus, timestamp: Date.now() }
                     });
+
+                    // Stage 3: Announce Final Result and Update Lists
+                    setTimeout(() => {
+                        liveDrawRef.update({
+                            status: finalStatusText,
+                            allWinners: finalWinners,
+                            allLosers: finalLosers,
+                            currentPick: null, 
+                            result: null,
+                            announcement: {
+                                ticket: pickedParticipant.ticket,
+                                name: pickedParticipant.name,
+                                result: resultStatus, // This is now guaranteed to be consistent
+                                timestamp: Date.now()
+                            }
+                        }).then(() => {
+                            // Stage 4: Schedule the next draw
+                            if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
+                            autoDrawTimeout = setTimeout(performSingleDraw, pauseAfterResult);
+                        });
+                    }, resultSpinTime);
                 }, nameSpinTime);
             });
         };
+        // =============================================
+        // === FIXED & ROBUST SINGLE DRAW LOGIC (END) ===
+        // =============================================
+
 
         document.getElementById('start-draw-btn').addEventListener('click', (e) => {
-            const btn = e.target;
-            btn.disabled = true;
-
+            const btn = e.target; btn.disabled = true;
             liveDrawRef.once('value', snapshot => {
                 const data = snapshot.val();
                 if (!data) { btn.disabled = false; return; }
-                
                 const isCurrentlyDrawing = data.isAutoDrawing || false;
-                
                 if (isCurrentlyDrawing) {
                     if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
                     autoDrawTimeout = null;
                     liveDrawRef.update({ isAutoDrawing: false, status: "Auto-draw paused by admin." });
                 } else {
-                    if (!data.participants || data.participants.length === 0) {
-                        showStatus("No participants left to draw.", false); btn.disabled = false; return;
-                    }
-                    if (data.allWinners && data.prizes && data.allWinners.length >= data.prizes.length) {
-                        showStatus("All prizes have been awarded.", false); btn.disabled = false; return;
-                    }
+                    if (!data.participants || data.participants.length === 0) { showStatus("No participants left to draw.", false); btn.disabled = false; return; }
+                    if (data.allWinners && data.prizes && data.allWinners.length >= data.prizes.length) { showStatus("All prizes have been awarded.", false); btn.disabled = false; return; }
                     liveDrawRef.update({ isAutoDrawing: true });
                     performSingleDraw(); 
                 }
@@ -1488,26 +1581,26 @@
              if(confirm('This will clear the live draw board and stop any running draw. Are you sure?')) {
                  if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
                  autoDrawTimeout = null;
-                 liveDrawRef.set({ 
-                     status: "Waiting for Admin...", isReset: true, 
-                     participants: [], allWinners: [], allLosers: [], 
-                     isAutoDrawing: false, isPicking: false,
-                     currentPick: null, result: null,
-                     wheelSegments: null, announcement: null
-                 });
+                 liveDrawRef.set({ status: "Waiting for Admin...", isReset: true, participants: [], allWinners: [], allLosers: [], isAutoDrawing: false, isPicking: false, currentPick: null, result: null, wheelSegments: null, announcement: null });
              }
         });
 
-        // 9. ADMIN AUTH & DASHBOARD
+        // 9. ADMIN & USER AUTH & DASHBOARD
         auth.onAuthStateChanged(user => {
             document.getElementById('admin-controls').style.display = user ? 'block' : 'none';
             const pageId = document.querySelector('.page.active').id;
-            if (!user && (pageId.startsWith('admin-'))) { showPage('lottery-page'); }
-            showPage(pageId);
+            const userIsOnAdminPage = pageId.startsWith('admin-');
+            if (!user && userIsOnAdminPage) {
+                showPage('lottery-page');
+            } else {
+                showPage(pageId);
+            }
             if (user) {
                 loadAllTicketsManagementTable();
                 loadManageableLotteries();
             }
+            updateUserNav();
+            handleUrlConfirmation(); // Check for confirmation link after auth state is known
         });
 
         document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -1518,6 +1611,99 @@
         });
         document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
 
+        document.querySelectorAll('.login-tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.login-tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.login-form-container').forEach(form => form.classList.remove('active'));
+                button.classList.add('active');
+                document.getElementById(button.dataset.form + '-container').classList.add('active');
+            });
+        });
+
+        // 10. USER LOGIN & DASHBOARD LOGIC
+        document.getElementById('user-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('user-login-name').value.trim();
+            const mobile = document.getElementById('user-login-mobile').value.trim();
+            
+            const userExists = Object.values(allTicketsCache).some(ticket => ticket.name.toLowerCase() === name.toLowerCase() && ticket.mobile === mobile);
+            
+            if (userExists) {
+                sessionStorage.setItem('loggedInUser', JSON.stringify({ name, mobile }));
+                showPage('user-dashboard-page');
+            } else {
+                showStatus("No tickets found for this Name and Mobile Number.", false);
+            }
+        });
+        
+        document.getElementById('user-logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('loggedInUser');
+            showPage('lottery-page');
+        });
+
+        const renderUserDashboard = () => {
+            const user = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            if (!user) {
+                showPage('login-page');
+                return;
+            }
+
+            document.getElementById('user-welcome-message').textContent = `Welcome, ${user.name}!`;
+            const container = document.getElementById('user-tickets-container');
+            container.innerHTML = '<h3>My Tickets</h3>';
+
+            const userTickets = Object.values(allTicketsCache).filter(t => t.name.toLowerCase() === user.name.toLowerCase() && t.mobile === user.mobile);
+            
+            if(userTickets.length === 0) {
+                 container.innerHTML += '<p>You have not booked any tickets yet.</p>';
+                 return;
+            }
+            
+            // Group tickets by lottery
+            const ticketsByLottery = userTickets.reduce((acc, purchase) => {
+                const lotteryId = purchase.lotteryId;
+                if (!acc[lotteryId]) {
+                    acc[lotteryId] = [];
+                }
+                acc[lotteryId].push(purchase);
+                return acc;
+            }, {});
+
+            for (const lotteryId in ticketsByLottery) {
+                const lottery = allLotteriesCache[lotteryId];
+                if (!lottery) continue;
+
+                const lotteryResults = allResultsCache[lotteryId];
+                
+                let lotteryHtml = `<div class="lottery-card"><div class="lottery-card-content"><h4>${lottery.title}</h4>`;
+                
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = 'table-wrapper';
+                const table = document.createElement('table');
+                table.innerHTML = `<thead><tr><th>Ticket No.</th><th>Status</th><th>Result</th></tr></thead><tbody>`;
+                
+                ticketsByLottery[lotteryId].forEach(purchase => {
+                    purchase.tickets.forEach(ticketNum => {
+                        let resultText = '-';
+                        if (lotteryResults && lotteryResults.allWinners) {
+                            const winnerInfo = lotteryResults.allWinners.find(w => w.ticket == ticketNum);
+                            if (winnerInfo) {
+                                resultText = `<strong class="status-win">WINNER! (${winnerInfo.prize})</strong>`;
+                            } else {
+                                resultText = `<span class="status-loss">Not a winner</span>`;
+                            }
+                        }
+                        table.querySelector('tbody').innerHTML += `<tr><td>${ticketNum}</td><td class="status-${purchase.status}">${purchase.status}</td><td>${resultText}</td></tr>`;
+                    });
+                });
+
+                tableWrapper.appendChild(table);
+                lotteryHtml += tableWrapper.outerHTML + `</div></div>`;
+                container.innerHTML += lotteryHtml;
+            }
+        };
+
+        // 11. ADMIN DASHBOARD TABS
         document.querySelectorAll('#admin-dashboard-page .admin-nav .btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 if (e.target.id === 'logout-btn') return;
@@ -1532,17 +1718,12 @@
             });
         });
 
-        // 10. ADMIN: MANAGE LOTTERIES & PRIZES
+        // 12. ADMIN: MANAGE LOTTERIES & PRIZES
         const addPrizeInput = (value = '') => {
             const container = document.getElementById('prize-inputs-container');
             const prizeDiv = document.createElement('div');
-            prizeDiv.style.display = 'flex';
-            prizeDiv.style.gap = '10px';
-            prizeDiv.style.marginBottom = '10px';
-            prizeDiv.innerHTML = `
-                <input type="text" class="lottery-prize-input" placeholder="Enter prize description" value="${value}" required style="margin-bottom: 0;">
-                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-            `;
+            prizeDiv.style.display = 'flex'; prizeDiv.style.gap = '10px'; prizeDiv.style.marginBottom = '10px';
+            prizeDiv.innerHTML = `<input type="text" class="lottery-prize-input" placeholder="Enter prize description" value="${value}" required style="margin-bottom: 0;"><button type="button" class="btn btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`;
             container.appendChild(prizeDiv);
         };
         document.getElementById('add-prize-btn').addEventListener('click', () => addPrizeInput());
@@ -1588,54 +1769,23 @@
             const editingId = document.getElementById('editing-lottery-id').value;
             const prizeInputs = document.querySelectorAll('.lottery-prize-input');
             const prizes = Array.from(prizeInputs).map(input => input.value.trim()).filter(p => p);
-            if (prizes.length === 0) {
-                showStatus('Please add at least one prize.', false);
-                return;
-            }
-
+            if (prizes.length === 0) { showStatus('Please add at least one prize.', false); return; }
             let imageUrl = document.getElementById('existing-image-url').value;
             const imageFile = document.getElementById('lottery-image-file').files[0];
-
             if (imageFile) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Converting Image...';
+                submitBtn.disabled = true; submitBtn.textContent = 'Converting Image...';
                 try {
                     imageUrl = await uploadImageAsBase64(imageFile); 
                 } catch (error) {
                     showStatus('Image conversion failed: ' + error.message, false);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery';
+                    submitBtn.disabled = false; submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery';
                     return; 
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery';
-                }
-            } else if (!editingId) {
-                showStatus('Please select an image for the new lottery.', false);
-                return;
-            }
-
-            const lotteryData = {
-                title: document.getElementById('lottery-title').value,
-                details: document.getElementById('lottery-details').value,
-                imageUrl: imageUrl, 
-                price: document.getElementById('lottery-ticket-price').value,
-                datetime: document.getElementById('lottery-datetime').value,
-                prizes: prizes
-            };
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Saving...';
+                } finally { submitBtn.disabled = false; submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery'; }
+            } else if (!editingId) { showStatus('Please select an image for the new lottery.', false); return; }
+            const lotteryData = { title: document.getElementById('lottery-title').value, details: document.getElementById('lottery-details').value, imageUrl: imageUrl, price: document.getElementById('lottery-ticket-price').value, datetime: document.getElementById('lottery-datetime').value, prizes: prizes };
+            submitBtn.disabled = true; submitBtn.textContent = 'Saving...';
             const ref = editingId ? db.ref('lotteries/' + editingId) : db.ref('lotteries').push();
-            ref.set(lotteryData)
-                .then(() => {
-                    showStatus(`Lottery ${editingId ? 'updated' : 'uploaded'} successfully!`);
-                    resetUploadForm();
-                })
-                .catch(err => showStatus(err.message, false))
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery';
-                });
+            ref.set(lotteryData).then(() => { showStatus(`Lottery ${editingId ? 'updated' : 'uploaded'} successfully!`); resetUploadForm(); }).catch(err => showStatus(err.message, false)).finally(() => { submitBtn.disabled = false; submitBtn.textContent = editingId ? 'Save Changes' : 'Upload Lottery'; });
         });
         
         const processTicketCounts = () => {
@@ -1651,31 +1801,16 @@
             const upcomingListEl = document.getElementById('upcoming-lottery-list');
             const pastListEl = document.getElementById('past-lottery-list');
             upcomingListEl.innerHTML = ''; pastListEl.innerHTML = '';
-
             const now = new Date();
             const all = Object.entries(allLotteriesCache);
             const upcoming = all.filter(([,l]) => new Date(l.datetime) > now).sort((a,b) => new Date(a[1].datetime) - new Date(b[1].datetime));
             const past = all.filter(([,l]) => new Date(l.datetime) <= now).sort((a,b) => new Date(b[1].datetime) - new Date(a[1].datetime));
-
             const renderList = (lotteries, element) => {
-                if (lotteries.length === 0) { 
-                    element.innerHTML = '<p>No lotteries found in this category.</p>'; return; 
-                }
+                if (lotteries.length === 0) { element.innerHTML = '<p>No lotteries found in this category.</p>'; return; }
                 lotteries.forEach(([id, lottery]) => {
                     const soldCount = lotteryTicketCounts[id] ? lotteryTicketCounts[id].confirmed : 0;
-                    const item = document.createElement('div');
-                    item.className = 'manageable-lottery-item';
-                    item.innerHTML = `
-                        <div class="manageable-lottery-item-info" onclick="viewAdminLotteryTickets('${id}')">
-                            <strong>${lottery.title}</strong><br>
-                            <small>Draw: ${new Date(lottery.datetime).toLocaleDateString()} | <strong>Sold: ${soldCount}</strong></small>
-                        </div>
-                        <div class="manageable-lottery-item-actions">
-                            <button class="btn-icon book" onclick="openAdminBookModal(event, '${id}')" title="Book Ticket"><i class="fas fa-ticket-alt"></i></button>
-                            <button class="btn-icon" onclick="setupLiveDraw(event, '${id}')" title="Go Live" style="color: var(--secondary-color);"><i class="fas fa-broadcast-tower"></i></button>
-                            <button class="btn-icon edit" onclick="editLottery(event, '${id}')" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="btn-icon delete" onclick="removeLottery(event, '${id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                        </div>`;
+                    const item = document.createElement('div'); item.className = 'manageable-lottery-item';
+                    item.innerHTML = `<div class="manageable-lottery-item-info" onclick="viewAdminLotteryTickets('${id}')"><strong>${lottery.title}</strong><br><small>Draw: ${new Date(lottery.datetime).toLocaleDateString()} | <strong>Sold: ${soldCount}</strong></small></div><div class="manageable-lottery-item-actions"><button class="btn-icon book" onclick="openAdminBookModal(event, '${id}')" title="Book Ticket"><i class="fas fa-ticket-alt"></i></button><button class="btn-icon" onclick="setupLiveDraw(event, '${id}')" title="Go Live" style="color: var(--secondary-color);"><i class="fas fa-broadcast-tower"></i></button><button class="btn-icon edit" onclick="editLottery(event, '${id}')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon delete" onclick="removeLottery(event, '${id}')" title="Delete"><i class="fas fa-trash"></i></button></div>`;
                     element.appendChild(item);
                 });
             };
@@ -1687,42 +1822,16 @@
             e.stopPropagation();
             const lottery = allLotteriesCache[lotteryId];
             if (!confirm(`This will reset the current live draw and set up a new one for "${lottery.title}". Are you sure?`)) return;
-
             const confirmedPurchases = Object.values(allTicketsCache).filter(p => p.lotteryId === lotteryId && p.status === 'confirmed');
-            
             const participantsList = [];
-            confirmedPurchases.forEach(p => {
-                p.tickets.forEach(ticketNum => {
-                    participantsList.push({ name: p.name, ticket: ticketNum, purchaseId: p.key });
-                });
-            });
-
-            if (participantsList.length === 0) {
-                showStatus('No confirmed tickets for this lottery to start a draw.', false);
-                return;
-            }
+            confirmedPurchases.forEach(p => { p.tickets.forEach(ticketNum => { participantsList.push({ name: p.name, ticket: ticketNum, purchaseId: p.key }); }); });
+            if (participantsList.length === 0) { showStatus('No confirmed tickets for this lottery to start a draw.', false); return; }
             shuffleArray(participantsList);
-
             const wheelSegments = [];
             for (let i = 0; i < 10; i++) { wheelSegments.push({ text: 'WIN', type: 'win' }); }
-            for (let i = 0; i < 40; i++) { wheelSegments.push({ text: 'LOSS', type: 'loss' }); }
+            for (let i = 0; i < 20; i++) { wheelSegments.push({ text: 'LOSS', type: 'loss' }); }
             shuffleArray(wheelSegments);
-
-            liveDrawRef.set({
-                lotteryId: lotteryId,
-                lotteryTitle: lottery.title,
-                status: `Ready to start draw for ${lottery.title}.`,
-                prizes: lottery.prizes || ['Winner'],
-                participants: participantsList,
-                wheelSegments: wheelSegments,
-                allWinners: [], allLosers: [],
-                currentPick: null, result: null,
-                isAutoDrawing: false, isReset: true,
-                isPicking: false, announcement: null
-            }).then(() => {
-                showStatus(`Live draw for ${lottery.title} is ready!`, true);
-                showPage('live-page');
-            });
+            liveDrawRef.set({ lotteryId: lotteryId, lotteryTitle: lottery.title, status: `Ready to start draw for ${lottery.title}.`, prizes: lottery.prizes || ['Winner'], participants: participantsList, wheelSegments: wheelSegments, allWinners: [], allLosers: [], currentPick: null, result: null, isAutoDrawing: false, isReset: true, isPicking: false, announcement: null }).then(() => { showStatus(`Live draw for ${lottery.title} is ready!`, true); showPage('live-page'); });
         };
 
         window.removeLottery = (e, id) => { 
@@ -1754,7 +1863,6 @@
             document.getElementById('upload-form-title').textContent = 'Edit Lottery';
             document.getElementById('upload-lottery-submit-btn').textContent = 'Save Changes';
             document.getElementById('cancel-edit-btn').style.display = 'inline-block';
-            
             const prizeContainer = document.getElementById('prize-inputs-container');
             prizeContainer.innerHTML = '<label>Prizes</label>';
             if (lottery.prizes && Array.isArray(lottery.prizes)) {
@@ -1765,7 +1873,7 @@
             window.scrollTo(0, 0);
         };
         
-        // 11. ADMIN: TICKET VIEW & MANAGEMENT
+        // 13. ADMIN: TICKET VIEW & MANAGEMENT
         window.viewAdminLotteryTickets = (lotteryId) => { 
             const lottery = allLotteriesCache[lotteryId];
             const adminTicketView = document.getElementById('admin-lottery-ticket-view');
@@ -1773,14 +1881,7 @@
             document.getElementById('admin-ticket-lottery-details-container').innerHTML = `<h3>Tickets for: ${lottery.title}</h3>`;
             const tableBody = document.querySelector('#admin-specific-ticket-table tbody');
             tableBody.innerHTML = '';
-            Object.values(allTicketsCache)
-                .filter(p => p.lotteryId === lotteryId)
-                .forEach(p => {
-                    p.tickets.forEach(ticketNum => {
-                        const row = tableBody.insertRow();
-                        row.innerHTML = `<td>${ticketNum}</td><td>${p.name}</td><td>${p.mobile}</td><td class="status-${p.status}">${p.status}</td><td class="ticket-actions">${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${p.key}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${p.key}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}<button class="btn-icon edit" title="Edit" onclick="editTicket('${p.key}')"><i class="fas fa-edit"></i></button><button class="btn-icon delete" title="Delete" onclick="removeTicket('${p.key}')"><i class="fas fa-trash"></i></button></td>`;
-                    });
-                });
+            Object.values(allTicketsCache).filter(p => p.lotteryId === lotteryId).forEach(p => { p.tickets.forEach(ticketNum => { const row = tableBody.insertRow(); row.innerHTML = `<td>${ticketNum}</td><td>${p.name}</td><td>${p.mobile}</td><td class="status-${p.status}">${p.status}</td><td class="ticket-actions">${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${p.key}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${p.key}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}<button class="btn-icon edit" title="Edit" onclick="editTicket('${p.key}')"><i class="fas fa-edit"></i></button><button class="btn-icon delete" title="Delete" onclick="removeTicket('${p.key}')"><i class="fas fa-trash"></i></button></td>`; }); });
             document.getElementById('admin-lottery-main-view').style.display = 'none';
             adminTicketView.style.display = 'block';
         };
@@ -1792,21 +1893,13 @@
         });
 
         const loadAllTicketsManagementTable = () => {
-             const tableBody = document.querySelector('#ticket-management-table tbody');
-             tableBody.innerHTML = '';
+             const tableBody = document.querySelector('#ticket-management-table tbody'); tableBody.innerHTML = '';
              const purchases = Object.values(allTicketsCache).reverse();
              purchases.forEach(p => {
                  const lotteryTitle = allLotteriesCache[p.lotteryId] ? allLotteriesCache[p.lotteryId].title : 'Unknown Lottery';
                  p.tickets.forEach(ticketNum => {
                      const row = tableBody.insertRow();
-                     row.innerHTML = `
-                         <td>${ticketNum}</td><td>${p.name}</td><td>${p.mobile}</td><td>${lotteryTitle}</td>
-                         <td class="status-${p.status}">${p.status}</td>
-                         <td class="ticket-actions">
-                             ${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${p.key}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${p.key}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}
-                             <button class="btn-icon edit" title="Edit" onclick="editTicket('${p.key}')"><i class="fas fa-edit"></i></button>
-                             <button class="btn-icon delete" title="Delete" onclick="removeTicket('${p.key}')"><i class="fas fa-trash"></i></button>
-                         </td>`;
+                     row.innerHTML = `<td>${ticketNum}</td><td>${p.name}</td><td>${p.mobile}</td><td>${lotteryTitle}</td><td class="status-${p.status}">${p.status}</td><td class="ticket-actions">${p.status === 'pending' ? `<button class="btn-icon btn-icon-accept" title="Accept" onclick="updateTicketStatus('${p.key}', 'confirmed')"><i class="fas fa-check"></i></button><button class="btn-icon btn-icon-reject" title="Reject" onclick="updateTicketStatus('${p.key}', 'rejected')"><i class="fas fa-times"></i></button>` : ''}<button class="btn-icon edit" title="Edit" onclick="editTicket('${p.key}')"><i class="fas fa-edit"></i></button><button class="btn-icon delete" title="Delete" onclick="removeTicket('${p.key}')"><i class="fas fa-trash"></i></button></td>`;
                  });
              });
         };
@@ -1821,84 +1914,43 @@
             openModal('edit-ticket-modal');
         };
         document.getElementById('edit-ticket-form').addEventListener('submit', e => {
-            e.preventDefault();
-            const id = document.getElementById('edit-purchase-id').value;
-            db.ref('tickets/' + id).update({
-                name: document.getElementById('edit-buyer-name').value,
-                mobile: document.getElementById('edit-buyer-mobile').value,
-                status: document.getElementById('edit-ticket-status').value,
-            }).then(() => { closeModal(); showStatus('Ticket updated.'); });
+            e.preventDefault(); const id = document.getElementById('edit-purchase-id').value;
+            db.ref('tickets/' + id).update({ name: document.getElementById('edit-buyer-name').value, mobile: document.getElementById('edit-buyer-mobile').value, status: document.getElementById('edit-ticket-status').value, }).then(() => { closeModal(); showStatus('Ticket updated.'); });
         });
         
         window.openAdminBookModal = (e, lotteryId) => {
             e.stopPropagation();
-            const lottery = allLotteriesCache[lotteryId];
-            if (!lottery) return;
+            const lottery = allLotteriesCache[lotteryId]; if (!lottery) return;
             document.getElementById('admin-book-lottery-id').value = lotteryId;
             document.getElementById('admin-book-modal-title').textContent = `Book for: ${lottery.title}`;
             openModal('admin-book-ticket-modal');
         };
-
         document.getElementById('admin-book-ticket-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const lotteryId = document.getElementById('admin-book-lottery-id').value;
             const quantity = parseInt(document.getElementById('admin-book-ticket-quantity').value, 10);
-            
-            const purchaseDetails = {
-                lotteryId: lotteryId,
-                name: document.getElementById('admin-book-buyer-name').value,
-                mobile: document.getElementById('admin-book-buyer-mobile').value,
-                quantity: quantity,
-                tickets: Array.from({ length: quantity }, () => Math.floor(100000 + Math.random() * 900000)),
-                status: 'confirmed', 
-                timestamp: new Date().toISOString()
-            };
-            
-            db.ref('tickets').push(purchaseDetails)
-                .then(() => {
-                    closeModal();
-                    showStatus(`${quantity} ticket(s) booked successfully for ${purchaseDetails.name}!`);
-                    document.getElementById('admin-book-ticket-form').reset();
-                })
-                .catch(err => {
-                    showStatus(`Error: ${err.message}`, false);
-                });
+            const purchaseDetails = { lotteryId: lotteryId, name: document.getElementById('admin-book-buyer-name').value, mobile: document.getElementById('admin-book-buyer-mobile').value, quantity: quantity, tickets: Array.from({ length: quantity }, () => Math.floor(100000 + Math.random() * 900000)), status: 'confirmed', timestamp: new Date().toISOString() };
+            db.ref('tickets').push(purchaseDetails).then(() => { closeModal(); showStatus(`${quantity} ticket(s) booked successfully for ${purchaseDetails.name}!`); document.getElementById('admin-book-ticket-form').reset(); }).catch(err => { showStatus(`Error: ${err.message}`, false); });
         });
 
-
-        // 12. ADMIN REPORTS / BOOK DETAILS LOGIC
+        // 14. ADMIN REPORTS / BOOK DETAILS LOGIC
         const loadReportsData = () => {
-            const listEl = document.getElementById('report-lottery-list');
-            listEl.innerHTML = '';
+            const listEl = document.getElementById('report-lottery-list'); listEl.innerHTML = '';
             Object.entries(allLotteriesCache).sort((a,b) => new Date(b[1].datetime) - new Date(a[1].datetime)).forEach(([id, lottery]) => {
                 let soldTickets = 0; let totalAmount = 0;
-                Object.values(allTicketsCache).filter(p => p.lotteryId === id && p.status === 'confirmed').forEach(p => {
-                    const ticketCount = p.tickets.length;
-                    soldTickets += ticketCount;
-                    totalAmount += ticketCount * lottery.price;
-                });
-                const item = document.createElement('div');
-                item.className = 'report-lottery-item';
-                item.setAttribute('onclick', `viewReportDetails('${id}')`);
-                item.innerHTML = `<strong>${lottery.title}</strong><div class="report-stats"><span>Sold Tickets: <strong>${soldTickets}</strong></span><span class="amount">Total: <strong>₹${totalAmount.toLocaleString('en-IN')}</strong></span></div>`;
+                Object.values(allTicketsCache).filter(p => p.lotteryId === id && p.status === 'confirmed').forEach(p => { const ticketCount = p.tickets.length; soldTickets += ticketCount; totalAmount += ticketCount * lottery.price; });
+                const item = document.createElement('div'); item.className = 'report-lottery-item'; item.setAttribute('onclick', `viewReportDetails('${id}')`); item.innerHTML = `<strong>${lottery.title}</strong><div class="report-stats"><span>Sold Tickets: <strong>${soldTickets}</strong></span><span class="amount">Total: <strong>₹${totalAmount.toLocaleString('en-IN')}</strong></span></div>`;
                 listEl.appendChild(item);
             });
         };
-
         window.viewReportDetails = (lotteryId) => {
             const lottery = allLotteriesCache[lotteryId]; if (!lottery) return;
             document.getElementById('report-details-title').textContent = `Sales Details for: ${lottery.title}`;
-            const tableBody = document.querySelector('#report-details-table tbody');
-            tableBody.innerHTML = '';
-            Object.values(allTicketsCache).filter(p => p.lotteryId === lotteryId && p.status === 'confirmed').forEach(purchase => {
-                const ticketCount = purchase.tickets.length;
-                const amount = ticketCount * lottery.price;
-                tableBody.innerHTML += `<tr><td>${purchase.name}</td><td>${ticketCount}</td><td>₹${amount.toLocaleString('en-IN')}</td></tr>`;
-            });
+            const tableBody = document.querySelector('#report-details-table tbody'); tableBody.innerHTML = '';
+            Object.values(allTicketsCache).filter(p => p.lotteryId === lotteryId && p.status === 'confirmed').forEach(purchase => { const ticketCount = purchase.tickets.length; const amount = ticketCount * lottery.price; tableBody.innerHTML += `<tr><td>${purchase.name}</td><td>${ticketCount}</td><td>₹${amount.toLocaleString('en-IN')}</td></tr>`; });
             document.getElementById('report-lottery-list-view').style.display = 'none';
             document.getElementById('report-details-view').style.display = 'block';
         };
-
         document.getElementById('back-to-reports-list-btn').addEventListener('click', () => {
             document.getElementById('report-lottery-list-view').style.display = 'block';
             document.getElementById('report-details-view').style.display = 'none';
@@ -1907,31 +1959,23 @@
         // --- APP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             const loader = document.getElementById('loading-overlay');
-            
             const enableAudioHandler = () => {
                 if (ttsEnabled || !('speechSynthesis' in window)) return;
-                ttsEnabled = true;
-                const synth = window.speechSynthesis;
-                synth.speak(new SpeechSynthesisUtterance('')); 
-                showStatus('Announcements Enabled');
+                ttsEnabled = true; const synth = window.speechSynthesis; synth.speak(new SpeechSynthesisUtterance('')); showStatus('Announcements Enabled');
             };
-
             document.body.addEventListener('click', enableAudioHandler, { once: true });
             document.body.addEventListener('touchstart', enableAudioHandler, { once: true });
-
-
-            const lotteriesPromise = db.ref('lotteries').once('value');
-            const ticketsPromise = db.ref('tickets').once('value');
-
-            Promise.all([lotteriesPromise, ticketsPromise]).then(() => {
+            
+            const initialPage = sessionStorage.getItem('loggedInUser') ? 'user-dashboard-page' : 'lottery-page';
+            
+            const promises = [db.ref('lotteries').once('value'), db.ref('tickets').once('value'), db.ref('lotteryResults').once('value')];
+            Promise.all(promises).then(() => {
                 processTicketCounts();
                 renderAllLotteryLists();
-                showPage('lottery-page');
+                showPage(initialPage);
                 addPrizeInput();
-
                 loader.style.opacity = '0';
                 setTimeout(() => { loader.style.display = 'none'; }, 500);
-
             }).catch(error => {
                 console.error("Firebase initial data load failed:", error);
                 loader.innerHTML = '<p style="color:var(--loss-color); text-align:center; padding: 20px;">Failed to load data.<br>Please check your connection and refresh.</p>';
