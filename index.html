@@ -4823,49 +4823,71 @@ function callNextNumber() {
 }
 
 
+// --- START OF FIX: MULTIPLE WINNER CAPTURE ---
+// This function is redesigned to correctly handle multiple winners for the same dividend on the same number call.
 function checkAllWinners(calledNumbers, currentWinners) {
+    // Start with a deep copy of winners from previous turns.
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
-    const activeDividends = gameSettingsData.dividends || [];
-    const soldTickets = allTicketsData.filter(t => t.is_sold);
-    const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     
+    const activeDividends = gameSettingsData.dividends || [];
+    if (activeDividends.length === 0) return updatedWinners;
+
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    if (soldTickets.length === 0) return updatedWinners;
+    
+    const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
+    if (!lastCalledNumber) return updatedWinners;
+
     const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
     const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
     const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
         if (ticket.owner_phone) {
-            if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
+           
+
+       if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
             acc[ticket.owner_phone].push(ticket);
         }
         return acc;
     }, {});
 
+    // Iterate through each active dividend
     for (const dividend of activeDividends) {
-        if (updatedWinners[dividend.name]) continue;
+        // If this dividend has already been claimed in a *previous* turn, skip it.
+        if (currentWinners[dividend.name]) {
+            continue;
+        }
 
+        // This array will hold all winners for THIS dividend found in THIS specific call.
         let winnersThisTurn = [];
         
+        // --- Logic for single-ticket dividends ---
         for (const ticket of soldTickets) {
             if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
             
             let isWinner = false;
             let winningPatternNumbers = [];
+            
             const checkPattern = (numbers) => {
-                winningPatternNumbers = numbers;
-                return check(numbers);
+                if (numbers && numbers.length > 0 && numbers.every(n => calledNumbers.includes(n))) {
+                    winningPatternNumbers = numbers;
+                    return true;
+                }
+                return false;
             };
 
             const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
+            const allTicketNumbers = [...r1, ...r2, ...r3];
 
             switch (dividend.name) {
                 case "Top Line":
-                    if (r1.length > 0 && checkPattern(r1)) isWinner = true;
+                    if (checkPattern(r1)) isWinner = true;
                     break;
                 case "Middle Line":
-                    if (r2.length > 0 && checkPattern(r2)) isWinner = true;
+                    if (checkPattern(r2)) isWinner = true;
                     break;
                 case "Bottom Line":
-                    if (r3.length > 0 && checkPattern(r3)) isWinner = true;
+                    if (checkPattern(r3)) isWinner = true;
                     break;
                 case "Corners (4)":
                     const corners = [r1[0], r1[r1.length - 1], r3[0], r3[r3.length - 1]].filter(Boolean);
@@ -4875,22 +4897,21 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     const midNumR2 = r2.length === 5 ? r2[2] : null;
                     if (r1.length === 5 && midNumR2 && r3.length === 5) {
                         const starNumbers = [r1[0], r1[4], midNumR2, r3[0], r3[4]].filter(Boolean);
-                        if(starNumbers.length === 5 && checkPattern(starNumbers)) isWinner = true;
+                        if (starNumbers.length === 5 && checkPattern(starNumbers)) isWinner = true;
                     }
                     break;
                 case "First Full House":
                 case "Second Full House":
                 case "Third Full House":
-                    const housefullWinnersData = Object.values(updatedWinners).flat().filter(w => w.dividendName?.includes("Full House"));
-                    const housefullWinnerTicketIds = housefullWinnersData.map(w => w.ticketId);
-                    const allTicketNumbers = r1.concat(r2, r3);
+                    const existingFHWinners = Object.values(updatedWinners).flat().filter(w => w.dividendName?.includes("Full House"));
+                    const existingFHWinnerTicketIds = new Set(existingFHWinners.map(w => w.ticketId));
 
-                    if (checkPattern(allTicketNumbers) && !housefullWinnerTicketIds.includes(ticket.id)) {
-                        const claimedPrizesCount = Object.keys(updatedWinners).filter(key => key.includes("Full House")).length;
+                    if (!existingFHWinnerTicketIds.has(ticket.id) && checkPattern(allTicketNumbers)) {
+                        const claimedFHCount = Object.keys(updatedWinners).filter(key => key.includes("Full House")).length;
                         
-                        if ((dividend.name === "First Full House" && claimedPrizesCount === 0) ||
-                            (dividend.name === "Second Full House" && claimedPrizesCount === 1) ||
-                            (dividend.name === "Third Full House" && claimedPrizesCount === 2)) {
+                        if ((dividend.name === "First Full House" && claimedFHCount === 0) ||
+                            (dividend.name === "Second Full House" && claimedFHCount === 1) ||
+                            (dividend.name === "Third Full House" && claimedFHCount === 2)) {
                             isWinner = true;
                         }
                     }
@@ -4900,22 +4921,32 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         const count = parseInt(dividend.name.match(/\d+/)[0], 10);
                         if (countMarked(ticket) === count) {
                             isWinner = true;
-                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
+                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n));
                         }
                     }
                     break;
             }
+
+            // A ticket is only a valid winner if the LAST called number completed their pattern.
             if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
-                winnersThisTurn.push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP, dividendName: dividend.name });
+                winnersThisTurn.push({ 
+                    name: ticket.owner_name, 
+                    phone: ticket.owner_phone, 
+                    ticketId: ticket.id, 
+                    winningNumber: lastCalledNumber, 
+                    won_at: firebase.database.ServerValue.TIMESTAMP, 
+                    dividendName: dividend.name 
+                });
             }
         }
-
+        
+        // --- Logic for multi-ticket (sheet-based) dividends ---
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
             for (const ownerPhone in ticketsByOwner) {
                 const ownerTickets = ticketsByOwner[ownerPhone];
                 const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
                     const sheetNum = Math.floor((ticket.id - 1) / 6);
-                    if (!acc[sheetNum]) acc[sheetNum] = [];
+                    acc[sheetNum] = acc[sheetNum] || [];
                     acc[sheetNum].push(ticket);
                     return acc;
                 }, {});
@@ -4937,13 +4968,13 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     } else if (dividend.name === 'Half Sheet Bonus') {
                         const sheetTicketIds = new Set(sheetTickets.map(t => t.id));
                         const sheetStartId = parseInt(sheetNum) * 6 + 1;
-                        
                         const firstHalfIds = [sheetStartId, sheetStartId + 1, sheetStartId + 2];
                         const secondHalfIds = [sheetStartId + 3, sheetStartId + 4, sheetStartId + 5];
 
-                        let winnerFoundInSheet = false;
+                        const isFirstHalfComplete = firstHalfIds.every(id => sheetTicketIds.has(id));
+                        const isSecondHalfComplete = secondHalfIds.every(id => sheetTicketIds.has(id));
 
-                        if (firstHalfIds.every(id => sheetTicketIds.has(id))) {
+                        if (isFirstHalfComplete) {
                             const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
@@ -4954,11 +4985,9 @@ function checkAllWinners(calledNumbers, currentWinners) {
                                     won_at: firebase.database.ServerValue.TIMESTAMP,
                                     dividendName: dividend.name
                                 });
-                                winnerFoundInSheet = true;
                             }
                         }
-
-                        if (!winnerFoundInSheet && secondHalfIds.every(id => sheetTicketIds.has(id))) {
+                        if (isSecondHalfComplete) {
                             const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
@@ -4976,13 +5005,15 @@ function checkAllWinners(calledNumbers, currentWinners) {
             }
         }
 
-
+        // After checking all tickets, if we found any winners for this dividend, add them.
         if (winnersThisTurn.length > 0) {
             updatedWinners[dividend.name] = winnersThisTurn;
         }
     }
+    
     return updatedWinners;
 }
+// --- END OF FIX ---
 
 // --- NEW: Functions for Winner Prediction ---
 async function generatePredictions() {
