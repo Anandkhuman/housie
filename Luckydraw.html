@@ -19,16 +19,16 @@
         
         /* --- 1. Variables & General Styling --- */
         :root {
-            --primary-color: #185a9d; /* Vibrant Purple */
-            --secondary-color: #ffeb3b; /* Bright Yellow */
+            --primary-color: #185a9d;
+            --secondary-color: #ffeb3b;
             --dark-bg-gradient: linear-gradient(145deg, #42cea2 0%, #185a9d 50%);
             
             --text-primary-light: #ffffff;
             --text-secondary-light: #ffffff;
             
-            --success-color: #4caf50; /* Green for Win */
+            --success-color: #ffffff;
             --pending-color: orange;
-            --loss-color: #f44336; /* Red for Loss */
+            --loss-color: #ffffff; 
             --reject-color: #ffffff;
 
             /* Glassmorphism Variables */
@@ -121,11 +121,11 @@
         }
         .btn-icon:hover { background-color: rgba(255,255,255,0.1); transform: scale(1); }
         .btn-icon.edit { color: var(--primary-color); }
-        .btn-icon.delete { color: var(--loss-color); }
-        .btn-icon.book { color: var(--success-color); }
-        .btn-icon-accept { color: var(--success-color); }
-        .btn-icon-reject { color: var(--loss-color); }
-
+        .btn-icon.delete { color: red }
+        .btn-icon.book { color: green }
+        .btn-icon-accept { color: green}
+        .btn-icon-reject { color: red }
+       
         input, select, textarea {
             width: 100%; padding: 8px; margin-bottom: 1rem;
             border-radius: 8px; font-size: 0.85rem;
@@ -157,7 +157,7 @@
         
         .search-container { position: relative; margin: 20px 0; }
         .search-container .fa-search {
-            position: absolute; left: 15px; top: 50%;
+            position: absolute; left: 15px; top: 40%;
             transform: translateY(-50%); color: var(--text-secondary-light);
         }
         .search-container input { padding-left: 40px; }
@@ -240,6 +240,8 @@
             box-shadow: var(--glass-shadow);
             margin: auto; padding: 20px;
             width: 90%; max-width: 500px; border-radius: var(--glass-radius); position: relative;
+            max-height: 90vh; /* Added for scrollability on small screens */
+            overflow-y: auto; /* Added for scrollability */
         }
         .close-btn {
             color: #ccc; position: absolute; top: 10px; right: 20px;
@@ -369,7 +371,21 @@
             border: 5px solid var(--secondary-color);
             box-shadow: 0 0 20px var(--glow-color);
             overflow: hidden;
+            transition: background 0.5s ease;
         }
+        
+        #name-spinner-container.is-cycling {
+            background-size: 200% 200%;
+            background-image: linear-gradient(45deg, #1a2a45, #185a9d, #1a2a45);
+            animation: electric-bg 2s linear infinite;
+        }
+
+        @keyframes electric-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
 
         #name-picker-display {
             display: flex;
@@ -403,80 +419,69 @@
             #name-picker-display span { font-size: 1.4rem; }
         }
 
-        /* --- HTML/CSS RESULT SPINNER (FIXED & ADDED COLORS) --- */
-        #result-spinner-container {
-            border-radius: 50%;
-            box-shadow: 0 0 20px var(--glow-color);
+        /* --- [START] SLOT MACHINE STYLES --- */
+        #slot-machine-container {
+            width: min(85vw, 350px);
+            height: min(30vw, 120px);
+            border-radius: var(--glass-radius);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 10px;
             background: #1a2a45;
             border: 5px solid var(--secondary-color);
+            box-shadow: 0 0 20px var(--glow-color), inset 0 0 15px rgba(0,0,0,0.6);
             overflow: hidden;
-        }
-        
-        #result-spinner-wheel {
             position: relative;
+        }
+
+        .slot-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 50%;
-            transition: transform var(--spin-duration) cubic-bezier(0.25, 0.1, 0.25, 1);
-            transform: rotate(0deg);
+            pointer-events: none;
+            border-radius: var(--glass-radius);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 20%, transparent 50%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0.5) 100%);
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.3), inset 0 -5px 10px rgba(0,0,0,0.3);
         }
 
-        .spinner-segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: 100% 100%;
+        .slot-column {
+            width: 30%;
+            height: 100%;
             overflow: hidden;
-            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
 
-        .spinner-segment::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            transform-origin: 0% 0%;
-            /* This value is now dynamically set by JavaScript using a CSS variable */
-            transform: skewX(var(--segment-skew));
-        }
-        
-        /* ADDED: Segment coloring */
-        .spinner-segment.win::before {
-            background-color: var(--success-color);
-        }
-        .spinner-segment.loss::before {
-            background-color: var(--loss-color);
-        }
-  
-        .segment-text {
-            position: absolute;
-            left: -115%;
-            width: 200%;
-            height: 200%;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            font-size: clamp(8px, 2.5vw, 10px); 
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
-            user-select: none;
-            /* This value is now dynamically set by JavaScript using a CSS variable */
-            transform: rotate(var(--segment-text-rotation, 48.6deg)); 
-            padding-top: 8%;
+        .slot-reel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .spinner-pointer {
-            position: absolute;
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid var(--secondary-color);
-            z-index: 2;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+        .slot-symbol {
+            width: 100%;
+            height: min(30vw, 120px);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-transform: uppercase;
         }
+        .slot-symbol.win {
+            color: green;
+        }
+        .slot-symbol.loss {
+            color: red;
+        }
+        /* --- [END] SLOT MACHINE STYLES --- */
+
 
         @media (min-width: 768px) {
             .spinners-container { 
@@ -639,12 +644,31 @@
                         </div>
                         <div class="spinner-wrapper">
                             <h3>Result</h3>
-                            <div id="result-spinner-container" class="spinner-container">
-                                <div class="spinner-pointer"></div>
-                                <div id="result-spinner-wheel" data-last-result-timestamp=""></div>
+                            <!-- START: SLOT MACHINE HTML -->
+                            <div id="slot-machine-container" class="spinner-container">
+                                <div class="slot-column">
+                                    <div class="slot-reel" id="reel1"></div>
+                                </div>
+                                <div class="slot-column">
+                                    <div class="slot-reel" id="reel2"></div>
+                                </div>
+                                <div class="slot-column">
+                                    <div class="slot-reel" id="reel3"></div>
+                                </div>
+                                <div class="slot-overlay"></div>
                             </div>
+                            <!-- END: SLOT MACHINE HTML -->
                         </div>
                     </div>
+                </div>
+
+                <!-- [NEW] Live Result Search -->
+                <div class="search-container" style="margin-top: 30px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="live-result-search" placeholder="Search your ticket by number or name...">
+                </div>
+                <div id="live-search-result-container" class="lottery-card" style="display: none; padding: 15px; text-align: center; margin-bottom: 20px;">
+                    <!-- Search result appears here -->
                 </div>
 
                 <h3>🏆 Winners List</h3>
@@ -672,7 +696,7 @@
             </div>
         </div>
 
-        <!-- HISTORY DETAILS PAGE -->
+        <!-- HISTORY DETAILS PAGE (Replaced by Modal, but kept for structure) -->
         <div id="lottery-details-page" class="page">
              <div class="container">
                 <button onclick="showPage('history-page')" class="btn" style="margin-bottom: 20px;"><i class="fas fa-arrow-left"></i> Back to History</button>
@@ -888,6 +912,36 @@
             </form>
         </div>
     </div>
+    
+    <!-- [NEW] Lottery Details Modal -->
+    <div id="lottery-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-details-title">Lottery Details</h2>
+            <img id="modal-details-img" src="" alt="Lottery Image" style="width: 100%; border-radius: 12px; margin-bottom: 15px;">
+            <p><strong>Draw Date:</strong> <span id="modal-details-datetime"></span></p>
+            <p id="modal-details-desc"></p>
+            
+            <h4 style="text-align: left; margin-top: 20px;">Prizes</h4>
+            <div id="modal-details-prizes" style="margin-bottom: 20px;"></div>
+
+            <h3>🏆 Winners List</h3>
+            <div class="table-wrapper">
+                <table id="modal-details-winners-table">
+                    <thead><tr><th>Ticket No.</th><th>Name</th><th>Prize</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <h3>🎟️ All Other Tickets</h3>
+            <div class="table-wrapper">
+                 <table id="modal-details-losers-table">
+                    <thead><tr><th>Ticket No.</th><th>Name</th><th>Status</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Status Popup -->
@@ -932,11 +986,10 @@
         let allTicketsCache = {};
         let allResultsCache = {};
         let lotteryTicketCounts = {};
+        let currentLiveDrawData = {}; // [NEW] For live search
         let countdownInterval;
         let autoDrawTimeout = null; 
         let ttsEnabled = false;
-        let currentWheelLotteryId = null; 
-        let resultSegments = []; 
         let lastAnnouncementTimestamp = 0;
 
         // --- DOM ELEMENTS ---
@@ -946,7 +999,6 @@
         const statusPopup = document.getElementById('status-popup');
         const namePickerDisplay = document.getElementById('name-picker-display');
         let namePickerInterval = null;
-        const resultSpinnerWheel = document.getElementById('result-spinner-wheel');
         const authNavBtn = document.getElementById('auth-nav-btn');
         
         // --- CORE APP LOGIC ---
@@ -1254,24 +1306,57 @@
             showPage('ticket-details-for-lottery-page');
         };
 
+        // [MODIFIED] Replaced page navigation with a modal for viewing history details.
         window.viewHistoryDetails = async (lotteryId) => {
             const lottery = allLotteriesCache[lotteryId];
             const result = allResultsCache[lotteryId];
-            document.getElementById('details-lottery-title').textContent = lottery.title;
-            document.getElementById('details-lottery-img').src = lottery.imageUrl;
-            document.getElementById('details-lottery-datetime').textContent = new Date(lottery.datetime).toLocaleString();
-            document.getElementById('details-lottery-desc').textContent = lottery.details;
-            const winnersTbody = document.querySelector('#details-winners-table tbody');
-            const losersTbody = document.querySelector('#details-losers-table tbody');
-            winnersTbody.innerHTML = ''; losersTbody.innerHTML = '';
-            if (result) {
+
+            // Populate Modal Content
+            document.getElementById('modal-details-title').textContent = lottery.title;
+            document.getElementById('modal-details-img').src = lottery.imageUrl || 'https://via.placeholder.com/600x400.png?text=No+Image';
+            document.getElementById('modal-details-datetime').textContent = new Date(lottery.datetime).toLocaleString();
+            document.getElementById('modal-details-desc').textContent = lottery.details;
+            
+            // Populate Prizes
+            const prizeListEl = document.getElementById('modal-details-prizes');
+            prizeListEl.innerHTML = '';
+            if (lottery.prizes && lottery.prizes.length > 0) {
+                const prizeList = document.createElement('ul');
+                prizeList.style.paddingLeft = '20px';
+                lottery.prizes.forEach(prize => {
+                    const li = document.createElement('li');
+                    li.textContent = prize;
+                    li.style.color = 'var(--text-secondary-light)';
+                    prizeList.appendChild(li);
+                });
+                prizeListEl.appendChild(prizeList);
+            } else {
+                prizeListEl.innerHTML = '<p>No prize information available.</p>';
+            }
+
+            const winnersTbody = document.querySelector('#modal-details-winners-table tbody');
+            const losersTbody = document.querySelector('#modal-details-losers-table tbody');
+            winnersTbody.innerHTML = ''; 
+            losersTbody.innerHTML = '';
+
+            if (result && (result.allWinners || result.allLosers)) {
                 (result.allWinners || []).forEach(p => winnersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-win">${p.prize || 'Winner'}</td></tr>`);
+                if (winnersTbody.innerHTML === '') {
+                    winnersTbody.innerHTML = '<tr><td colspan="3">No winners were recorded for this draw.</td></tr>';
+                }
                 (result.allLosers || []).forEach(p => losersTbody.innerHTML += `<tr><td>${p.ticket}</td><td>${p.name}</td><td class="status-loss">Not a winner</td></tr>`);
-            } else { winnersTbody.innerHTML = '<tr><td colspan="3">Results not yet available for this draw.</td></tr>'; }
-            showPage('lottery-details-page');
+                 if (losersTbody.innerHTML === '') {
+                    losersTbody.innerHTML = '<tr><td colspan="3">No other tickets were recorded.</td></tr>';
+                }
+            } else {
+                winnersTbody.innerHTML = '<tr><td colspan="3">Results not yet available for this draw.</td></tr>';
+                losersTbody.innerHTML = '<tr><td colspan="3">Results not yet available for this draw.</td></tr>';
+            }
+            
+            openModal('lottery-details-modal');
         };
 
-        // 8. LIVE DRAW PAGE & SPINNER LOGIC
+        // 8. LIVE DRAW PAGE & SLOT MACHINE LOGIC
         const runNamePickerAnimation = (allParticipants, finalName, duration) => {
             if (namePickerInterval) clearInterval(namePickerInterval);
             if (allParticipants.length === 0) {
@@ -1279,10 +1364,12 @@
                 return;
             };
 
+            const nameSpinnerContainer = document.getElementById('name-spinner-container');
             const displaySpan = namePickerDisplay.querySelector('span');
             namePickerDisplay.classList.add('picking');
             namePickerDisplay.classList.remove('picked');
-            
+            nameSpinnerContainer.classList.add('is-cycling');
+
             namePickerInterval = setInterval(() => {
                 const randomIndex = Math.floor(Math.random() * allParticipants.length);
                 displaySpan.textContent = allParticipants[randomIndex].name;
@@ -1294,74 +1381,91 @@
                 displaySpan.textContent = finalName;
                 namePickerDisplay.classList.remove('picking');
                 namePickerDisplay.classList.add('picked');
+                nameSpinnerContainer.classList.remove('is-cycling');
             }, duration);
         };
-
-        const buildHtmlSpinner = (segmentsToBuild) => {
-            if (!segmentsToBuild || segmentsToBuild.length === 0) {
-                 resultSpinnerWheel.innerHTML = '';
-                 return;
-            }
-            resultSegments = segmentsToBuild; 
-            
-            const numSegments = resultSegments.length;
-            const arcSize = 360 / numSegments;
-            
-            const segmentSkew = 90 - arcSize;
-            const textRotation = (arcSize / 2) + 45; 
-
-            resultSpinnerWheel.style.setProperty('--segment-skew', `${segmentSkew}deg`);
-            resultSpinnerWheel.style.setProperty('--segment-text-rotation', `${textRotation}deg`);
-
-            resultSpinnerWheel.innerHTML = '';
-
-            resultSegments.forEach((segmentData, i) => {
-                const segment = document.createElement('div');
-                segment.className = `spinner-segment ${segmentData.type.toLowerCase()}`;
-                segment.style.transform = `rotate(${i * arcSize}deg)`;
-                
-                const text = document.createElement('span');
-                text.className = 'segment-text';
-                text.textContent = segmentData.text;
-                segment.appendChild(text);
-
-                resultSpinnerWheel.appendChild(segment);
-            });
-        };
         
-        const spinResultWheel = (resultStatus) => {
-            const possibleIndices = [];
-            resultSegments.forEach((segment, index) => {
-                if (segment.type.toLowerCase() === resultStatus.toLowerCase()) {
-                    possibleIndices.push(index);
-                }
-            });
+        // --- [NEW] SLOT MACHINE FUNCTIONS ---
+        const REEL_SYMBOLS = 25; // How many symbols to generate for the spin effect
+        const SPIN_DURATION_BASE = 3000; // in ms
 
-            if (possibleIndices.length === 0) {
-                console.error(`Cannot spin: No segments found for result type "${resultStatus}"`);
-                return;
+        const initializeSlotMachine = () => {
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                if (!reel) continue;
+                reel.innerHTML = '';
+                const defaultSymbol = document.createElement('div');
+                defaultSymbol.className = 'slot-symbol';
+                defaultSymbol.textContent = '...';
+                reel.appendChild(defaultSymbol);
+            }
+        };
+
+        const resetSlotMachine = () => {
+             for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                if (!reel) continue;
+                
+                reel.style.transition = 'none';
+                reel.style.transform = 'translateY(0)';
+                reel.innerHTML = '';
+                
+                const defaultSymbol = document.createElement('div');
+                defaultSymbol.className = 'slot-symbol';
+                defaultSymbol.textContent = '...';
+                reel.appendChild(defaultSymbol);
+            }
+        };
+
+        const spinSlotMachine = (resultStatus) => {
+            // Determine final symbols for each reel
+            const finalSymbols = [];
+            if (resultStatus.toLowerCase() === 'win') {
+                finalSymbols.push('win', 'win', 'win');
+            } else {
+                const lossCombo = [['win', 'win', 'loss'], ['win', 'loss', 'win'], ['loss', 'win', 'win'], ['loss', 'loss', 'win'], ['win', 'loss', 'loss'], ['loss', 'win', 'loss'], ['loss', 'loss', 'loss']];
+                const chosenCombo = lossCombo[Math.floor(Math.random() * lossCombo.length)];
+                shuffleArray(chosenCombo);
+                finalSymbols.push(...chosenCombo);
             }
 
-            const winningIndex = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
-            const numSegments = resultSegments.length;
-            const arcSizeDegrees = 360 / numSegments;
+            // Populate and spin each reel
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                const finalSymbol = finalSymbols[i-1];
+                if (!reel) continue;
 
-            const targetAngle = winningIndex * arcSizeDegrees + (arcSizeDegrees / 2);
-            const randomOffset = (Math.random() - 0.5) * (arcSizeDegrees * 0.8);
-            const stopAngle = targetAngle + randomOffset;
-            
-            const totalRotation = (360 * 8) + 180 - stopAngle;
-            
-            resultSpinnerWheel.style.transition = 'none';
-            const currentRotationMatch = resultSpinnerWheel.style.transform.match(/rotate\((.+)deg\)/);
-            const currentRotation = currentRotationMatch ? parseFloat(currentRotationMatch[1]) : 0;
-            resultSpinnerWheel.style.transform = `rotate(${currentRotation % 360}deg)`;
-            
-            resultSpinnerWheel.offsetHeight; 
+                reel.style.transition = 'none';
+                reel.style.transform = 'translateY(0)';
+                reel.offsetHeight; // force reflow
 
-            resultSpinnerWheel.style.transition = `transform var(--spin-duration) cubic-bezier(0.25, 0.1, 0.25, 1)`;
-            resultSpinnerWheel.style.transform = `rotate(${totalRotation}deg)`;
+                reel.innerHTML = '';
+                const symbolOptions = ['win', 'loss'];
+                for(let j = 0; j < REEL_SYMBOLS; j++) {
+                    const symbolType = symbolOptions[Math.floor(Math.random() * symbolOptions.length)];
+                    const symbolEl = document.createElement('div');
+                    symbolEl.className = `slot-symbol ${symbolType}`;
+                    symbolEl.textContent = symbolType;
+                    reel.appendChild(symbolEl);
+                }
+                const finalSymbolEl = document.createElement('div');
+                finalSymbolEl.className = `slot-symbol ${finalSymbol}`;
+                finalSymbolEl.textContent = finalSymbol;
+                reel.appendChild(finalSymbolEl);
+                
+                const symbolHeight = reel.querySelector('.slot-symbol').clientHeight;
+                if (symbolHeight === 0) { // Fallback if not visible
+                     console.error("Slot machine is not visible, cannot calculate spin.");
+                     return;
+                }
+                const totalDistance = REEL_SYMBOLS * symbolHeight;
+                const spinDuration = SPIN_DURATION_BASE + (i * 500); // Staggered stop
+
+                reel.style.transition = `transform ${spinDuration}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
+                reel.style.transform = `translateY(-${totalDistance}px)`;
+            }
         };
+        // --- [END] SLOT MACHINE FUNCTIONS ---
         
         const announceResult = (ticket, name, result) => {
             const resultText = result.toLowerCase();
@@ -1384,14 +1488,12 @@
         
         liveDrawRef.on('value', (snapshot) => {
             const data = snapshot.val();
+            currentLiveDrawData = data; // [NEW] Update global state for live search
             if (!data) return;
 
-            document.getElementById('live-status').textContent = data.lotteryTitle ? `${data.lotteryTitle}: ${data.status}` : data.status;
+            let lastResultTimestamp = document.body.dataset.lastResultTimestamp || '';
 
-            if (data.wheelSegments && (data.lotteryId !== currentWheelLotteryId || data.isReset)) {
-                buildHtmlSpinner(data.wheelSegments);
-                currentWheelLotteryId = data.lotteryId;
-            }
+            document.getElementById('live-status').textContent = data.lotteryTitle ? `${data.lotteryTitle}: ${data.status}` : data.status;
 
             if (auth.currentUser) {
                 const startDrawBtn = document.getElementById('start-draw-btn');
@@ -1417,9 +1519,9 @@
                  namePickerDisplay.classList.remove('picking');
             }
 
-            if (data.result && resultSpinnerWheel.dataset.lastResultTimestamp !== data.result.timestamp) {
-                spinResultWheel(data.result.status);
-                resultSpinnerWheel.dataset.lastResultTimestamp = data.result.timestamp;
+            if (data.result && lastResultTimestamp !== data.result.timestamp) {
+                spinSlotMachine(data.result.status);
+                document.body.dataset.lastResultTimestamp = data.result.timestamp;
             }
             
             if (data.announcement && data.announcement.timestamp > lastAnnouncementTimestamp) {
@@ -1438,29 +1540,24 @@
                  namePickerDisplay.classList.remove('picking', 'picked');
                  namePickerDisplay.querySelector('span').textContent = 'STARTING SOON';
                  namePickerDisplay.dataset.lastPickId = "";
-                 resultSpinnerWheel.style.transition = 'none';
-                 resultSpinnerWheel.style.transform = 'rotate(0deg)';
-                 resultSpinnerWheel.dataset.lastResultTimestamp = "";
+                 
+                 resetSlotMachine();
+                 document.body.dataset.lastResultTimestamp = "";
+                 
+                 // [NEW] Clear search on reset
+                 document.getElementById('live-result-search').value = '';
+                 document.getElementById('live-search-result-container').style.display = 'none';
+
                  if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
                  autoDrawTimeout = null;
-                 
-                 if (!data.wheelSegments) {
-                    currentWheelLotteryId = null;
-                    resultSpinnerWheel.innerHTML = '';
-                 }
                  
                  if(auth.currentUser) liveDrawRef.update({ isReset: null });
             }
         });
         
-        // ===============================================
-        // === FIXED & ROBUST SINGLE DRAW LOGIC (START) ===
-        // ===============================================
         const performSingleDraw = () => {
             liveDrawRef.once('value', snapshot => {
                 const data = snapshot.val();
-
-                // --- 1. GUARD CLAUSES: Check if draw should stop ---
                 if (!data || !data.isAutoDrawing) {
                     if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
                     autoDrawTimeout = null;
@@ -1472,26 +1569,23 @@
                 const prizes = data.prizes || [];
 
                 if (participants.length === 0 || allWinners.length >= prizes.length) {
-                    let finalStatus = "Auto-draw finished: No participants left.";
+                    let finalStatus = "Auto-draw finished: All participants have been drawn.";
+                    db.ref(`lotteryResults/${data.lotteryId}`).set({ allWinners: data.allWinners, allLosers: data.allLosers });
                     if (allWinners.length >= prizes.length) {
                         finalStatus = "Auto-draw finished: All prizes have been awarded!";
-                        // Save final results for history page
-                        db.ref(`lotteryResults/${data.lotteryId}`).set({ allWinners: data.allWinners, allLosers: data.allLosers });
                     }
                     liveDrawRef.update({ isAutoDrawing: false, status: finalStatus, isPicking: false, currentPick: null, result: null });
                     return;
                 }
 
-                // --- 2. DECISION PHASE: Make all decisions based on the current state ---
-                const pickedParticipant = participants.shift(); // Pick winner from top
+                const pickedParticipant = participants.shift();
                 
                 const prizesLeft = prizes.length - allWinners.length;
-                const participantsLeft = participants.length + 1; // +1 for the one just picked
+                const participantsLeft = participants.length + 1;
                 const winChance = prizesLeft > 0 ? (prizesLeft / participantsLeft) : 0;
                 const isWin = Math.random() < winChance;
                 const resultStatus = isWin ? 'WIN' : 'LOSS';
 
-                // Prepare the final arrays and text *before* any animations
                 const finalWinners = [...allWinners];
                 const finalLosers = [...(data.allLosers || [])];
                 let prizeWon = null;
@@ -1508,21 +1602,18 @@
                     ? `🎉 ${pickedParticipant.name} WINS ${prizeWon}! 🎉`
                     : `${pickedParticipant.name} did not win. Better luck next time!`;
                 
-                // --- 3. ANIMATION & UPDATE PHASE: Update Firebase in timed stages ---
                 const nameSpinTime = 5000;
                 const resultSpinTime = 5000;
                 const pauseAfterResult = 3000;
 
-                // Stage 1: Start Name Picking Animation
                 liveDrawRef.update({
                     status: `Picking next participant...`,
                     isPicking: true,
                     currentPick: pickedParticipant,
-                    participants: participants, // Update participant list in DB
+                    participants: participants,
                     result: null
                 });
 
-                // Stage 2: Stop Name Picking, Start Result Spinner
                 setTimeout(() => {
                     liveDrawRef.update({
                         status: `Spinning result for ${pickedParticipant.name}...`,
@@ -1530,7 +1621,6 @@
                         result: { status: resultStatus, timestamp: Date.now() }
                     });
 
-                    // Stage 3: Announce Final Result and Update Lists
                     setTimeout(() => {
                         liveDrawRef.update({
                             status: finalStatusText,
@@ -1541,11 +1631,10 @@
                             announcement: {
                                 ticket: pickedParticipant.ticket,
                                 name: pickedParticipant.name,
-                                result: resultStatus, // This is now guaranteed to be consistent
+                                result: resultStatus,
                                 timestamp: Date.now()
                             }
                         }).then(() => {
-                            // Stage 4: Schedule the next draw
                             if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
                             autoDrawTimeout = setTimeout(performSingleDraw, pauseAfterResult);
                         });
@@ -1553,10 +1642,6 @@
                 }, nameSpinTime);
             });
         };
-        // =============================================
-        // === FIXED & ROBUST SINGLE DRAW LOGIC (END) ===
-        // =============================================
-
 
         document.getElementById('start-draw-btn').addEventListener('click', (e) => {
             const btn = e.target; btn.disabled = true;
@@ -1581,7 +1666,7 @@
              if(confirm('This will clear the live draw board and stop any running draw. Are you sure?')) {
                  if (autoDrawTimeout) clearTimeout(autoDrawTimeout);
                  autoDrawTimeout = null;
-                 liveDrawRef.set({ status: "Waiting for Admin...", isReset: true, participants: [], allWinners: [], allLosers: [], isAutoDrawing: false, isPicking: false, currentPick: null, result: null, wheelSegments: null, announcement: null });
+                 liveDrawRef.set({ status: "Waiting for Admin...", isReset: true, participants: [], allWinners: [], allLosers: [], isAutoDrawing: false, isPicking: false, currentPick: null, result: null, announcement: null });
              }
         });
 
@@ -1600,7 +1685,7 @@
                 loadManageableLotteries();
             }
             updateUserNav();
-            handleUrlConfirmation(); // Check for confirmation link after auth state is known
+            handleUrlConfirmation();
         });
 
         document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -1659,7 +1744,6 @@
                  return;
             }
             
-            // Group tickets by lottery
             const ticketsByLottery = userTickets.reduce((acc, purchase) => {
                 const lotteryId = purchase.lotteryId;
                 if (!acc[lotteryId]) {
@@ -1723,7 +1807,7 @@
             const container = document.getElementById('prize-inputs-container');
             const prizeDiv = document.createElement('div');
             prizeDiv.style.display = 'flex'; prizeDiv.style.gap = '10px'; prizeDiv.style.marginBottom = '10px';
-            prizeDiv.innerHTML = `<input type="text" class="lottery-prize-input" placeholder="Enter prize description" value="${value}" required style="margin-bottom: 0;"><button type="button" class="btn btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`;
+            prizeDiv.innerHTML = `<input type="text" class="lottery-prize-input" placeholder="Enter prize description" value="${value}" required style="margin-bottom: 0;"><button style="color: red;" type="button" class="btn btn-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`;
             container.appendChild(prizeDiv);
         };
         document.getElementById('add-prize-btn').addEventListener('click', () => addPrizeInput());
@@ -1810,7 +1894,7 @@
                 lotteries.forEach(([id, lottery]) => {
                     const soldCount = lotteryTicketCounts[id] ? lotteryTicketCounts[id].confirmed : 0;
                     const item = document.createElement('div'); item.className = 'manageable-lottery-item';
-                    item.innerHTML = `<div class="manageable-lottery-item-info" onclick="viewAdminLotteryTickets('${id}')"><strong>${lottery.title}</strong><br><small>Draw: ${new Date(lottery.datetime).toLocaleDateString()} | <strong>Sold: ${soldCount}</strong></small></div><div class="manageable-lottery-item-actions"><button class="btn-icon book" onclick="openAdminBookModal(event, '${id}')" title="Book Ticket"><i class="fas fa-ticket-alt"></i></button><button class="btn-icon" onclick="setupLiveDraw(event, '${id}')" title="Go Live" style="color: var(--secondary-color);"><i class="fas fa-broadcast-tower"></i></button><button class="btn-icon edit" onclick="editLottery(event, '${id}')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon delete" onclick="removeLottery(event, '${id}')" title="Delete"><i class="fas fa-trash"></i></button></div>`;
+                    item.innerHTML = `<div class="manageable-lottery-item-info" onclick="viewAdminLotteryTickets('${id}')"><strong>${lottery.title}</strong><br><small>Draw: ${new Date(lottery.datetime).toLocaleDateString()} | <strong>Sold: ${soldCount}</strong></small></div><div class="manageable-lottery-item-actions"><button class="btn-icon book" onclick="openAdminBookModal(event, '${id}')" title="Book Ticket"><i class="fas fa-ticket"></i></button><button class="btn-icon" onclick="setupLiveDraw(event, '${id}')" title="Go Live" style="color: var(--secondary-color);"><i class="fas fa-broadcast-tower"></i></button><button class="btn-icon edit" onclick="editLottery(event, '${id}')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon delete" onclick="removeLottery(event, '${id}')" title="Delete"><i class="fas fa-trash"></i></button></div>`;
                     element.appendChild(item);
                 });
             };
@@ -1827,11 +1911,24 @@
             confirmedPurchases.forEach(p => { p.tickets.forEach(ticketNum => { participantsList.push({ name: p.name, ticket: ticketNum, purchaseId: p.key }); }); });
             if (participantsList.length === 0) { showStatus('No confirmed tickets for this lottery to start a draw.', false); return; }
             shuffleArray(participantsList);
-            const wheelSegments = [];
-            for (let i = 0; i < 10; i++) { wheelSegments.push({ text: 'WIN', type: 'win' }); }
-            for (let i = 0; i < 20; i++) { wheelSegments.push({ text: 'LOSS', type: 'loss' }); }
-            shuffleArray(wheelSegments);
-            liveDrawRef.set({ lotteryId: lotteryId, lotteryTitle: lottery.title, status: `Ready to start draw for ${lottery.title}.`, prizes: lottery.prizes || ['Winner'], participants: participantsList, wheelSegments: wheelSegments, allWinners: [], allLosers: [], currentPick: null, result: null, isAutoDrawing: false, isReset: true, isPicking: false, announcement: null }).then(() => { showStatus(`Live draw for ${lottery.title} is ready!`, true); showPage('live-page'); });
+            liveDrawRef.set({ 
+                lotteryId: lotteryId, 
+                lotteryTitle: lottery.title, 
+                status: `Ready to start draw for ${lottery.title}.`, 
+                prizes: lottery.prizes || ['Winner'], 
+                participants: participantsList, 
+                allWinners: [], 
+                allLosers: [], 
+                currentPick: null, 
+                result: null, 
+                isAutoDrawing: false, 
+                isReset: true, 
+                isPicking: false, 
+                announcement: null 
+            }).then(() => { 
+                showStatus(`Live draw for ${lottery.title} is ready!`, true); 
+                showPage('live-page'); 
+            });
         };
 
         window.removeLottery = (e, id) => { 
@@ -1973,6 +2070,7 @@
                 processTicketCounts();
                 renderAllLotteryLists();
                 showPage(initialPage);
+                initializeSlotMachine(); 
                 addPrizeInput();
                 loader.style.opacity = '0';
                 setTimeout(() => { loader.style.display = 'none'; }, 500);
@@ -1980,6 +2078,70 @@
                 console.error("Firebase initial data load failed:", error);
                 loader.innerHTML = '<p style="color:var(--loss-color); text-align:center; padding: 20px;">Failed to load data.<br>Please check your connection and refresh.</p>';
             });
+
+            // [NEW] Event Listener for Live Result Search
+            const liveSearchInput = document.getElementById('live-result-search');
+            const liveSearchResultContainer = document.getElementById('live-search-result-container');
+
+            liveSearchInput.addEventListener('keyup', () => {
+                const searchTerm = liveSearchInput.value.trim().toLowerCase();
+                
+                if (!searchTerm) {
+                    liveSearchResultContainer.style.display = 'none';
+                    return;
+                }
+
+                if (!currentLiveDrawData || (!currentLiveDrawData.allWinners && !currentLiveDrawData.allLosers)) {
+                    liveSearchResultContainer.innerHTML = `<p>Draw has not started or no results are available yet.</p>`;
+                    liveSearchResultContainer.style.display = 'block';
+                    return;
+                }
+
+                let foundResult = null;
+                let resultHtml = '';
+                
+                // Search in winners
+                const winners = currentLiveDrawData.allWinners || [];
+                foundResult = winners.find(p => 
+                    p.ticket.toString().includes(searchTerm) || 
+                    p.name.toLowerCase().includes(searchTerm)
+                );
+
+                if (foundResult) {
+                    resultHtml = `
+                        <h4 style="text-align:center;">Result Found!</h4>
+                        <p><strong>Ticket:</strong> ${foundResult.ticket}</p>
+                        <p><strong>Name:</strong> ${foundResult.name}</p>
+                        <p><strong>Result:</strong> <span class="status-win">WINNER!</span></p>
+                        <p><strong>Prize:</strong> ${foundResult.prize}</p>
+                    `;
+                } else {
+                    // Search in losers if not found in winners
+                    const losers = currentLiveDrawData.allLosers || [];
+                    foundResult = losers.find(p => 
+                        p.ticket.toString().includes(searchTerm) || 
+                        p.name.toLowerCase().includes(searchTerm)
+                    );
+
+                    if (foundResult) {
+                        resultHtml = `
+                            <h4 style="text-align:center;">Result Found!</h4>
+                            <p><strong>Ticket:</strong> ${foundResult.ticket}</p>
+                            <p><strong>Name:</strong> ${foundResult.name}</p>
+                            <p><strong>Result:</strong> <span class="status-loss">Not a winner</span></p>
+                        `;
+                    }
+                }
+
+                if (resultHtml) {
+                    liveSearchResultContainer.innerHTML = resultHtml;
+                    liveSearchResultContainer.style.display = 'block';
+                } else {
+                    liveSearchResultContainer.innerHTML = `<p>No ticket matching "${liveSearchInput.value}" found in the results.</p>`;
+                    liveSearchResultContainer.style.display = 'block';
+                }
+            });
+
         });
     </script>
 </body>
