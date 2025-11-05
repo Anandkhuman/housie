@@ -2215,7 +2215,7 @@
 
 
 <script>
-// --- START OF FIXED SCRIPT ---
+// --- START OF FIXED AND IMPLEMENTED SCRIPT ---
 
 const firebaseConfig = {
   apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
@@ -2232,7 +2232,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// --- NEW: For music synchronization ---
+// --- For music synchronization ---
 let serverTimeOffset = 0;
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
     serverTimeOffset = snap.val();
@@ -2241,8 +2241,6 @@ db.ref('.info/serverTimeOffset').on('value', (snap) => {
 function getEstimatedServerTime() {
     return Date.now() + serverTimeOffset;
 }
-// --- END NEW ---
-
 
 // State Variables
 const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
@@ -2259,7 +2257,7 @@ let isAnnouncing = false;
 let countdownInterval = null;
 let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
-let knownWinners = {}; // FIX: To track announced winners
+let knownWinners = {}; 
 let isInitialWinnerLoad = true; // FIX: To prevent notifications on first load
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
@@ -2272,9 +2270,9 @@ let displayedSearchPhones = new Set();
 let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map(); // FIX: Manages popup close timers to prevent race conditions
 const listeners = {}; // To keep track of Firebase listeners
-let predeterminedCallSequence = []; // <-- NEW: For predicted game
+let predeterminedCallSequence = []; 
 
-// --- NEW: Audio/Announcement Variables ---
+// --- Audio/Announcement Variables ---
 let backgroundMusicPlayer, liveAudioPlayer;
 let mediaSource, sourceBuffer;
 let audioQueue = [];
@@ -2655,7 +2653,7 @@ function setupRealtimeListeners() {
         }
     }, err => console.error("Audio listener error:", err));
 
-    // --- NEW: ANNOUNCEMENT LISTENERS ---
+    // --- ANNOUNCEMENT LISTENERS ---
     listeners.liveText = db.ref('announcements/liveText');
     listeners.liveText.on('value', snapshot => {
         if (!snapshot.exists()) return;
@@ -2688,7 +2686,7 @@ function setupRealtimeListeners() {
     });
 
 
-    // --- NEW: WINNING TICKET PREDICTION LISTENER ---
+    // --- WINNING TICKET PREDICTION LISTENER ---
     listeners.winningTickets = db.ref('gameSecrets/upcomingGame/winningTickets');
     listeners.winningTickets.on('value', snapshot => {
         if(currentUserRole === 'admin') {
@@ -4653,7 +4651,7 @@ function handlePublicPopupBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
 }
 
-// --- NEW: Prepare and Show Run Game Popup ---
+// --- Prepare and Show Run Game Popup ---
 async function prepareAndShowRunGame() {
     try {
         const snapshot = await db.ref('gameSecrets/upcomingGame/callSequence').once('value');
@@ -4661,6 +4659,9 @@ async function prepareAndShowRunGame() {
             predeterminedCallSequence = snapshot.val();
             showPopup('runGameWindowDiv');
         } else {
+
+
+
             predeterminedCallSequence = [];
             showNotification('No game sequence found. Please save game settings with a future date to generate one.', 'error');
         }
@@ -4967,7 +4968,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
 }
 // --- END OF FIX ---
 
-// --- NEW: Functions for Winner Prediction ---
+// --- Functions for Winner Prediction ---
 async function generatePredictions() {
     showNotification('Generating winner predictions... This may take a moment.', 'info');
     
@@ -5465,7 +5466,7 @@ function updateAdminDisplayedTickets() {
     });
 }
 
-// --- NEW: Live Announcement Functions ---
+// --- Live Announcement Functions ---
 async function sendLiveText() {
     const input = document.getElementById('liveTextAnnounceInp'); // This is now a textarea
     const text = input.value.trim();
@@ -5541,7 +5542,7 @@ function closeVideoPopup() {
 }
 
 
-// --- NEW: Audio Control Functions ---
+// --- Audio Control Functions ---
 async function handleMusicUpload() {
     const fileInput = document.getElementById('bgMusicUpload');
     const file = fileInput.files[0];
