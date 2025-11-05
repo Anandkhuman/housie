@@ -1531,12 +1531,12 @@
         animation: pulse-icon 1.5s infinite ease-in-out;
     }
     
-    /* NEW: Announcement Image Popup Style */
-    #liveImagePopup .popup-content {
+    /* NEW: Announcement Image/Video Popup Style */
+    #liveImagePopup .popup-content, #liveVideoPopup .popup-content {
         padding: 0.5rem;
         background: var(--primary-surface);
     }
-    #liveImagePopup img {
+    #liveImagePopup img, #liveVideoPopup video {
         max-width: 100%;
         max-height: 85vh;
         height: auto;
@@ -1710,9 +1710,7 @@
             <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
             <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TKT</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
-			<button class="actionBtn" onclick="showManualCallLog()">CALL LOG</button>
             <button class="actionBtn" onclick="showView('winningTicketsView')">VIEW WINNING TICKETS</button>
-            
            </div>
     </div>
     <div class="gameSettingDiv">
@@ -1801,6 +1799,13 @@
             <div class="music-control-wrapper">
                 <input class="tableInp" type="file" id="liveImageAnnounceInp" accept="image/*" style="text-align: left; padding: 0.7rem 0.5rem;">
                 <button class="actionBtn" id="sendLiveImageBtn">Send Image</button>
+            </div>
+            
+            <!-- NEW: Video Announcement Section -->
+            <label for="liveVideoAnnounceInp" style="margin-top: 1rem; border-top: 1px solid var(--secondary-bg-dash); padding-top: 1rem;">Video Upload</label>
+            <div class="music-control-wrapper">
+                <input class="tableInp" type="file" id="liveVideoAnnounceInp" accept="video/mp4,video/webm" style="text-align: left; padding: 0.7rem 0.5rem;">
+                <button class="actionBtn" id="sendLiveVideoBtn">Send Video</button>
             </div>
         </div>
     </div>
@@ -2196,23 +2201,13 @@
     </div>
 </div>
 
-<!-- NEW: Manual Call Log Popup -->
-<div class="overlay-popup" id="manualCallLogPopup">
+<!-- NEW: Live Video Announcement Popup -->
+<div class="overlay-popup" id="liveVideoPopup">
     <div class="popup-content">
-        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-        <h3 class="popup-title">Manual Call Log</h3>
-        <div id="manualCallLogContent" style="padding: 1rem;">
-            <div id="currentManualCallDisplay" style="text-align: center; margin-bottom: 1.5rem; padding: 1rem; border: 2px dashed var(--accent-primary); border-radius: 8px;">
-                <!-- Current manual number will be displayed here -->
-            </div>
-            <h4>Log History:</h4>
-            <ul id="manualCallLogList" style="list-style: none; padding: 0; max-height: 50vh; overflow-y: auto;">
-                <!-- Log items will be populated here -->
-            </ul>
-        </div>
+         <button class="x-button" onclick="closeVideoPopup()"><i class="fas fa-times"></i></button>
+         <video id="liveVideoDisplay" controls autoplay muted playsinline style="max-width: 100%; max-height: 85vh; border-radius: 4px;"></video>
     </div>
 </div>
-
 
 <!-- Global Audio Players -->
 <audio id="backgroundMusicPlayer" loop></audio>
@@ -2491,6 +2486,7 @@ function bindEventListeners() {
     // NEW: Bind announcement buttons
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
+    document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
 }
 
 // --- FIX: ROBUST POPUP MANAGEMENT ---
@@ -2679,6 +2675,19 @@ function setupRealtimeListeners() {
             showPopup('liveImagePopup');
         }
     });
+    
+    listeners.liveVideo = db.ref('announcements/liveVideo');
+    listeners.liveVideo.on('value', snapshot => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        if (data && data.video && (Date.now() - data.timestamp) < 60000) { // 60 second validity
+            const videoEl = document.getElementById('liveVideoDisplay');
+            videoEl.src = data.video;
+            showPopup('liveVideoPopup');
+            videoEl.play().catch(e => console.warn("Video autoplay blocked", e));
+        }
+    });
+
 
     // --- NEW: WINNING TICKET PREDICTION LISTENER ---
     listeners.winningTickets = db.ref('gameSecrets/upcomingGame/winningTickets');
@@ -4705,54 +4714,6 @@ async function toggleGameRunner() {
     }
 }
 
-async function setNextCallNumber() {
-    // This function is now disabled when a pre-determined sequence is used.
-    showNotification('Manual number setting is disabled when a game sequence is active.', 'error');
-}
-
-async function showManualCallLog() {
-    try {
-        // 1. Fetch current manual number
-        const manualCallSnapshot = await db.ref('gameState/currentState/nextManualCall').once('value');
-        const currentManualCall = manualCallSnapshot.val();
-        
-        const currentDisplayEl = document.getElementById('currentManualCallDisplay');
-        if (currentManualCall) {
-            currentDisplayEl.innerHTML = `Current Manual Number Set: <strong style="font-size: 2rem; display: block; color: var(--called-color);">${currentManualCall}</strong>`;
-        } else {
-            currentDisplayEl.innerHTML = `No manual number is currently set. The next call will be random.`;
-        }
-
-        // 2. Fetch log history
-        const logListEl = document.getElementById('manualCallLogList');
-        const logSnapshot = await db.ref('logs/manualNumberSets').orderByChild('timestamp').limitToLast(50).once('value');
-        const logs = logSnapshot.val();
-
-        if (!logs || Object.keys(logs).length === 0) {
-            logListEl.innerHTML = '<li>No history found.</li>';
-        } else {
-            // Convert to array and reverse to show latest first
-            const logArray = Object.values(logs).sort((a, b) => b.timestamp - a.timestamp);
-            logListEl.innerHTML = logArray.map(log => {
-                const date = new Date(log.timestamp);
-                const formattedTime = date.toLocaleString();
-                return `<li style="padding: 0.8rem; border-bottom: 1px solid var(--secondary-surface);">
-                            <div>Number <strong style="color: var(--accent-primary);">${log.number}</strong> was set by <strong style="color: var(--accent-secondary);">${log.adminName || 'N/A'}</strong></div>
-                            <div style="font-size: 0.8em; color: var(--text-secondary);">${formattedTime}</div>
-                        </li>`;
-            }).join('');
-        }
-
-        // 3. Show the popup
-        showPopup('manualCallLogPopup');
-
-    } catch(error) {
-        showNotification("Error fetching manual call log: " + error.message, 'error');
-        console.error("Error in showManualCallLog:", error);
-    }
-}
-
-
 function callNextNumber() {
     const gameStateRef = db.ref('gameState/currentState');
     gameStateRef.transaction(gameState => {
@@ -4824,44 +4785,32 @@ function callNextNumber() {
 
 
 // --- START OF FIX: MULTIPLE WINNER CAPTURE ---
-// This function is redesigned to correctly handle multiple winners for the same dividend on the same number call.
 function checkAllWinners(calledNumbers, currentWinners) {
-    // Start with a deep copy of winners from previous turns.
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
-    
     const activeDividends = gameSettingsData.dividends || [];
     if (activeDividends.length === 0) return updatedWinners;
-
     const soldTickets = allTicketsData.filter(t => t.is_sold);
     if (soldTickets.length === 0) return updatedWinners;
-    
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     if (!lastCalledNumber) return updatedWinners;
 
-    const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
     const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
     const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
         if (ticket.owner_phone) {
-           
-
-       if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
+            if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
             acc[ticket.owner_phone].push(ticket);
         }
         return acc;
     }, {});
 
-    // Iterate through each active dividend
     for (const dividend of activeDividends) {
-        // If this dividend has already been claimed in a *previous* turn, skip it.
         if (currentWinners[dividend.name]) {
             continue;
         }
 
-        // This array will hold all winners for THIS dividend found in THIS specific call.
         let winnersThisTurn = [];
         
-        // --- Logic for single-ticket dividends ---
         for (const ticket of soldTickets) {
             if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
             
@@ -4903,12 +4852,9 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 case "First Full House":
                 case "Second Full House":
                 case "Third Full House":
-                    const existingFHWinners = Object.values(updatedWinners).flat().filter(w => w.dividendName?.includes("Full House"));
-                    const existingFHWinnerTicketIds = new Set(existingFHWinners.map(w => w.ticketId));
-
-                    if (!existingFHWinnerTicketIds.has(ticket.id) && checkPattern(allTicketNumbers)) {
-                        const claimedFHCount = Object.keys(updatedWinners).filter(key => key.includes("Full House")).length;
-                        
+                    const previouslyWonFH = Object.values(currentWinners).flat().some(w => w.dividendName?.includes("Full House") && w.ticketId === ticket.id);
+                    if (!previouslyWonFH && checkPattern(allTicketNumbers)) {
+                        const claimedFHCount = Object.keys(currentWinners).filter(key => key.includes("Full House")).length;
                         if ((dividend.name === "First Full House" && claimedFHCount === 0) ||
                             (dividend.name === "Second Full House" && claimedFHCount === 1) ||
                             (dividend.name === "Third Full House" && claimedFHCount === 2)) {
@@ -4927,7 +4873,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     break;
             }
 
-            // A ticket is only a valid winner if the LAST called number completed their pattern.
             if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
                 winnersThisTurn.push({ 
                     name: ticket.owner_name, 
@@ -4940,7 +4885,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
             }
         }
         
-        // --- Logic for multi-ticket (sheet-based) dividends ---
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
             for (const ownerPhone in ticketsByOwner) {
                 const ownerTickets = ticketsByOwner[ownerPhone];
@@ -4963,7 +4907,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                                 winningNumber: lastCalledNumber, 
                                 won_at: firebase.database.ServerValue.TIMESTAMP, 
                                 dividendName: dividend.name 
-                            });
+                              });
                         }
                     } else if (dividend.name === 'Half Sheet Bonus') {
                         const sheetTicketIds = new Set(sheetTickets.map(t => t.id));
@@ -5004,10 +4948,19 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 }
             }
         }
-
-        // After checking all tickets, if we found any winners for this dividend, add them.
+        
         if (winnersThisTurn.length > 0) {
-            updatedWinners[dividend.name] = winnersThisTurn;
+            // Deduplicate winners in case of complex scenarios (e.g., sheet bonuses)
+            const uniqueWinners = winnersThisTurn.reduce((acc, current) => {
+                if (!acc.some(item => item.name === current.name && item.ticketId === current.ticketId)) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+
+            if (uniqueWinners.length > 0) {
+                updatedWinners[dividend.name] = uniqueWinners;
+            }
         }
     }
     
@@ -5554,6 +5507,40 @@ async function sendLiveImage() {
     reader.onerror = () => showNotification('Error reading image file.', 'error');
     reader.readAsDataURL(file);
 }
+
+async function sendLiveVideo() {
+    const input = document.getElementById('liveVideoAnnounceInp');
+    const file = input.files[0];
+    if (!file) return showNotification('Please select a video file.', 'error');
+    if (file.size > 20 * 1024 * 1024) { // 20 MB limit
+        return showNotification('Video file is too large. Please keep it under 20MB.', 'error');
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
+        try {
+            await db.ref('announcements/liveVideo').set({
+                video: base64String,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            showNotification('Video announcement sent!', 'success');
+            input.value = ''; // Reset file input
+        } catch (e) {
+            showNotification('Error sending video. It might be too large for the database. ' + e.message, 'error');
+        }
+    };
+    reader.onerror = () => showNotification('Error reading video file.', 'error');
+    reader.readAsDataURL(file);
+}
+
+function closeVideoPopup() {
+    const videoEl = document.getElementById('liveVideoDisplay');
+    videoEl.pause();
+    videoEl.src = ""; // Clear the source to stop buffering
+    closePopups();
+}
+
 
 // --- NEW: Audio Control Functions ---
 async function handleMusicUpload() {
