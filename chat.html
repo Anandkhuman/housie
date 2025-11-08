@@ -283,7 +283,7 @@
 
         .messages-container {
             flex-grow: 1; /* Takes up all available space */
-            min-height: 0; /* <<< FIX: Prevents container from pushing siblings off-screen */
+            min-height: 0; /* Prevents container from pushing siblings off-screen */
             padding: 1rem;
             overflow-y: auto;
             background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
@@ -345,10 +345,19 @@
             color: var(--accent-color);
             margin-bottom: 4px;
         }
+
+        /* --- MODIFIED --- This is the new flexbox container for the text and timestamp */
+        .message-line {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px; /* Adds a small space between text and time */
+        }
+        
         .message-text {
-            /* INCREASED PADDING FOR TIME GAP */
-            padding-right: 65px; 
-            min-height: 20px; /* Ensure space for time */
+            /* --- REMOVED --- No longer need fixed padding or min-height */
+            /* padding-right: 65px;  */
+            /* min-height: 20px; */
+            flex-grow: 1; /* Allows text to take up available space */
         }
         .message-text .mention {
             font-weight: bold;
@@ -357,13 +366,15 @@
             padding: 1px 4px;
             border-radius: 3px;
         }
+
         .message-meta {
+            /* --- MODIFIED --- Changed from absolute positioning to a natural flex item */
+            position: static;
             font-size: 0.7rem;
             color: #667781;
-            position: absolute;
-            bottom: 5px;
-            right: 8px;
             white-space: nowrap;
+            flex-shrink: 0; /* Prevents the timestamp from wrapping */
+            margin-bottom: -2px; /* Small vertical alignment tweak */
         }
         .message-meta .ticks {
             margin-left: 3px;
@@ -985,16 +996,21 @@
                     messageElement.id = msgId;
                     messageElement.className = `message-bubble ${msgData.senderId === currentUser.uid ? 'sent' : 'received'}`;
                     const time = msgData.timestamp ? new Date(msgData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                    
+                    /* --- MODIFIED --- This innerHTML now uses the new .message-line wrapper for the robust flexbox layout */
                     messageElement.innerHTML = `
                         ${msgData.senderId === currentUser.uid ? `<div class="message-actions"><button class="action-btn edit-btn" data-msgid="${msgId}"><i class="fas fa-pencil-alt"></i></button><button class="action-btn delete-btn" data-msgid="${msgId}"><i class="fas fa-trash"></i></button></div>` : ''}
                         <div class="message-content">
                             ${currentChatType === 'group' && msgData.senderId !== currentUser.uid ? `<div class="sender-name">${msgData.senderName}</div>` : ''}
-                            <div class="message-text">${formatMessageText(msgData.text)}${msgData.edited ? ' <small>(edited)</small>' : ''}</div>
-                            <div class="message-meta">
-                                <span>${time}</span>
-                                <span class="ticks"></span>
+                            <div class="message-line">
+                                <div class="message-text">${formatMessageText(msgData.text)}${msgData.edited ? ' <small>(edited)</small>' : ''}</div>
+                                <div class="message-meta">
+                                    <span>${time}</span>
+                                    <span class="ticks"></span>
+                                </div>
                             </div>
                         </div>`;
+
                     if(msgData.senderId === currentUser.uid) updateTicks(messageElement.querySelector('.ticks'), msgData);
 
                     // Mark as seen
