@@ -23,6 +23,7 @@
             --received-msg-bg: #ffffff;
             --border-color: #e9edef;
             --online-color: #25d366;
+            --offline-color: #f44336; /* Added offline color */
             --seen-color: #53bdeb;
             --icon-color: #54656f;
             --hover-bg-color: rgba(0, 0, 0, 0.05);
@@ -210,7 +211,7 @@
         /* --- App Layout (Mobile: Single View) --- */
         .app-container {
             width: 100vw;
-            height: 94vh; /* Use vh for full viewport height */
+            height: 100vh; /* Use vh for full viewport height */
             display: flex;
             position: relative;
             overflow: hidden;
@@ -257,7 +258,7 @@
             border-bottom: 1px solid var(--border-color);
             height: 60px; /* Standard mobile header height */
             flex-shrink: 0; /* Prevents header from shrinking */
-            gap: 15px; /* 🟢 ADDED: Space between items */
+            gap: 15px; /* Space between items */
         }
         
         .sidebar-header h3, .chat-header-info h3 {
@@ -268,7 +269,7 @@
         .sidebar-header {
             justify-content: space-between;
         }
-        /* 🟢 ADDED: User info container */
+        
         .sidebar-user-info {
             display: flex;
             align-items: center;
@@ -281,6 +282,7 @@
             overflow: hidden;
         }
         .chat-header-info h3 {
+             line-height: 1.2;
              overflow: hidden;
              text-overflow: ellipsis;
              white-space: nowrap;
@@ -331,7 +333,7 @@
             cursor: pointer;
             border-bottom: 1px solid var(--border-color);
             transition: background-color 0.2s ease;
-            gap: 15px; /* 🟢 ADDED: Space between PFP and name */
+            gap: 15px;
         }
         .user-item:hover, .group-item:hover {
             background: var(--primary-bg);
@@ -339,16 +341,31 @@
         .user-item.active, .group-item.active {
             background: #e9edef;
         }
-
-        /* 🟢 MODIFIED: Online dot is now part of the details */
-        .online-dot {
-            width: 10px;
-            height: 10px;
-            background-color: var(--online-color);
-            border-radius: 50%;
-            margin-left: 8px; /* Space from name */
-            flex-shrink: 0;
+        
+        /* -- 🟢 START: Status Indicator Styles 🟢 -- */
+        .chat-details-wrapper {
+            flex-grow: 1;
+            overflow: hidden;
         }
+        
+        .user-status, #chat-with-status {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .user-status.online, #chat-with-status.online {
+            color: var(--online-color);
+        }
+
+        .user-status.offline, #chat-with-status.offline {
+            color: var(--offline-color);
+        }
+
+        #chat-with-status {
+            line-height: 1;
+        }
+        /* -- 🔴 END: Status Indicator Styles 🔴 -- */
+
 
         .user-item-details {
             flex-grow: 1;
@@ -357,16 +374,12 @@
             align-items: center;
             overflow: hidden;
         }
-        /* 🟢 MODIFIED: Name container to hold name + online dot */
-        .chat-name-container {
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-        }
+        
         .chat-name {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: block; /* Important for status to appear below */
         }
         .unread-badge {
             background-color: #f44336;
@@ -389,8 +402,7 @@
             display: none; /* Not needed for mobile flow */
         }
         .back-btn {
-            margin-right: 0; /* 🟢 MODIFIED: Gap is handled by parent now */
-            font-size: 1.1rem;
+            margin-right: 0;
         }
         
         .chat-screen {
@@ -453,8 +465,8 @@
             word-wrap: break-word;
             box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
             animation: fadeInUp 0.3s ease-out;
-            display: flex; /* 🟢 ADDED: For PFP alignment in groups */
-            gap: 10px; /* 🟢 ADDED: Space between PFP and bubble content */
+            display: flex;
+            gap: 10px;
         }
         .message-bubble.sent {
             background-color: var(--sent-msg-bg);
@@ -465,7 +477,6 @@
             align-self: flex-start;
         }
 
-        /* 🟢 ADDED: Style for the pfp inside a message */
         .message-pfp {
             width: 30px;
             height: 30px;
@@ -747,7 +758,6 @@
     <div id="app-container" class="app-container hidden">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <!-- 🟢 MODIFIED: Added a wrapper for user info -->
                 <div class="sidebar-user-info">
                     <div id="current-user-pfp-container" class="pfp-container clickable">
                         <!-- Profile picture will be inserted here by JS -->
@@ -777,12 +787,13 @@
             <div id="chat-screen" class="chat-screen hidden">
                 <header class="chat-header">
                     <button class="back-btn header-icon"><i class="fas fa-arrow-left"></i></button>
-                    <!-- 🟢 ADDED: PFP Container in Chat Header -->
                     <div id="chat-header-pfp-container" class="pfp-container">
                         <!-- Chat partner's PFP will be inserted here -->
                     </div>
                     <div id="chat-header-info" class="chat-header-info">
                          <h3 id="chat-with-name"></h3>
+                         <!-- 🟢 ADDED: Span for online/offline status -->
+                         <span id="chat-with-status"></span>
                     </div>
                     <button id="group-options-btn" class="header-icon hidden" title="Group Info"><i class="fas fa-ellipsis-v"></i></button>
                 </header>
@@ -797,7 +808,7 @@
         </main>
     </div>
 
-    <!-- 🟢 START: Profile Picture Upload Modal - YAHAN NAYA MODAL ADD HUA HAI 🟢 -->
+    <!-- Profile Picture Upload Modal -->
     <div id="profile-picture-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-btn" data-modal="profile-picture-modal">&times;</span>
@@ -816,7 +827,6 @@
             </button>
         </div>
     </div>
-    <!-- 🔴 END: Profile Picture Upload Modal 🔴 -->
 
     <!-- Create Group Modal -->
     <div id="create-group-modal" class="modal hidden">
@@ -863,15 +873,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             // === Firebase Configuration ===
             const firebaseConfig = {
-  apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
-  authDomain: "sinthahousie-1dd3b.firebaseapp.com",
-  databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
-  projectId: "sinthahousie-1dd3b",
-  storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
-  messagingSenderId: "76567991256",
-  appId: "1:76567991256:web:c58b127b8d86d8a1c598ad",
-  measurementId: "G-MGW406NKBY"
-};
+              apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
+              authDomain: "sinthahousie-1dd3b.firebaseapp.com",
+              databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
+              projectId: "sinthahousie-1dd3b",
+              storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
+              messagingSenderId: "76567991256",
+              appId: "1:76567991256:web:c58b127b8d86d8a1c598ad",
+              measurementId: "G-MGW406NKBY"
+            };
 
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
@@ -888,6 +898,7 @@
             let typingListenerRef;
             let lastMessageDate = null;
             let unreadCountsListener = null;
+            let chatStatusListenerRef = null; // 🟢 ADDED: For real-time status in chat header
 
             // === DOM Elements ===
             const loadingOverlay = document.getElementById('loading-overlay');
@@ -920,7 +931,6 @@
             const confirmAddMemberBtn = document.getElementById('confirm-add-member-btn');
             const currentUserNameEl = document.getElementById('current-user-name');
             
-            // 🟢 START: PFP DOM Elements
             const currentUserPfpContainer = document.getElementById('current-user-pfp-container');
             const chatHeaderPfpContainer = document.getElementById('chat-header-pfp-container');
             const pfpModal = document.getElementById('profile-picture-modal');
@@ -928,8 +938,7 @@
             const pfpPlaceholderModal = document.getElementById('pfp-placeholder-modal');
             const pfpUploadInput = document.getElementById('pfp-upload-input');
             const savePfpBtn = document.getElementById('save-pfp-btn');
-            // 🔴 END: PFP DOM Elements
-
+            
             // === Spinner/Loader Functions ===
             const showLoader = () => loadingOverlay.classList.remove('hidden');
             const hideLoader = () => loadingOverlay.classList.add('hidden');
@@ -962,7 +971,6 @@
                         db.ref('users/' + user.uid).set({
                             name: name,
                             email: email,
-                            // 🟢 Set a default profile picture or leave it blank
                             profilePicture: ""
                         });
                     })
@@ -990,6 +998,10 @@
                     db.ref('/status/' + currentUser.uid).set({ online: false, last_changed: firebase.database.ServerValue.TIMESTAMP });
                 }
                 if (unreadCountsListener) unreadCountsListener.off();
+                if (chatStatusListenerRef) { // 🟢 ADDED: Cleanup
+                    chatStatusListenerRef.off();
+                    chatStatusListenerRef = null;
+                }
                 auth.signOut();
             });
 
@@ -998,10 +1010,10 @@
                     showLoader();
                     currentUser = user;
                     
-                    await cacheAllUsers(); // Cache users first to get PFP data
+                    await cacheAllUsers();
                     
                     currentUserNameEl.textContent = user.displayName;
-                    updateCurrentUserPfp(); // 🟢 Update PFP in header
+                    updateCurrentUserPfp();
 
                     authContainer.classList.add('hidden');
                     appContainer.classList.remove('hidden');
@@ -1014,6 +1026,10 @@
                     hideLoader();
                 } else {
                     currentUser = null;
+                    if (chatStatusListenerRef) { // 🟢 ADDED: Cleanup
+                       chatStatusListenerRef.off();
+                       chatStatusListenerRef = null;
+                    }
                     authContainer.classList.remove('hidden');
                     appContainer.classList.add('hidden');
                     usersList.innerHTML = ''; groupsList.innerHTML = '';
@@ -1047,10 +1063,8 @@
                 
                 usersRef.on('value', userSnapshot => {
                     allUsersCache = userSnapshot.val() || {};
-                    // When user data changes (like a PFP update), re-render everything
                     renderUsersAndGroups();
                     updateCurrentUserPfp();
-                    // If a chat is active, update its header PFP
                     if (currentChatId && currentChatType === 'user') {
                         const otherUserId = currentChatId.replace(currentUser.uid, '').replace('_', '');
                         updateChatHeaderPfp(otherUserId, 'user');
@@ -1068,18 +1082,22 @@
                         for (const [uid, user] of sortedUsers) {
                             const userStatus = statusSnapshot.child(uid).val();
                             const isOnline = userStatus && userStatus.online;
+                            const statusText = isOnline ? 'online' : 'offline';
+                            const statusClass = isOnline ? 'online' : 'offline';
+
                             const li = document.createElement('li');
                             li.className = 'user-item';
                             li.dataset.uid = uid; li.dataset.name = user.name;
-                            // 🟢 MODIFIED: HTML structure updated for PFP and online dot
+                            
+                            // 🟢 MODIFIED: HTML structure updated for text status indicator
                              li.innerHTML = `
                                 <div class="pfp-container">
                                     ${user.profilePicture ? `<img src="${user.profilePicture}" alt="${user.name}">` : '<i class="fas fa-user"></i>'}
                                 </div>
                                 <div class="user-item-details">
-                                    <div class="chat-name-container">
+                                    <div class="chat-details-wrapper">
                                        <span class="chat-name">${user.name}</span>
-                                       <div class="online-dot" style="background-color: ${isOnline ? 'var(--online-color)' : '#ccc'}; display: ${isOnline ? 'block' : 'none'};"></div>
+                                       <span class="user-status ${statusClass}">${statusText}</span>
                                     </div>
                                     <span class="unread-badge hidden"></span>
                                 </div>
@@ -1100,7 +1118,6 @@
                             const li = document.createElement('li');
                             li.className = 'group-item';
                             li.dataset.gid = childSnapshot.key; li.dataset.name = group.name;
-                            // 🟢 MODIFIED: Added PFP container for group icon
                              li.innerHTML = `
                                 <div class="pfp-container">
                                     <i class="fas fa-users"></i>
@@ -1162,19 +1179,44 @@
                 if (typingListenerRef) typingListenerRef.off();
                 if (currentChatId) db.ref(`typing_status/${currentChatId}/${currentUser.uid}`).set(false);
 
+                // 🟢 ADDED: Detach any existing status listener before starting a new one
+                if (chatStatusListenerRef) {
+                    chatStatusListenerRef.off();
+                    chatStatusListenerRef = null;
+                }
+
                 currentChatType = type;
+                const chatStatusEl = document.getElementById('chat-with-status');
+
                 if (type === 'user') {
                     currentChatId = [currentUser.uid, id].sort().join('_');
                     currentChatMembers = { [currentUser.uid]: true, [id]: true };
                     groupOptionsBtn.classList.add('hidden');
-                    updateChatHeaderPfp(id, 'user'); // 🟢 Update chat header PFP
-                } else {
+                    updateChatHeaderPfp(id, 'user');
+                    
+                    // 🟢 ADDED: Listen for the other user's status in real-time
+                    const otherUserId = id;
+                    chatStatusListenerRef = db.ref('/status/' + otherUserId);
+                    chatStatusListenerRef.on('value', snapshot => {
+                        const status = snapshot.val();
+                        if (status && status.online) {
+                            chatStatusEl.textContent = 'online';
+                            chatStatusEl.className = 'online';
+                        } else {
+                            chatStatusEl.textContent = 'offline';
+                            chatStatusEl.className = 'offline';
+                        }
+                    });
+
+                } else { // group
                     currentChatId = id;
                     db.ref(`groups/${id}/members`).once('value', s => { 
                         currentChatMembers = s.val() || {}; 
                     });
                     groupOptionsBtn.classList.remove('hidden');
-                    updateChatHeaderPfp(id, 'group'); // 🟢 Update chat header PFP
+                    updateChatHeaderPfp(id, 'group');
+                    chatStatusEl.textContent = ''; // Hide status for groups
+                    chatStatusEl.className = '';
                 }
                 
                 if (currentChatId) {
@@ -1267,7 +1309,6 @@
                     messageElement.className = `message-bubble ${isSent ? 'sent' : 'received'}`;
                     const time = msgData.timestamp ? new Date(msgData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                     
-                    // 🟢 START: PFP logic for group messages
                     let pfpHtml = '';
                     if (currentChatType === 'group' && !isSent) {
                         const sender = allUsersCache[msgData.senderId];
@@ -1278,7 +1319,6 @@
                             </div>
                         `;
                     }
-                    // 🔴 END: PFP logic for group messages
 
                     messageElement.innerHTML = `
                         ${pfpHtml}
@@ -1431,7 +1471,7 @@
                     .catch(err => alert('Error adding members: ' + err.message));
             });
             
-            // 🟢 START: Profile Picture Functions and Event Listeners
+            // === Profile Picture Functions and Event Listeners ===
             function updateCurrentUserPfp() {
                 if (currentUser && allUsersCache[currentUser.uid]) {
                     const pfpUrl = allUsersCache[currentUser.uid].profilePicture;
@@ -1468,8 +1508,8 @@
                     pfpPreview.classList.add('hidden');
                     pfpPlaceholderModal.classList.remove('hidden');
                 }
-                savePfpBtn.classList.add('hidden'); // Hide save button initially
-                pfpUploadInput.value = ''; // Reset file input
+                savePfpBtn.classList.add('hidden');
+                pfpUploadInput.value = '';
                 pfpModal.classList.remove('hidden');
             });
 
@@ -1482,7 +1522,7 @@
                     pfpPreview.src = event.target.result;
                     pfpPreview.classList.remove('hidden');
                     pfpPlaceholderModal.classList.add('hidden');
-                    savePfpBtn.classList.remove('hidden'); // Show save button
+                    savePfpBtn.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
             });
@@ -1492,15 +1532,10 @@
                 const base64String = pfpPreview.src;
                 
                 try {
-                    // Resize image to save space
                     const resizedBase64 = await resizeImage(base64String, 200, 200);
-                    
                     await db.ref(`users/${currentUser.uid}/profilePicture`).set(resizedBase64);
-                    
-                    // Update cache and UI immediately
                     allUsersCache[currentUser.uid].profilePicture = resizedBase64;
                     updateCurrentUserPfp();
-                    
                     pfpModal.classList.add('hidden');
                     hideLoader();
                     alert('Profile picture updated!');
@@ -1534,16 +1569,22 @@
                         canvas.height = height;
                         let ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.8)); // Use JPEG for smaller size
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
                     };
                 });
             }
-            // 🔴 END: Profile Picture Functions and Event Listeners
 
             // === Helpers & Event Handlers ===
             backBtn.addEventListener('click', () => {
                 appContainer.classList.remove('mobile-chat-view-active');
                 if (currentChatId) db.ref(`typing_status/${currentChatId}/${currentUser.uid}`).set(false);
+                
+                // 🟢 ADDED: Cleanup status listener
+                if (chatStatusListenerRef) {
+                    chatStatusListenerRef.off();
+                    chatStatusListenerRef = null;
+                }
+
                 document.querySelectorAll('.user-item.active, .group-item.active').forEach(el => el.classList.remove('active'));
                 currentChatId = null; currentChatType = null;
             });
