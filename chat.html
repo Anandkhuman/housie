@@ -278,7 +278,8 @@
         .chat-screen {
             display: flex;
             flex-direction: column;
-            height: 100%;
+            flex-grow: 1; /* <-- FIXED: Changed from height: 100% */
+            min-height: 0;  /* <-- FIXED: Added for robustness */
         }
 
         .messages-container {
