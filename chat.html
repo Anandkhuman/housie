@@ -275,16 +275,19 @@
             font-size: 1.1rem;
         }
         
+        /**************************************************/
+        /***** 🟢 START OF FIX / YAHAN CHANGE KIYA GAYA HAI 🟢 *****/
+        /**************************************************/
         .chat-screen {
             display: flex;
             flex-direction: column;
-            flex-grow: 1; /* <-- FIXED: Changed from height: 100% */
-            min-height: 0;  /* <-- FIXED: Added for robustness */
+            flex-grow: 1; /* height: 100% ki jagah iska use karein taaki yeh bachi hui jagah le */
+            min-height: 0;  /* Yeh flexbox ko overflow hone se rokta hai */
         }
 
         .messages-container {
-            flex-grow: 1; /* Takes up all available space */
-            min-height: 0; /* Prevents container from pushing siblings off-screen */
+            flex-grow: 1; /* Yeh messages area ko header aur input ke beech ki saari jagah dega */
+            min-height: 0; /* Yeh zaroori hai taaki scrolling sahi se kaam kare */
             padding: 1rem;
             overflow-y: auto;
             background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
@@ -292,6 +295,9 @@
             display: flex;
             flex-direction: column;
         }
+        /************************************************/
+        /***** 🔴 END OF FIX / YAHAN TAK CHANGE THA 🔴 *****/
+        /************************************************/
         
         .date-separator {
             align-self: center;
@@ -347,7 +353,6 @@
             margin-bottom: 4px;
         }
 
-        /* --- MODIFIED --- This is the new flexbox container for the text and timestamp */
         .message-line {
             display: flex;
             align-items: flex-end;
@@ -355,9 +360,6 @@
         }
         
         .message-text {
-            /* --- REMOVED --- No longer need fixed padding or min-height */
-            /* padding-right: 65px;  */
-            /* min-height: 20px; */
             flex-grow: 1; /* Allows text to take up available space */
         }
         .message-text .mention {
@@ -369,7 +371,6 @@
         }
 
         .message-meta {
-            /* --- MODIFIED --- Changed from absolute positioning to a natural flex item */
             position: static;
             font-size: 0.7rem;
             color: #667781;
@@ -434,7 +435,7 @@
             padding: 8px 16px;
             background-color: var(--primary-bg);
             align-items: center;
-            flex-shrink: 0;
+            flex-shrink: 0; /* Yeh isko grow hone se rokega */
         }
         #message-input {
             flex-grow: 1;
@@ -998,7 +999,6 @@
                     messageElement.className = `message-bubble ${msgData.senderId === currentUser.uid ? 'sent' : 'received'}`;
                     const time = msgData.timestamp ? new Date(msgData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                     
-                    /* --- MODIFIED --- This innerHTML now uses the new .message-line wrapper for the robust flexbox layout */
                     messageElement.innerHTML = `
                         ${msgData.senderId === currentUser.uid ? `<div class="message-actions"><button class="action-btn edit-btn" data-msgid="${msgId}"><i class="fas fa-pencil-alt"></i></button><button class="action-btn delete-btn" data-msgid="${msgId}"><i class="fas fa-trash"></i></button></div>` : ''}
                         <div class="message-content">
