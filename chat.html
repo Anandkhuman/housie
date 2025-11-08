@@ -1,0 +1,1222 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sintha Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+    <style>
+        /* ==========================================================================
+           1. CSS Variables & Global Styles
+           ========================================================================== */
+        :root {
+            --wa-header-bg: #00a884;
+            --wa-body-bg: #eae6df;
+            --primary-bg: #f0f2f5;
+            --secondary-bg: #ffffff;
+            --accent-color: #00a884;
+            --text-color: #111b21;
+            --sent-msg-bg: #e7ffdb;
+            --received-msg-bg: #ffffff;
+            --border-color: #e9edef;
+            --online-color: #25d366;
+            --seen-color: #53bdeb;
+            --icon-color: #54656f;
+            --hover-bg-color: rgba(0, 0, 0, 0.05);
+            --system-message-bg: #e9edef;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--secondary-bg); /* Mobile has white BG */
+            color: var(--text-color);
+            overflow: hidden; /* Prevents scrolling on the body */
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Animation Keyframes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes typing-bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            } 40% {
+                transform: scale(1.0);
+                opacity: 1;
+            }
+        }
+
+
+        /* ==========================================================================
+           2. Mobile-First Styles (Default)
+           ========================================================================== */
+
+        /* --- Auth Container --- */
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            background: var(--secondary-bg);
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-box h1 {
+            text-align: center;
+            color: var(--accent-color);
+        }
+        .auth-box h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .auth-box button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .auth-box button:hover {
+            background: #008a6b;
+        }
+        .auth-box p {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .auth-box a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* --- App Layout (Mobile: Single View) --- */
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar, .chat-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-in-out;
+            background-color: var(--secondary-bg);
+        }
+        
+        .sidebar {
+            transform: translateX(0);
+            z-index: 2;
+        }
+
+        .chat-area {
+            transform: translateX(100%);
+            z-index: 1; /* Hide behind sidebar initially */
+        }
+        
+        /* State for when a chat is selected on mobile */
+        .app-container.mobile-chat-view-active .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .app-container.mobile-chat-view-active .chat-area {
+            transform: translateX(0);
+            z-index: 3;
+        }
+
+        /* --- Shared Header Styles --- */
+        .sidebar-header, .chat-header {
+            padding: 10px 16px;
+            background: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            height: 60px; /* Standard mobile header height */
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header h3, .chat-header-info h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .sidebar-header {
+            justify-content: space-between;
+        }
+        .chat-header-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .chat-header-info h3 {
+             overflow: hidden;
+             text-overflow: ellipsis;
+             white-space: nowrap;
+        }
+
+        .header-icon {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--icon-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            transition: background-color 0.2s ease;
+        }
+        .header-icon:hover {
+            background-color: var(--hover-bg-color);
+        }
+        
+        /* --- Sidebar Content --- */
+        .sidebar-content {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .list-section h4 {
+            padding: 1rem 1rem 0.5rem 1rem;
+            margin: 0;
+            color: var(--accent-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        #users-list, #groups-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .user-item, .group-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+        .user-item:hover, .group-item:hover {
+            background: var(--primary-bg);
+        }
+        .user-item.active, .group-item.active {
+            background: #e9edef;
+        }
+
+        .online-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--online-color);
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        /* --- Chat Area --- */
+        #welcome-screen {
+            display: none; /* Not needed for mobile flow */
+        }
+        .back-btn {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .chat-screen {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .messages-container {
+            flex-grow: 1; /* Takes up all available space */
+            padding: 1rem;
+            overflow-y: auto;
+            background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
+            background-color: #E5DDD5;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .date-separator {
+            align-self: center;
+            background-color: var(--system-message-bg);
+            color: var(--icon-color);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin: 10px 0;
+            box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+        }
+        
+        .system-message {
+             align-self: center;
+             background-color: #E3F2FD; /* Light blue background */
+             color: #0D47A1; /* Dark blue text */
+             padding: 5px 12px;
+             border-radius: 8px;
+             font-size: 0.75rem;
+             margin: 10px 0;
+             font-style: italic;
+             max-width: 80%;
+             text-align: center;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 6px 9px;
+            border-radius: 7.5px;
+            margin-bottom: 10px;
+            position: relative;
+            word-wrap: break-word;
+            box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+            animation: fadeInUp 0.3s ease-out;
+        }
+        .message-bubble.sent {
+            background-color: var(--sent-msg-bg);
+            align-self: flex-end;
+        }
+        .message-bubble.received {
+            background-color: var(--received-msg-bg);
+            align-self: flex-start;
+        }
+        
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .sender-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+        }
+        .message-text {
+            /* INCREASED PADDING FOR TIME GAP */
+            padding-right: 65px; 
+            min-height: 20px; /* Ensure space for time */
+        }
+        .message-text .mention {
+            font-weight: bold;
+            color: #005c4b;
+            background-color: rgba(0, 168, 132, 0.1);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+        .message-meta {
+            font-size: 0.7rem;
+            color: #667781;
+            position: absolute;
+            bottom: 5px;
+            right: 8px;
+            white-space: nowrap;
+        }
+        .message-meta .ticks {
+            margin-left: 3px;
+            font-weight: bold;
+        }
+        .ticks.seen {
+            color: var(--seen-color);
+        }
+        .message-actions {
+            position: absolute;
+            top: -15px;
+            right: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            display: none;
+            gap: 5px;
+            padding: 2px 5px;
+            z-index: 2;
+        }
+        .message-bubble.sent:hover .message-actions {
+            display: flex;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 0.9rem;
+            color: var(--icon-color);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+        }
+        .typing-indicator .typing-dot {
+            height: 8px;
+            width: 8px;
+            background-color: #8E8E8E;
+            border-radius: 50%;
+            margin: 0 2px;
+            opacity: 0.4;
+            animation: typing-bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator .typing-dot:nth-of-type(2) {
+            animation-delay: -1.1s;
+        }
+        .typing-indicator .typing-dot:nth-of-type(3) {
+            animation-delay: -0.9s;
+        }
+
+        /* --- Message Input --- */
+        .message-input-area {
+            display: flex;
+            padding: 8px 16px;
+            background-color: var(--primary-bg);
+            align-items: center;
+            flex-shrink: 0;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            margin: 0 10px;
+            font-size: 1rem;
+        }
+        #send-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            transition: background-color 0.2s ease;
+        }
+        #send-btn:hover {
+            background-color: #008a6b;
+        }
+
+        /* --- Modal --- */
+        .modal {
+            position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+            padding: 1rem;
+        }
+        .modal-content {
+            background: white; padding: 1.5rem; border-radius: 8px;
+            width: 100%; max-width: 500px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .close-btn { float: right; font-size: 1.5rem; cursor: pointer; line-height: 1; align-self: flex-end; }
+        .modal-content h2, .modal-content h3, .modal-content h4 { margin-top: 0; }
+        .modal-content input[type="text"] {
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; margin-bottom: 1rem;
+        }
+        .modal-scrollable-list {
+            max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color);
+            padding: 10px; margin: 1rem 0; list-style: none;
+        }
+        .member-item { display: block; margin-bottom: 8px; }
+        .modal-button {
+            width: 100%; padding: 12px; background: var(--accent-color);
+            color: white; border: none; border-radius: 5px;
+            cursor: pointer; font-size: 1rem;
+            transition: background-color 0.2s ease;
+            margin-top: 1rem;
+        }
+        #group-info-members-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #group-info-members-list li:last-child { border-bottom: none; }
+        .remove-member-btn {
+            background: #f44336; color: white; border: none;
+            padding: 4px 8px; border-radius: 4px; cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+
+        /* ==========================================================================
+           3. Tablet & Desktop Styles (min-width: 768px)
+           ========================================================================== */
+        @media (min-width: 768px) {
+            body {
+                background-color: var(--wa-body-bg);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 1rem;
+            }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 127px;
+                background-color: var(--wa-header-bg);
+                z-index: -1;
+            }
+            
+            .auth-container {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+                padding: 2rem;
+                background: var(--secondary-bg);
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            
+            .app-container {
+                width: 100%;
+                height: 95vh;
+                max-width: 1600px;
+                display: flex;
+                flex-direction: row; /* Switch to row layout */
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                border-radius: 3px;
+                position: static;
+            }
+
+            .sidebar, .chat-area {
+                position: static;
+                transform: none; /* Reset mobile transforms */
+                height: 100%;
+            }
+
+            .sidebar {
+                width: 30%;
+                max-width: 450px;
+                min-width: 340px;
+                border-right: 1px solid var(--border-color);
+                z-index: initial;
+            }
+
+            .chat-area {
+                flex: 1; /* Take remaining space */
+                z-index: initial;
+            }
+
+            .back-btn { display: none; }
+
+            #welcome-screen {
+                flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+                text-align: center; background-color: var(--primary-bg);
+            }
+            
+            .app-container:not(.mobile-chat-view-active) #chat-screen {
+                display: none; /* Hide chat screen if no chat is active on desktop */
+            }
+
+            .messages-container { padding: 1rem 5%; }
+            .message-bubble { max-width: 65%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login/Signup Screen -->
+    <div id="auth-container" class="auth-container">
+        <div class="auth-box">
+            <h1>Sintha Chat</h1>
+            
+            <!-- Login View -->
+            <div id="login-view">
+                <h2>Login</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button id="login-btn">Log In</button>
+                <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+            </div>
+
+            <!-- Signup View -->
+            <div id="signup-view" class="hidden">
+                <h2>Sign Up</h2>
+                <input type="text" id="signup-name" placeholder="Full Name" required>
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <button id="signup-btn">Sign Up</button>
+                <p>Already have an account? <a href="#" id="show-login">Log In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat App -->
+    <div id="app-container" class="app-container hidden">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3 id="current-user-name">Sintha Chat</h3>
+                <button id="logout-btn" title="Logout" class="header-icon"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+            <div class="sidebar-content">
+                <div class="list-section">
+                    <h4>Groups <button id="create-group-btn" title="Create Group" class="header-icon"><i class="fas fa-plus"></i></button></h4>
+                    <ul id="groups-list"></ul>
+                </div>
+                <div class="list-section">
+                    <h4>Users</h4>
+                    <ul id="users-list"></ul>
+                </div>
+            </div>
+        </aside>
+
+        <main class="chat-area">
+            <div id="welcome-screen">
+                <h2>Welcome to Sintha Chat</h2>
+                <p>Select a user or group to start chatting.</p>
+            </div>
+
+            <div id="chat-screen" class="chat-screen hidden">
+                <header class="chat-header">
+                    <button class="back-btn header-icon"><i class="fas fa-arrow-left"></i></button>
+                    <div id="chat-header-info" class="chat-header-info">
+                         <h3 id="chat-with-name"></h3>
+                    </div>
+                    <button id="group-options-btn" class="header-icon hidden" title="Group Info"><i class="fas fa-ellipsis-v"></i></button>
+                </header>
+                <div id="messages-container" class="messages-container">
+                    <!-- Messages will be dynamically added here -->
+                </div>
+                <footer class="message-input-area">
+                    <input type="text" id="message-input" placeholder="Type a message...">
+                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="create-group-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" data-modal="create-group-modal">&times;</span>
+            <h2>Create New Group</h2>
+            <input type="text" id="group-name-input" placeholder="Enter group name">
+            <h4>Select Members</h4>
+            <div id="group-members-list" class="modal-scrollable-list"></div>
+            <button id="confirm-create-group-btn" class="modal-button">Create Group</button>
+        </div>
+    </div>
+    
+    <!-- Group Info / Manage Members Modal -->
+    <div id="group-info-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" data-modal="group-info-modal">&times;</span>
+            <h2 id="group-info-name">Group Info</h2>
+            <h3>Members (<span id="group-member-count">0</span>)</h3>
+            <ul id="group-info-members-list" class="modal-scrollable-list"></ul>
+            <button id="show-add-member-view-btn" class="modal-button">
+                <i class="fas fa-user-plus"></i> Add Member
+            </button>
+        </div>
+    </div>
+    
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" data-modal="add-member-modal">&times;</span>
+            <h2>Add New Members</h2>
+            <h4>Select users to add</h4>
+            <div id="add-members-selection-list" class="modal-scrollable-list"></div>
+            <button id="confirm-add-member-btn" class="modal-button">Confirm Add</button>
+        </div>
+    </div>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // === Firebase Configuration ===
+            // IMPORTANT: Replace with your own Firebase project configuration.
+            const firebaseConfig = {
+                apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
+                authDomain: "sinthahousiev2.firebaseapp.com",
+                databaseURL: "https://sinthahousiev2-default-rtdb.firebaseio.com",
+                projectId: "sinthahousiev2",
+                storageBucket: "sinthahousiev2.firebasestorage.app",
+                messagingSenderId: "208652536969",
+                appId: "1:208652536969:web:08e153afe2794fb6610a58",
+                measurementId: "G-5WH1X6308S"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.database();
+
+            // === Global Variables ===
+            let currentUser = null;
+            let currentChatId = null;
+            let currentChatType = null;
+            let currentChatMembers = {};
+            let allUsersCache = {};
+            let messageListeners = {};
+            let typingTimer;
+            let typingListenerRef;
+            let lastMessageDate = null;
+
+            // === DOM Elements ===
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+            const loginView = document.getElementById('login-view');
+            const signupView = document.getElementById('signup-view');
+            const usersList = document.getElementById('users-list');
+            const groupsList = document.getElementById('groups-list');
+            const chatScreen = document.getElementById('chat-screen');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const chatWithNameEl = document.getElementById('chat-with-name');
+            const messagesContainer = document.getElementById('messages-container');
+            const messageInput = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            const backBtn = document.querySelector('.back-btn');
+            const createGroupBtn = document.getElementById('create-group-btn');
+            const createGroupModal = document.getElementById('create-group-modal');
+            const groupNameInput = document.getElementById('group-name-input');
+            const groupMembersList = document.getElementById('group-members-list');
+            const confirmCreateGroupBtn = document.getElementById('confirm-create-group-btn');
+            const groupOptionsBtn = document.getElementById('group-options-btn');
+            const groupInfoModal = document.getElementById('group-info-modal');
+            const groupInfoName = document.getElementById('group-info-name');
+            const groupMemberCount = document.getElementById('group-member-count');
+            const groupInfoMembersList = document.getElementById('group-info-members-list');
+            const showAddMemberViewBtn = document.getElementById('show-add-member-view-btn');
+            const addMemberModal = document.getElementById('add-member-modal');
+            const addMembersSelectionList = document.getElementById('add-members-selection-list');
+            const confirmAddMemberBtn = document.getElementById('confirm-add-member-btn');
+            const currentUserNameEl = document.getElementById('current-user-name');
+
+            // === Generic Event Listeners ===
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById(btn.dataset.modal).classList.add('hidden');
+                });
+            });
+
+            // === Authentication Logic ===
+            document.getElementById('show-signup').addEventListener('click', (e) => { e.preventDefault(); loginView.classList.add('hidden'); signupView.classList.remove('hidden'); });
+            document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); signupView.classList.add('hidden'); loginView.classList.remove('hidden'); });
+
+            document.getElementById('signup-btn').addEventListener('click', () => {
+                const name = document.getElementById('signup-name').value.trim();
+                const email = document.getElementById('signup-email').value.trim();
+                const password = document.getElementById('signup-password').value;
+                if (!name || !email || !password) { alert('Please fill all fields'); return; }
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(userCredential => {
+                        const user = userCredential.user;
+                        user.updateProfile({ displayName: name });
+                        db.ref('users/' + user.uid).set({ name: name, email: email, });
+                    })
+                    .catch(error => alert(error.message));
+            });
+
+            document.getElementById('login-btn').addEventListener('click', () => {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                auth.signInWithEmailAndPassword(email, password).catch(error => alert(error.message));
+            });
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                if (currentUser) {
+                    db.ref(`typing_status/${currentChatId}/${currentUser.uid}`).set(false);
+                    db.ref('/status/' + currentUser.uid).set({ online: false, last_changed: firebase.database.ServerValue.TIMESTAMP });
+                }
+                auth.signOut();
+            });
+
+            auth.onAuthStateChanged(async user => {
+                if (user) {
+                    currentUser = user;
+                    currentUserNameEl.textContent = user.displayName;
+                    authContainer.classList.add('hidden');
+                    appContainer.classList.remove('hidden');
+                    await cacheAllUsers();
+                    setupPresenceSystem();
+                    loadUsersAndStatus();
+                    loadGroups();
+                } else {
+                    currentUser = null;
+                    authContainer.classList.remove('hidden');
+                    appContainer.classList.add('hidden');
+                    usersList.innerHTML = ''; groupsList.innerHTML = '';
+                    chatScreen.classList.add('hidden'); 
+                    welcomeScreen.classList.remove('hidden');
+                }
+            });
+
+            // === Presence System ===
+            function setupPresenceSystem() {
+                const userStatusDatabaseRef = db.ref('/status/' + currentUser.uid);
+                const isOffline = { online: false, last_changed: firebase.database.ServerValue.TIMESTAMP };
+                const isOnline = { online: true, last_changed: firebase.database.ServerValue.TIMESTAMP };
+                db.ref('.info/connected').on('value', snapshot => {
+                    if (snapshot.val() === false) return;
+                    userStatusDatabaseRef.onDisconnect().set(isOffline).then(() => userStatusDatabaseRef.set(isOnline));
+                });
+            }
+
+            // === Data Loading & Rendering ===
+            async function cacheAllUsers() {
+                 await db.ref('users').once('value', snapshot => {
+                    allUsersCache = snapshot.val() || {};
+                });
+            }
+
+            function loadUsersAndStatus() {
+                const usersRef = db.ref('users');
+                const statusRef = db.ref('status');
+                
+                usersRef.on('value', userSnapshot => {
+                    allUsersCache = userSnapshot.val() || {};
+                    renderUsersAndGroups();
+                });
+                statusRef.on('value', () => renderUsersAndGroups());
+
+                function renderUsersAndGroups() {
+                    statusRef.once('value', statusSnapshot => {
+                        usersList.innerHTML = '';
+                        const sortedUsers = Object.entries(allUsersCache)
+                            .filter(([uid]) => uid !== currentUser.uid)
+                            .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+
+                        for (const [uid, user] of sortedUsers) {
+                            const userStatus = statusSnapshot.child(uid).val();
+                            const isOnline = userStatus && userStatus.online;
+                            const li = document.createElement('li');
+                            li.className = 'user-item';
+                            li.dataset.uid = uid; li.dataset.name = user.name;
+                            li.innerHTML = `<div class="online-dot" style="background-color: ${isOnline ? 'var(--online-color)' : '#ccc'};"></div><span>${user.name}</span>`;
+                            li.addEventListener('click', () => startChat(uid, user.name, 'user'));
+                            usersList.appendChild(li);
+                        }
+                    });
+                }
+            }
+            
+            function loadGroups() {
+                db.ref('groups').orderByChild('name').on('value', snapshot => {
+                    groupsList.innerHTML = '';
+                    snapshot.forEach(childSnapshot => {
+                        const group = childSnapshot.val();
+                        if (group.members && group.members[currentUser.uid]) {
+                            const li = document.createElement('li');
+                            li.className = 'group-item';
+                            li.dataset.gid = childSnapshot.key; li.dataset.name = group.name;
+                            li.innerHTML = `<span><i class="fas fa-users"></i> ${group.name}</span>`;
+                            li.addEventListener('click', () => startChat(childSnapshot.key, group.name, 'group'));
+                            groupsList.appendChild(li);
+                        }
+                    });
+                });
+            }
+
+            // === Chat Logic ===
+            function startChat(id, name, type) {
+                appContainer.classList.add('mobile-chat-view-active');
+                welcomeScreen.classList.add('hidden');
+                chatScreen.classList.remove('hidden');
+                chatWithNameEl.textContent = name;
+                messagesContainer.innerHTML = '';
+                lastMessageDate = null;
+
+                if (currentChatId && messageListeners[currentChatId]) {
+                    messageListeners[currentChatId].ref.off();
+                    delete messageListeners[currentChatId];
+                }
+                if (typingListenerRef) typingListenerRef.off();
+                if (currentChatId) db.ref(`typing_status/${currentChatId}/${currentUser.uid}`).set(false);
+
+                currentChatType = type;
+                if (type === 'user') {
+                    currentChatId = [currentUser.uid, id].sort().join('_');
+                    currentChatMembers = { [currentUser.uid]: true, [id]: true };
+                    groupOptionsBtn.classList.add('hidden');
+                } else {
+                    currentChatId = id;
+                    db.ref(`groups/${id}/members`).once('value', s => { 
+                        currentChatMembers = s.val() || {}; 
+                    });
+                    groupOptionsBtn.classList.remove('hidden');
+                }
+
+                document.querySelectorAll('.user-item, .group-item').forEach(el => el.classList.remove('active'));
+                const activeEl = type === 'user' ? document.querySelector(`.user-item[data-uid="${id}"]`) : document.querySelector(`.group-item[data-gid="${id}"]`);
+                if(activeEl) activeEl.classList.add('active');
+                
+                loadMessages();
+                listenForTyping();
+            }
+
+            function loadMessages() {
+                const messagesRef = db.ref(`chats/${currentChatId}/messages`).orderByChild('timestamp');
+                
+                messageListeners[currentChatId] = { ref: messagesRef };
+                messagesRef.on('child_added', s => displayMessage(s.key, s.val()));
+                messagesRef.on('child_changed', s => {
+                    const el = document.getElementById(s.key);
+                    if(el) {
+                         // Re-render only message text and ticks to avoid animation flicker
+                        const msgData = s.val();
+                        el.querySelector('.message-text').innerHTML = `${formatMessageText(msgData.text)}${msgData.edited ? ' <small>(edited)</small>' : ''}`;
+                        if(msgData.senderId === currentUser.uid) updateTicks(el.querySelector('.ticks'), msgData);
+                    }
+                });
+                messagesRef.on('child_removed', s => {
+                    const el = document.getElementById(s.key);
+                    if(el) el.remove();
+                });
+            }
+
+            function sendMessage() {
+                const text = messageInput.value.trim();
+                if (text === '' || !currentChatId) return;
+                
+                const messageData = {
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName,
+                    text: text,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    seenBy: { [currentUser.uid]: true }
+                };
+
+                db.ref(`chats/${currentChatId}/messages`).push(messageData);
+                db.ref(`chats/${currentChatId}/members`).update(currentChatMembers); // Ensure members list is up to date
+
+                messageInput.value = '';
+                messageInput.focus();
+                clearTimeout(typingTimer);
+                db.ref(`typing_status/${currentChatId}/${currentUser.uid}`).set(false);
+            }
+
+            function sendSystemMessage(text) {
+                 if (!currentChatId || currentChatType !== 'group') return;
+                 db.ref(`chats/${currentChatId}/messages`).push({
+                    type: 'system',
+                    text: text,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                 });
+            }
+
+            function displayMessage(msgId, msgData) {
+                // Add date separator if needed
+                if (msgData.timestamp) {
+                    const messageDate = new Date(msgData.timestamp).toLocaleDateString();
+                    if (messageDate !== lastMessageDate) {
+                        const dateDiv = document.createElement('div');
+                        dateDiv.className = 'date-separator';
+                        dateDiv.textContent = new Date(msgData.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                        messagesContainer.appendChild(dateDiv);
+                        lastMessageDate = messageDate;
+                    }
+                }
+                
+                let messageElement;
+                if (msgData.type === 'system') {
+                    messageElement = document.createElement('div');
+                    messageElement.className = 'system-message';
+                    messageElement.textContent = msgData.text;
+                } else {
+                    messageElement = document.createElement('div');
+                    messageElement.id = msgId;
+                    messageElement.className = `message-bubble ${msgData.senderId === currentUser.uid ? 'sent' : 'received'}`;
+                    const time = msgData.timestamp ? new Date(msgData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                    messageElement.innerHTML = `
+                        ${msgData.senderId === currentUser.uid ? `<div class="message-actions"><button class="action-btn edit-btn" data-msgid="${msgId}"><i class="fas fa-pencil-alt"></i></button><button class="action-btn delete-btn" data-msgid="${msgId}"><i class="fas fa-trash"></i></button></div>` : ''}
+                        <div class="message-content">
+                            ${currentChatType === 'group' && msgData.senderId !== currentUser.uid ? `<div class="sender-name">${msgData.senderName}</div>` : ''}
+                            <div class="message-text">${formatMessageText(msgData.text)}${msgData.edited ? ' <small>(edited)</small>' : ''}</div>
+                            <div class="message-meta">
+                                <span>${time}</span>
+                                <span class="ticks"></span>
+                            </div>
+                        </div>`;
+                    if(msgData.senderId === currentUser.uid) updateTicks(messageElement.querySelector('.ticks'), msgData);
+
+                    // Mark as seen
+                    if (msgData.senderId !== currentUser.uid && (!msgData.seenBy || !msgData.seenBy[currentUser.uid])) {
+                        db.ref(`chats/${currentChatId}/messages/${msgId}/seenBy/${currentUser.uid}`).set(true);
+                    }
+                }
+                
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) messagesContainer.insertBefore(messageElement, typingIndicator);
+                else messagesContainer.appendChild(messageElement);
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            function listenForTyping() {
+                typingListenerRef = db.ref(`typing_status/${currentChatId}`);
+                typingListenerRef.on('value', snapshot => {
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator) typingIndicator.remove();
+                    
+                    const whoIsTyping = [];
+                    snapshot.forEach(userTyping => {
+                        if(userTyping.key !== currentUser.uid && userTyping.val() === true) {
+                            whoIsTyping.push(userTyping.key);
+                        }
+                    });
+                    if (whoIsTyping.length > 0) {
+                        const indicatorDiv = document.createElement('div');
+                        indicatorDiv.id = 'typing-indicator';
+                        indicatorDiv.className = 'message-bubble received typing-indicator';
+                        indicatorDiv.innerHTML = `<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>`;
+                        messagesContainer.appendChild(indicatorDiv);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
+                });
+            }
+
+            // === Group Management ===
+            function populateGroupModalUsers() {
+                groupMembersList.innerHTML = '';
+                const sortedUsers = Object.entries(allUsersCache)
+                    .filter(([uid]) => uid !== currentUser.uid)
+                    .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+
+                for (const [uid, user] of sortedUsers) {
+                    const label = document.createElement('label');
+                    label.className = 'member-item';
+                    label.innerHTML = `<input type="checkbox" value="${uid}"> ${user.name}`;
+                    groupMembersList.appendChild(label);
+                }
+            }
+
+            createGroupBtn.addEventListener('click', () => {
+                populateGroupModalUsers();
+                createGroupModal.classList.remove('hidden');
+            });
+
+            confirmCreateGroupBtn.addEventListener('click', () => {
+                const groupName = groupNameInput.value.trim();
+                if (!groupName) { alert("Please enter a group name."); return; }
+
+                const selectedMembers = { [currentUser.uid]: true };
+                groupMembersList.querySelectorAll('input:checked').forEach(cb => {
+                    selectedMembers[cb.value] = true;
+                });
+
+                if (Object.keys(selectedMembers).length < 2) { alert("Please select at least one member."); return; }
+
+                const newGroupRef = db.ref('groups').push();
+                newGroupRef.set({ name: groupName, members: selectedMembers, createdBy: currentUser.uid, createdAt: firebase.database.ServerValue.TIMESTAMP })
+                    .then(() => {
+                        createGroupModal.classList.add('hidden');
+                        groupNameInput.value = '';
+                        startChat(newGroupRef.key, groupName, 'group'); // Optionally auto-start chat
+                    })
+                    .catch(err => alert("Error creating group: " + err.message));
+            });
+
+            groupOptionsBtn.addEventListener('click', () => {
+                if (currentChatType !== 'group' || !currentChatId) return;
+                groupInfoModal.classList.remove('hidden');
+                populateGroupInfoModal();
+            });
+
+            async function populateGroupInfoModal() {
+                const groupRef = db.ref(`groups/${currentChatId}`);
+                const groupSnapshot = await groupRef.once('value');
+                const groupData = groupSnapshot.val();
+                if (!groupData) return;
+
+                groupInfoName.textContent = groupData.name;
+                currentChatMembers = groupData.members || {};
+                const memberUIDs = Object.keys(currentChatMembers);
+                groupMemberCount.textContent = memberUIDs.length;
+
+                groupInfoMembersList.innerHTML = '';
+                memberUIDs.forEach(uid => {
+                    const user = allUsersCache[uid];
+                    if (!user) return;
+                    const li = document.createElement('li');
+                    let html = `<span>${user.name} ${uid === currentUser.uid ? '(You)' : ''}</span>`;
+                    if (uid !== currentUser.uid) {
+                        html += `<button class="remove-member-btn" data-uid="${uid}" data-name="${user.name}">Remove</button>`;
+                    }
+                    li.innerHTML = html;
+                    groupInfoMembersList.appendChild(li);
+                });
+            }
+
+            groupInfoMembersList.addEventListener('click', e => {
+                if (e.target.classList.contains('remove-member-btn')) {
+                    const uidToRemove = e.target.dataset.uid;
+                    const nameToRemove = e.target.dataset.name;
+                    if (confirm(`Are you sure you want to remove ${nameToRemove} from the group?`)) {
+                        db.ref(`groups/${currentChatId}/members/${uidToRemove}`).remove()
+                            .then(() => {
+                                sendSystemMessage(`${currentUser.displayName} removed ${nameToRemove}.`);
+                                populateGroupInfoModal();
+                            })
+                            .catch(err => alert('Error removing member: ' + err.message));
+                    }
+                }
+            });
+
+            showAddMemberViewBtn.addEventListener('click', () => {
+                groupInfoModal.classList.add('hidden');
+                addMemberModal.classList.remove('hidden');
+                populateAddMemberSelectionList();
+            });
+
+            function populateAddMemberSelectionList() {
+                addMembersSelectionList.innerHTML = '';
+                for (const uid in allUsersCache) {
+                    if (uid !== currentUser.uid && !currentChatMembers[uid]) {
+                        const user = allUsersCache[uid];
+                        const label = document.createElement('label');
+                        label.className = 'member-item';
+                        label.innerHTML = `<input type="checkbox" value="${uid}" data-name="${user.name}"> ${user.name}`;
+                        addMembersSelectionList.appendChild(label);
+                    }
+                }
+            }
+
+            confirmAddMemberBtn.addEventListener('click', () => {
+                const selectedCheckboxes = addMembersSelectionList.querySelectorAll('input:checked');
+                if (selectedCheckboxes.length === 0) { alert('Please select at least one user.'); return; }
+                const updates = {};
+                const namesAdded = [];
+                selectedCheckboxes.forEach(cb => {
+                    updates[cb.value] = true;
+                    namesAdded.push(cb.dataset.name);
+                });
+
+                db.ref(`groups/${currentChatId}/members`).update(updates)
+                    .then(() => {
+                        sendSystemMessage(`${currentUser.displayName} added ${namesAdded.join(', ')}.`);
+                        addMemberModal.classList.add('hidden');
+                        alert(`${namesAdded.join(', ')} added successfully!`);
+                    })
+                    .catch(err => alert('Error adding members: ' + err.message));
+            });
+            
+            // === Helpers & Event Handlers ===
+            backBtn.addEventListener('click', () => {
+                appContainer.classList.remove('mobile-chat-view-active');
+                if (currentChatId) db.ref(`typing_status/${currentChatId}/${currentUser.uid}`).set(false);
+                document.querySelectorAll('.user-item.active, .group-item.active').forEach(el => el.classList.remove('active'));
+                currentChatId = null; currentChatType = null;
+            });
+
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+            messageInput.addEventListener('input', () => {
+                if (!currentChatId) return;
+                const typingRef = db.ref(`typing_status/${currentChatId}/${currentUser.uid}`);
+                typingRef.set(true);
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => typingRef.set(false), 2000);
+            });
+            
+            messagesContainer.addEventListener('click', e => {
+                if (e.target.closest('.delete-btn')) {
+                    const msgId = e.target.closest('.delete-btn').dataset.msgid;
+                    if(confirm("Are you sure you want to delete this message?")) {
+                        db.ref(`chats/${currentChatId}/messages/${msgId}`).remove();
+                    }
+                }
+                if (e.target.closest('.edit-btn')) {
+                    const msgId = e.target.closest('.edit-btn').dataset.msgid;
+                    const currentText = document.querySelector(`#${msgId} .message-text`).innerText.replace(' (edited)', '');
+                    const newText = prompt("Edit your message:", currentText);
+                    if (newText && newText.trim() !== currentText) {
+                        db.ref(`chats/${currentChatId}/messages/${msgId}`).update({
+                            text: newText.trim(),
+                            edited: true
+                        });
+                    }
+                }
+            });
+
+            function updateTicks(ticksEl, msgData) {
+                if (!ticksEl) return;
+                const seenByCount = msgData.seenBy ? Object.keys(msgData.seenBy).length : 0;
+                const totalMembers = Object.keys(currentChatMembers).length;
+                if (seenByCount >= totalMembers) {
+                    ticksEl.innerHTML = '<i class="fas fa-check-double"></i>';
+                    ticksEl.classList.add('seen');
+                } else if (seenByCount > 1) { // Delivered to at least one other person
+                    ticksEl.innerHTML = '<i class="fas fa-check-double"></i>';
+                    ticksEl.classList.remove('seen');
+                } else { // Sent
+                    ticksEl.innerHTML = '<i class="fas fa-check"></i>';
+                    ticksEl.classList.remove('seen');
+                }
+            }
+
+            function formatMessageText(text) {
+                // Sanitize HTML to prevent XSS
+                const sanitizedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                // Highlight @mentions
+                return sanitizedText.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+            }
+        });
+    </script>
+</body>
+</html>
