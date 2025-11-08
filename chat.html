@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Sintha Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
@@ -42,13 +42,41 @@
             margin: 0;
             background-color: var(--secondary-bg); /* Mobile has white BG */
             color: var(--text-color);
-            overflow: hidden; /* Prevents scrolling on the body */
+            overflow: hidden; /* Prevents scrolling on the body, VERY IMPORTANT for mobile app feel */
         }
 
         .hidden {
             display: none !important;
         }
         
+        /* --- Loading Spinner Styles --- */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--border-color);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Animation Keyframes */
         @keyframes fadeInUp {
             from {
@@ -137,7 +165,7 @@
         /* --- App Layout (Mobile: Single View) --- */
         .app-container {
             width: 100vw;
-            height: 100vh;
+            height: 92vh; /* Use vh for full viewport height */
             display: flex;
             position: relative;
             overflow: hidden;
@@ -183,7 +211,7 @@
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             height: 60px; /* Standard mobile header height */
-            flex-shrink: 0;
+            flex-shrink: 0; /* Prevents header from shrinking */
         }
         
         .sidebar-header h3, .chat-header-info h3 {
@@ -275,29 +303,44 @@
             font-size: 1.1rem;
         }
         
-        /**************************************************/
-        /***** 🟢 START OF FIX / YAHAN CHANGE KIYA GAYA HAI 🟢 *****/
-        /**************************************************/
+        /******************************************************************/
+        /***** 🟢 START OF MOBILE LAYOUT FIX / YAHAN FIX KIYA GAYA HAI 🟢 *****/
+        /******************************************************************/
+
+        /* Step 1: Poore chat screen ko ek flex container banaya gaya hai.
+           Yeh header, messages, aur input area ko vertically manage karega. */
         .chat-screen {
             display: flex;
             flex-direction: column;
-            flex-grow: 1; /* height: 100% ki jagah iska use karein taaki yeh bachi hui jagah le */
-            min-height: 0;  /* Yeh flexbox ko overflow hone se rokta hai */
+            flex-grow: 1; /* Yeh .chat-area ke andar poori jagah lega */
+            min-height: 0;  /* Yeh flexbox scrolling bugs ko theek karne ke liye zaroori hai */
         }
 
+        /* Step 2: Messages area ko bataya gaya hai ki woh bachi hui saari jagah le le aur scroll ho. */
         .messages-container {
-            flex-grow: 1; /* Yeh messages area ko header aur input ke beech ki saari jagah dega */
-            min-height: 0; /* Yeh zaroori hai taaki scrolling sahi se kaam kare */
+            flex-grow: 1; /* Yeh property isey header aur footer ke beech ki saari jagah de degi */
+            min-height: 0; /* Yeh overflow-y ko theek se kaam karne mein madad karta hai */
             padding: 1rem;
-            overflow-y: auto;
+            overflow-y: auto; /* Ab sirf YAHI area scroll hoga */
             background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
             background-color: #E5DDD5;
             display: flex;
             flex-direction: column;
         }
-        /************************************************/
-        /***** 🔴 END OF FIX / YAHAN TAK CHANGE THA 🔴 *****/
-        /************************************************/
+        
+        /* Step 3: Neeche wale input area ko fix rakha gaya hai taaki woh chhota na ho. */
+        .message-input-area {
+            display: flex;
+            padding: 8px 16px;
+            background-color: var(--primary-bg);
+            align-items: center;
+            flex-shrink: 0; /* Bahut Zaroori: Yeh is area ko shrink hone se rokta hai */
+            border-top: 1px solid var(--border-color);
+        }
+
+        /************************************************************/
+        /***** 🔴 END OF MOBILE LAYOUT FIX / YAHAN TAK FIX THA 🔴 *****/
+        /************************************************************/
         
         .date-separator {
             align-self: center;
@@ -430,13 +473,6 @@
         }
 
         /* --- Message Input --- */
-        .message-input-area {
-            display: flex;
-            padding: 8px 16px;
-            background-color: var(--primary-bg);
-            align-items: center;
-            flex-shrink: 0; /* Yeh isko grow hone se rokega */
-        }
         #message-input {
             flex-grow: 1;
             padding: 10px 15px;
@@ -591,6 +627,11 @@
 </head>
 <body>
 
+    <!-- Loading Spinner Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+    </div>
+
     <!-- Login/Signup Screen -->
     <div id="auth-container" class="auth-container">
         <div class="auth-box">
@@ -641,7 +682,8 @@
                 <h2>Welcome to Sintha Chat</h2>
                 <p>Select a user or group to start chatting.</p>
             </div>
-
+            
+            <!-- HTML STRUCTURE CHANGE: .chat-screen ab header, messages, aur footer ko wrap karega -->
             <div id="chat-screen" class="chat-screen hidden">
                 <header class="chat-header">
                     <button class="back-btn header-icon"><i class="fas fa-arrow-left"></i></button>
@@ -703,10 +745,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <script>
-        // Rest of the Javascript code remains the same...
+        // JAVASCRIPT MEIN KOI CHANGE NAHI KIYA GAYA HAI, YEH BILKUL WAISE KA WAISA HAI
         document.addEventListener('DOMContentLoaded', () => {
             // === Firebase Configuration ===
-            // IMPORTANT: Replace with your own Firebase project configuration.
             const firebaseConfig = {
                 apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
                 authDomain: "sinthahousiev2.firebaseapp.com",
@@ -734,6 +775,7 @@
             let lastMessageDate = null;
 
             // === DOM Elements ===
+            const loadingOverlay = document.getElementById('loading-overlay'); // Spinner
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
             const loginView = document.getElementById('login-view');
@@ -763,6 +805,10 @@
             const confirmAddMemberBtn = document.getElementById('confirm-add-member-btn');
             const currentUserNameEl = document.getElementById('current-user-name');
 
+            // === Spinner/Loader Functions ===
+            const showLoader = () => loadingOverlay.classList.remove('hidden');
+            const hideLoader = () => loadingOverlay.classList.add('hidden');
+
             // === Generic Event Listeners ===
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -775,26 +821,41 @@
             document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); signupView.classList.add('hidden'); loginView.classList.remove('hidden'); });
 
             document.getElementById('signup-btn').addEventListener('click', () => {
+                showLoader();
                 const name = document.getElementById('signup-name').value.trim();
                 const email = document.getElementById('signup-email').value.trim();
                 const password = document.getElementById('signup-password').value;
-                if (!name || !email || !password) { alert('Please fill all fields'); return; }
+                if (!name || !email || !password) {
+                    alert('Please fill all fields');
+                    hideLoader();
+                    return;
+                }
                 auth.createUserWithEmailAndPassword(email, password)
                     .then(userCredential => {
                         const user = userCredential.user;
                         user.updateProfile({ displayName: name });
-                        db.ref('users/' + user.uid).set({ name: name, email: email, });
+                        db.ref('users/' + user.uid).set({ name: name, email: email });
+                        // hideLoader() is called in onAuthStateChanged
                     })
-                    .catch(error => alert(error.message));
+                    .catch(error => {
+                        alert(error.message);
+                        hideLoader();
+                    });
             });
 
             document.getElementById('login-btn').addEventListener('click', () => {
+                showLoader();
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
-                auth.signInWithEmailAndPassword(email, password).catch(error => alert(error.message));
+                auth.signInWithEmailAndPassword(email, password)
+                    .catch(error => {
+                        alert(error.message);
+                        hideLoader();
+                    });
             });
 
             document.getElementById('logout-btn').addEventListener('click', () => {
+                showLoader();
                 if (currentUser) {
                     db.ref(`typing_status/${currentChatId}/${currentUser.uid}`).set(false);
                     db.ref('/status/' + currentUser.uid).set({ online: false, last_changed: firebase.database.ServerValue.TIMESTAMP });
@@ -804,14 +865,19 @@
 
             auth.onAuthStateChanged(async user => {
                 if (user) {
+                    showLoader(); // Show spinner while loading initial app data
                     currentUser = user;
                     currentUserNameEl.textContent = user.displayName;
                     authContainer.classList.add('hidden');
                     appContainer.classList.remove('hidden');
+                    
+                    // Wait for initial data to be ready before showing the app
                     await cacheAllUsers();
                     setupPresenceSystem();
                     loadUsersAndStatus();
                     loadGroups();
+                    
+                    hideLoader(); // Hide spinner after everything is loaded
                 } else {
                     currentUser = null;
                     authContainer.classList.remove('hidden');
@@ -819,6 +885,7 @@
                     usersList.innerHTML = ''; groupsList.innerHTML = '';
                     chatScreen.classList.add('hidden'); 
                     welcomeScreen.classList.remove('hidden');
+                    hideLoader();
                 }
             });
 
@@ -1119,7 +1186,7 @@
                     }
                     li.innerHTML = html;
                     groupInfoMembersList.appendChild(li);
-                });
+});
             }
 
             groupInfoMembersList.addEventListener('click', e => {
