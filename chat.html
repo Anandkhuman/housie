@@ -283,6 +283,7 @@
 
         .messages-container {
             flex-grow: 1; /* Takes up all available space */
+            min-height: 0; /* <<< FIX: Prevents container from pushing siblings off-screen */
             padding: 1rem;
             overflow-y: auto;
             background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
@@ -689,6 +690,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <script>
+        // Rest of the Javascript code remains the same...
         document.addEventListener('DOMContentLoaded', () => {
             // === Firebase Configuration ===
             // IMPORTANT: Replace with your own Firebase project configuration.
