@@ -30,6 +30,7 @@
             --pending-color: orange;
             --loss-color: #ffffff; 
             --reject-color: #ffffff;
+            --win-example-color: #90ee90; /* Light green for example */
 
             /* Glassmorphism Variables */
             --glass-bg: rgba(255, 255, 255, 0.1);
@@ -223,6 +224,10 @@
         .status-pending { color: var(--pending-color); font-weight: 600; }
         .status-rejected { color: var(--reject-color); font-weight: 600; text-decoration: line-through; }
         .ticket-actions { white-space: nowrap; }
+        .win-example {
+            color: var(--win-example-color);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
 
         /* --- 5. Modal Styling (Glassmorphism Style) --- */
         .modal {
@@ -396,12 +401,13 @@
             text-align: center;
         }
         #name-picker-display span {
-            font-size: 1.8rem;
+            font-size: 1.5rem; /* Adjusted for longer text */
             font-weight: 700;
             color: var(--secondary-color);
             text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
             transition: transform 0.2s ease-out, opacity 0.2s ease-out;
             display: inline-block;
+            word-break: break-word; /* Helps with long names */
         }
         #name-picker-display.picking span {
             opacity: 0.7;
@@ -416,7 +422,7 @@
             50% { text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px var(--secondary-color); }
         }
         @media (max-width: 400px) {
-            #name-picker-display span { font-size: 1.4rem; }
+            #name-picker-display span { font-size: 1.2rem; } /* Adjusted for longer text */
         }
 
         /* --- [START] SLOT MACHINE STYLES --- */
@@ -594,6 +600,10 @@
 </head>
 <body>
 
+    <!-- Audio elements for the live draw -->
+    <audio id="name-picker-audio" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2b23547161.mp3" preload="auto" loop></audio>
+    <audio id="slot-machine-audio" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_a17c2aa4a8.mp3" preload="auto"></audio>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay">
         <div class="loader-wrapper">
@@ -662,7 +672,19 @@
                     </div>
                 </div>
 
-                <!-- [NEW] Live Result Search -->
+                <!-- [MODIFIED] Win Rule Text with English and Green Example -->
+                <div class="lottery-card" style="padding: 15px; margin-top: 20px; text-align: center;">
+                    <h4>How Winning is Decided</h4>
+                    <p style="font-size: 0.85rem; line-height: 1.6;">
+                        Our system automatically draws one participant at a time. The result ('WIN' or 'LOSS') for each participant is determined by a probability calculation based on the number of prizes remaining versus the number of participants left in the draw.
+                        <br><br>
+                        The slot machine visually displays this result. If all three columns show 'WIN', the participant is a <strong>Winner</strong>.
+                        <br>
+                        <strong class="win-example">Example: [ WIN ] [ WIN ] [ WIN ] = Winner!</strong>
+                    </p>
+                </div>
+
+                <!-- Live Result Search -->
                 <div class="search-container" style="margin-top: 30px;">
                     <i class="fas fa-search"></i>
                     <input type="text" id="live-result-search" placeholder="Search your ticket by number or name...">
@@ -913,7 +935,7 @@
         </div>
     </div>
     
-    <!-- [NEW] Lottery Details Modal -->
+    <!-- Lottery Details Modal -->
     <div id="lottery-details-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -986,7 +1008,7 @@
         let allTicketsCache = {};
         let allResultsCache = {};
         let lotteryTicketCounts = {};
-        let currentLiveDrawData = {}; // [NEW] For live search
+        let currentLiveDrawData = {}; 
         let countdownInterval;
         let autoDrawTimeout = null; 
         let ttsEnabled = false;
@@ -998,6 +1020,8 @@
         const modals = document.querySelectorAll('.modal');
         const statusPopup = document.getElementById('status-popup');
         const namePickerDisplay = document.getElementById('name-picker-display');
+        const namePickerAudio = document.getElementById('name-picker-audio');
+        const slotMachineAudio = document.getElementById('slot-machine-audio');
         let namePickerInterval = null;
         const authNavBtn = document.getElementById('auth-nav-btn');
         
@@ -1306,18 +1330,15 @@
             showPage('ticket-details-for-lottery-page');
         };
 
-        // [MODIFIED] Replaced page navigation with a modal for viewing history details.
         window.viewHistoryDetails = async (lotteryId) => {
             const lottery = allLotteriesCache[lotteryId];
             const result = allResultsCache[lotteryId];
 
-            // Populate Modal Content
             document.getElementById('modal-details-title').textContent = lottery.title;
             document.getElementById('modal-details-img').src = lottery.imageUrl || 'https://via.placeholder.com/600x400.png?text=No+Image';
             document.getElementById('modal-details-datetime').textContent = new Date(lottery.datetime).toLocaleString();
             document.getElementById('modal-details-desc').textContent = lottery.details;
             
-            // Populate Prizes
             const prizeListEl = document.getElementById('modal-details-prizes');
             prizeListEl.innerHTML = '';
             if (lottery.prizes && lottery.prizes.length > 0) {
@@ -1357,7 +1378,7 @@
         };
 
         // 8. LIVE DRAW PAGE & SLOT MACHINE LOGIC
-        const runNamePickerAnimation = (allParticipants, finalName, duration) => {
+        const runNamePickerAnimation = (allParticipants, finalParticipant, duration) => {
             if (namePickerInterval) clearInterval(namePickerInterval);
             if (allParticipants.length === 0) {
                 namePickerDisplay.querySelector('span').textContent = '...';
@@ -1370,24 +1391,32 @@
             namePickerDisplay.classList.remove('picked');
             nameSpinnerContainer.classList.add('is-cycling');
 
+            if (namePickerAudio) {
+                namePickerAudio.currentTime = 0;
+                namePickerAudio.play().catch(e => console.log("Audio play blocked by browser."));
+            }
+
             namePickerInterval = setInterval(() => {
                 const randomIndex = Math.floor(Math.random() * allParticipants.length);
-                displaySpan.textContent = allParticipants[randomIndex].name;
+                const randomParticipant = allParticipants[randomIndex];
+                displaySpan.textContent = `${randomParticipant.name} (${randomParticipant.ticket})`;
             }, 100);
 
             setTimeout(() => {
                 clearInterval(namePickerInterval);
                 namePickerInterval = null;
-                displaySpan.textContent = finalName;
+                displaySpan.textContent = `${finalParticipant.name} (${finalParticipant.ticket})`;
                 namePickerDisplay.classList.remove('picking');
                 namePickerDisplay.classList.add('picked');
                 nameSpinnerContainer.classList.remove('is-cycling');
+                if (namePickerAudio) {
+                    namePickerAudio.pause();
+                }
             }, duration);
         };
         
-        // --- [NEW] SLOT MACHINE FUNCTIONS ---
-        const REEL_SYMBOLS = 25; // How many symbols to generate for the spin effect
-        const SPIN_DURATION_BASE = 3000; // in ms
+        const REEL_SYMBOLS = 25; 
+        const SPIN_DURATION_BASE = 3000;
 
         const initializeSlotMachine = () => {
             for (let i = 1; i <= 3; i++) {
@@ -1418,7 +1447,11 @@
         };
 
         const spinSlotMachine = (resultStatus) => {
-            // Determine final symbols for each reel
+            if (slotMachineAudio) {
+                slotMachineAudio.currentTime = 0;
+                slotMachineAudio.play().catch(e => console.log("Audio play blocked by browser."));
+            }
+
             const finalSymbols = [];
             if (resultStatus.toLowerCase() === 'win') {
                 finalSymbols.push('win', 'win', 'win');
@@ -1429,7 +1462,6 @@
                 finalSymbols.push(...chosenCombo);
             }
 
-            // Populate and spin each reel
             for (let i = 1; i <= 3; i++) {
                 const reel = document.getElementById(`reel${i}`);
                 const finalSymbol = finalSymbols[i-1];
@@ -1437,7 +1469,7 @@
 
                 reel.style.transition = 'none';
                 reel.style.transform = 'translateY(0)';
-                reel.offsetHeight; // force reflow
+                reel.offsetHeight; 
 
                 reel.innerHTML = '';
                 const symbolOptions = ['win', 'loss'];
@@ -1454,18 +1486,17 @@
                 reel.appendChild(finalSymbolEl);
                 
                 const symbolHeight = reel.querySelector('.slot-symbol').clientHeight;
-                if (symbolHeight === 0) { // Fallback if not visible
+                if (symbolHeight === 0) { 
                      console.error("Slot machine is not visible, cannot calculate spin.");
                      return;
                 }
                 const totalDistance = REEL_SYMBOLS * symbolHeight;
-                const spinDuration = SPIN_DURATION_BASE + (i * 500); // Staggered stop
+                const spinDuration = SPIN_DURATION_BASE + (i * 500);
 
                 reel.style.transition = `transform ${spinDuration}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
                 reel.style.transform = `translateY(-${totalDistance}px)`;
             }
         };
-        // --- [END] SLOT MACHINE FUNCTIONS ---
         
         const announceResult = (ticket, name, result) => {
             const resultText = result.toLowerCase();
@@ -1478,7 +1509,7 @@
             try {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(message);
-                    utterance.lang = 'en-IN';
+                    utterance.lang = 'en-US';
                     speechSynthesis.speak(utterance);
                 }
             } catch (error) {
@@ -1488,7 +1519,7 @@
         
         liveDrawRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            currentLiveDrawData = data; // [NEW] Update global state for live search
+            currentLiveDrawData = data; 
             if (!data) return;
 
             let lastResultTimestamp = document.body.dataset.lastResultTimestamp || '';
@@ -1511,11 +1542,11 @@
             
             if (data.isPicking && data.currentPick && namePickerDisplay.dataset.lastPickId !== data.currentPick.ticket) {
                 const allParticipants = (data.participants || []).concat(data.allWinners || [], data.allLosers || []);
-                runNamePickerAnimation(allParticipants, data.currentPick.name, 4000);
+                runNamePickerAnimation(allParticipants, data.currentPick, 4000);
                 namePickerDisplay.dataset.lastPickId = data.currentPick.ticket;
             } 
             else if (!data.isPicking && data.currentPick) {
-                 namePickerDisplay.querySelector('span').textContent = data.currentPick.name;
+                 namePickerDisplay.querySelector('span').textContent = `${data.currentPick.name} (${data.currentPick.ticket})`;
                  namePickerDisplay.classList.remove('picking');
             }
 
@@ -1544,7 +1575,6 @@
                  resetSlotMachine();
                  document.body.dataset.lastResultTimestamp = "";
                  
-                 // [NEW] Clear search on reset
                  document.getElementById('live-result-search').value = '';
                  document.getElementById('live-search-result-container').style.display = 'none';
 
@@ -2079,7 +2109,6 @@
                 loader.innerHTML = '<p style="color:var(--loss-color); text-align:center; padding: 20px;">Failed to load data.<br>Please check your connection and refresh.</p>';
             });
 
-            // [NEW] Event Listener for Live Result Search
             const liveSearchInput = document.getElementById('live-result-search');
             const liveSearchResultContainer = document.getElementById('live-search-result-container');
 
@@ -2100,7 +2129,6 @@
                 let foundResult = null;
                 let resultHtml = '';
                 
-                // Search in winners
                 const winners = currentLiveDrawData.allWinners || [];
                 foundResult = winners.find(p => 
                     p.ticket.toString().includes(searchTerm) || 
@@ -2116,7 +2144,6 @@
                         <p><strong>Prize:</strong> ${foundResult.prize}</p>
                     `;
                 } else {
-                    // Search in losers if not found in winners
                     const losers = currentLiveDrawData.allLosers || [];
                     foundResult = losers.find(p => 
                         p.ticket.toString().includes(searchTerm) || 
