@@ -891,16 +891,18 @@
             let reversalCount = 0;
             
             for (const key in calculationHistory) {
-                const entry = calculationHistory[key];
-                if (entry && entry.results && entry.results.summary) {
-                    const reversalEntry = {
-                        profit: -entry.results.summary.netProfit,
-                        timestamp: entry.timestamp,
-                        reversedHistoryKey: key
-                    };
-                    const newLogKey = db.ref('earningsLog').push().key;
-                    updates[`/earningsLog/${newLogKey}`] = reversalEntry;
-                    reversalCount++;
+                if (Object.hasOwnProperty.call(calculationHistory, key)) {
+                    const entry = calculationHistory[key];
+                    if (entry && entry.results && entry.results.summary) {
+                        const reversalEntry = {
+                            profit: -entry.results.summary.netProfit,
+                            timestamp: entry.timestamp,
+                            reversedHistoryKey: key
+                        };
+                        const newLogKey = db.ref('earningsLog').push().key;
+                        updates[`/earningsLog/${newLogKey}`] = reversalEntry;
+                        reversalCount++;
+                    }
                 }
             }
 
@@ -1054,56 +1056,64 @@
         }
     });
 
+    // --- [FIXED] Corrected Deletion Logic ---
     function deleteEarningsAndHistoryForPeriod(periodType, periodValue) {
         const updates = {};
         const historyKeysToDelete = new Set();
 
-        // Find relevant calculation history entries
+        // Step 1: Identify all calculation history keys within the specified period.
         Object.entries(calculationHistory).forEach(([key, entry]) => {
             if (!entry || !entry.timestamp) return;
             const entryDate = new Date(entry.timestamp);
             let match = false;
             if (periodType === 'day') {
-                if (entryDate.toLocaleDateString('en-CA') === periodValue) match = true;
+                if (entryDate.toLocaleDateString('en-CA') === periodValue) {
+                    match = true;
+                }
             } else if (periodType === 'month') {
-                if (entryDate.toISOString().startsWith(periodValue)) match = true;
+                const monthKey = `${entryDate.getFullYear()}-${String(entryDate.getMonth() + 1).padStart(2, '0')}`;
+                if (monthKey === periodValue) {
+                    match = true;
+                }
             }
-            if (match) historyKeysToDelete.add(key);
+            if (match) {
+                historyKeysToDelete.add(key);
+            }
         });
 
         if (historyKeysToDelete.size === 0) {
-            alert("No related calculation history found to delete.");
+            alert("No calculation history found for the selected period.");
             return;
         }
-        
-        // Prepare history deletions
+
+        // Step 2: For each history key to be deleted, create a corresponding reversal entry in the earnings log.
+        // This ensures the total profit remains accurate.
+        // Also, mark the history entry itself for deletion.
         historyKeysToDelete.forEach(key => {
+            const entry = calculationHistory[key];
+            if (entry && entry.results && entry.results.summary && typeof entry.results.summary.netProfit === 'number') {
+                const reversalEntry = {
+                    profit: -entry.results.summary.netProfit,
+                    timestamp: entry.timestamp,
+                    reversedHistoryKey: key
+                };
+                const newLogKey = db.ref('earningsLog').push().key;
+                updates[`/earningsLog/${newLogKey}`] = reversalEntry;
+            }
+            // Mark the history entry for deletion.
             updates[`/calculationHistory/${key}`] = null;
         });
-
-        // Find and prepare related earnings log deletions
-        db.ref('earningsLog').once('value', snapshot => {
-            const earningsData = snapshot.val() || {};
-            Object.entries(earningsData).forEach(([key, entry]) => {
-                if (entry && entry.sourceHistoryKey && historyKeysToDelete.has(entry.sourceHistoryKey)) {
-                    updates[`/earningsLog/${key}`] = null;
-                }
+        
+        // Step 3: Execute all updates in a single atomic operation.
+        db.ref().update(updates)
+            .then(() => {
+                console.log(`Successfully deleted ${historyKeysToDelete.size} history entries and reversed their earnings for period: ${periodValue}.`);
+                alert("Deletion successful. All calculations for this period have been reversed.");
+            })
+            .catch(error => {
+                console.error("Error during bulk deletion and reversal:", error);
+                alert("An error occurred during deletion. Please check the console for details.");
             });
-
-            if (Object.keys(updates).length > 0) {
-                db.ref().update(updates)
-                    .then(() => {
-                        console.log(`Successfully deleted data for ${periodValue}.`);
-                        alert("Deletion successful.");
-                    })
-                    .catch(error => {
-                        console.error("Error during deletion:", error);
-                        alert("An error occurred during deletion. Please check the console.");
-                    });
-            } else {
-                 alert("No data found to delete for the selected period.");
-            }
-        });
     }
 
 
