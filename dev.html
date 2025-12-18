@@ -145,25 +145,24 @@
         .serial-number { font-weight: bold; color: var(--primary-color); margin-right: 15px; min-width: 25px; text-align: right; }
         .no-results { text-align: center; color: #888; }
         
+        /* New Container for Name and Due Amount */
+        .name-container { display: flex; flex-direction: column; }
+        .due-amount-subtext { font-size: 0.75rem; color: var(--danger-color); font-weight: bold; margin-top: 2px; }
+
         /* Actions Container in List */
         .list-item-actions { display: flex; gap: 12px; align-items: center; }
         .list-item-actions i { font-size: 1rem; cursor: pointer; transition: transform 0.2s, opacity 0.2s; }
         .list-item-actions i:hover { transform: scale(1.2); opacity: 0.8; }
         
-        .list-whatsapp-btn { color: #25D366; font-size: 1.3rem !important; margin-right: 5px; }
+        .list-whatsapp-btn { color: #25D366; font-size: 1.4rem !important; margin-right: 5px; }
         .list-item-edit { color: var(--warning-color); }
         .list-item-delete { color: var(--danger-color); }
-
-        /* Due Amount Badge */
-        .due-amount-display { font-size: 0.8rem; font-weight: bold; margin-right: 10px; white-space: nowrap; }
-        .due-positive { color: var(--danger-color); }
-        .due-zero { color: var(--success-color); }
 
         /* Status Badge Styles */
         .status-badge {
             padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;
             text-transform: uppercase; cursor: pointer; letter-spacing: 0.5px;
-            margin-right: 10px; border: 1px solid transparent; transition: all 0.2s;
+            margin-right: 10px; border: 1px solid transparent; transition: all 0.2s; white-space: nowrap;
         }
         .status-pending { background-color: var(--danger-color-light); color: var(--danger-color); border-color: #fadbd8; animation: pulse-red 2s infinite; }
         .status-pending:hover { background-color: var(--danger-color); color: var(--white-color); }
@@ -180,7 +179,7 @@
         .search-container.animate { animation: fadeUp 0.6s ease-out forwards; animation-delay: 0.3s; }
         #search-input { width: 100%; padding: 12px 40px 12px 15px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 16px; }
         .search-container .fa-search { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); color: #aaa; }
-        input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; height: 1em; width: 1em; background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>") center/1em no-repeat; cursor: pointer; }
+        input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; height: 1em; width: 1em; background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 17.59 13.41 12z'/></svg>") center/1em no-repeat; cursor: pointer; }
 
         /* --- Modal Styles --- */
         .modal { 
@@ -472,7 +471,9 @@
                         const timeLeft = renewDate.getTime() - now.getTime(); 
                         const daysLeft = Math.ceil(timeLeft / 86400000);
                         
-                        if (daysLeft <= 5) { 
+                        // Condition: Show if expired within last 15 days or about to expire in 5 days
+                        // daysLeft < 0 means expired. daysLeft -15 means expired 15 days ago.
+                        if (daysLeft <= 5 && daysLeft >= -15) { 
                             expiringWebsites.push({ ...website, daysLeft }); 
                         }
                     });
@@ -544,26 +545,29 @@
                         statusClass = 'status-pending';
                     }
 
-                    // --- Due Amount Display Logic ---
+                    // --- Due Amount Logic ---
                     const dueAmt = parseFloat(data.dueAmount) || 0;
-                    const dueClass = dueAmt > 0 ? 'due-positive' : 'due-zero';
-                    const dueText = `Due: ₹ ${dueAmt}`;
+                    // Only show if dueAmt > 0
+                    const dueAmountHtml = dueAmt > 0 
+                        ? `<span class="due-amount-subtext">Due: ₹${dueAmt}</span>` 
+                        : '';
 
                     listItem.innerHTML = `
                         <div class="website-info">
                             <span class="serial-number">${serialNumber}.</span>
-                            <span>${data.websiteName}</span>
+                            <div class="name-container">
+                                <span>${data.websiteName}</span>
+                                ${dueAmountHtml}
+                            </div>
                         </div>
                         <div class="list-item-actions">
-                            <!-- Due Amount Badge -->
-                            <span class="due-amount-display ${dueClass}">${dueText}</span>
-
                             <!-- WhatsApp Button -->
                             <i class="fab fa-whatsapp list-whatsapp-btn" title="Send WhatsApp"></i>
                             
                             <!-- Dynamic Status Badge -->
                             <span class="status-badge ${statusClass}">${calculatedStatus}</span>
 
+                            <!-- Edit & Delete -->
                             <i class="fas fa-pencil list-item-edit" title="Edit"></i>
                             <i class="fas fa-trash list-item-delete" title="Delete"></i>
                         </div>`;
