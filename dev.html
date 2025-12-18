@@ -76,8 +76,8 @@
 
         /* --- Dashboard Header --- */
         .dashboard-header {
-            position: relative; /* Added to create a stacking context */
-            z-index: 1000;      /* Added to ensure it's on top of page content */
+            position: relative; 
+            z-index: 1000;
             background-color: var(--white-color);
             padding: 15px 20px;
             display: flex;
@@ -106,42 +106,18 @@
 
         /* --- Toast Notification Popup System --- */
         #notification-container {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2100; /* MODIFIED: Increased z-index to ensure it's on top of everything */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2100; display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
         .notification-popup {
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: var(--white-color);
-            font-weight: 500;
-            background-color: var(--success-color);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.4s ease-out;
-            min-width: 250px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 12px 20px; border-radius: 8px; color: var(--white-color); font-weight: 500;
+            background-color: var(--success-color); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0; transform: translateY(-20px); transition: all 0.4s ease-out;
+            min-width: 250px; text-align: center; display: flex; align-items: center; justify-content: center;
         }
-        .notification-popup.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .notification-popup.error {
-            background-color: var(--danger-color);
-        }
-        .notification-popup i {
-            margin-right: 10px;
-        }
+        .notification-popup.show { opacity: 1; transform: translateY(0); }
+        .notification-popup.error { background-color: var(--danger-color); }
+        .notification-popup i { margin-right: 10px; }
 
         /* --- Dashboard Body --- */
         .container { padding: 20px; }
@@ -154,34 +130,50 @@
         .data-section { display: none; }
         .data-section.active { display: block; }
         .website-list { list-style: none; padding: 0; }
+        
         .website-list-item { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            background: var(--white-color); 
-            padding: 15px; 
-            border-radius: 5px; 
-            margin-bottom: 10px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-            transition: transform 0.2s, box-shadow 0.2s; 
-            font-weight: 500; 
-            opacity: 0; 
-            cursor: pointer; /* MODIFIED: Entire item is clickable */
+            display: flex; align-items: center; justify-content: space-between; 
+            background: var(--white-color); padding: 15px; border-radius: 5px; 
+            margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            transition: transform 0.2s, box-shadow 0.2s; font-weight: 500; 
+            opacity: 0; cursor: pointer;
         }
         .website-list-item.animate { animation: fadeUp 0.5s ease-out forwards; }
-        .website-list-item:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            color: var(--primary-color); /* MODIFIED: Highlight text color on hover */
-        }
-        .website-info { display: flex; align-items: center; }
+        .website-list-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: var(--primary-color); }
+        
+        .website-info { display: flex; align-items: center; flex-grow: 1; }
         .serial-number { font-weight: bold; color: var(--primary-color); margin-right: 15px; min-width: 25px; text-align: right; }
         .no-results { text-align: center; color: #888; }
-        .list-item-actions { display: flex; gap: 15px; align-items: center; }
+        
+        /* Actions Container in List */
+        .list-item-actions { display: flex; gap: 12px; align-items: center; }
         .list-item-actions i { font-size: 1rem; cursor: pointer; transition: transform 0.2s, opacity 0.2s; }
-        .list-item-actions i:hover { transform: scale(1.2); opacity: 0.8; color: var(--text-color); }
+        .list-item-actions i:hover { transform: scale(1.2); opacity: 0.8; }
+        
+        .list-whatsapp-btn { color: #25D366; font-size: 1.3rem !important; margin-right: 5px; }
         .list-item-edit { color: var(--warning-color); }
         .list-item-delete { color: var(--danger-color); }
+
+        /* Due Amount Badge */
+        .due-amount-display { font-size: 0.8rem; font-weight: bold; margin-right: 10px; white-space: nowrap; }
+        .due-positive { color: var(--danger-color); }
+        .due-zero { color: var(--success-color); }
+
+        /* Status Badge Styles */
+        .status-badge {
+            padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; letter-spacing: 0.5px;
+            margin-right: 10px; border: 1px solid transparent; transition: all 0.2s;
+        }
+        .status-pending { background-color: var(--danger-color-light); color: var(--danger-color); border-color: #fadbd8; animation: pulse-red 2s infinite; }
+        .status-pending:hover { background-color: var(--danger-color); color: var(--white-color); }
+        .status-paid { background-color: var(--success-color-light); color: var(--success-color); border-color: #d5f5e3; cursor: default; }
+        
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
 
         /* --- Search Bar --- */
         .search-container { position: relative; margin-bottom: 20px; opacity: 0; }
@@ -192,32 +184,27 @@
 
         /* --- Modal Styles --- */
         .modal { 
-            display: none; 
-            position: fixed; 
-            z-index: 1500; /* MODIFIED: Increased z-index */
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.6); 
+            display: none; position: fixed; z-index: 1500; left: 0; top: 0; 
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); 
         }
         .modal.show { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease-out; }
         .modal-content { background-color: var(--white-color); margin: 20px; padding: 25px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 10px; position: relative; max-height: 90vh; overflow-y: auto; }
         .modal.show .modal-content { animation: fadeUp 0.4s ease-out; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--light-grey); padding-bottom: 15px; margin-bottom: 20px; }
         .close-button { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
-        #modal-form { display: flex; flex-direction: column; }
-        #modal-form label { margin-top: 15px; margin-bottom: 5px; font-weight: bold; color: #555;}
-        #modal-form input, #modal-form select, #modal-form textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; }
-        #modal-form input:disabled { background-color: #f0f0f0; color: #888; }
-        #modal-form button { margin-top: 20px; padding: 12px; background-color: var(--primary-color); color: var(--white-color); border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        
+        form label { margin-top: 15px; margin-bottom: 5px; font-weight: bold; color: #555; display: block; }
+        form input, form select, form textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; }
+        form input:disabled { background-color: #f0f0f0; color: #888; }
+        form button { margin-top: 20px; padding: 12px; background-color: var(--primary-color); color: var(--white-color); border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%; }
+        
         .details-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px 15px; }
         .details-section, .details-actions { margin-bottom: 20px; opacity: 0; }
         .details-actions { margin-top: 25px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
         .details-section.animate, .details-actions.animate { animation: fadeUp 0.5s ease-out forwards; }
         .details-actions button { border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 45px; height: 45px; font-size: 18px; transition: transform 0.2s ease-out; }
         .details-actions button:hover { transform: translateY(-2px); }
+        
         .btn-visit { background-color: var(--primary-color-light); color: var(--primary-color); }
         .btn-whatsapp { background-color: var(--success-color-light); color: var(--success-color); animation: whatsapp-pulse 2s infinite; }
         .btn-edit { background-color: var(--warning-color-light); color: var(--warning-color); }
@@ -229,6 +216,12 @@
         .code-block pre { margin: 0; border-radius: 8px !important; white-space: pre-wrap !important; word-break: break-all; max-height: 150px; overflow-y: auto; }
         .copy-btn { position: absolute; top: 10px; right: 10px; background: #444; color: #fff; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer; transition: background-color 0.2s; font-size: 14px; z-index: 10; }
         .copy-btn.copied { background-color: var(--success-color); }
+
+        /* --- Payment Modal Special Styles --- */
+        #payment-modal .modal-content { max-width: 400px; border-top: 5px solid var(--success-color); }
+        .payment-summary { background: var(--light-grey); padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 0.9rem; }
+        .payment-summary p { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .payment-total { font-weight: bold; font-size: 1.1rem; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -250,8 +243,7 @@
     <div id="dashboard-view" class="hidden">
         <header class="dashboard-header">
             <div class="admin-info">
-               <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png"
- alt="Admin" class="admin-image">
+               <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Admin" class="admin-image">
                 <div><h1>Sintha Developer</h1><p>Full-Stack Web & App Developer</p></div>
             </div>
             <div class="contact-info">
@@ -280,18 +272,61 @@
 
     <div id="animation-container" class="animation-container hidden"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div>
 
+    <!-- MAIN DATA MODAL (Add/Edit) -->
     <div id="data-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modal-title">Add New Website</h2><span class="close-button" data-modal-id="data-modal">&times;</span></div><form id="modal-form"><input type="hidden" id="record-id"><input type="hidden" id="record-category"><label>Category</label><select id="category" required><option value="tambola">Tambola</option><option value="lagao">Lagao</option></select><label>Website Name</label><input type="text" id="websiteName" placeholder="e.g., My Tambola Game" required><label>Website URL</label><input type="url" id="websiteUrl" placeholder="https://example.com" required><label>Registration Date</label><input type="date" id="regDate" required><label>Renew Date</label><input type="date" id="renewDate" required>
     
-    <!-- === MODIFIED FINANCIAL FIELDS === -->
     <label>Maintenance Charges</label><input type="number" id="maintenanceCharges" value="1700" placeholder="e.g., 1700" required>
     <label>Paid Amount</label><input type="number" id="paidAmount" value="0" placeholder="e.g., 1000" required>
-    <label>Due Amount</label><input type="number" id="dueAmount" value="0" placeholder="e.g., 500" required> <!-- MODIFIED: This is now an input -->
+    <label>Due Amount</label><input type="number" id="dueAmount" value="0" placeholder="e.g., 500" required>
     <label>Profit Amount</label><input type="number" id="profitAmount" placeholder="Calculated automatically" disabled>
-    <!-- === END OF MODIFIED FIELDS === -->
     
+    <input type="hidden" id="paymentStatus" value="Paid"> 
+
     <label>Buyer Name</label><input type="text" id="buyerName" placeholder="John Doe" required><label>Buyer Mobile (with country code)</label><input type="tel" id="buyerMobile" placeholder="919876543210" required><label>Buyer Email</label><input type="email" id="buyerEmail" placeholder="buyer@example.com"><label>About</label><textarea id="about" rows="3" placeholder="Short description of the website"></textarea><label>Important Text</label><textarea id="importantText" rows="3" placeholder="Any important notes or credentials"></textarea><button type="submit" id="save-button">Save Data</button></form></div></div>
     
+    <!-- DETAILS MODAL -->
     <div id="details-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="details-title">Website Details</h2><span class="close-button" data-modal-id="details-modal">&times;</span></div><div id="details-body"></div></div></div>
+
+    <!-- PAYMENT POPUP MODAL -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Renewal Payment</h2>
+                <span class="close-button" data-modal-id="payment-modal">&times;</span>
+            </div>
+            <form id="payment-form">
+                <input type="hidden" id="pay-record-id">
+                <input type="hidden" id="pay-category">
+                <input type="hidden" id="pay-current-renew-date">
+                
+                <div class="payment-summary">
+                    <p><strong>Website:</strong> <span id="pay-website-name"></span></p>
+                    <p><strong>Status:</strong> <span style="color:var(--danger-color); font-weight:bold;">EXPIRED / PENDING</span></p>
+                    <p><strong>Charges:</strong> ₹ <span id="pay-display-charges"></span></p>
+                </div>
+
+                <label>Actual Maintenance Charges</label>
+                <input type="number" id="pay-maintenance" required readonly>
+
+                <label>Already Paid (Total)</label>
+                <input type="number" id="pay-previous-paid" readonly>
+
+                <label>Amount Being Paid Now</label>
+                <input type="number" id="pay-now-amount" placeholder="Enter amount received" required>
+
+                <label>Remaining Due Amount</label>
+                <input type="number" id="pay-due-amount" readonly style="color: var(--danger-color); font-weight: bold;">
+                
+                <p style="margin-top: 15px; font-size: 0.85rem; color: #666;">
+                    <i class="fas fa-info-circle"></i> Confirming this payment will <strong>extend the renewal date by 1 month</strong>.
+                </p>
+
+                <button type="submit" id="confirm-payment-btn" style="background-color: var(--success-color);">
+                    <i class="fas fa-check"></i> Accept Payment & Renew
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- JAVASCRIPT & FIREBASE SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -325,64 +360,68 @@
         const addNewButton = document.getElementById('add-new-button');
         const dataModal = document.getElementById('data-modal');
         const detailsModal = document.getElementById('details-modal');
+        const paymentModal = document.getElementById('payment-modal'); 
         const modalForm = document.getElementById('modal-form');
+        const paymentForm = document.getElementById('payment-form');
         const notificationBell = document.querySelector('.notification-bell');
         const notificationPanel = document.querySelector('.notification-panel');
         const notificationBadge = document.querySelector('.notification-badge');
         const notificationList = document.getElementById('notification-list');
         const searchInput = document.getElementById('search-input');
         
-        // MODIFIED: Financial Input Elements
+        // Financial Input Elements
         const maintenanceChargesInput = document.getElementById('maintenanceCharges');
         const paidAmountInput = document.getElementById('paidAmount');
         const dueAmountInput = document.getElementById('dueAmount');
         const profitAmountInput = document.getElementById('profitAmount');
+        
+        // Payment Popup Elements
+        const payMaintenanceInput = document.getElementById('pay-maintenance');
+        const payPreviousPaidInput = document.getElementById('pay-previous-paid');
+        const payNowAmountInput = document.getElementById('pay-now-amount');
+        const payDueAmountInput = document.getElementById('pay-due-amount');
 
-        // MODIFIED: Financial Calculation Logic based on user request
+        // --- Financial Calculation Logic ---
         function calculateFinancials() {
             const maintenance = parseFloat(maintenanceChargesInput.value) || 0;
             const paid = parseFloat(paidAmountInput.value) || 0;
-            const due = parseFloat(dueAmountInput.value) || 0; // Due is now an input
-            
-            // New profit formula: Profit = Paid - Maintenance - Due
+            const due = parseFloat(dueAmountInput.value) || 0;
             const profit = paid - maintenance - due;
-            
-            // Only update the calculated profit field
             profitAmountInput.value = profit.toFixed(2);
         }
 
-        // MODIFIED: Add event listeners to all financial inputs that affect the calculation
         if(maintenanceChargesInput && paidAmountInput && dueAmountInput) {
             maintenanceChargesInput.addEventListener('input', calculateFinancials);
             paidAmountInput.addEventListener('input', calculateFinancials);
-            dueAmountInput.addEventListener('input', calculateFinancials); // Add listener for the new input
+            dueAmountInput.addEventListener('input', calculateFinancials);
         }
 
-        // Function to show toast notifications
+        // --- Payment Popup Calculation Logic ---
+        function calculatePaymentDue() {
+            const totalCharges = parseFloat(payMaintenanceInput.value) || 0;
+            const payNow = parseFloat(payNowAmountInput.value) || 0;
+            const due = totalCharges - payNow; 
+            payDueAmountInput.value = due > 0 ? due.toFixed(2) : 0;
+        }
+        payNowAmountInput.addEventListener('input', calculatePaymentDue);
+
+        // --- Toast Notifications ---
         function showNotification(message, type = 'success', duration = 3000) {
             const container = document.getElementById('notification-container');
             if (!container) return;
-
             const notification = document.createElement('div');
             notification.className = `notification-popup ${type}`;
             const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
             notification.innerHTML = `<i class="fas ${iconClass}"></i> ${message}`;
-            
             container.appendChild(notification);
-            
-            // Animate in
-            requestAnimationFrame(() => {
-                notification.classList.add('show');
-            });
-
-            // Auto-remove after duration
+            requestAnimationFrame(() => notification.classList.add('show'));
             setTimeout(() => {
                 notification.classList.remove('show');
                 notification.addEventListener('transitionend', () => notification.remove(), { once: true });
             }, duration);
         }
 
-        // Auth Logic
+        // --- Auth Logic ---
         auth.onAuthStateChanged(user => {
             if (user) {
                 verificationView.classList.add('success');
@@ -420,7 +459,7 @@
                 .catch(error => loginForm.querySelector('.error-message').textContent = 'Invalid email or password.');
         });
 
-        // Notification Logic
+        // --- Notification Logic ---
         notificationBell.addEventListener('click', () => notificationPanel.classList.toggle('show'));
         
         function initializeNotificationListener() {
@@ -429,9 +468,13 @@
                 snapshot.forEach(categorySnapshot => {
                     categorySnapshot.forEach(websiteSnapshot => {
                         const website = websiteSnapshot.val();
-                        const renewDate = new Date(website.renewDate); renewDate.setMonth(renewDate.getMonth() + 1);
-                        const timeLeft = renewDate.getTime() - now.getTime(); const daysLeft = Math.ceil(timeLeft / 86400000);
-                        if (daysLeft >= 0 && daysLeft <= 5) { expiringWebsites.push({ ...website, daysLeft }); }
+                        const renewDate = new Date(website.renewDate); 
+                        const timeLeft = renewDate.getTime() - now.getTime(); 
+                        const daysLeft = Math.ceil(timeLeft / 86400000);
+                        
+                        if (daysLeft <= 5) { 
+                            expiringWebsites.push({ ...website, daysLeft }); 
+                        }
                     });
                 });
                 updateNotificationUI(expiringWebsites);
@@ -446,12 +489,15 @@
                 setTimeout(() => notificationBell.classList.remove('active'), 500);
                 notificationList.innerHTML = '';
                 expiringWebsites.forEach(site => {
-                    const daysText = site.daysLeft === 0 ? 'today' : `in ${site.daysLeft} day${site.daysLeft > 1 ? 's' : ''}`;
+                    let daysText = '';
+                    if (site.daysLeft < 0) daysText = `Expired ${Math.abs(site.daysLeft)} days ago`;
+                    else if (site.daysLeft === 0) daysText = 'Expires today';
+                    else daysText = `Expires in ${site.daysLeft} day${site.daysLeft > 1 ? 's' : ''}`;
+
                     const item = document.createElement('div'); item.className = 'notification-item';
-                    item.innerHTML = `<div class="notification-info"><strong>${site.websiteName}</strong><span>Expires ${daysText}</span></div><i class="fab fa-whatsapp notification-whatsapp-btn" title="Send Reminder"></i>`;
+                    item.innerHTML = `<div class="notification-info"><strong>${site.websiteName}</strong><span>${daysText}</span></div><i class="fab fa-whatsapp notification-whatsapp-btn" title="Send Reminder"></i>`;
                     item.querySelector('.notification-whatsapp-btn').addEventListener('click', () => {
-                        const validityDate = new Date(site.renewDate); validityDate.setMonth(validityDate.getMonth() + 1);
-                        sendWhatsAppMessage(site, validityDate.toISOString().split('T')[0]);
+                        sendWhatsAppMessage(site, site.renewDate);
                     });
                     notificationList.appendChild(item);
                 });
@@ -461,7 +507,7 @@
             }
         }
 
-        // Dashboard Logic
+        // --- Dashboard Navigation ---
         document.getElementById('show-tambola').addEventListener('click', () => switchTab('tambola'));
         document.getElementById('show-lagao').addEventListener('click', () => switchTab('lagao'));
         function switchTab(activeTab) {
@@ -472,6 +518,7 @@
             document.getElementById('show-lagao').classList.toggle('active', activeTab === 'lagao');
         }
 
+        // --- Load Data & Render List (Main Logic) ---
         function loadWebsiteData(category) {
             const listElement = document.getElementById(`${category}-list`);
             const websitesRef = db.ref(`websites/${category}`);
@@ -484,23 +531,64 @@
                 snapshot.forEach(childSnapshot => {
                     const id = childSnapshot.key; const data = childSnapshot.val();
                     const listItem = document.createElement('li'); listItem.className = 'website-list-item';
+                    
+                    // --- Status & Date Logic ---
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const renewDateObj = new Date(data.renewDate);
+                    
+                    let calculatedStatus = 'Paid';
+                    let statusClass = 'status-paid';
+                    
+                    if (today >= renewDateObj) {
+                        calculatedStatus = 'Pending';
+                        statusClass = 'status-pending';
+                    }
+
+                    // --- Due Amount Display Logic ---
+                    const dueAmt = parseFloat(data.dueAmount) || 0;
+                    const dueClass = dueAmt > 0 ? 'due-positive' : 'due-zero';
+                    const dueText = `Due: ₹ ${dueAmt}`;
+
                     listItem.innerHTML = `
                         <div class="website-info">
                             <span class="serial-number">${serialNumber}.</span>
                             <span>${data.websiteName}</span>
                         </div>
                         <div class="list-item-actions">
+                            <!-- Due Amount Badge -->
+                            <span class="due-amount-display ${dueClass}">${dueText}</span>
+
+                            <!-- WhatsApp Button -->
+                            <i class="fab fa-whatsapp list-whatsapp-btn" title="Send WhatsApp"></i>
+                            
+                            <!-- Dynamic Status Badge -->
+                            <span class="status-badge ${statusClass}">${calculatedStatus}</span>
+
                             <i class="fas fa-pencil list-item-edit" title="Edit"></i>
                             <i class="fas fa-trash list-item-delete" title="Delete"></i>
                         </div>`;
                     
                     listItem.addEventListener('click', (event) => {
                         if (event.target.closest('.list-item-actions')) return;
-                        showDetailsModal(category, id, data);
+                        showDetailsModal(category, id, data, calculatedStatus);
                     });
                     
-                    listItem.querySelector('.list-item-edit').addEventListener('click', () => openEditModal(category, id, data));
-                    listItem.querySelector('.list-item-delete').addEventListener('click', () => deleteRecord(category, id, data.websiteName));
+                    listItem.querySelector('.list-whatsapp-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        sendWhatsAppMessage(data, data.renewDate);
+                    });
+
+                    const badge = listItem.querySelector('.status-badge');
+                    if (calculatedStatus === 'Pending') {
+                        badge.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openPaymentModal(category, id, data);
+                        });
+                        badge.title = "Domain Expired. Click to Renew.";
+                    }
+
+                    listItem.querySelector('.list-item-edit').addEventListener('click', (e) => { e.stopPropagation(); openEditModal(category, id, data); });
+                    listItem.querySelector('.list-item-delete').addEventListener('click', (e) => { e.stopPropagation(); deleteRecord(category, id, data.websiteName); });
 
                     listElement.appendChild(listItem);
                     setTimeout(() => listItem.classList.add('animate'), serialNumber * 100);
@@ -509,7 +597,7 @@
             });
         }
         
-        // Search Logic
+        // --- Search Logic ---
         searchInput.addEventListener('input', filterList);
         function filterList() {
             const searchTerm = searchInput.value.toLowerCase();
@@ -532,7 +620,7 @@
             }
         }
         
-        // Modal Logic
+        // --- Modal Control ---
         function closeModal(modal) {
             modal.classList.remove('show');
             if (modal.id === 'details-modal' && countdownInterval) { clearInterval(countdownInterval); }
@@ -542,17 +630,75 @@
         document.querySelectorAll('.close-button').forEach(btn => btn.addEventListener('click', (e) => closeModal(document.getElementById(e.target.dataset.modalId))));
         window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) closeModal(e.target); });
         
+        // --- Payment Process Functions ---
+        function openPaymentModal(category, id, data) {
+            document.getElementById('pay-record-id').value = id;
+            document.getElementById('pay-category').value = category;
+            document.getElementById('pay-current-renew-date').value = data.renewDate;
+            document.getElementById('pay-website-name').textContent = data.websiteName;
+            
+            const maint = data.maintenanceCharges || 1700;
+            const paid = data.paidAmount || 0;
+            
+            document.getElementById('pay-display-charges').textContent = maint;
+            payMaintenanceInput.value = maint;
+            payPreviousPaidInput.value = paid;
+            payNowAmountInput.value = ''; 
+            payDueAmountInput.value = maint; 
+
+            paymentModal.classList.add('show');
+        }
+
+        paymentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('pay-record-id').value;
+            const category = document.getElementById('pay-category').value;
+            const currentRenewDate = document.getElementById('pay-current-renew-date').value;
+            const payNow = parseFloat(payNowAmountInput.value) || 0;
+            const due = parseFloat(payDueAmountInput.value) || 0;
+            const prevPaid = parseFloat(payPreviousPaidInput.value) || 0;
+            const maint = parseFloat(payMaintenanceInput.value) || 0;
+
+            let dateObj = new Date(currentRenewDate);
+            if(isNaN(dateObj.getTime())) dateObj = new Date(); 
+            
+            const currentMonth = dateObj.getMonth();
+            dateObj.setMonth(dateObj.getMonth() + 1);
+            if (dateObj.getMonth() !== ((currentMonth + 1) % 12)) {
+                dateObj.setDate(0); 
+            }
+            
+            const newRenewDateStr = dateObj.toISOString().split('T')[0];
+
+            const updates = {
+                paidAmount: prevPaid + payNow,
+                dueAmount: due,
+                renewDate: newRenewDateStr, 
+                profitAmount: (prevPaid + payNow) - maint - due 
+            };
+
+            db.ref(`websites/${category}/${id}`).update(updates)
+                .then(() => {
+                    showNotification(`Renewal Successful! Valid until ${newRenewDateStr}`);
+                    closeModal(paymentModal);
+                })
+                .catch(err => {
+                    showNotification('Error updating payment', 'error');
+                });
+        });
+
+        // --- Add/Edit Modal Logic ---
         addNewButton.addEventListener('click', () => {
             modalForm.reset();
             modalForm['record-id'].value = '';
             modalForm['record-category'].value = '';
             document.getElementById('modal-title').textContent = 'Add New Website';
             
-            // MODIFIED: Set defaults for new entry, including due amount
             maintenanceChargesInput.value = '1700';
             paidAmountInput.value = '0';
-            dueAmountInput.value = '0'; // Set default for due amount
-            calculateFinancials(); // Calculate fields for the default values
+            dueAmountInput.value = '0';
+            calculateFinancials();
 
             dataModal.classList.add('show');
         });
@@ -569,10 +715,9 @@
             modalForm.regDate.value = data.regDate || '';
             modalForm.renewDate.value = data.renewDate || '';
 
-            // MODIFIED: Populate all financial fields, including due amount
             modalForm.maintenanceCharges.value = data.maintenanceCharges || '1700';
             modalForm.paidAmount.value = data.paidAmount || '0';
-            modalForm.dueAmount.value = data.dueAmount || '0'; // Add this line
+            modalForm.dueAmount.value = data.dueAmount || '0';
 
             modalForm.buyerName.value = data.buyerName || '';
             modalForm.buyerMobile.value = data.buyerMobile || '';
@@ -580,22 +725,22 @@
             modalForm.about.value = data.about || '';
             modalForm.importantText.value = data.importantText || '';
             dataModal.classList.add('show');
-
-            // Recalculate fields on modal open
             calculateFinancials();
         }
 
-        function showDetailsModal(category, id, data) {
+        // --- Details Modal Logic ---
+        function showDetailsModal(category, id, data, calculatedStatus) {
             const detailsBody = document.getElementById('details-body');
             document.getElementById('details-title').textContent = data.websiteName;
-            const renewDate = new Date(data.renewDate); renewDate.setMonth(renewDate.getMonth() + 1);
-            const validityDate = renewDate.toISOString().split('T')[0];
+            
+            const payStatusColor = calculatedStatus === 'Paid' ? 'var(--success-color)' : 'var(--danger-color)';
             const notesText = data.importantText || 'N/A';
+
             detailsBody.innerHTML = `
-                <div class="details-section"><h4>Website Information</h4><dl class="details-grid"><dt>Registered:</dt><dd>${data.regDate}</dd><dt>Renewed:</dt><dd>${data.renewDate}</dd><dt>Valid Till:</dt><dd>${validityDate}</dd><dt>Time Left:</dt><dd id="countdown-timer">Calculating...</dd></dl></div>
+                <div class="details-section"><h4>Website Information</h4><dl class="details-grid"><dt>Registered:</dt><dd>${data.regDate}</dd><dt>Next Renewal:</dt><dd>${data.renewDate}</dd><dt>Time Left:</dt><dd id="countdown-timer">Calculating...</dd></dl></div>
                 
                 <div class="details-section">
-                    <h4>Payment Details</h4>
+                    <h4>Payment Details <span style="font-size:0.8rem; background:${payStatusColor}; color:#fff; padding:2px 8px; border-radius:10px; margin-left:10px;">${calculatedStatus}</span></h4>
                     <dl class="details-grid">
                         <dt>Charges:</dt><dd>₹ ${data.maintenanceCharges || '0.00'}</dd>
                         <dt>Paid:</dt><dd style="font-weight: bold; color: var(--success-color);">₹ ${data.paidAmount || '0.00'}</dd>
@@ -608,17 +753,30 @@
                 <div class="details-section"><h4>Notes</h4><div class="code-block"><button class="copy-btn" title="Copy"><i class="far fa-copy"></i></button><pre><code id="notes-content" class="language-json">${notesText}</code></pre></div></div>
                 <div class="details-actions"><button title="Visit" class="btn-visit"><i class="fas fa-globe"></i></button><button title="WhatsApp" class="btn-whatsapp"><i class="fa-brands fa-whatsapp"></i></button><button title="Edit" class="btn-edit"><i class="fas fa-edit"></i></button><button title="Delete" class="btn-delete"><i class="fas fa-trash"></i></button></div>`;
             
-            const timerElement = document.getElementById('countdown-timer'); const expiryDate = renewDate;
+            const timerElement = document.getElementById('countdown-timer'); 
+            const expiryDate = new Date(data.renewDate); 
+            
             function updateCountdown() {
-                const now = new Date().getTime(); const distance = expiryDate - now;
-                if (distance < 0) { clearInterval(countdownInterval); timerElement.textContent = "Expired"; return; }
-                const days = Math.floor(distance / 86400000); const hours = Math.floor((distance % 86400000) / 3600000); const minutes = Math.floor((distance % 3600000) / 60000); const seconds = Math.floor((distance % 60000) / 1000);
+                const now = new Date().getTime(); 
+                const distance = expiryDate - now;
+                
+                if (distance < 0) { 
+                    clearInterval(countdownInterval); 
+                    timerElement.textContent = "EXPIRED"; 
+                    timerElement.style.color = "var(--danger-color)";
+                    timerElement.style.fontWeight = "bold";
+                    return; 
+                }
+                const days = Math.floor(distance / 86400000); 
+                const hours = Math.floor((distance % 86400000) / 3600000); 
+                const minutes = Math.floor((distance % 3600000) / 60000); 
+                const seconds = Math.floor((distance % 60000) / 1000);
                 timerElement.textContent = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
             }
             if (countdownInterval) clearInterval(countdownInterval); updateCountdown(); countdownInterval = setInterval(updateCountdown, 1000);
 
             detailsBody.querySelector('.btn-visit').addEventListener('click', () => window.open(data.websiteUrl, '_blank'));
-            detailsBody.querySelector('.btn-whatsapp').addEventListener('click', () => sendWhatsAppMessage(data, validityDate));
+            detailsBody.querySelector('.btn-whatsapp').addEventListener('click', () => sendWhatsAppMessage(data, data.renewDate));
             detailsBody.querySelector('.btn-edit').addEventListener('click', () => openEditModal(category, id, data));
             detailsBody.querySelector('.btn-delete').addEventListener('click', () => deleteRecord(category, id, data.websiteName));
             
@@ -627,30 +785,20 @@
                 const textToCopy = document.getElementById('notes-content').textContent;
                 if (textToCopy && textToCopy.trim() !== 'N/A') { 
                     navigator.clipboard.writeText(textToCopy).then(() => { 
-                        copyBtn.innerHTML = '<i class="fas fa-check"></i>'; 
-                        copyBtn.classList.add('copied');
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i>'; copyBtn.classList.add('copied');
                         showNotification('Notes copied to clipboard!');
-                        setTimeout(() => { 
-                            copyBtn.innerHTML = '<i class="far fa-copy"></i>'; 
-                            copyBtn.classList.remove('copied'); 
-                        }, 2000); 
-                    }).catch(err => {
-                        showNotification('Failed to copy text.', 'error');
-                        console.error('Could not copy text: ', err);
-                    });
-                } else {
-                     showNotification('There are no notes to copy.', 'error');
-                }
+                        setTimeout(() => { copyBtn.innerHTML = '<i class="far fa-copy"></i>'; copyBtn.classList.remove('copied'); }, 2000); 
+                    }).catch(err => { showNotification('Failed to copy text.', 'error'); });
+                } else { showNotification('There are no notes to copy.', 'error'); }
             });
 
             Prism.highlightAll();
             detailsModal.classList.add('show');
-
             const itemsToAnimate = detailsModal.querySelectorAll('.details-section, .details-actions');
             itemsToAnimate.forEach((item, index) => setTimeout(() => item.classList.add('animate'), index * 120));
         }
 
-        // CRUD Operations
+        // --- Save / Delete Operations ---
         modalForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const id = modalForm['record-id'].value;
@@ -658,13 +806,10 @@
             const data = {
                 websiteName: modalForm.websiteName.value, websiteUrl: modalForm.websiteUrl.value,
                 regDate: modalForm.regDate.value, renewDate: modalForm.renewDate.value,
-
-                // Include financial data on save
                 maintenanceCharges: modalForm.maintenanceCharges.value,
                 paidAmount: modalForm.paidAmount.value,
                 dueAmount: modalForm.dueAmount.value,
                 profitAmount: modalForm.profitAmount.value,
-
                 buyerName: modalForm.buyerName.value, buyerMobile: modalForm.buyerMobile.value,
                 buyerEmail: modalForm.buyerEmail.value, about: modalForm.about.value,
                 importantText: modalForm.importantText.value
@@ -688,7 +833,8 @@
         }
 
         function sendWhatsAppMessage(data, validityDate) {
-            const message = `Hello ${data.buyerName},\n\nThis is a reminder from Sintha Developer. Your website "${data.websiteName}" has a validity until ${validityDate}.\n\nPlease contact us for renewal.\n\nThank you!`;
+            const status = (new Date() >= new Date(validityDate)) ? "Expired/Pending" : "Active";
+            const message = `Hello ${data.buyerName},\n\nThis is a reminder from Sintha Developer regarding your website "${data.websiteName}".\n\nStatus: ${status}\nDue Date: ${validityDate}\nDue Amount: ₹${data.dueAmount || 0}\n\nPlease contact us for renewal.\n\nThank you!`;
             window.open(`https://api.whatsapp.com/send?phone=${data.buyerMobile}&text=${encodeURIComponent(message)}`, '_blank');
         }
     </script>
