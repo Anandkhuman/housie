@@ -159,7 +159,7 @@
     #login-error { color: var(--error-color); margin-top: 1rem; height: 20px; font-size: 0.9rem; font-weight: 500; }
 
     /* --- MAIN CONTENT STYLES --- */
-    #main-container { display: none; max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+    #main-container { display: none; max-width: 1200px; margin: 0 auto; padding: 1.5rem; padding-bottom: 80px; /* Space for nav bar */ }
     .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;}
     .header h1 { font-size: 2rem; font-weight: 700; }
     .header-buttons { display: flex; align-items: center; gap: 0.8rem; }
@@ -209,7 +209,7 @@
     .result-item.deduction span:last-child { color: var(--warning-color); }
     #back-to-calc-btn { width: auto; padding: 0.7rem 1.5rem; display: block; margin: 2rem auto 0; background-color: var(--warning-color); }
 
-    /* --- NEW: MODAL STYLES --- */
+    /* --- MODAL STYLES --- */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-color: rgba(0, 0, 0, 0.7); display: flex; align-items: center;
@@ -230,14 +230,9 @@
         font-weight: 600; cursor: pointer; transition: background-color 0.3s, transform 0.2s;
     }
     .modal-content button:hover { background-color: #27ae60; transform: translateY(-2px); }
-    .modal-close-btn {
-        position: absolute; top: 0.5rem; right: 0.5rem; background: transparent; border: none;
-        font-size: 1.5rem; color: var(--muted-color-dash); cursor: pointer; line-height: 1;
-        padding: 0.5rem; transition: color 0.2s, transform 0.2s;
-    }
-    .modal-close-btn:hover { color: var(--light-text-dash); transform: rotate(90deg); }
-
-    /* --- NEW: HISTORY STYLES --- */
+    
+  
+    /* --- HISTORY STYLES --- */
     #history-list { max-height: 60vh; overflow-y: auto; }
     .history-item {
         display: flex; justify-content: space-between; align-items: center;
@@ -255,7 +250,7 @@
     .delete-history-btn:hover { color: #c0392b; transform: scale(1.1); }
     #clear-all-history-btn:hover { background-color: #c0392b !important; }
 
-    /* --- NEW: SETTLEMENT STYLES --- */
+    /* --- SETTLEMENT STYLES --- */
     .settlement-block {
         background-color: var(--primary-bg-dash); padding: 1rem; margin-bottom: 1rem;
         border-radius: 5px; border-left: 3px solid var(--warning-color);
@@ -264,11 +259,112 @@
     .results-area h3:has(+ .settlement-block) { color: var(--warning-color); }
     .settlement-instruction { font-size: 1rem; padding: 0.5rem 0; color: var(--light-text-dash); }
     .settlement-instruction strong { color: var(--accent-color-dash); }
+
+    /* --- BOTTOM NAVIGATION --- */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--secondary-bg-dash);
+        display: flex;
+        justify-content: space-around;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+    }
+    .nav-link {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 0;
+        color: var(--muted-color-dash);
+        text-decoration: none;
+        font-size: 10px;
+        transition: color 0.3s, background-color 0.3s;
+    }
+    .nav-link i {
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+    .nav-link.active, .nav-link:hover {
+        color: var(--accent-color-dash);
+        background-color: rgba(26, 188, 156, 0.1);
+    }
+    
+    /* --- EARNINGS PAGE STYLES --- */
+    .earnings-view-container {
+        background-color: var(--secondary-bg-dash);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .earnings-view-container h2 {
+        color: var(--accent-color-dash);
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--muted-color-dash);
+        padding-bottom: 0.8rem;
+    }
+    .earnings-list {
+        list-style: none;
+        padding: 0;
+    }
+    .earnings-item {
+        display: flex;
+        justify-content: flex-start; /* Changed */
+        align-items: center;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 0.8rem;
+        background-color: var(--primary-bg-dash);
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .earnings-item:hover {
+        background-color: var(--secondary-bg-dash);
+    }
+    .earnings-item-date {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--light-text-dash);
+        flex-grow: 1; /* Pushes other items to the right */
+    }
+    .earnings-item-profit {
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    .earnings-item-profit.positive {
+        color: var(--success-color);
+    }
+    .earnings-item-profit.negative {
+        color: var(--error-color);
+    }
+    .no-earnings {
+        text-align: center;
+        padding: 2rem;
+        color: var(--muted-color-dash);
+    }
+    .delete-earnings-btn {
+        background: none;
+        border: none;
+        color: var(--muted-color-dash);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 5px;
+        margin-left: 15px;
+        transition: color 0.2s, transform 0.2s;
+        flex-shrink: 0;
+    }
+    .delete-earnings-btn:hover {
+        color: var(--error-color);
+        transform: scale(1.15);
+    }
 </style>
 </head>
 <body>
 
-<audio id="background-music" src="https://raw.githubusercontent.com/Anandkhuman/housie/main/bg.mp3" loop playsinline></audio>
+<audio id="background-music" src="https://raw.githubusercontent.com/Anandkhuman/housie/main/bg44.mp3" loop playsinline></audio>
 
 <div id="login-container">
     <div id="verification-container">
@@ -344,6 +440,14 @@
         </div>
     </div>
 
+    <div id="daily-earnings-view" style="display: none;">
+        <!-- Content generated by JS -->
+    </div>
+
+    <div id="monthly-earnings-view" style="display: none;">
+        <!-- Content generated by JS -->
+    </div>
+
     <div id="results-view" style="display: none;">
         <!-- Results will be injected here by JavaScript -->
     </div>
@@ -360,16 +464,45 @@
 
 <div id="history-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content" style="max-width: 700px; text-align: left;">
-        <button class="modal-close-btn" id="close-history-modal">&times;</button>
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; margin-bottom: 1rem;">
             <h2 style="border-bottom: none; margin-bottom: 0;"><i class="fas fa-history"></i> Calculation History</h2>
-            <button id="clear-all-history-btn" style="width: auto; margin:0; padding: 0.5rem 1rem; background-color: var(--error-color); border-radius: 5px; border:none; color:white; font-weight: 600; cursor:pointer;">Clear All</button>
+            <div>
+                <button id="clear-all-history-btn" style="width: auto; margin:0 0.5rem 0 0; padding: 0.5rem 1rem; background-color: var(--error-color); border-radius: 5px; border:none; color:white; font-weight: 600; cursor:pointer;">Clear All</button>
+                <button id="close-history-modal" style="width: auto; margin:0; padding: 0.5rem 1rem; background-color: var(--muted-color-dash); border-radius: 5px; border:none; color:white; font-weight: 600; cursor:pointer;">Close</button>
+            </div>
         </div>
         <div id="history-list" class="assignment-list" style="max-height: 60vh; padding: 0;">
             <p style="padding: 1rem; text-align: center; color: var(--muted-color-dash);">No history found.</p>
         </div>
     </div>
 </div>
+
+<div id="earnings-detail-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 700px; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--muted-color-dash); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+            <h2 id="earnings-detail-title" style="border-bottom: none; margin-bottom: 0;"><i class="fas fa-chart-pie"></i> Earnings Details</h2>
+            <button id="close-earnings-detail-modal" style="width: auto; margin:0; padding: 0.5rem 1rem; background-color: var(--muted-color-dash); border-radius: 5px; border:none; color:white; font-weight: 600; cursor:pointer;">Close</button>
+        </div>
+        <div id="earnings-detail-content" class="assignment-list" style="max-height: 60vh; padding: 0.5rem; background-color: var(--primary-bg-dash);">
+            <!-- Detailed content will be injected here by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="#" class="nav-link active" id="nav-dashboard">
+        <i class="fas fa-calculator"></i>
+        <span>Dashboard</span>
+    </a>
+    <a href="#" class="nav-link" id="nav-daily">
+        <i class="fas fa-calendar-day"></i>
+        <span>Daily</span>
+    </a>
+    <a href="#" class="nav-link" id="nav-monthly">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Monthly</span>
+    </a>
+</nav>
 
 
 <script>
@@ -381,7 +514,7 @@
   storageBucket: "sinthahousiebumper.firebasestorage.app",
   messagingSenderId: "572647371065",
   appId: "1:572647371065:web:810a7aa3419e0f74f278e8"
-};
+    };
 
 
     firebase.initializeApp(firebaseConfig);
@@ -390,6 +523,7 @@
 
     let allUsers = [], allTickets = [], gameSettings = {}, gameWinners = {}, currentUser = null, calculationHistory = {};
     let isDataReady = { users: false, tickets: false, settings: false, winners: false };
+    let allEarnings = [];
 
     const loginContainer = document.getElementById('login-container');
     const mainContainer = document.getElementById('main-container');
@@ -402,6 +536,16 @@
     const loginBox = document.querySelector('.login-box');
     const confirmationModal = document.getElementById('confirmation-modal');
     const confirmProceedBtn = document.getElementById('confirm-proceed-btn');
+
+    // View and nav elements
+    const dailyEarningsView = document.getElementById('daily-earnings-view');
+    const monthlyEarningsView = document.getElementById('monthly-earnings-view');
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navDaily = document.getElementById('nav-daily');
+    const navMonthly = document.getElementById('nav-monthly');
+    const allAppViews = [calcView, dailyEarningsView, monthlyEarningsView, resultsView];
+    const navLinks = [navDashboard, navDaily, navMonthly];
+
 
     function tryToPlayMusic() {
         if (bgMusic && bgMusic.paused) {
@@ -441,6 +585,7 @@
         tryToPlayMusic();
         showMainContent();
         fetchData();
+        switchView('calculator-view'); // Set initial view
     });
 
     document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -474,6 +619,12 @@
         db.ref('settings/gameConfig').on('value', s => { gameSettings = s.val()||{}; isDataReady.settings = true; checkAndRender(); });
         db.ref('gameState/currentState/winners').on('value', s => { gameWinners = s.val()||{}; isDataReady.winners = true; checkAndRender(); });
         db.ref('calculationHistory').on('value', s => { calculationHistory = s.val() || {}; renderHistory(); });
+        db.ref('earningsLog').on('value', s => { 
+            const data = s.val() || {};
+            allEarnings = Object.values(data);
+            if (dailyEarningsView.style.display !== 'none') renderDailyEarnings();
+            if (monthlyEarningsView.style.display !== 'none') renderMonthlyEarnings();
+        });
     }
     
     function checkAndRender() { if (Object.values(isDataReady).every(Boolean)) populateAssignmentLists(); }
@@ -489,42 +640,25 @@
         const includedAgentUids = Array.from(document.querySelectorAll('#agent-assignment-list .include-checkbox:checked')).map(cb => cb.dataset.uid);
         const initialSoldTickets = allTickets.filter(t => t.is_sold && t.owner_phone && (allUsers.find(u => u.uid === t.agent_uid)?.role === 'admin' || includedAgentUids.includes(t.agent_uid)));
 
-        // --- START: NEW CALCULATION LOGIC ---
-
-        // 1. Get manual extra/bonus tickets for each seller
         const extraTicketsMap = {};
         document.querySelectorAll('.extra-tickets-input').forEach(input => {
             const uid = input.dataset.uid;
             const count = parseInt(input.value, 10) || 0;
-            if (count > 0) {
-                extraTicketsMap[uid] = count;
-            }
+            if (count > 0) extraTicketsMap[uid] = count;
         });
 
-        // Create a modifiable copy of all tickets and initialize properties
         let processedTickets = JSON.parse(JSON.stringify(initialSoldTickets));
-        processedTickets.forEach(t => {
-            t.isFree = false;
-            t.freeReason = null;
-        });
+        processedTickets.forEach(t => { t.isFree = false; t.freeReason = null; });
 
-        // 2. Apply MANUAL free tickets first
         for (const uid in extraTicketsMap) {
             let ticketsToFree = extraTicketsMap[uid];
-            const userTickets = processedTickets
-                .filter(t => t.agent_uid === uid && !t.isFree)
-                .sort((a, b) => a.id - b.id);
-
+            const userTickets = processedTickets.filter(t => t.agent_uid === uid && !t.isFree).sort((a, b) => a.id - b.id);
             for (let i = 0; i < ticketsToFree && i < userTickets.length; i++) {
                 const ticketToMark = processedTickets.find(pt => pt.id === userTickets[i].id);
-                if (ticketToMark) {
-                    ticketToMark.isFree = true;
-                    ticketToMark.freeReason = 'manual';
-                }
+                if (ticketToMark) { ticketToMark.isFree = true; ticketToMark.freeReason = 'manual'; }
             }
         }
 
-        // 3. Apply AUTOMATIC free tickets on the remaining pool
         const remainingTicketsForAuto = processedTickets.filter(t => !t.isFree);
         const bookingsForAutoFree = remainingTicketsForAuto.reduce((acc, t) => {
             acc[t.owner_phone] = (acc[t.owner_phone] || []).concat(t);
@@ -538,35 +672,23 @@
                 acc[s] = (acc[s] || 0) + 1;
                 return acc;
             }, {});
-            
             let autoFreeCount = 0;
             for (const sheet in sheets) {
                 autoFreeCount += (Math.floor(sheets[sheet] / 6) * freePerFull) + (Math.floor((sheets[sheet] % 6) / 3) * freePerHalf);
             }
-            
             ticketsInBooking.sort((a, b) => a.id - b.id);
-            
             for (let i = 0; i < autoFreeCount && i < ticketsInBooking.length; i++) {
                 const ticketToMark = processedTickets.find(pt => pt.id === ticketsInBooking[i].id);
-                if (ticketToMark) {
-                    ticketToMark.isFree = true;
-                    ticketToMark.freeReason = 'auto';
-                }
+                if (ticketToMark) { ticketToMark.isFree = true; ticketToMark.freeReason = 'auto'; }
             }
         }
         
-        // 4. Final Tally and Financial Calculations
         const finalPaidTickets = processedTickets.filter(t => !t.isFree);
-
         const adminBalances = admins.map(admin => ({ name: admin.name, uid: admin.uid, ticketsSold: 0, freeTicketsGenerated: 0, extraTickets: 0, commission: 0, directCollection: 0, transfersInFromAgents: 0, prizesPaid: 0 }));
         const agentSettlements = agents.map(agent => ({ name: agent.name, uid: agent.uid, ticketsSold: 0, freeTicketsGenerated: 0, extraTickets: 0, collection: 0, commission: 0, netTransfer: 0, transferToAdminName: 'N/A (Excluded)'}));
-
-        const totalTicketsBySeller = initialSoldTickets.reduce((acc, t) => {
-            acc[t.agent_uid] = (acc[t.agent_uid] || 0) + 1;
-            return acc;
-        }, {});
-        
+        const totalTicketsBySeller = initialSoldTickets.reduce((acc, t) => { acc[t.agent_uid] = (acc[t.agent_uid] || 0) + 1; return acc; }, {});
         const allSellers = [...adminBalances, ...agentSettlements];
+        
         allSellers.forEach(seller => {
             seller.extraTickets = extraTicketsMap[seller.uid] || 0;
             seller.ticketsSold = finalPaidTickets.filter(t => t.agent_uid === seller.uid).length;
@@ -577,7 +699,6 @@
             agent.collection = agent.ticketsSold * ticketPrice;
             const initialTotalHandled = totalTicketsBySeller[agent.uid] || 0;
             agent.commission = initialTotalHandled * commissionRate;
-            
             if (includedAgentUids.includes(agent.uid)) {
                 const item = document.querySelector(`#agent-assignment-list .agent-checkbox[data-uid="${agent.uid}"]`).closest('.assignment-item');
                 const receivingAdmin = adminBalances.find(a => a.uid === item.querySelector('.admin-selector').value);
@@ -614,113 +735,148 @@
 
         summary.netProfit = summary.totalCollection - (summary.totalPrizesPaid + summary.totalCommissionsPaid);
 
-        // --- END: NEW CALCULATION LOGIC ---
-
+        const currentTimestamp = Date.now();
         const historyEntry = {
-            timestamp: Date.now(),
+            timestamp: currentTimestamp,
             calculatedBy: currentUser.name,
             results: { summary, admins: adminBalances, agents: agentSettlements }
         };
-        db.ref('calculationHistory').push(historyEntry);
+        const newHistoryKey = db.ref('calculationHistory').push().key;
+
+        const earningsLogEntry = {
+            timestamp: currentTimestamp,
+            profit: summary.netProfit,
+            sourceHistoryKey: newHistoryKey
+        };
+        
+        const updates = {};
+        updates[`/calculationHistory/${newHistoryKey}`] = historyEntry;
+        updates[`/earningsLog/${db.ref('earningsLog').push().key}`] = earningsLogEntry;
+
+        db.ref().update(updates).catch(error => {
+            console.error("Error saving calculation data:", error);
+            alert("Warning: Could not save data. Please check your connection and try again.");
+        });
 
         renderResults(summary, adminBalances, agentSettlements);
     });
 
+    function generateSettlementInstructions(admins, netProfit) {
+        if (!admins || admins.length <= 1) {
+            return []; // No settlement needed for 0 or 1 admin
+        }
+        
+        const numAdmins = admins.length;
+        const profitPerAdmin = netProfit / numAdmins;
+        const transactions = [];
+        const payers = [];
+        const receivers = [];
+
+        admins.forEach(admin => {
+            const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid;
+            const diff = finalBalance - profitPerAdmin;
+            if (diff > 0.1) {
+                payers.push({ name: admin.name, amount: diff });
+            } else if (diff < -0.1) {
+                receivers.push({ name: admin.name, amount: -diff });
+            }
+        });
+
+        payers.sort((a, b) => b.amount - a.amount);
+        receivers.sort((a, b) => b.amount - a.amount);
+
+        let payerIndex = 0;
+        let receiverIndex = 0;
+
+        while (payerIndex < payers.length && receiverIndex < receivers.length) {
+            const payer = payers[payerIndex];
+            const receiver = receivers[receiverIndex];
+            const transferAmount = Math.min(payer.amount, receiver.amount);
+
+            if (transferAmount > 0.1) {
+                transactions.push(`<strong>${payer.name}</strong> gives <strong>₹ ${Math.round(transferAmount).toLocaleString('en-IN')}</strong> to <strong>${receiver.name}</strong>`);
+                payer.amount -= transferAmount;
+                receiver.amount -= transferAmount;
+            }
+
+            if (payer.amount < 0.1) { payerIndex++; }
+            if (receiver.amount < 0.1) { receiverIndex++; }
+        }
+        return transactions;
+    }
+
     function renderResults(summary, admins, agents) {
         let resultsHtml = `<h1>Settlement Report</h1>`;
-
         resultsHtml += `<div class="results-area"><h3>Business Summary</h3><div class="result-block"><div class="result-item"><span>Total Paid Tickets</span><span>${summary.totalSoldTickets}</span></div><div class="result-item"><span>Total Free Tickets Given</span><span>${summary.totalFreeTickets}</span></div><div class="result-item"><span>(+) Total Collection</span><span>₹ ${summary.totalCollection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Prizes Paid</span><span>₹ ${Math.round(summary.totalPrizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Total Commissions</span><span>₹ ${Math.round(summary.totalCommissionsPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit / Loss</span><span>₹ ${Math.round(summary.netProfit).toLocaleString('en-IN')}</span></div></div></div>`;
-        
         resultsHtml += `<div class="results-area"><h3>Admin Balances</h3>${admins.map(admin => { const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid; return `<div class="result-block"><h4>${admin.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${admin.ticketsSold}</span></div><div class="result-item"><span>Free Tickets (Auto)</span><span>${admin.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${admin.extraTickets}</span></div><div class="result-item"><span>(+) Direct Collection</span><span>₹ ${admin.directCollection.toLocaleString('en-IN')}</span></div><div class="result-item"><span>(+) Agent Transfers In</span><span>₹ ${Math.round(admin.transfersInFromAgents).toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>(-) Prizes Paid</span><span>₹ ${Math.round(admin.prizesPaid).toLocaleString('en-IN')}</span></div><div class="result-item total ${finalBalance < 0 ? 'negative' : ''}"><span>Final Balance in Hand</span><span>₹ ${Math.round(finalBalance).toLocaleString('en-IN')}</span></div></div>`; }).join('')}</div>`;
-
         const numAdmins = admins.length > 0 ? admins.length : 1;
         const profitPerAdmin = summary.netProfit / numAdmins;
         if (admins.length > 0) { resultsHtml += `<div class="results-area"><h3>Profit Distribution</h3><div class="result-block"><div class="result-item total"><span>Profit Share per Admin</span><span>₹ ${Math.round(profitPerAdmin).toLocaleString('en-IN')}</span></div>${admins.map(admin => `<div class="result-item"><span>${admin.name}'s Share</span><span>₹ ${Math.round(profitPerAdmin).toLocaleString('en-IN')}</span></div>`).join('')}</div></div>`; }
-
-        if (admins.length > 1) {
-            const payers = []; const receivers = [];
-            admins.forEach(admin => {
-                const finalBalance = (admin.directCollection + admin.transfersInFromAgents) - admin.prizesPaid;
-                const diff = finalBalance - profitPerAdmin;
-                if (diff > 0.1) { payers.push({ name: admin.name, amount: diff }); }
-                else if (diff < -0.1) { receivers.push({ name: admin.name, amount: -diff }); }
-            });
-            const transactions = []; let payerIndex = 0; let receiverIndex = 0;
-            payers.sort((a, b) => b.amount - a.amount); receivers.sort((a, b) => b.amount - a.amount);
-            while (payerIndex < payers.length && receiverIndex < receivers.length) {
-                const payer = payers[payerIndex]; const receiver = receivers[receiverIndex]; const transferAmount = Math.min(payer.amount, receiver.amount);
-                if (transferAmount > 0.1) {
-                    transactions.push(`<strong>${payer.name}</strong> gives <strong>₹ ${Math.round(transferAmount).toLocaleString('en-IN')}</strong> to <strong>${receiver.name}</strong>`);
-                    payer.amount -= transferAmount; receiver.amount -= transferAmount;
-                }
-                if (payer.amount < 0.1) { payerIndex++; }
-                if (receiver.amount < 0.1) { receiverIndex++; }
-            }
-            resultsHtml += `<div class="results-area"><h3>Settlement Actions (ꯂꯣꯊꯣꯛ-ꯂꯣꯁꯤꯟ)</h3><div class="settlement-block">${transactions.length > 0 ? transactions.map(t => `<p class="settlement-instruction">${t}</p>`).join('') : '<p class="settlement-instruction">All balances are already settled.</p>'}</div></div>`;
+        
+        const transactions = generateSettlementInstructions(admins, summary.netProfit);
+        if (transactions.length > 0) {
+            resultsHtml += `<div class="results-area"><h3>Settlement Actions (ꯂꯣꯊꯣꯛ-ꯂꯣꯁꯤꯟ)</h3><div class="settlement-block">${transactions.map(t => `<p class="settlement-instruction">${t}</p>`).join('')}</div></div>`;
         }
 
         resultsHtml += `<div class="results-area"><h3>Agent Settlements</h3>${agents.map(agent => `<div class="result-block"><h4>${agent.name}</h4><div class="result-item"><span>Paid Tickets Sold</span><span>${agent.ticketsSold}</span></div><div class="result-item"><span>Free Tickets (Auto)</span><span>${agent.freeTicketsGenerated}</span></div><div class="result-item"><span>Extra/Bonus Tickets</span><span>${agent.extraTickets}</span></div><div class="result-item"><span>Total Collection</span><span>₹ ${agent.collection.toLocaleString('en-IN')}</span></div><div class="result-item deduction"><span>Commission Earned</span><span>₹ ${Math.round(agent.commission).toLocaleString('en-IN')}</span></div><div class="result-item total"><span>Net Transfer to ${agent.transferToAdminName}</span><span>₹ ${agent.netTransfer > 0 ? Math.round(agent.netTransfer).toLocaleString('en-IN') : 0}</span></div></div>`).join('')}</div>`;
-
         resultsHtml += `<button class="calculate-btn" id="back-to-calc-btn">Back to Calculator</button>`;
-        resultsView.innerHTML = resultsHtml;
         
-        document.getElementById('back-to-calc-btn').addEventListener('click', () => { 
-            resultsView.style.display = 'none'; 
-            calcView.style.display = 'block'; 
-        });
-        calcView.style.display = 'none';
-        resultsView.style.display = 'block';
+        resultsView.innerHTML = resultsHtml;
+        document.getElementById('back-to-calc-btn').addEventListener('click', () => switchView('calculator-view'));
+        switchView('results-view');
         window.scrollTo(0, 0);
     }
     
     function renderHistory() {
         const historyList = document.getElementById('history-list');
         const sortedKeys = Object.keys(calculationHistory).sort((a, b) => calculationHistory[b].timestamp - calculationHistory[a].timestamp);
-
         if (sortedKeys.length > 0) {
             historyList.innerHTML = sortedKeys.map(key => {
                 const entry = calculationHistory[key];
                 const date = new Date(entry.timestamp).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
-                return `<div class="history-item" data-key="${key}">
-                            <div class="history-info">
-                                <div class="date">${date}</div>
-                                <div class="details">Profit: ₹ ${Math.round(entry.results.summary.netProfit).toLocaleString('en-IN')} | By: ${entry.calculatedBy}</div>
-                            </div>
-                            <button class="delete-history-btn" data-key="${key}"><i class="fas fa-trash-alt"></i></button>
-                        </div>`;
+                return `<div class="history-item" data-key="${key}"><div class="history-info"><div class="date">${date}</div><div class="details">Profit: ₹ ${Math.round(entry.results.summary.netProfit).toLocaleString('en-IN')} | By: ${entry.calculatedBy}</div></div><button class="delete-history-btn" data-key="${key}"><i class="fas fa-trash-alt"></i></button></div>`;
             }).join('');
         } else {
             historyList.innerHTML = '<p style="padding: 1rem; text-align: center; color: var(--muted-color-dash);">No history found.</p>';
         }
     }
 
-    document.getElementById('view-history-btn').addEventListener('click', () => {
-        historyModal.style.display = 'flex';
-    });
-    document.getElementById('close-history-modal').addEventListener('click', () => {
-        historyModal.style.display = 'none';
-    });
-    historyModal.addEventListener('click', (e) => {
-        if (e.target === historyModal) {
-            historyModal.style.display = 'none';
-        }
-    });
+    document.getElementById('view-history-btn').addEventListener('click', () => historyModal.style.display = 'flex');
+    document.getElementById('close-history-modal').addEventListener('click', () => historyModal.style.display = 'none');
+    historyModal.addEventListener('click', (e) => { if (e.target === historyModal) historyModal.style.display = 'none'; });
 
     document.getElementById('history-list').addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.delete-history-btn');
         if (deleteBtn) {
-            e.stopPropagation(); 
-            const key = deleteBtn.dataset.key;
-            if (confirm('Are you sure you want to delete this history entry?')) {
-                db.ref('calculationHistory/' + key).remove();
+            e.stopPropagation();
+            const historyKey = deleteBtn.dataset.key;
+            const entryToDelete = calculationHistory[historyKey];
+            if (!entryToDelete) {
+                alert("Error: Could not find the history entry to delete.");
+                return;
+            }
+            if (confirm('Are you sure you want to delete this history entry? This will also reverse the profit from the earnings logs.')) {
+                const profitToReverse = entryToDelete.results.summary.netProfit;
+                const originalTimestamp = entryToDelete.timestamp;
+                const reversalEntry = {
+                    profit: -profitToReverse,
+                    timestamp: originalTimestamp,
+                    reversedHistoryKey: historyKey
+                };
+                db.ref('earningsLog').push(reversalEntry)
+                    .then(() => db.ref('calculationHistory/' + historyKey).remove())
+                    .then(() => console.log("History deleted and earnings reversed successfully."))
+                    .catch(error => {
+                        console.error("Error during history deletion/reversal:", error);
+                        alert("An error occurred. Could not delete the history entry.");
+                    });
             }
             return;
         }
 
         const historyItem = e.target.closest('.history-item');
         if (historyItem) {
-            const key = historyItem.dataset.key;
-            const entry = calculationHistory[key];
+            const entry = calculationHistory[historyItem.dataset.key];
             if (entry && entry.results) {
                 historyModal.style.display = 'none';
                 renderResults(entry.results.summary, entry.results.admins, entry.results.agents);
@@ -729,8 +885,35 @@
     });
 
     document.getElementById('clear-all-history-btn').addEventListener('click', () => {
-        if (confirm('ARE YOU SURE you want to delete ALL calculation history? This cannot be undone.')) {
-            db.ref('calculationHistory').remove();
+        if (confirm('ARE YOU SURE you want to delete ALL calculation history? This will also reverse ALL profits from the earnings logs. This cannot be undone.')) {
+            const updates = {};
+            let reversalCount = 0;
+            
+            for (const key in calculationHistory) {
+                if (Object.hasOwnProperty.call(calculationHistory, key)) {
+                    const entry = calculationHistory[key];
+                    if (entry && entry.results && entry.results.summary) {
+                        const reversalEntry = {
+                            profit: -entry.results.summary.netProfit,
+                            timestamp: entry.timestamp,
+                            reversedHistoryKey: key
+                        };
+                        const newLogKey = db.ref('earningsLog').push().key;
+                        updates[`/earningsLog/${newLogKey}`] = reversalEntry;
+                        reversalCount++;
+                    }
+                }
+            }
+
+            updates['/calculationHistory'] = null;
+
+            if (reversalCount > 0 || Object.keys(calculationHistory).length > 0) {
+                 db.ref().update(updates)
+                    .then(() => alert(`${reversalCount} history entries deleted and their earnings reversed.`))
+                    .catch(error => alert("An error occurred while clearing history."));
+            } else {
+                 alert("History is already empty.");
+            }
         }
     });
 
@@ -740,41 +923,11 @@
         const agentListContainer = document.getElementById('agent-assignment-list');
         const winnerListContainer = document.getElementById('winner-assignment-list');
         const adminAdjustmentContainer = document.getElementById('admin-adjustment-list');
-
-        agentListContainer.innerHTML = '';
-        winnerListContainer.innerHTML = '';
-        adminAdjustmentContainer.innerHTML = '';
-
+        agentListContainer.innerHTML = ''; winnerListContainer.innerHTML = ''; adminAdjustmentContainer.innerHTML = '';
         if (admins.length === 0) return;
-
         const adminOptionsHtml = admins.map(admin => `<option value="${admin.uid}">${admin.name}</option>`).join('');
-
-        adminAdjustmentContainer.innerHTML = admins.map(admin => `
-            <div class="assignment-item">
-                <div class="details" style="flex-grow: 1;">
-                    <span class="name">${admin.name}</span>
-                </div>
-                 <div style="width: 120px; text-align: right;">
-                    <input type="number" class="extra-tickets-input" data-uid="${admin.uid}" placeholder="Bonus/Free" style="width: 100%; padding: 0.4rem;">
-                </div>
-            </div>
-        `).join('') || '<p>No admins found.</p>';
-
-        agentListContainer.innerHTML = agents.map(agent => `
-            <div class="assignment-item">
-                <div class="toggle-group">
-                    <input type="checkbox" class="include-checkbox agent-checkbox" data-uid="${agent.uid}" checked>
-                    <div class="details">
-                        <span class="name">${agent.name}</span>
-                    </div>
-                </div>
-                <div style="width: 100px; text-align: right;">
-                    <input type="number" class="extra-tickets-input" data-uid="${agent.uid}" placeholder="Bonus/Free" style="width: 100%; padding: 0.4rem;">
-                </div>
-                <select class="admin-selector">${adminOptionsHtml}</select>
-            </div>
-        `).join('') || '<p>No agents found.</p>';
-
+        adminAdjustmentContainer.innerHTML = admins.map(admin => `<div class="assignment-item"><div class="details" style="flex-grow: 1;"><span class="name">${admin.name}</span></div><div style="width: 120px; text-align: right;"><input type="number" class="extra-tickets-input" data-uid="${admin.uid}" placeholder="Bonus/Free" style="width: 100%; padding: 0.4rem;"></div></div>`).join('') || '<p>No admins found.</p>';
+        agentListContainer.innerHTML = agents.map(agent => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox agent-checkbox" data-uid="${agent.uid}" checked><div class="details"><span class="name">${agent.name}</span></div></div><div style="width: 100px; text-align: right;"><input type="number" class="extra-tickets-input" data-uid="${agent.uid}" placeholder="Bonus/Free" style="width: 100%; padding: 0.4rem;"></div><select class="admin-selector">${adminOptionsHtml}</select></div>`).join('') || '<p>No agents found.</p>';
         const allWinners = [];
         const dividendOrder = gameSettings.dividends ? gameSettings.dividends.map(d => d.name) : Object.keys(gameWinners);
         dividendOrder.forEach(dividendName => {
@@ -783,62 +936,285 @@
                 if (prizeInfo) {
                     gameWinners[dividendName].forEach(winner => {
                         const winnerPrize = prizeInfo.amount / gameWinners[dividendName].length;
-                        if (typeof winner.ticketId === 'number') {
-                            const ticket = allTickets.find(t => t.id === winner.ticketId);
-                            if (ticket) {
-                                allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: winnerPrize });
-                            }
-                        } else if (typeof winner.ticketId === 'string') {
-                            let agentUidForBonus = null;
-                            const ticketIdsInBonus = winner.ticketId.match(/\d+/g);
-                            if (ticketIdsInBonus && ticketIdsInBonus.length > 0) {
-                                const firstTicketId = parseInt(ticketIdsInBonus[0], 10);
-                                const representativeTicket = allTickets.find(t => t.id === firstTicketId);
-                                if (representativeTicket) {
-                                    agentUidForBonus = representativeTicket.agent_uid;
-                                }
-                            }
-                            allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name, agent_uid: agentUidForBonus }, prizeName: dividendName, prizeAmount: winnerPrize });
-                        }
+                        if (typeof winner.ticketId === 'number') { const ticket = allTickets.find(t => t.id === winner.ticketId); if (ticket) allWinners.push({ ...winner, ticket, prizeName: dividendName, prizeAmount: winnerPrize }); }
+                        else if (typeof winner.ticketId === 'string') { let agentUidForBonus = null; const ticketIdsInBonus = winner.ticketId.match(/\d+/g); if (ticketIdsInBonus && ticketIdsInBonus.length > 0) { const representativeTicket = allTickets.find(t => t.id === parseInt(ticketIdsInBonus[0], 10)); if (representativeTicket) agentUidForBonus = representativeTicket.agent_uid; } allWinners.push({ ...winner, ticket: { id: winner.ticketId, owner_name: winner.name, agent_uid: agentUidForBonus }, prizeName: dividendName, prizeAmount: winnerPrize }); }
                     });
                 }
             }
         });
-        
-        winnerListContainer.innerHTML = allWinners.map(winner => `
-            <div class="assignment-item">
-                <div class="toggle-group">
-                    <input type="checkbox" class="include-checkbox prize-checkbox" 
-                           data-prize-amount="${winner.prizeAmount}" 
-                           data-ticket-id="${winner.ticket.id}" 
-                           data-agent-uid="${winner.ticket.agent_uid || ''}" checked>
-                    <div class="details">
-                        <span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span>
-                        <span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString('en-IN')}</span>
-                    </div>
-                </div>
-                <select class="admin-selector">${adminOptionsHtml}</select>
-            </div>
-        `).join('') || '<p>No winners yet.</p>';
-
-        document.querySelectorAll('.include-checkbox').forEach(cb => {
-            cb.addEventListener('change', e => {
-                e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked);
-            });
-        });
-
-        document.querySelectorAll('.agent-checkbox').forEach(agentCb => {
-            agentCb.addEventListener('change', e => {
-                const agentUid = e.target.dataset.uid;
-                const isChecked = e.target.checked;
-                document.querySelectorAll(`.prize-checkbox[data-agent-uid="${agentUid}"]`).forEach(prizeCb => {
-                    prizeCb.checked = isChecked;
-                    prizeCb.dispatchEvent(new Event('change', { bubbles: true }));
-                });
-            });
-        });
+        winnerListContainer.innerHTML = allWinners.map(winner => `<div class="assignment-item"><div class="toggle-group"><input type="checkbox" class="include-checkbox prize-checkbox" data-prize-amount="${winner.prizeAmount}" data-ticket-id="${winner.ticket.id}" data-agent-uid="${winner.ticket.agent_uid || ''}" checked><div class="details"><span class="name">${typeof winner.ticketId === 'number' ? `Ticket #${winner.ticketId}` : winner.ticketId} (${winner.ticket?.owner_name || 'N/A'})</span><span class="sub-text">${winner.prizeName} - Prize: ₹ ${Math.round(winner.prizeAmount).toLocaleString('en-IN')}</span></div></div><select class="admin-selector">${adminOptionsHtml}</select></div>`).join('') || '<p>No winners yet.</p>';
+        document.querySelectorAll('.include-checkbox').forEach(cb => cb.addEventListener('change', e => e.target.closest('.assignment-item').classList.toggle('excluded', !e.target.checked)));
+        document.querySelectorAll('.agent-checkbox').forEach(agentCb => agentCb.addEventListener('change', e => { const agentUid = e.target.dataset.uid; document.querySelectorAll(`.prize-checkbox[data-agent-uid="${agentUid}"]`).forEach(prizeCb => { prizeCb.checked = e.target.checked; prizeCb.dispatchEvent(new Event('change', { bubbles: true })); }); }));
     }
 
+    // --- View Switching Logic ---
+    function switchView(viewToShowId) {
+        allAppViews.forEach(view => { view.style.display = view.id === viewToShowId ? 'block' : 'none'; });
+        navLinks.forEach(link => link.classList.remove('active'));
+        if (viewToShowId === 'calculator-view' || viewToShowId === 'results-view') navDashboard.classList.add('active');
+        else if (viewToShowId === 'daily-earnings-view') { navDaily.classList.add('active'); renderDailyEarnings(); }
+        else if (viewToShowId === 'monthly-earnings-view') { navMonthly.classList.add('active'); renderMonthlyEarnings(); }
+    }
+    navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('calculator-view'); });
+    navDaily.addEventListener('click', (e) => { e.preventDefault(); switchView('daily-earnings-view'); });
+    navMonthly.addEventListener('click', (e) => { e.preventDefault(); switchView('monthly-earnings-view'); });
+
+    // --- Earnings Rendering Functions ---
+    function renderDailyEarnings() {
+        dailyEarningsView.innerHTML = `<div class="earnings-view-container"><h2><i class="fas fa-calendar-day"></i> Daily Earnings</h2><div id="daily-list-container"></div></div>`;
+        const container = document.getElementById('daily-list-container');
+        if (allEarnings.length === 0) { container.innerHTML = `<p class="no-earnings">No earnings data found.</p>`; return; }
+        const dailyData = allEarnings.reduce((acc, entry) => {
+            const date = new Date(entry.timestamp).toLocaleDateString('en-CA');
+            if (!acc[date]) acc[date] = 0;
+            acc[date] += entry.profit;
+            return acc;
+        }, {});
+        const sortedDates = Object.keys(dailyData).sort((a, b) => new Date(b) - new Date(a));
+        let listHtml = '<ul class="earnings-list">';
+        sortedDates.forEach(dateStr => {
+            const profit = dailyData[dateStr];
+            const displayDate = new Date(dateStr).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            listHtml += `<li class="earnings-item" data-date="${dateStr}" data-profit="${profit}">
+                            <span class="earnings-item-date">${displayDate}</span>
+                            <span class="earnings-item-profit ${profit >= 0 ? 'positive' : 'negative'}">₹ ${Math.round(profit).toLocaleString('en-IN')}</span>
+                            <button class="delete-earnings-btn" data-date="${dateStr}" title="Delete all entries for this day">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </li>`;
+        });
+        listHtml += '</ul>';
+        container.innerHTML = listHtml;
+    }
+
+    function renderMonthlyEarnings() {
+        monthlyEarningsView.innerHTML = `<div class="earnings-view-container"><h2><i class="fas fa-calendar-alt"></i> Monthly Earnings</h2><div id="monthly-list-container"></div></div>`;
+        const container = document.getElementById('monthly-list-container');
+        if (allEarnings.length === 0) { container.innerHTML = `<p class="no-earnings">No earnings data found.</p>`; return; }
+        const monthlyData = allEarnings.reduce((acc, entry) => {
+            const date = new Date(entry.timestamp);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            if (!acc[monthKey]) acc[monthKey] = 0;
+            acc[monthKey] += entry.profit;
+            return acc;
+        }, {});
+        const sortedMonths = Object.keys(monthlyData).sort().reverse();
+        let listHtml = '<ul class="earnings-list">';
+        sortedMonths.forEach(monthKey => {
+            const profit = monthlyData[monthKey];
+            const [year, month] = monthKey.split('-');
+            const displayMonth = new Date(year, month - 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+            listHtml += `<li class="earnings-item" data-month="${monthKey}" data-profit="${profit}">
+                            <span class="earnings-item-date">${displayMonth}</span>
+                            <span class="earnings-item-profit ${profit >= 0 ? 'positive' : 'negative'}">₹ ${Math.round(profit).toLocaleString('en-IN')}</span>
+                             <button class="delete-earnings-btn" data-month="${monthKey}" title="Delete all entries for this month">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </li>`;
+        });
+        listHtml += '</ul>';
+        container.innerHTML = listHtml;
+    }
+    
+    // --- Earnings Detail Modal & Deletion Logic ---
+    const earningsDetailModal = document.getElementById('earnings-detail-modal');
+    
+    document.getElementById('daily-earnings-view').addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-earnings-btn');
+        if (deleteBtn) {
+            e.stopPropagation(); // Prevent modal from opening
+            const dateToDelete = deleteBtn.dataset.date;
+            if (confirm(`Are you sure you want to permanently delete all calculations and earnings logs for ${new Date(dateToDelete).toLocaleDateString('en-IN', {dateStyle:'long'})}? This action cannot be undone.`)) {
+                deleteEarningsAndHistoryForPeriod('day', dateToDelete);
+            }
+            return;
+        }
+
+        const item = e.target.closest('.earnings-item');
+        if (item) {
+            showEarningsDetail('day', item.dataset.date, item.dataset.profit);
+        }
+    });
+
+    document.getElementById('monthly-earnings-view').addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-earnings-btn');
+        if (deleteBtn) {
+            e.stopPropagation(); // Prevent modal from opening
+            const monthToDelete = deleteBtn.dataset.month;
+            const [year, month] = monthToDelete.split('-');
+            const displayMonth = new Date(year, month - 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+            if (confirm(`Are you sure you want to permanently delete all calculations and earnings logs for ${displayMonth}? This action cannot be undone.`)) {
+                deleteEarningsAndHistoryForPeriod('month', monthToDelete);
+            }
+            return;
+        }
+
+        const item = e.target.closest('.earnings-item');
+        if (item) {
+            showEarningsDetail('month', item.dataset.month, item.dataset.profit);
+        }
+    });
+
+    // --- [FIXED] Corrected Deletion Logic ---
+    function deleteEarningsAndHistoryForPeriod(periodType, periodValue) {
+        const updates = {};
+        const historyKeysToDelete = new Set();
+
+        // Step 1: Identify all calculation history keys within the specified period.
+        Object.entries(calculationHistory).forEach(([key, entry]) => {
+            if (!entry || !entry.timestamp) return;
+            const entryDate = new Date(entry.timestamp);
+            let match = false;
+            if (periodType === 'day') {
+                if (entryDate.toLocaleDateString('en-CA') === periodValue) {
+                    match = true;
+                }
+            } else if (periodType === 'month') {
+                const monthKey = `${entryDate.getFullYear()}-${String(entryDate.getMonth() + 1).padStart(2, '0')}`;
+                if (monthKey === periodValue) {
+                    match = true;
+                }
+            }
+            if (match) {
+                historyKeysToDelete.add(key);
+            }
+        });
+
+        if (historyKeysToDelete.size === 0) {
+            alert("No calculation history found for the selected period.");
+            return;
+        }
+
+        // Step 2: For each history key to be deleted, create a corresponding reversal entry in the earnings log.
+        // This ensures the total profit remains accurate.
+        // Also, mark the history entry itself for deletion.
+        historyKeysToDelete.forEach(key => {
+            const entry = calculationHistory[key];
+            if (entry && entry.results && entry.results.summary && typeof entry.results.summary.netProfit === 'number') {
+                const reversalEntry = {
+                    profit: -entry.results.summary.netProfit,
+                    timestamp: entry.timestamp,
+                    reversedHistoryKey: key
+                };
+                const newLogKey = db.ref('earningsLog').push().key;
+                updates[`/earningsLog/${newLogKey}`] = reversalEntry;
+            }
+            // Mark the history entry for deletion.
+            updates[`/calculationHistory/${key}`] = null;
+        });
+        
+        // Step 3: Execute all updates in a single atomic operation.
+        db.ref().update(updates)
+            .then(() => {
+                console.log(`Successfully deleted ${historyKeysToDelete.size} history entries and reversed their earnings for period: ${periodValue}.`);
+                alert("Deletion successful. All calculations for this period have been reversed.");
+            })
+            .catch(error => {
+                console.error("Error during bulk deletion and reversal:", error);
+                alert("An error occurred during deletion. Please check the console for details.");
+            });
+    }
+
+
+    document.getElementById('close-earnings-detail-modal').addEventListener('click', () => {
+        earningsDetailModal.style.display = 'none';
+    });
+
+    earningsDetailModal.addEventListener('click', (e) => {
+        if (e.target === earningsDetailModal) earningsDetailModal.style.display = 'none';
+    });
+
+    function showEarningsDetail(periodType, periodValue, totalProfit) {
+        const detailTitle = document.getElementById('earnings-detail-title');
+        const detailContent = document.getElementById('earnings-detail-content');
+        
+        let filteredEntries = [];
+        if (periodType === 'day') {
+            detailTitle.innerHTML = `<i class="fas fa-calendar-day"></i> Details for ${new Date(periodValue).toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'})}`;
+            filteredEntries = Object.values(calculationHistory).filter(entry => entry && new Date(entry.timestamp).toLocaleDateString('en-CA') === periodValue);
+        } else if (periodType === 'month') {
+            const [year, month] = periodValue.split('-');
+            detailTitle.innerHTML = `<i class="fas fa-calendar-alt"></i> Details for ${new Date(year, month-1).toLocaleString('en-IN', {month:'long', year:'numeric'})}`;
+            filteredEntries = Object.values(calculationHistory).filter(entry => entry && new Date(entry.timestamp).toISOString().startsWith(periodValue));
+        }
+
+        filteredEntries.sort((a, b) => b.timestamp - a.timestamp);
+
+        // Aggregate admin data for the entire period
+        const aggregatedAdminData = {};
+        filteredEntries.forEach(entry => {
+            if (entry.results && entry.results.admins) {
+                entry.results.admins.forEach(admin => {
+                    if (!aggregatedAdminData[admin.uid]) {
+                        aggregatedAdminData[admin.uid] = { 
+                            uid: admin.uid, 
+                            name: admin.name, 
+                            directCollection: 0, 
+                            transfersInFromAgents: 0, 
+                            prizesPaid: 0 
+                        };
+                    }
+                    aggregatedAdminData[admin.uid].directCollection += admin.directCollection || 0;
+                    aggregatedAdminData[admin.uid].transfersInFromAgents += admin.transfersInFromAgents || 0;
+                    aggregatedAdminData[admin.uid].prizesPaid += admin.prizesPaid || 0;
+                });
+            }
+        });
+        const consolidatedAdmins = Object.values(aggregatedAdminData);
+        
+        // Generate consolidated settlement instructions for the whole period
+        const periodSettlementTransactions = generateSettlementInstructions(consolidatedAdmins, parseFloat(totalProfit));
+
+        // Build the HTML content for the modal
+        let contentHtml = `<div class="result-block" style="border-left-color: var(--success-color);"><div class="result-item total"><span>Total Net Profit For Period</span><span class="${totalProfit >=0 ? '' : 'negative'}">₹ ${Math.round(totalProfit).toLocaleString('en-IN')}</span></div></div>`;
+        
+        // Add the new consolidated settlement section
+        if (periodSettlementTransactions.length > 0) {
+             contentHtml += `
+                <div class="results-area" style="margin-top: 1.5rem; padding: 0; background: none; border-left: none;">
+                    <h3 style="color: var(--warning-color); text-align: center; margin-bottom: 0.5rem;">Consolidated Settlement for Period</h3>
+                    <div class="settlement-block" style="margin-bottom: 0;">
+                        ${periodSettlementTransactions.map(t => `<p class="settlement-instruction">${t}</p>`).join('')}
+                    </div>
+                </div>
+             `;
+        } else if (consolidatedAdmins.length > 1) {
+             contentHtml += `
+                <div class="results-area" style="margin-top: 1.5rem; padding: 0; background: none; border-left: none;">
+                    <h3 style="color: var(--warning-color); text-align: center; margin-bottom: 0.5rem;">Consolidated Settlement for Period</h3>
+                    <div class="settlement-block" style="margin-bottom: 0;">
+                        <p class="settlement-instruction">No settlement required for this period.</p>
+                    </div>
+                </div>
+             `;
+        }
+
+        if (filteredEntries.length === 0) {
+            contentHtml += '<p style="padding: 1rem; text-align: center; color: var(--muted-color-dash);">No calculation details found for this period.</p>';
+        } else {
+            contentHtml += `<h3 style="color: var(--light-text-dash); margin-top: 2rem; text-align: center; border-top: 1px solid var(--muted-color-dash); padding-top: 1.5rem;">Calculation Breakdowns (${filteredEntries.length} found)</h3>`;
+            filteredEntries.forEach(entry => {
+                const { summary, admins } = entry.results;
+                const entryDate = new Date(entry.timestamp).toLocaleString('en-IN', {dateStyle: 'medium', timeStyle: 'short'});
+                const transactions = generateSettlementInstructions(admins, summary.netProfit);
+
+                contentHtml += `
+                    <div class="result-block" style="margin-top: 1rem; background-color: var(--secondary-bg-dash);">
+                        <h4 style="display: flex; justify-content: space-between;"><span>${entryDate}</span> <span style="font-weight: 400; color: var(--muted-color-dash);">by ${entry.calculatedBy || 'N/A'}</span></h4>
+                        <div class="result-item total ${summary.netProfit < 0 ? 'negative' : ''}"><span>Net Profit</span><span>₹ ${Math.round(summary.netProfit).toLocaleString('en-IN')}</span></div>
+                        ${transactions.length > 0 ? `
+                            <div class="settlement-block" style="margin-top: 1rem; margin-bottom: 0; padding: 0.8rem; border-width: 2px;">
+                               ${transactions.map(t => `<p class="settlement-instruction" style="font-size: 0.9rem; padding: 0.3rem 0; margin: 0;">${t}</p>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        detailContent.innerHTML = contentHtml;
+        earningsDetailModal.style.display = 'flex';
+    }
 </script>
 </body>
 </html>
