@@ -5137,12 +5137,7 @@ async function generateHousieTickets(bypassConfirm = false) {
 
     try {
         await db.ref('/tickets').set(null); 
-	code
-JavaScript
-download
-content_copy
-expand_less
-setTimeout(async () => {
+	setTimeout(async () => {
             const newTicketsObject = {};
             const numSets = totalTickets / 6;
 
@@ -5269,8 +5264,6 @@ function createTambolaSetOf6() {
 
 async function handleAutoBookClick() {
     if (currentUserRole !== 'admin') return showNotification("Only admin can perform this action.", "error");
-    
-    // Show the Mode Selection Popup instead of immediate action
     showPopup('autoBookOptionsPopup');
 }
 
@@ -5285,7 +5278,6 @@ function selectAutoBookMode(mode) {
 function showAutoBookAgentPopup() {
     const container = document.getElementById('autoBookAgentListContainer');
     container.innerHTML = '';
-    // Filter agents/admins
     const agents = allUsersData.filter(u => u.role === 'agent' || u.role === 'admin').sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     
     if (agents.length === 0) {
@@ -5310,7 +5302,6 @@ async function performAutoBooking(agentUid, agentName) {
         const updates = {};
         const timestamp = firebase.database.ServerValue.TIMESTAMP;
 
-        // 1. If Reset Mode: Clear ALL existing bookings first
         if (currentAutoBookMode === 'reset') {
             allTicketsData.forEach(ticket => {
                 if (ticket.is_sold) {
@@ -5324,7 +5315,6 @@ async function performAutoBooking(agentUid, agentName) {
             });
         }
 
-        // 2. Fetch predictions
         const snapshot = await db.ref('gameSecrets/upcomingGame/winningTickets').once('value');
         const predictions = snapshot.val();
 
@@ -5332,7 +5322,6 @@ async function performAutoBooking(agentUid, agentName) {
             return showNotification("No predicted winners found. Please 'Save Settings & Generate Winners' first.", "error");
         }
 
-        // 3. Identify tickets to book
         const ticketsToBook = new Set();
         
         predictions.forEach(p => {
@@ -5351,7 +5340,6 @@ async function performAutoBooking(agentUid, agentName) {
             }
             
             if(!isNaN(id) && id > 0) {
-                // Determine sheet and book entire sheet to keep it clean
                 const sheetIndex = Math.floor((id - 1) / 6);
                 const startId = (sheetIndex * 6) + 1;
                 const endId = startId + 5;
@@ -5363,8 +5351,6 @@ async function performAutoBooking(agentUid, agentName) {
 
         if (ticketsToBook.size === 0) return showNotification("No valid winning ticket IDs found in predictions.", "error");
 
-        // 4. Prepare updates for winning tickets
-        // Group by sheet to assign same random name
         const sheetsToBook = {};
         ticketsToBook.forEach(id => {
             const sheetIndex = Math.floor((id - 1) / 6);
@@ -5372,16 +5358,14 @@ async function performAutoBooking(agentUid, agentName) {
             sheetsToBook[sheetIndex].push(id);
         });
 
-        // Current tickets map to check status for 'append' mode
         const currentTicketMap = new Map(allTicketsData.map(t => [t.id, t]));
 
         for (const sheetIndex in sheetsToBook) {
             const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
-            const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000); // Random 10 digit
+            const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000); 
             
             const ticketsInSheet = sheetsToBook[sheetIndex];
             ticketsInSheet.forEach(ticketId => {
-                // If append mode, skip if already sold
                 if (currentAutoBookMode === 'append') {
                     const existing = currentTicketMap.get(ticketId);
                     if (existing && existing.is_sold) return; 
@@ -5413,7 +5397,6 @@ async function performAutoBooking(agentUid, agentName) {
 // --- NEW FEATURE: FILL UNSOLD TICKETS ---
 
 function openFillUnsoldAgentSelect() {
-    // Re-use the Auto Book Agent Popup logic but change the onclick handler
     const container = document.getElementById('autoBookAgentListContainer');
     const title = document.querySelector('#autoBookAgentPopup .popup-title');
     const desc = document.querySelector('#autoBookAgentPopup p');
@@ -5453,12 +5436,10 @@ async function performFillUnsold(agentUid, agentName) {
 
         let filledCount = 0;
 
-        // Iterate by Sheet to prioritize Full -> Half -> Random
         for (let i = 0; i < numSheets; i++) {
             const startId = i * 6 + 1;
             const endId = startId + 5;
             
-            // Get unsold tickets in this sheet
             const sheetTickets = [];
             const unsoldInSheet = [];
             
@@ -5485,13 +5466,7 @@ async function performFillUnsold(agentUid, agentName) {
                 filledCount++;
             };
 
-            // Logic: 
-            // If all 6 unsold -> Book as 1 Full Sheet (Same Name)
-            // If 3 contiguous unsold -> Book as Half Sheet
-            // Else -> Book individually with random names
-
             if (unsoldInSheet.length === 6) {
-                // Full Sheet
                 const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
                 const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000);
                 unsoldInSheet.forEach(t => {
@@ -5504,14 +5479,12 @@ async function performFillUnsold(agentUid, agentName) {
                     filledCount++;
                 });
             } else {
-                // Check First Half (1,2,3 relative to sheet)
                 const firstHalf = sheetTickets.slice(0, 3);
                 const secondHalf = sheetTickets.slice(3, 6);
                 
                 const isFirstHalfUnsold = firstHalf.every(t => !t.is_sold);
                 const isSecondHalfUnsold = secondHalf.every(t => !t.is_sold);
 
-                // Handle First Half
                 if (isFirstHalfUnsold) {
                     const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
                     const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000);
@@ -5528,7 +5501,6 @@ async function performFillUnsold(agentUid, agentName) {
                     firstHalf.filter(t => !t.is_sold).forEach(t => generateBooking(t));
                 }
 
-                // Handle Second Half
                 if (isSecondHalfUnsold) {
                     const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
                     const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000);
@@ -5560,18 +5532,32 @@ async function performFillUnsold(agentUid, agentName) {
     }
 }
 
-// --- NEW FEATURE: GAME HISTORY ---
+// --- UPDATED: GAME HISTORY WITH FULL PDF DOWNLOAD ---
 
 async function saveGameHistory(gameState) {
     if (!gameState) return;
     try {
+        // Create a snapshot of sold tickets with Agent Names
+        // This ensures if agents are deleted later, history remains accurate
+        const soldTicketSnapshot = allTicketsData
+            .filter(t => t.is_sold)
+            .map(t => {
+                const agent = allUsersData.find(u => u.uid === t.agent_uid);
+                return {
+                    id: t.id,
+                    owner: t.owner_name,
+                    agent: agent ? agent.name : 'Admin/Direct'
+                };
+            });
+
         const historyData = {
             gameDate: gameSettingsData.gameDateTime || new Date().toISOString(),
             endedAt: firebase.database.ServerValue.TIMESTAMP,
             winners: gameState.winners || {},
             calledNumbers: gameState.calledNumbers || [],
             totalTickets: gameSettingsData.totalTickets,
-            ticketPrice: gameSettingsData.ticketPrice
+            ticketPrice: gameSettingsData.ticketPrice,
+            soldTickets: soldTicketSnapshot // Capture full list for Page 2
         };
         
         await db.ref('gameHistory').push(historyData);
@@ -5613,7 +5599,10 @@ async function showGameHistory() {
                         <div style="font-weight: bold; color: var(--light-text-dash);">Game Ended: ${date}</div>
                         <div style="font-size: 0.85rem; color: var(--muted-color-dash);">Winners: ${winnerCount} | Scheduled: ${new Date(game.gameDate).toLocaleDateString()}</div>
                     </div>
-                    <button onclick="deleteGameHistoryItem('${game.key}')" style="background: transparent; color: #e74c3c; cursor: pointer; padding: 5px;"><i class="fas fa-trash-alt"></i></button>
+                    <div style="display:flex; gap: 10px;">
+                        <button onclick="downloadGameHistoryPDF('${game.key}')" style="background: transparent; color: var(--accent-primary); cursor: pointer; padding: 5px; font-size: 1.2rem;" title="Download PDF"><i class="fas fa-file-pdf"></i></button>
+                        <button onclick="deleteGameHistoryItem('${game.key}')" style="background: transparent; color: #e74c3c; cursor: pointer; padding: 5px; font-size: 1.2rem;" title="Delete Record"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 `;
                 container.appendChild(item);
             });
@@ -5621,6 +5610,115 @@ async function showGameHistory() {
         showPopup('gameHistoryPopup');
     } catch(e) {
         showNotification("Error loading history: " + e.message, "error");
+    }
+}
+
+// --- NEW PDF GENERATOR FOR GAME HISTORY ---
+async function downloadGameHistoryPDF(key) {
+    showNotification("Generating PDF...", "info");
+    try {
+        const snapshot = await db.ref(`gameHistory/${key}`).once('value');
+        if (!snapshot.exists()) return showNotification("Game data not found.", "error");
+        
+        const data = snapshot.val();
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // --- PAGE 1: WINNERS LIST ---
+        doc.setFontSize(22);
+        doc.setTextColor(44, 62, 80);
+        doc.text("GAME WINNERS REPORT", 105, 20, { align: "center" });
+        
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Game Date: ${new Date(data.gameDate).toLocaleString()}`, 105, 30, { align: "center" });
+        
+        let y = 45;
+        doc.setLineWidth(0.5);
+        doc.line(15, 35, 195, 35);
+
+        // Iterate through winners
+        if (data.winners) {
+            for (const dividendName in data.winners) {
+                const winners = data.winners[dividendName];
+                
+                if (y > 270) { doc.addPage(); y = 20; }
+                
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(22, 160, 133); // Accent color
+                doc.text(dividendName, 15, y);
+                y += 8;
+                
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'normal');
+                
+                winners.forEach(w => {
+                    if (y > 280) { doc.addPage(); y = 20; }
+                    doc.text(`• ${w.name} (Ticket: ${w.ticketId}) - Won on #${w.winningNumber}`, 20, y);
+                    y += 6;
+                });
+                y += 4; // Spacing between sections
+            }
+        } else {
+            doc.text("No winners recorded for this game.", 105, y, { align: "center" });
+        }
+
+        // --- PAGE 2: SOLD TICKETS LIST ---
+        doc.addPage();
+        y = 20;
+        
+        doc.setFontSize(18);
+        doc.setTextColor(44, 62, 80);
+        doc.text("FULL TICKET LIST (Sold)", 105, y, { align: "center" });
+        y += 15;
+
+        // Headers
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("Ticket ID", 15, y);
+        doc.text("Owner Name", 50, y);
+        doc.text("Agent / Booked By", 130, y);
+        doc.line(15, y + 2, 195, y + 2);
+        y += 8;
+
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+
+        if (data.soldTickets && Array.isArray(data.soldTickets)) {
+            data.soldTickets.forEach(t => {
+                if (y > 280) {
+                    doc.addPage();
+                    y = 20;
+                    // Re-print headers on new page
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'bold');
+                    doc.text("Ticket ID", 15, y);
+                    doc.text("Owner Name", 50, y);
+                    doc.text("Agent / Booked By", 130, y);
+                    doc.line(15, y + 2, 195, y + 2);
+                    y += 8;
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                }
+                
+                doc.text(String(t.id), 15, y);
+                doc.text(String(t.owner), 50, y);
+                doc.text(String(t.agent), 130, y);
+                y += 6;
+            });
+        } else {
+            doc.text("No ticket data available for this game.", 15, y);
+        }
+
+        const fileName = `Game_History_${new Date(data.gameDate).toLocaleDateString().replace(/\//g, '-')}.pdf`;
+        doc.save(fileName);
+        showNotification("PDF Downloaded!", "success");
+
+    } catch (e) {
+        console.error(e);
+        showNotification("Error generating PDF: " + e.message, "error");
     }
 }
 
