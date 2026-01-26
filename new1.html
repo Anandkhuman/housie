@@ -1690,9 +1690,9 @@
             <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
             <button class="actionBtn" onclick="resetAgent()">RESET AGENT</button>
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
+            <button class="actionBtn" onclick="showGameHistory()">GAME HISTORY</button> <!-- NEW -->
             <button class="actionBtn" onclick="downloadCurrentSoldTickets()">CURRENT TKT</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">WINNERS PDF</button>
-	    <button class="actionBtn" onclick="showGameHistory()">GAME HISTORY</button> <!-- NEW -->
             <button class="actionBtn" onclick="showView('winningTicketsView')">VIEW WINNING TICKETS</button>
            </div>
     </div>
@@ -2027,7 +2027,6 @@
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
             <div class="titleBtn" style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                  <span>BOOK TICKET</span>
-                 <!-- NEW: Fill Unsold Tickets Button -->
                  
             </div>
             <div class="bookInpDiv">
@@ -2035,7 +2034,7 @@
                 <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
             </div>
              <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 100%; margin: 0.8rem 0; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
-            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW"></br><button class="book-now-btn-small" onclick="openFillUnsoldAgentSelect()" style="background: var(--accent-secondary); width:100% ; padding: 10px 10px;">Book Unsold Tickets</button>
+            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW"></br><button class="book-now-btn-small" onclick="openFillUnsoldAgentSelect()" style="background: var(--accent-secondary); width: 100%; padding: 10px 10px;">Fill Unsold</button>
         </div>
         <div class="ticketBlockDiv" id="dashTicketBlockDiv">
         </div>
@@ -4836,23 +4835,29 @@ function callNextNumber() {
 }
 
 
-// --- START OF FIX: MULTIPLE WINNER CAPTURE ---
-function checkAllWinners(calledNumbers, currentWinners) {
+// --- START OF FIX: MULTIPLE WINNER CAPTURE & PREDICTION LOGIC ---
+// Updated to accept an optional 'ticketsScope' argument.
+// If ticketsScope is provided, it uses that list (useful for predictions on unsold tickets).
+// If not provided, it defaults to checking only 'sold' tickets (for the actual game).
+function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
     const activeDividends = gameSettingsData.dividends || [];
     if (activeDividends.length === 0) return updatedWinners;
-    const soldTickets = allTicketsData.filter(t => t.is_sold);
-    if (soldTickets.length === 0) return updatedWinners;
+    
+    // Logic Change: Use provided scope OR filter for sold tickets
+    const ticketsToCheck = ticketsScope || allTicketsData.filter(t => t.is_sold);
+    
+    if (ticketsToCheck.length === 0) return updatedWinners;
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     if (!lastCalledNumber) return updatedWinners;
 
     const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
-    const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
-        if (ticket.owner_phone) {
-            if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
-            acc[ticket.owner_phone].push(ticket);
-        }
+    // Group tickets by owner phone for sheet logic (if available, otherwise use ID for simulation)
+    const ticketsByOwner = ticketsToCheck.reduce((acc, ticket) => {
+        const key = ticket.owner_phone || ("simulated_" + Math.floor((ticket.id - 1)/6)); 
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(ticket);
         return acc;
     }, {});
 
@@ -4863,7 +4868,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
 
         let winnersThisTurn = [];
         
-        for (const ticket of soldTickets) {
+        for (const ticket of ticketsToCheck) {
             if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
             
             let isWinner = false;
@@ -4927,8 +4932,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
 
             if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
                 winnersThisTurn.push({ 
-                    name: ticket.owner_name, 
-                    phone: ticket.owner_phone, 
+                    name: ticket.owner_name || "Unsold Ticket", 
+                    phone: ticket.owner_phone || "N/A", 
                     ticketId: ticket.id, 
                     winningNumber: lastCalledNumber, 
                     won_at: firebase.database.ServerValue.TIMESTAMP, 
@@ -4938,8 +4943,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
         }
         
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
-            for (const ownerPhone in ticketsByOwner) {
-                const ownerTickets = ticketsByOwner[ownerPhone];
+            for (const key in ticketsByOwner) {
+                const ownerTickets = ticketsByOwner[key];
                 const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
                     const sheetNum = Math.floor((ticket.id - 1) / 6);
                     acc[sheetNum] = acc[sheetNum] || [];
@@ -4953,8 +4958,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                             const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a,b)=>a-b);
                             winnersThisTurn.push({ 
-                                name: sheetTickets[0].owner_name, 
-                                phone: ownerPhone, 
+                                name: sheetTickets[0].owner_name || "Unsold Sheet", 
+                                phone: sheetTickets[0].owner_phone || "N/A", 
                                 ticketId: `Full Sheet (${fullSheetTicketIds.join(',')})`, 
                                 winningNumber: lastCalledNumber, 
                                 won_at: firebase.database.ServerValue.TIMESTAMP, 
@@ -4974,8 +4979,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
                             const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
-                                    name: halfSheetTickets[0].owner_name,
-                                    phone: ownerPhone,
+                                    name: halfSheetTickets[0].owner_name || "Unsold Sheet",
+                                    phone: halfSheetTickets[0].owner_phone || "N/A",
                                     ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
                                     winningNumber: lastCalledNumber,
                                     won_at: firebase.database.ServerValue.TIMESTAMP,
@@ -4987,8 +4992,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
                             const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
-                                    name: halfSheetTickets[0].owner_name,
-                                    phone: ownerPhone,
+                                    name: halfSheetTickets[0].owner_name || "Unsold Sheet",
+                                    phone: halfSheetTickets[0].owner_phone || "N/A",
                                     ticketId: `Half Sheet (${secondHalfIds.join(',')})`,
                                     winningNumber: lastCalledNumber,
                                     won_at: firebase.database.ServerValue.TIMESTAMP,
@@ -5037,11 +5042,14 @@ async function generatePredictions() {
         showNotification('No active dividends set. Cannot generate predictions.', 'error');
         return;
     }
+
+    // FIX: Pass all tickets (sold or unsold) for prediction
+    const allTickets = allTicketsData; 
     
     // Simulate number by number
     for (const num of sequence) {
         simulatedCalledNumbers.push(num);
-        simulatedWinners = checkAllWinners(simulatedCalledNumbers, simulatedWinners);
+        simulatedWinners = checkAllWinners(simulatedCalledNumbers, simulatedWinners, allTickets);
 
         // Stop if all dividends are claimed
         if (activeDividends.every(div => simulatedWinners[div.name])) {
@@ -5094,12 +5102,8 @@ function renderWinningTicketsList(predictions) {
         acc[current.dividendName].push(current);
         return acc;
     }, {});
-code
-JavaScript
-download
-content_copy
-expand_less
-let html = '';
+    
+    let html = '';
     for (const dividendName in groupedByDividend) {
         html += `<div class="gameSettingDiv" style="margin-top: 1rem;">
                     <div class="titleBtn">${dividendName}</div>
@@ -5134,7 +5138,12 @@ async function generateHousieTickets(bypassConfirm = false) {
 
     try {
         await db.ref('/tickets').set(null); 
-        setTimeout(async () => {
+	code
+JavaScript
+download
+content_copy
+expand_less
+setTimeout(async () => {
             const newTicketsObject = {};
             const numSets = totalTickets / 6;
 
