@@ -5360,7 +5360,7 @@ async function performAutoBooking(agentUid, agentName) {
 
         if (Object.keys(updates).length > 0) {
             await db.ref().update(updates);
-            await triggerGlobalNotification(`Predicted winners successfully auto-booked via ${agentName}.`, 'success');
+            await showNotification(`Predicted winners successfully auto-booked via ${agentName}.`, 'success');
             showView('winningTicketsView');
         } else {
             showNotification("No new tickets needed to be booked.", "info");
@@ -5499,7 +5499,7 @@ async function performFillUnsold(agentUid, agentName) {
 
         if (filledCount > 0) {
             await db.ref().update(updates);
-            triggerGlobalNotification(`${filledCount} unsold tickets filled successfully!`, 'success');
+            showNotification(`${filledCount} unsold tickets filled successfully!`, 'success');
         } else {
             showNotification("No unsold tickets found to fill.", "info");
         }
