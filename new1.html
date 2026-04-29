@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +21,7 @@
 
 <style>
     :root {
-        --bg-color: #100c2A;
+        --bg-color: linear-gradient(135deg, green, gold);
         --primary-surface: #19153a;
         --secondary-surface: #2c2850;
         --accent-primary: #00f6ff;
@@ -36,7 +37,7 @@
         --secondary-bg-dash: #34495e;
         --accent-color-dash: #1abc9c;
         --muted-color-dash: #7f8c8d;
-        --light-text-dash: #ffffee;
+        --light-text-dash: #ffffff;
     }
 
     @keyframes pulse-highlight {
@@ -54,14 +55,24 @@
     ::-webkit-scrollbar-track { background: var(--secondary-surface); }
     ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, var(--font-family-neon);
-        color: var(--text-primary);
-        background-color: var(--bg-color);
-        overflow-x: hidden;
-        transition: background-color 0.3s, color 0.3s;
-        font-size: 14px;
-    }
+    body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: 
+        linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)),
+        url("https://images.unsplash.com/photo-1501785888041-af3ef285b470");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    z-index: -1;
+}
 
     body.dashboard-view-active {
       
@@ -96,15 +107,35 @@
 
     .overlay-popup.active, .gamePopDiv.active { opacity: 1; visibility: visible; }
 
-    .popup-content {
-        width: 100%; max-width: 500px;
-        background: var(--primary-surface);
-        border: 1px solid var(--accent-primary); border-radius: 8px;
-        padding: 0; position: relative; max-height: 90vh; overflow-y: auto;
-        box-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
-        transform: scale(0.95);
-        transition: transform var(--transition-speed) var(--transition-ease);
-    }
+ .popup-content {
+    width: 100%;
+    max-width: 500px;
+
+    /* Glass + Gradient */
+    background: linear-gradient(
+        135deg,
+        rgba(29, 43, 64, 0.6),
+        rgba(15, 25, 40, 0.6)
+    );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+
+    border: 1px solid rgba(0, 246, 255, 0.4);
+    border-radius: 12px;
+
+    padding: 0;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    box-shadow: 
+        0 0 25px rgba(0, 246, 255, 0.35),
+        inset 0 0 10px rgba(0, 246, 255, 0.15);
+
+    transform: scale(0.95);
+    transition: transform var(--transition-speed) var(--transition-ease);
+}
     .overlay-popup.active .popup-content { transform: scale(1); }
 
     .top-down-notification-popup {
@@ -163,6 +194,7 @@
     line-height: 1.4;
     font-size: 0.85rem;
     text-align: left;
+    color: white ;
 }
 
 .top-down-notification-popup .notification-actions {
@@ -210,33 +242,58 @@
         color: var(--accent-primary); text-shadow: 0 0 8px var(--accent-primary);
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="tel"],
-    input[type="number"],
-    input[type="datetime-local"],
-    input[type="url"],
-    select,
-    textarea.tableInp, /* Added textarea */
-    .agent-inp,
-    .searchInp,
-    .tableInp {
-        width: 100%;
-        font-size: 0.9rem;
-        padding: 0.7rem 1rem;
-        border-radius: 4px;
-        text-align: center;
-        font-family: var(--font-family-neon);
-        background: var(--secondary-surface);
-        border: 1px solid var(--accent-primary);
-        color: var(--text-primary);
-    }
-    .dashboard-view .tableInp {
-         background-color: white;
-         color: var(--text-dark);
-         border: 1px solid var(--secondary-bg-dash);
-    }
+    /* ================= INPUT BASE ================= */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="datetime-local"],
+input[type="url"],
+select,
+textarea.tableInp,
+.agent-inp,
+.searchInp,
+.tableInp {
+  width: 100%;
+  font-size: 0.9rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-family: var(--font-family-neon);
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+/* ================= FOCUS STATE ================= */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ================= PLACEHOLDER ================= */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ================= DASHBOARD LIGHT MODE FIX ================= */
+.dashboard-view .tableInp {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-dark);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
+}
 
 
     .login-form input {
@@ -279,19 +336,6 @@
     }
     .agent-list a:hover { background-color: var(--primary-surface); transform: translateX(3px); }
     .agent-list .fab.fa-whatsapp { color: #25D366; font-size: 1.2rem; margin-left: auto; }
-    .agent-list-item-btn {
-        display: flex; align-items: center; gap: 0.8rem; padding: 1rem;
-        border-radius: 4px; color: var(--light-text-dash); text-decoration: none;
-        font-size: 1rem; font-weight: 600; background: var(--secondary-bg-dash);
-        border: 1px solid var(--accent-color-dash);
-        width: 100%; cursor: pointer; text-align: left;
-        transition: transform 0.2s, background 0.2s;
-    }
-    .agent-list-item-btn:hover {
-        background: var(--accent-color-dash);
-        transform: scale(1.02);
-    }
-
 
     #notification-container {
         position: fixed; top: 10px; right: 2.5%; width: 95%;
@@ -321,48 +365,173 @@
         padding-bottom: 120px; /* Increased padding to avoid overlap with new footer */
     }
     .panel {
-        background: var(--primary-surface); 
-        border: 1px solid var(--accent-primary);
-        border-radius: 8px; 
-        margin-bottom: 0.1rem;
-        
-        box-shadow: 0 0 15px rgba(0, 246, 255, 0.2), inset 0 0 8px rgba(0, 246, 255, 0.1);
-        opacity: 0; 
-        transform: translateY(20px);
-        padding: 1rem;
-    }
-    
-    .top-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 998;
-        background: var(--primary-surface);
-        border-bottom: 2px solid var(--accent-primary);
-        box-shadow: 0 5px 15px rgba(0, 246, 255, 0.2);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0.6rem 1rem;
-        opacity: 0;
-        transform: translateY(-100%);
-    }
+    background: rgba(25, 43, 64, 0.5); /* transparent glass feel */
+    backdrop-filter: blur(1px);       /* blur effect */
 
-    .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        z-index: 999;
-        background: var(--primary-surface);
-        border-top: 2px solid var(--accent-primary);
-        box-shadow: 0 -5px 15px rgba(0, 246, 255, 0.2);
-        opacity: 0; 
-        transform: translateY(100%);
-        padding: 0.3rem 0;
-    }
+    border: 1px solid rgba(0, 246, 255, 0.4);
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+
+    box-shadow: 
+        0 0 20px rgba(0, 246, 255, 0.25),
+        inset 0 0 10px rgba(0, 246, 255, 0.1);
+
+    opacity: 0;
+    transform: translateY(20px);
+    padding: 1rem;
+
+    transition: all 0.3s ease;
+}
+/* ================= TOP HEADER (FINAL PREMIUM VERSION) ================= */
+.top-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 998;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0.9rem 1rem;
+
+    /* 🔥 Background + Overlay */
+    background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+        url("https://images.unsplash.com/photo-1611078489935-0cb964de46d6");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    position: fixed;
+    overflow: hidden;
+
+    /* Animation entry */
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.4s ease;
+}
+
+/* ================= ANIMATED BORDER ================= */
+.top-header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+
+    background: linear-gradient(
+        90deg,
+        #00f6ff,
+        #00ff88,
+        #00f6ff,
+        #0088ff,
+        #00f6ff
+    );
+
+    background-size: 300% 100%;
+    animation: borderFlow 4s linear infinite;
+}
+
+/* ================= TEXT STYLE ================= */
+.top-header h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
+    position: relative;
+
+    /* 🔥 Gradient Animated Text */
+    background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff);
+    background-size: 300%;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: textFlow 4s linear infinite;
+
+    /* Glow */
+    text-shadow: 0 0 10px rgba(0,246,255,0.4);
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes borderFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+@keyframes textFlow {
+    0% { background-position: 0%; }
+    100% { background-position: 300%; }
+}
+
+/* ================= ACTIVE STATE ================= */
+.top-header.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ================= BOTTOM NAV (GLASSMORPHISM) ================= */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 999;
+
+    /* Glass Effect */
+    background: linear-gradient(
+        135deg,
+        rgba(29, 43, 64, 0.6),
+        rgba(15, 25, 40, 0.6)
+    );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border-top: 1px solid rgba(0, 246, 255, 0.5);
+
+    box-shadow: 
+        0 -5px 20px rgba(0, 246, 255, 0.25),
+        inset 0 0 8px rgba(0, 246, 255, 0.1);
+
+    padding: 0.3rem 0;
+
+    opacity: 0; 
+    transform: translateY(100%);
+    transition: all 0.3s ease;
+}
+
+
+/* ================= ACTIVE STATES ================= */
+.top-header.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.bottom-nav.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* ================= OPTIONAL HOVER ================= */
+.top-header:hover {
+    box-shadow: 0 5px 25px rgba(0, 246, 255, 0.5);
+}
+
+.bottom-nav:hover {
+    box-shadow: 
+        0 -5px 25px rgba(0, 246, 255, 0.5),
+        inset 0 0 10px rgba(0, 246, 255, 0.2);
+}
 
     .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
 
@@ -374,7 +543,7 @@
 
     .panel-title {
         font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
-        color: var(--accent-primary); text-align: center;
+        color: #ffffff; text-align: center;
         text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
     }
     .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
@@ -427,14 +596,30 @@
     .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
-        background: var(--secondary-surface); border-radius: 4px;
+        background: #e1efd6; border-radius: 4px;
         font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
-        color: var(--text-secondary); text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
+        color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
     .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
-    .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
+  .called-numbers-list {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0.4rem;
+  border-radius: 8px;
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
     .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     
     .search-container { display: flex; margin-bottom: 1rem; gap: 4px; }
@@ -486,11 +671,48 @@
 
 
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
-    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: #01579b; text-shadow: none; }
-    .sheet-view { background-color: #ffffff; border: 1px solid #0277bd; border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem; }
-    .sheet-header { color: #01579b; border-bottom: 1px solid #b3e5fc; font-size: 1rem; margin-bottom: 0.8rem; background: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; padding-bottom: 0.5rem; }
-    .sheet-content { display: grid; gap: 0.8rem; grid-template-columns: 1fr !important; }
-    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
+    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title,  { color: white ; text-shadow: none; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+.sheet-view {
+  background: rgba(0, 0, 0, 0.25); /* dark glass */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+
+  padding: 0.8rem;
+  margin: 1rem;
+
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.sheet-header {
+  color: white;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-weight: 700;
+  padding-bottom: 0.5rem;
+}
+
+.sheet-content {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: 1fr !important;
+  color: #e3f2fd;
+}    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
@@ -531,7 +753,7 @@
 
     .dividend-table { width: 100%; border-collapse: collapse; }
     .dividend-table th, .dividend-table td { padding: 0.8rem; text-align: left; border-top: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; }
-    .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.95rem; }
+    .dividend-table th { font-weight: 700; color: var(--accent-seconda); font-size: 0.95rem; }
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
     .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
     .dividend-table .winner-info { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
@@ -542,7 +764,15 @@
     .dividend-table .prize-share { font-size: 0.8em; color: var(--text-secondary); font-style: italic; display: block; margin-top: 2px;}
     .dividend-table .winner-info .fa-eye { flex-shrink: 0; margin-left: 10px; cursor: pointer; color: var(--accent-primary); font-size: 1.1rem; transition: transform 0.2s; padding-top: 4px; }
     .dividend-table .winner-info .fa-eye:hover { transform: scale(1.2); }
-
+    .dividend-table th,
+.dividend-table td {
+    padding: 0.9rem;
+    text-align: left;
+    border-top: 1px solid rgba(255, 0, 160, 0.4);
+    font-size: 0.9rem;
+    vertical-align: top;
+    color: #ffffff;
+}
     /* --- Professional Announcement Styles --- */
     #number-announcement-overlay {
         position: fixed;
@@ -598,7 +828,23 @@
     }
 
     
-    #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 75vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+    #bookingGridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 8px;
+  max-height: 75vh;
+  overflow-y: auto;
+  border-radius: 10px;
+
+  /* Glass effect */
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
     
     #bookingGridContainer .ticket-view.sold {
         cursor: not-allowed;
@@ -634,6 +880,34 @@
         background-color: #2e7d32;
         color: white !important; /* Force white color */
     }
+    }
+     #bookingGridContainer .ticket-view:not(.sold) .ticket-header span:not(.ticket-status),
+ #bookingGridContainer .ticket-view:not(.sold) .ticket-header div {
+    color: #1565c0 !important;
+ }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-num.empty {
+        background-color: #e3f2fd;
+    }
+
+    /* NEW TICKET STATUS STYLES */
+    .ticket-header span.ticket-status {
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        float: right;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.5;
+    }
+    .ticket-header span.ticket-status.sold {
+        background-color: #c62828;
+        color: white;
+    }
+    .ticket-header span.ticket-status.available {
+        background-color: #2e7d32;
+        color: white;
+    }
     .ticket-header span.ticket-status.missing {
         background-color: #7f8c8d;
         color: white;
@@ -655,10 +929,26 @@
         justify-content: center;
         transition: border-color 0.3s ease;
     }
-    #bookedTicketsDisplay { max-height: 80vh; overflow-y: auto; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 1rem; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+   #bookedTicketsDisplay {
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  /* Glass effect */
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
     .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
-    .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
+    .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
     .book-now-btn-small:hover { filter: brightness(1.2); }
     .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 0.2rem; }
     .dashboard-view .gameSettingDiv:first-child { margin-top: 1rem; }
@@ -675,7 +965,7 @@
     .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
 
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
-    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
+    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: white; }
     .dashboard-view .gameSettingTable td::before { content: '' !important; }
     .dashboard-view .tableInp {
         margin: 0;
@@ -731,18 +1021,32 @@
     .dashboard-view .dividentConDiv table { width: 100%; color: var(--light-text-dash); border-collapse: collapse; }
     .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 6px; border: 1px solid var(--muted-color-dash); font-size: 0.85rem;}
     
-    .gamePopDiv { background: rgba(0, 0, 0, 0.8); }
-    .gameDiv {
-        position: relative;
-        height: 95vh;
-        width: 95%;
-        background: var(--primary-bg-dash);
-        margin: 2.5% auto;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
+   /* Background overlay (glass dark) */
+.gamePopDiv {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+/* Main game container (glass card) */
+.gameDiv {
+  position: relative;
+  height: 95vh;
+  width: 95%;
+  margin: 2.5% auto;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
 
     .gamePopDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
     #agentDashboardView .runBtn { font-size: 1.5rem; }
@@ -801,7 +1105,7 @@
     #adminGameSettingTable .admin-ticket-row td {
         display: block;
         width: 100%;
-        padding: 0;
+        padding: 10px;
     }
      #adminGameSettingTable .admin-ticket-row.available-ticket td {
         display: table-cell;
@@ -989,7 +1293,7 @@
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231abc9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+
         background-repeat: no-repeat;
         background-position: right 1rem center;
         background-size: 1em;
@@ -1573,7 +1877,8 @@
 
     <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
+<div class="timer-status-bar" id="public-timer-bar"
+     style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;">
             </div>
         </div>
 
@@ -1690,9 +1995,11 @@
             <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
             <button class="actionBtn" onclick="resetAgent()">RESET AGENT</button>
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
-            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">CURRENT TKT</button>
-            <button class="actionBtn" onclick="downloadWinnersPDF()">WINNERS PDF</button>
-            <button class="actionBtn" onclick="showView('winningTicketsView')">VIEW WINNING TICKETS</button>	                       	    <button class="actionBtn" onclick="showGameHistory()">GAME HISTORY</button> <!-- NEW -->
+            <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
+            <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
+            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TKT</button>
+            <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
+            <button class="actionBtn" onclick="showView('winningTicketsView')">VIEW WINNING TICKETS</button>
            </div>
     </div>
     <div class="gameSettingDiv">
@@ -1840,14 +2147,8 @@
             <i class="fas fa-arrow-left"></i> BACK TO DASHBOARD
         </button>
     </div>
-    <div class="gameSettingDiv" style="margin-bottom: 20px;">
+    <div class="gameSettingDiv" style="margin-bottom: 80px;">
         <button class="titleBtn">GAME WINNER</button>
-        
-         <!-- NEW BUTTON ADDED HERE -->
-        <button class="runBtn" onclick="handleAutoBookClick()" style="width: 95%; margin: 10px auto; background: linear-gradient(45deg, #e67e22, #f39c12);">
-            <i class="fas fa-magic"></i> AUTO BOOK PREDICTED WINNERS
-        </button>
-
         <div id="winningTicketsListContainer" style="padding: 1rem; color: var(--light-text-dash);">
             <p style="text-align:center; padding: 2rem; font-style: italic;">Winning ticket will appear here.</p>
         </div>
@@ -1923,37 +2224,6 @@
         <div class="agent-list" id="agentListContainer"></div>
     </div>
 </div>
-
-<!-- NEW: Auto Booking Agent Selection Popup -->
-<div class="overlay-popup" id="autoBookAgentPopup">
-    <div class="popup-content">
-        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-        <h3 class="popup-title">Select Agent to Auto-Book</h3>
-        <p style="text-align: center; color: var(--muted-color-dash); margin-bottom: 1rem; font-size: 0.9rem;">
-            Tickets will be booked randomly via the selected agent.
-        </p>
-        <div class="agent-list" id="autoBookAgentListContainer"></div>
-    </div>
-</div>
-
-<!-- NEW: Auto Book Options Popup -->
-<div class="overlay-popup" id="autoBookOptionsPopup">
-    <div class="popup-content">
-        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-        <h3 class="popup-title">Auto Book Options</h3>
-        <p style="text-align: center; color: var(--muted-color-dash); margin-bottom: 1rem; font-size: 0.9rem;">
-            Choose how you want to auto-book predicted winners.
-        </p>
-        <div class="agent-list" style="padding: 1rem;">
-            <button class="login-btn agent" onclick="selectAutoBookMode('reset')">Reset All & Book</button>
-            <p style="font-size: 0.8rem; text-align: center; color: var(--muted-color-dash); margin-bottom: 1rem;">Clears all existing data and books only predicted winners.</p>
-            
-            <button class="login-btn secondary" onclick="selectAutoBookMode('append')">Book Remaining</button>
-            <p style="font-size: 0.8rem; text-align: center; color: var(--muted-color-dash);">Keeps existing data and only books unbooked winners.</p>
-        </div>
-    </div>
-</div>
-
 <div id="number-announcement-overlay">
     <div id="announced-number-display">--</div>
 </div>
@@ -2024,16 +2294,13 @@
     <div class="gameDiv">
         <div class="booking-popup-header">
             <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-            <div class="titleBtn" style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
-                 <span>BOOK TICKET</span>
-                 
-            </div>
+            <div class="titleBtn" style="margin-bottom: 0.5rem;"></div>
             <div class="bookInpDiv">
                 <input class="tableInp" id="dashBookerNameInp" placeholder="Name">
                 <input class="tableInp" id="dashBookerPhoneInp" placeholder="Phone">
             </div>
              <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 100%; margin: 0.8rem 0; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
-            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW"></br><button class="book-now-btn-small" onclick="openFillUnsoldAgentSelect()" style="background: var(--accent-secondary); width: 100%; padding: 10px 10px;">Fill Unsold</button>
+            <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
         </div>
         <div class="ticketBlockDiv" id="dashTicketBlockDiv">
         </div>
@@ -2076,7 +2343,7 @@
         </table>
 
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
                 <input type="text" class="searchInp" id="adminTicketSearchInp" placeholder="Enter name, phone, or ticket ID" style="background: var(--primary-bg-dash); color: var(--light-text-dash); border-color: var(--accent-color-dash);">
                 <button class="search-btn" id="adminSearchTicketBtn" style="background: var(--accent-color-dash);"><i class="fas fa-search"></i></button>
@@ -2085,7 +2352,7 @@
             <div class="ticketDisplayArea" id="adminTicketDisplayArea" style="padding: 0 1rem 1rem 1rem; max-height: 400px; overflow-y: auto;"></div>
         </section>
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
             <div class="number-board" id="runGamePopupBoard">
             </div>
         </section>
@@ -2093,7 +2360,7 @@
       
 
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
             <table class="dividend-table" id="runGameDividendTable" style="color: var(--light-text-dash);">
                 <thead><tr><th style="color: var(--accent-color-dash);">Dividend</th><th style="color: var(--accent-color-dash);">Winner</th></tr></thead>
                 <tbody></tbody>
@@ -2112,18 +2379,6 @@
         </div>
     </div>
 </div>
-
-<!-- NEW: Game History Popup -->
-<div class="overlay-popup" id="gameHistoryPopup">
-    <div class="popup-content" style="max-width: 600px; background: var(--primary-bg-dash);">
-        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-        <h3 class="popup-title" style="color: var(--light-text-dash);">Game History</h3>
-        <div id="gameHistoryContent" style="padding: 10px;">
-            <!-- History Items will be rendered here -->
-        </div>
-    </div>
-</div>
-
 <div class="overlay-popup" id="posterMakerPopup">
     <div class="popup-content" style="max-width: 650px; background: var(--primary-bg-dash);">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -2189,7 +2444,7 @@
                 </p>
             </div>
             <div class="notification-actions">
-                 <a href="https://sinthahousie.in/contact" target="_blank" class="login-btn" style="text-decoration: none;">Contact Us</a>
+                 <a href="https://sinthakeithel.in/tambola" target="_blank" class="login-btn" style="text-decoration: none;">Buy Now</a>
                  <button class="login-btn secondary" id="closeFirstVisitPopupBtn">Not Now</button>
             </div>
         </div>
@@ -2243,11 +2498,13 @@
     </div>
 </div>
 
+<!-- Global Audio Players -->
 <audio id="backgroundMusicPlayer" loop></audio>
 <audio id="liveAudioPlayer"></audio>
 
 
 <script>
+// --- START OF FIXED AND IMPLEMENTED SCRIPT ---
 
 const firebaseConfig = {
   apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
@@ -2290,7 +2547,7 @@ let countdownInterval = null;
 let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
 let knownWinners = {}; 
-let isInitialWinnerLoad = true; 
+let isInitialWinnerLoad = true; // FIX: To prevent notifications on first load
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
@@ -2300,10 +2557,11 @@ let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
 let adminDisplayedSearchPhones = new Set();
-const popupCloseTimeouts = new Map(); 
-const listeners = {}; 
+const popupCloseTimeouts = new Map(); // FIX: Manages popup close timers to prevent race conditions
+const listeners = {}; // To keep track of Firebase listeners
 let predeterminedCallSequence = []; 
-let currentAutoBookMode = 'reset'; 
+
+// --- Audio/Announcement Variables ---
 let backgroundMusicPlayer, liveAudioPlayer;
 let mediaSource, sourceBuffer;
 let audioQueue = [];
@@ -2326,18 +2584,7 @@ const allPossibleDividends = [
     "Early 5", "Quick 7", "Corners (4)", "Star"
 ];
 
-const randomFirstNames = [
-"Sanajaoba Ning","Ibomcha","Thokchom Thoiba","Chaoba","Tomba L",
-"Bishorjit Hijam","Khelchandra","Ranjit","Rajen Kshetrimayum","Khuman",
-"Hemanta Yumnam","Bablu","Suraj Khuraijam","Akash Leimapokpam","Ningthoujam Manish",
-"Amit Thokchom","Vivek Laishram","Rakesh Hijam","Sourav Wangkhem","Anil Singh","Lukhoi","Melodi","Devita","Ch Pepe","Tete sapam","manish","tanuja","Sandiya Elangbam","rebati","Minai munan","Pellapotni","Amuktangdi faoba Yaihe","Last Ticket🎫 ","Nangga Eiga Kaonasi","Ibobi","Biren","OMG","Housefull","Alu","Pari","Anand","Sadananda","Johny","Yaiskul gi Pakhang Angaoba","I Love You 😍","Chandani","Ahmed Hussain","Imran Khan",
-"Aslam Sheikh","Naobi","memmi","Habib Hussain","Ibrahim Mazumdar",
-"Indrajit","Rafiq Ali","Salim Khan","Soken Khuman","Ningthibi Thaja",
-"Khagemba","Nongshaba","Arun N","Sonamani","Barish ph","Imti Ao","Jamir Sema","Chuba Angami","Ato Tangkhul","Kito Lotha",
-"Along Zeliang","Pongen Konyak","Meren Chakhesang","Toshi Ao","Vikho Angami",
-"Brojen","Guna","Beiga","Kokchao","Urirei",
-"Tokivi Lotha","Zuketsa Chakhesang","Neichute Ao","Meribeni Angami","Tokishe Tangkhul","Renu",
-];
+// --- Core App Logic ---
 
 function playSound(src) {
     const sound = new Audio(src);
@@ -2402,6 +2649,8 @@ async function triggerGlobalNotification(message, type = 'info') {
         });
     } catch (e) { console.error('Error triggering global notification:', e); }
 }
+
+// --- Authentication ---
 
 auth.onAuthStateChanged(async (user) => {
     currentUser = user;
@@ -2480,6 +2729,9 @@ async function handleForgotPassword(e) {
     } catch (error) { showNotification(`Error: ${error.message}`, 'error'); }
 }
 
+
+// --- Popups and UI Helpers ---
+
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
     //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
@@ -2517,21 +2769,26 @@ function bindEventListeners() {
     document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
     document.getElementById('viewPlaylistBtn').addEventListener('click', () => showPopup('playlistPopup'));
     
+    // NEW: Bind announcement buttons
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
     document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
 }
 
+// --- FIX: ROBUST POPUP MANAGEMENT ---
 function showPopup(id) {
+    // First, close any other popups that are currently active.
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
         if (p.id !== id) { // Don't touch the popup we are about to open
             p.style.pointerEvents = 'none'; // Prevent interaction during transition
             p.classList.remove('active');
             
+            // If there's a pending timeout to hide it, clear it.
             if (popupCloseTimeouts.has(p.id)) {
                 clearTimeout(popupCloseTimeouts.get(p.id));
                 popupCloseTimeouts.delete(p.id);
             }
+            // Hide it immediately instead of waiting for a transition.
             p.style.display = 'none';
             p.style.pointerEvents = 'auto';
         }
@@ -2539,11 +2796,13 @@ function showPopup(id) {
 
     const popup = document.getElementById(id);
     if (popup) {
+        // If there's a pending close timeout for THIS popup, cancel it.
         if (popupCloseTimeouts.has(id)) {
             clearTimeout(popupCloseTimeouts.get(id));
             popupCloseTimeouts.delete(id);
         }
         
+        // Make the popup visible and start the fade-in transition.
         popup.style.pointerEvents = 'auto'; // Ensure it's interactive
         popup.style.display = popup.classList.contains('overlay-popup') ? 'flex' : 'block';
         setTimeout(() => popup.classList.add('active'), 10); // Use timeout for CSS transition
@@ -2552,12 +2811,15 @@ function showPopup(id) {
 
 function closePopups() {
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
-        p.style.pointerEvents = 'none';
+        p.style.pointerEvents = 'none'; // Prevent interaction while closing
         p.classList.remove('active');
-       if (popupCloseTimeouts.has(p.id)) {
+
+        // If a timeout is already scheduled for this popup, clear it before setting a new one.
+        if (popupCloseTimeouts.has(p.id)) {
             clearTimeout(popupCloseTimeouts.get(p.id));
         }
 
+        // Set a new timeout to hide the element after the CSS transition completes.
         const timeoutId = setTimeout(() => {
             p.style.display = 'none';
             p.style.pointerEvents = 'auto'; // Reset pointer events
@@ -2567,6 +2829,7 @@ function closePopups() {
         popupCloseTimeouts.set(p.id, timeoutId); // Store the new timeout ID
     });
 }
+// --- END OF FIX ---
 
 function showLoginForm() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('signupForm').style.display = 'none'; }
 function showSignupForm() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('signupForm').style.display = 'block'; }
@@ -4801,10 +5064,8 @@ function callNextNumber() {
 
                 if (allClaimed) {
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
-                    saveGameHistory(finalState);
                 } else if (finalState.calledNumbers?.length >= 90) {
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
-                    saveGameHistory(finalState);
                 }
             }
         }
@@ -4812,29 +5073,23 @@ function callNextNumber() {
 }
 
 
-// --- START OF FIX: MULTIPLE WINNER CAPTURE & PREDICTION LOGIC ---
-// Updated to accept an optional 'ticketsScope' argument.
-// If ticketsScope is provided, it uses that list (useful for predictions on unsold tickets).
-// If not provided, it defaults to checking only 'sold' tickets (for the actual game).
-function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
+// --- START OF FIX: MULTIPLE WINNER CAPTURE ---
+function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
     const activeDividends = gameSettingsData.dividends || [];
     if (activeDividends.length === 0) return updatedWinners;
-    
-    // Logic Change: Use provided scope OR filter for sold tickets
-    const ticketsToCheck = ticketsScope || allTicketsData.filter(t => t.is_sold);
-    
-    if (ticketsToCheck.length === 0) return updatedWinners;
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    if (soldTickets.length === 0) return updatedWinners;
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     if (!lastCalledNumber) return updatedWinners;
 
     const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
-    // Group tickets by owner phone for sheet logic (if available, otherwise use ID for simulation)
-    const ticketsByOwner = ticketsToCheck.reduce((acc, ticket) => {
-        const key = ticket.owner_phone || ("simulated_" + Math.floor((ticket.id - 1)/6)); 
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(ticket);
+    const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
+        if (ticket.owner_phone) {
+            if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
+            acc[ticket.owner_phone].push(ticket);
+        }
         return acc;
     }, {});
 
@@ -4845,7 +5100,7 @@ function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
 
         let winnersThisTurn = [];
         
-        for (const ticket of ticketsToCheck) {
+        for (const ticket of soldTickets) {
             if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
             
             let isWinner = false;
@@ -4909,8 +5164,8 @@ function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
 
             if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
                 winnersThisTurn.push({ 
-                    name: ticket.owner_name || "Unsold Ticket", 
-                    phone: ticket.owner_phone || "N/A", 
+                    name: ticket.owner_name, 
+                    phone: ticket.owner_phone, 
                     ticketId: ticket.id, 
                     winningNumber: lastCalledNumber, 
                     won_at: firebase.database.ServerValue.TIMESTAMP, 
@@ -4920,8 +5175,8 @@ function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
         }
         
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
-            for (const key in ticketsByOwner) {
-                const ownerTickets = ticketsByOwner[key];
+            for (const ownerPhone in ticketsByOwner) {
+                const ownerTickets = ticketsByOwner[ownerPhone];
                 const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
                     const sheetNum = Math.floor((ticket.id - 1) / 6);
                     acc[sheetNum] = acc[sheetNum] || [];
@@ -4935,8 +5190,8 @@ function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
                         if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                             const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a,b)=>a-b);
                             winnersThisTurn.push({ 
-                                name: sheetTickets[0].owner_name || "Unsold Sheet", 
-                                phone: sheetTickets[0].owner_phone || "N/A", 
+                                name: sheetTickets[0].owner_name, 
+                                phone: ownerPhone, 
                                 ticketId: `Full Sheet (${fullSheetTicketIds.join(',')})`, 
                                 winningNumber: lastCalledNumber, 
                                 won_at: firebase.database.ServerValue.TIMESTAMP, 
@@ -4956,8 +5211,8 @@ function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
                             const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
-                                    name: halfSheetTickets[0].owner_name || "Unsold Sheet",
-                                    phone: halfSheetTickets[0].owner_phone || "N/A",
+                                    name: halfSheetTickets[0].owner_name,
+                                    phone: ownerPhone,
                                     ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
                                     winningNumber: lastCalledNumber,
                                     won_at: firebase.database.ServerValue.TIMESTAMP,
@@ -4969,8 +5224,8 @@ function checkAllWinners(calledNumbers, currentWinners, ticketsScope = null) {
                             const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
-                                    name: halfSheetTickets[0].owner_name || "Unsold Sheet",
-                                    phone: halfSheetTickets[0].owner_phone || "N/A",
+                                    name: halfSheetTickets[0].owner_name,
+                                    phone: ownerPhone,
                                     ticketId: `Half Sheet (${secondHalfIds.join(',')})`,
                                     winningNumber: lastCalledNumber,
                                     won_at: firebase.database.ServerValue.TIMESTAMP,
@@ -5019,14 +5274,11 @@ async function generatePredictions() {
         showNotification('No active dividends set. Cannot generate predictions.', 'error');
         return;
     }
-
-    // FIX: Pass all tickets (sold or unsold) for prediction
-    const allTickets = allTicketsData; 
     
     // Simulate number by number
     for (const num of sequence) {
         simulatedCalledNumbers.push(num);
-        simulatedWinners = checkAllWinners(simulatedCalledNumbers, simulatedWinners, allTickets);
+        simulatedWinners = checkAllWinners(simulatedCalledNumbers, simulatedWinners);
 
         // Stop if all dividends are claimed
         if (activeDividends.every(div => simulatedWinners[div.name])) {
@@ -5115,7 +5367,7 @@ async function generateHousieTickets(bypassConfirm = false) {
 
     try {
         await db.ref('/tickets').set(null); 
-	setTimeout(async () => {
+        setTimeout(async () => {
             const newTicketsObject = {};
             const numSets = totalTickets / 6;
 
@@ -5237,481 +5489,6 @@ function createTambolaSetOf6() {
     
     return finalTickets;
 }
-
-// --- NEW FEATURE: AUTO BOOK PREDICTED WINNERS ---
-
-async function handleAutoBookClick() {
-    if (currentUserRole !== 'admin') return showNotification("Only admin can perform this action.", "error");
-    showPopup('autoBookOptionsPopup');
-}
-
-function selectAutoBookMode(mode) {
-    currentAutoBookMode = mode;
-    closePopups();
-    setTimeout(() => {
-        showAutoBookAgentPopup();
-    }, 200);
-}
-
-function showAutoBookAgentPopup() {
-    const container = document.getElementById('autoBookAgentListContainer');
-    container.innerHTML = '';
-    const agents = allUsersData.filter(u => u.role === 'agent' || u.role === 'admin').sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    
-    if (agents.length === 0) {
-        container.innerHTML = '<p>No agents found to assign tickets to.</p>';
-    } else {
-        agents.forEach(agent => {
-            const btn = document.createElement('div');
-            btn.className = 'agent-list-item-btn';
-            btn.innerHTML = `<i class="fas fa-user-tie"></i> <span>${agent.name} <small>(${agent.role})</small></span>`;
-            btn.onclick = () => performAutoBooking(agent.uid, agent.name);
-            container.appendChild(btn);
-        });
-    }
-    showPopup('autoBookAgentPopup');
-}
-
-async function performAutoBooking(agentUid, agentName) {
-    closePopups();
-    showNotification(`Processing auto-booking (${currentAutoBookMode === 'reset' ? 'Reset & Book' : 'Book Remaining'}) for ${agentName}...`, 'info');
-
-    try {
-        const updates = {};
-        const timestamp = firebase.database.ServerValue.TIMESTAMP;
-
-        if (currentAutoBookMode === 'reset') {
-            allTicketsData.forEach(ticket => {
-                if (ticket.is_sold) {
-                    updates[`/tickets/${ticket.id}/is_sold`] = false;
-                    updates[`/tickets/${ticket.id}/owner_name`] = null;
-                    updates[`/tickets/${ticket.id}/owner_name_lower`] = null;
-                    updates[`/tickets/${ticket.id}/owner_phone`] = null;
-                    updates[`/tickets/${ticket.id}/agent_uid`] = null;
-                    updates[`/tickets/${ticket.id}/sold_at`] = null;
-                }
-            });
-        }
-
-        const snapshot = await db.ref('gameSecrets/upcomingGame/winningTickets').once('value');
-        const predictions = snapshot.val();
-
-        if (!predictions || predictions.length === 0) {
-            return showNotification("No predicted winners found. Please 'Save Settings & Generate Winners' first.", "error");
-        }
-
-        const ticketsToBook = new Set();
-        
-        predictions.forEach(p => {
-            let id = p.ticketId;
-            if(typeof id === 'string') {
-               if (id.includes('Sheet')) {
-                    const idsMatch = id.match(/\(([^)]+)\)/);
-                    if (idsMatch && idsMatch[1]) {
-                        idsMatch[1].split(',').forEach(num => ticketsToBook.add(parseInt(num)));
-                    }
-                    return; 
-               } else {
-                   const match = id.match(/\d+/); 
-                   if(match) id = parseInt(match[0]);
-               }
-            }
-            
-            if(!isNaN(id) && id > 0) {
-                const sheetIndex = Math.floor((id - 1) / 6);
-                const startId = (sheetIndex * 6) + 1;
-                const endId = startId + 5;
-                for (let i = startId; i <= endId; i++) {
-                    ticketsToBook.add(i);
-                }
-            }
-        });
-
-        if (ticketsToBook.size === 0) return showNotification("No valid winning ticket IDs found in predictions.", "error");
-
-        const sheetsToBook = {};
-        ticketsToBook.forEach(id => {
-            const sheetIndex = Math.floor((id - 1) / 6);
-            if (!sheetsToBook[sheetIndex]) sheetsToBook[sheetIndex] = [];
-            sheetsToBook[sheetIndex].push(id);
-        });
-
-        const currentTicketMap = new Map(allTicketsData.map(t => [t.id, t]));
-
-        for (const sheetIndex in sheetsToBook) {
-            const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
-            const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000); 
-            
-            const ticketsInSheet = sheetsToBook[sheetIndex];
-            ticketsInSheet.forEach(ticketId => {
-                if (currentAutoBookMode === 'append') {
-                    const existing = currentTicketMap.get(ticketId);
-                    if (existing && existing.is_sold) return; 
-                }
-
-                updates[`/tickets/${ticketId}/is_sold`] = true;
-                updates[`/tickets/${ticketId}/owner_name`] = randName;
-                updates[`/tickets/${ticketId}/owner_name_lower`] = randName.toLowerCase();
-                updates[`/tickets/${ticketId}/owner_phone`] = randPhone;
-                updates[`/tickets/${ticketId}/agent_uid`] = agentUid;
-                updates[`/tickets/${ticketId}/sold_at`] = timestamp;
-            });
-        }
-
-        if (Object.keys(updates).length > 0) {
-            await db.ref().update(updates);
-            await showNotification(`Predicted winners successfully auto-booked via ${agentName}.`, 'success');
-            showView('winningTicketsView');
-        } else {
-            showNotification("No new tickets needed to be booked.", "info");
-        }
-
-    } catch (e) {
-        console.error(e);
-        showNotification("Auto booking failed: " + e.message, "error");
-    }
-}
-
-// --- NEW FEATURE: FILL UNSOLD TICKETS ---
-
-function openFillUnsoldAgentSelect() {
-    const container = document.getElementById('autoBookAgentListContainer');
-    const title = document.querySelector('#autoBookAgentPopup .popup-title');
-    const desc = document.querySelector('#autoBookAgentPopup p');
-    
-    title.textContent = "Fill Unsold Tickets";
-    desc.textContent = "Select an agent to randomly fill ALL remaining unsold tickets.";
-    container.innerHTML = '';
-
-    const agents = allUsersData.filter(u => u.role === 'agent' || u.role === 'admin').sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    
-    if (agents.length === 0) {
-        container.innerHTML = '<p>No agents found.</p>';
-    } else {
-        agents.forEach(agent => {
-            const btn = document.createElement('div');
-            btn.className = 'agent-list-item-btn';
-            btn.innerHTML = `<i class="fas fa-user-tie"></i> <span>${agent.name} <small>(${agent.role})</small></span>`;
-            btn.onclick = () => performFillUnsold(agent.uid, agent.name);
-            container.appendChild(btn);
-        });
-    }
-    showPopup('autoBookAgentPopup');
-}
-
-async function performFillUnsold(agentUid, agentName) {
-    closePopups();
-    if (!confirm(`Are you sure you want to book ALL remaining unsold tickets under ${agentName}? This action is irreversible.`)) return;
-
-    showNotification(`Filling unsold tickets for ${agentName}...`, 'info');
-
-    try {
-        const updates = {};
-        const timestamp = firebase.database.ServerValue.TIMESTAMP;
-        const totalTickets = gameSettingsData.totalTickets || 0;
-        const numSheets = Math.ceil(totalTickets / 6);
-        const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
-
-        let filledCount = 0;
-
-        for (let i = 0; i < numSheets; i++) {
-            const startId = i * 6 + 1;
-            const endId = startId + 5;
-            
-            const sheetTickets = [];
-            const unsoldInSheet = [];
-            
-            for (let j = startId; j <= endId; j++) {
-                const t = ticketsMap.get(j);
-                if (t) {
-                    sheetTickets.push(t);
-                    if (!t.is_sold) unsoldInSheet.push(t);
-                }
-            }
-
-            if (unsoldInSheet.length === 0) continue;
-
-            const generateBooking = (ticket) => {
-                const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
-                const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000);
-                
-                updates[`/tickets/${ticket.id}/is_sold`] = true;
-                updates[`/tickets/${ticket.id}/owner_name`] = randName;
-                updates[`/tickets/${ticket.id}/owner_name_lower`] = randName.toLowerCase();
-                updates[`/tickets/${ticket.id}/owner_phone`] = randPhone;
-                updates[`/tickets/${ticket.id}/agent_uid`] = agentUid;
-                updates[`/tickets/${ticket.id}/sold_at`] = timestamp;
-                filledCount++;
-            };
-
-            if (unsoldInSheet.length === 6) {
-                const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
-                const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000);
-                unsoldInSheet.forEach(t => {
-                    updates[`/tickets/${t.id}/is_sold`] = true;
-                    updates[`/tickets/${t.id}/owner_name`] = randName;
-                    updates[`/tickets/${t.id}/owner_name_lower`] = randName.toLowerCase();
-                    updates[`/tickets/${t.id}/owner_phone`] = randPhone;
-                    updates[`/tickets/${t.id}/agent_uid`] = agentUid;
-                    updates[`/tickets/${t.id}/sold_at`] = timestamp;
-                    filledCount++;
-                });
-            } else {
-                const firstHalf = sheetTickets.slice(0, 3);
-                const secondHalf = sheetTickets.slice(3, 6);
-                
-                const isFirstHalfUnsold = firstHalf.every(t => !t.is_sold);
-                const isSecondHalfUnsold = secondHalf.every(t => !t.is_sold);
-
-                if (isFirstHalfUnsold) {
-                    const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
-                    const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000);
-                    firstHalf.forEach(t => {
-                        updates[`/tickets/${t.id}/is_sold`] = true;
-                        updates[`/tickets/${t.id}/owner_name`] = randName;
-                        updates[`/tickets/${t.id}/owner_name_lower`] = randName.toLowerCase();
-                        updates[`/tickets/${t.id}/owner_phone`] = randPhone;
-                        updates[`/tickets/${t.id}/agent_uid`] = agentUid;
-                        updates[`/tickets/${t.id}/sold_at`] = timestamp;
-                        filledCount++;
-                    });
-                } else {
-                    firstHalf.filter(t => !t.is_sold).forEach(t => generateBooking(t));
-                }
-
-                if (isSecondHalfUnsold) {
-                    const randName = randomFirstNames[Math.floor(Math.random() * randomFirstNames.length)];
-                    const randPhone = "9" + Math.floor(100000000 + Math.random() * 900000000);
-                    secondHalf.forEach(t => {
-                        updates[`/tickets/${t.id}/is_sold`] = true;
-                        updates[`/tickets/${t.id}/owner_name`] = randName;
-                        updates[`/tickets/${t.id}/owner_name_lower`] = randName.toLowerCase();
-                        updates[`/tickets/${t.id}/owner_phone`] = randPhone;
-                        updates[`/tickets/${t.id}/agent_uid`] = agentUid;
-                        updates[`/tickets/${t.id}/sold_at`] = timestamp;
-                        filledCount++;
-                    });
-                } else {
-                    secondHalf.filter(t => !t.is_sold).forEach(t => generateBooking(t));
-                }
-            }
-        }
-
-        if (filledCount > 0) {
-            await db.ref().update(updates);
-            showNotification(`${filledCount} unsold tickets filled successfully!`, 'success');
-        } else {
-            showNotification("No unsold tickets found to fill.", "info");
-        }
-
-    } catch (e) {
-        console.error(e);
-        showNotification("Error filling unsold tickets: " + e.message, "error");
-    }
-}
-
-// --- UPDATED: GAME HISTORY WITH FULL PDF DOWNLOAD ---
-
-async function saveGameHistory(gameState) {
-    if (!gameState) return;
-    try {
-        // Create a snapshot of sold tickets with Agent Names
-        // This ensures if agents are deleted later, history remains accurate
-        const soldTicketSnapshot = allTicketsData
-            .filter(t => t.is_sold)
-            .map(t => {
-                const agent = allUsersData.find(u => u.uid === t.agent_uid);
-                return {
-                    id: t.id,
-                    owner: t.owner_name,
-                    agent: agent ? agent.name : 'Admin/Direct'
-                };
-            });
-
-        const historyData = {
-            gameDate: gameSettingsData.gameDateTime || new Date().toISOString(),
-            endedAt: firebase.database.ServerValue.TIMESTAMP,
-            winners: gameState.winners || {},
-            calledNumbers: gameState.calledNumbers || [],
-            totalTickets: gameSettingsData.totalTickets,
-            ticketPrice: gameSettingsData.ticketPrice,
-            soldTickets: soldTicketSnapshot // Capture full list for Page 2
-        };
-        
-        await db.ref('gameHistory').push(historyData);
-        // Also save as 'lastGame' for the "Prev. Game Winners" feature
-        await db.ref('lastGame').set({
-            winners: gameState.winners,
-            tickets: allTicketsData.filter(t => t.is_sold).reduce((acc, t) => { acc[t.id] = t; return acc; }, {})
-        });
-        
-        console.log("Game history saved.");
-    } catch(e) {
-        console.error("Failed to save game history", e);
-    }
-}
-
-async function showGameHistory() {
-    try {
-        const snapshot = await db.ref('gameHistory').orderByChild('endedAt').limitToLast(10).once('value');
-        const historyData = snapshot.val();
-        
-        const container = document.getElementById('gameHistoryContent');
-        container.innerHTML = '';
-
-        if (!historyData) {
-            container.innerHTML = '<p style="text-align: center; color: var(--muted-color-dash);">No game history found.</p>';
-        } else {
-            // Convert to array and reverse to show newest first
-            const historyList = Object.entries(historyData).map(([key, val]) => ({ key, ...val })).reverse();
-            
-            historyList.forEach(game => {
-                const date = new Date(game.endedAt).toLocaleString();
-                const winnerCount = game.winners ? Object.values(game.winners).flat().length : 0;
-                
-                const item = document.createElement('div');
-                item.style.cssText = "background: var(--secondary-bg-dash); margin-bottom: 10px; padding: 10px; border-radius: 6px; border: 1px solid var(--accent-color-dash); display: flex; justify-content: space-between; align-items: center;";
-                
-                item.innerHTML = `
-                    <div>
-                        <div style="font-weight: bold; color: var(--light-text-dash);">Game Ended: ${date}</div>
-                        <div style="font-size: 0.85rem; color: var(--muted-color-dash);">Winners: ${winnerCount} | Scheduled: ${new Date(game.gameDate).toLocaleDateString()}</div>
-                    </div>
-                    <div style="display:flex; gap: 10px;">
-                        <button onclick="downloadGameHistoryPDF('${game.key}')" style="background: transparent; color: var(--accent-primary); cursor: pointer; padding: 5px; font-size: 1.2rem;" title="Download PDF"><i class="fas fa-file-pdf"></i></button>
-                        <button onclick="deleteGameHistoryItem('${game.key}')" style="background: transparent; color: #e74c3c; cursor: pointer; padding: 5px; font-size: 1.2rem;" title="Delete Record"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-        showPopup('gameHistoryPopup');
-    } catch(e) {
-        showNotification("Error loading history: " + e.message, "error");
-    }
-}
-
-// --- NEW PDF GENERATOR FOR GAME HISTORY ---
-async function downloadGameHistoryPDF(key) {
-    showNotification("Generating PDF...", "info");
-    try {
-        const snapshot = await db.ref(`gameHistory/${key}`).once('value');
-        if (!snapshot.exists()) return showNotification("Game data not found.", "error");
-        
-        const data = snapshot.val();
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // --- PAGE 1: WINNERS LIST ---
-        doc.setFontSize(22);
-        doc.setTextColor(44, 62, 80);
-        doc.text("GAME WINNERS REPORT", 105, 20, { align: "center" });
-        
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'normal');
-        doc.text(`Game Date: ${new Date(data.gameDate).toLocaleString()}`, 105, 30, { align: "center" });
-        
-        let y = 45;
-        doc.setLineWidth(0.5);
-        doc.line(15, 35, 195, 35);
-
-        // Iterate through winners
-        if (data.winners) {
-            for (const dividendName in data.winners) {
-                const winners = data.winners[dividendName];
-                
-                if (y > 270) { doc.addPage(); y = 20; }
-                
-                doc.setFontSize(14);
-                doc.setFont(undefined, 'bold');
-                doc.setTextColor(22, 160, 133); // Accent color
-                doc.text(dividendName, 15, y);
-                y += 8;
-                
-                doc.setFontSize(11);
-                doc.setTextColor(0, 0, 0);
-                doc.setFont(undefined, 'normal');
-                
-                winners.forEach(w => {
-                    if (y > 280) { doc.addPage(); y = 20; }
-                    doc.text(`• ${w.name} (Ticket: ${w.ticketId}) - Won on #${w.winningNumber}`, 20, y);
-                    y += 6;
-                });
-                y += 4; // Spacing between sections
-            }
-        } else {
-            doc.text("No winners recorded for this game.", 105, y, { align: "center" });
-        }
-
-        // --- PAGE 2: SOLD TICKETS LIST ---
-        doc.addPage();
-        y = 20;
-        
-        doc.setFontSize(18);
-        doc.setTextColor(44, 62, 80);
-        doc.text("FULL TICKET LIST (Sold)", 105, y, { align: "center" });
-        y += 15;
-
-        // Headers
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text("Ticket ID", 15, y);
-        doc.text("Owner Name", 50, y);
-        doc.text("Agent / Booked By", 130, y);
-        doc.line(15, y + 2, 195, y + 2);
-        y += 8;
-
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-
-        if (data.soldTickets && Array.isArray(data.soldTickets)) {
-            data.soldTickets.forEach(t => {
-                if (y > 280) {
-                    doc.addPage();
-                    y = 20;
-                    // Re-print headers on new page
-                    doc.setFontSize(12);
-                    doc.setFont(undefined, 'bold');
-                    doc.text("Ticket ID", 15, y);
-                    doc.text("Owner Name", 50, y);
-                    doc.text("Agent / Booked By", 130, y);
-                    doc.line(15, y + 2, 195, y + 2);
-                    y += 8;
-                    doc.setFontSize(10);
-                    doc.setFont(undefined, 'normal');
-                }
-                
-                doc.text(String(t.id), 15, y);
-                doc.text(String(t.owner), 50, y);
-                doc.text(String(t.agent), 130, y);
-                y += 6;
-            });
-        } else {
-            doc.text("No ticket data available for this game.", 15, y);
-        }
-
-        const fileName = `Game_History_${new Date(data.gameDate).toLocaleDateString().replace(/\//g, '-')}.pdf`;
-        doc.save(fileName);
-        showNotification("PDF Downloaded!", "success");
-
-    } catch (e) {
-        console.error(e);
-        showNotification("Error generating PDF: " + e.message, "error");
-    }
-}
-
-async function deleteGameHistoryItem(key) {
-    if(!confirm("Are you sure you want to delete this history record?")) return;
-    try {
-        await db.ref(`gameHistory/${key}`).remove();
-        showNotification("Record deleted.", "success");
-        showGameHistory(); // Refresh list
-    } catch(e) {
-        showNotification("Error deleting: " + e.message, "error");
-    }
-}
-
-// --- UTILITY FUNCTIONS & EXPORTS ---
 
 function createListPDF(title, headers, dataRows, filename) {
     const { jsPDF } = window.jspdf;
@@ -6409,6 +6186,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
 });
 
+</script>
+
+<script>
+(function(){
+    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
+    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
+    document['addEventListener']('keydown',function(_0x2){
+        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
+        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
+           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
+            _0x2['preventDefault']();
+        }
+    });
+})();
 </script>
 
 </body>
