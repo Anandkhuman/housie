@@ -21,7 +21,7 @@
 
 <style>
     :root {
-        --bg-color: #100c2A;
+        --bg-color: linear-gradient(135deg, green, gold);
         --primary-surface: #19153a;
         --secondary-surface: #2c2850;
         --accent-primary: #00f6ff;
@@ -37,7 +37,7 @@
         --secondary-bg-dash: #34495e;
         --accent-color-dash: #1abc9c;
         --muted-color-dash: #7f8c8d;
-        --light-text-dash: #ffffee;
+        --light-text-dash: #ffffff;
     }
 
     @keyframes pulse-highlight {
@@ -55,14 +55,24 @@
     ::-webkit-scrollbar-track { background: var(--secondary-surface); }
     ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, var(--font-family-neon);
-        color: var(--text-primary);
-        background-color: var(--bg-color);
-        overflow-x: hidden;
-        transition: background-color 0.3s, color 0.3s;
-        font-size: 14px;
-    }
+    body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: 
+        linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)),
+        url("https://images.unsplash.com/photo-1501785888041-af3ef285b470");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    z-index: -1;
+}
 
     body.dashboard-view-active {
       
@@ -97,15 +107,35 @@
 
     .overlay-popup.active, .gamePopDiv.active { opacity: 1; visibility: visible; }
 
-    .popup-content {
-        width: 100%; max-width: 500px;
-        background: var(--primary-surface);
-        border: 1px solid var(--accent-primary); border-radius: 8px;
-        padding: 0; position: relative; max-height: 90vh; overflow-y: auto;
-        box-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
-        transform: scale(0.95);
-        transition: transform var(--transition-speed) var(--transition-ease);
-    }
+ .popup-content {
+    width: 100%;
+    max-width: 500px;
+
+    /* Glass + Gradient */
+    background: linear-gradient(
+        135deg,
+        rgba(29, 43, 64, 0.6),
+        rgba(15, 25, 40, 0.6)
+    );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+
+    border: 1px solid rgba(0, 246, 255, 0.4);
+    border-radius: 12px;
+
+    padding: 0;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    box-shadow: 
+        0 0 25px rgba(0, 246, 255, 0.35),
+        inset 0 0 10px rgba(0, 246, 255, 0.15);
+
+    transform: scale(0.95);
+    transition: transform var(--transition-speed) var(--transition-ease);
+}
     .overlay-popup.active .popup-content { transform: scale(1); }
 
     .top-down-notification-popup {
@@ -164,6 +194,7 @@
     line-height: 1.4;
     font-size: 0.85rem;
     text-align: left;
+    color: white ;
 }
 
 .top-down-notification-popup .notification-actions {
@@ -211,33 +242,58 @@
         color: var(--accent-primary); text-shadow: 0 0 8px var(--accent-primary);
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="tel"],
-    input[type="number"],
-    input[type="datetime-local"],
-    input[type="url"],
-    select,
-    textarea.tableInp, /* Added textarea */
-    .agent-inp,
-    .searchInp,
-    .tableInp {
-        width: 100%;
-        font-size: 0.9rem;
-        padding: 0.7rem 1rem;
-        border-radius: 4px;
-        text-align: center;
-        font-family: var(--font-family-neon);
-        background: var(--secondary-surface);
-        border: 1px solid var(--accent-primary);
-        color: var(--text-primary);
-    }
-    .dashboard-view .tableInp {
-         background-color: white;
-         color: var(--text-dark);
-         border: 1px solid var(--secondary-bg-dash);
-    }
+    /* ================= INPUT BASE ================= */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="datetime-local"],
+input[type="url"],
+select,
+textarea.tableInp,
+.agent-inp,
+.searchInp,
+.tableInp {
+  width: 100%;
+  font-size: 0.9rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-family: var(--font-family-neon);
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+/* ================= FOCUS STATE ================= */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ================= PLACEHOLDER ================= */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ================= DASHBOARD LIGHT MODE FIX ================= */
+.dashboard-view .tableInp {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-dark);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
+}
 
 
     .login-form input {
@@ -309,48 +365,173 @@
         padding-bottom: 120px; /* Increased padding to avoid overlap with new footer */
     }
     .panel {
-        background: var(--primary-surface); 
-        border: 1px solid var(--accent-primary);
-        border-radius: 8px; 
-        margin-bottom: 0.1rem;
-        
-        box-shadow: 0 0 15px rgba(0, 246, 255, 0.2), inset 0 0 8px rgba(0, 246, 255, 0.1);
-        opacity: 0; 
-        transform: translateY(20px);
-        padding: 1rem;
-    }
-    
-    .top-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 998;
-        background: var(--primary-surface);
-        border-bottom: 2px solid var(--accent-primary);
-        box-shadow: 0 5px 15px rgba(0, 246, 255, 0.2);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0.6rem 1rem;
-        opacity: 0;
-        transform: translateY(-100%);
-    }
+    background: rgba(25, 43, 64, 0.5); /* transparent glass feel */
+    backdrop-filter: blur(1px);       /* blur effect */
 
-    .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        z-index: 999;
-        background: var(--primary-surface);
-        border-top: 2px solid var(--accent-primary);
-        box-shadow: 0 -5px 15px rgba(0, 246, 255, 0.2);
-        opacity: 0; 
-        transform: translateY(100%);
-        padding: 0.3rem 0;
-    }
+    border: 1px solid rgba(0, 246, 255, 0.4);
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+
+    box-shadow: 
+        0 0 20px rgba(0, 246, 255, 0.25),
+        inset 0 0 10px rgba(0, 246, 255, 0.1);
+
+    opacity: 0;
+    transform: translateY(20px);
+    padding: 1rem;
+
+    transition: all 0.3s ease;
+}
+/* ================= TOP HEADER (FINAL PREMIUM VERSION) ================= */
+.top-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 998;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0.9rem 1rem;
+
+    /* 🔥 Background + Overlay */
+    background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+        url("https://images.unsplash.com/photo-1611078489935-0cb964de46d6");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    position: fixed;
+    overflow: hidden;
+
+    /* Animation entry */
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.4s ease;
+}
+
+/* ================= ANIMATED BORDER ================= */
+.top-header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+
+    background: linear-gradient(
+        90deg,
+        #00f6ff,
+        #00ff88,
+        #00f6ff,
+        #0088ff,
+        #00f6ff
+    );
+
+    background-size: 300% 100%;
+    animation: borderFlow 4s linear infinite;
+}
+
+/* ================= TEXT STYLE ================= */
+.top-header h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
+    position: relative;
+
+    /* 🔥 Gradient Animated Text */
+    background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff);
+    background-size: 300%;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: textFlow 4s linear infinite;
+
+    /* Glow */
+    text-shadow: 0 0 10px rgba(0,246,255,0.4);
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes borderFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+@keyframes textFlow {
+    0% { background-position: 0%; }
+    100% { background-position: 300%; }
+}
+
+/* ================= ACTIVE STATE ================= */
+.top-header.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ================= BOTTOM NAV (GLASSMORPHISM) ================= */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 999;
+
+    /* Glass Effect */
+    background: linear-gradient(
+        135deg,
+        rgba(29, 43, 64, 0.6),
+        rgba(15, 25, 40, 0.6)
+    );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border-top: 1px solid rgba(0, 246, 255, 0.5);
+
+    box-shadow: 
+        0 -5px 20px rgba(0, 246, 255, 0.25),
+        inset 0 0 8px rgba(0, 246, 255, 0.1);
+
+    padding: 0.3rem 0;
+
+    opacity: 0; 
+    transform: translateY(100%);
+    transition: all 0.3s ease;
+}
+
+
+/* ================= ACTIVE STATES ================= */
+.top-header.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.bottom-nav.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* ================= OPTIONAL HOVER ================= */
+.top-header:hover {
+    box-shadow: 0 5px 25px rgba(0, 246, 255, 0.5);
+}
+
+.bottom-nav:hover {
+    box-shadow: 
+        0 -5px 25px rgba(0, 246, 255, 0.5),
+        inset 0 0 10px rgba(0, 246, 255, 0.2);
+}
 
     .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
 
@@ -362,7 +543,7 @@
 
     .panel-title {
         font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
-        color: var(--accent-primary); text-align: center;
+        color: #ffffff; text-align: center;
         text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
     }
     .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
@@ -415,14 +596,30 @@
     .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
-        background: var(--secondary-surface); border-radius: 4px;
+        background: #e1efd6; border-radius: 4px;
         font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
-        color: var(--text-secondary); text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
+        color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
     .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
-    .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
+  .called-numbers-list {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0.4rem;
+  border-radius: 8px;
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
     .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     
     .search-container { display: flex; margin-bottom: 1rem; gap: 4px; }
@@ -474,11 +671,48 @@
 
 
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
-    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: #01579b; text-shadow: none; }
-    .sheet-view { background-color: #ffffff; border: 1px solid #0277bd; border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem; }
-    .sheet-header { color: #01579b; border-bottom: 1px solid #b3e5fc; font-size: 1rem; margin-bottom: 0.8rem; background: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; padding-bottom: 0.5rem; }
-    .sheet-content { display: grid; gap: 0.8rem; grid-template-columns: 1fr !important; }
-    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
+    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title,  { color: white ; text-shadow: none; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+.sheet-view {
+  background: rgba(0, 0, 0, 0.25); /* dark glass */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+
+  padding: 0.8rem;
+  margin: 1rem;
+
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.sheet-header {
+  color: white;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-weight: 700;
+  padding-bottom: 0.5rem;
+}
+
+.sheet-content {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: 1fr !important;
+  color: #e3f2fd;
+}    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
@@ -519,7 +753,7 @@
 
     .dividend-table { width: 100%; border-collapse: collapse; }
     .dividend-table th, .dividend-table td { padding: 0.8rem; text-align: left; border-top: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; }
-    .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.95rem; }
+    .dividend-table th { font-weight: 700; color: var(--accent-seconda); font-size: 0.95rem; }
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
     .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
     .dividend-table .winner-info { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
@@ -530,7 +764,15 @@
     .dividend-table .prize-share { font-size: 0.8em; color: var(--text-secondary); font-style: italic; display: block; margin-top: 2px;}
     .dividend-table .winner-info .fa-eye { flex-shrink: 0; margin-left: 10px; cursor: pointer; color: var(--accent-primary); font-size: 1.1rem; transition: transform 0.2s; padding-top: 4px; }
     .dividend-table .winner-info .fa-eye:hover { transform: scale(1.2); }
-
+    .dividend-table th,
+.dividend-table td {
+    padding: 0.9rem;
+    text-align: left;
+    border-top: 1px solid rgba(255, 0, 160, 0.4);
+    font-size: 0.9rem;
+    vertical-align: top;
+    color: #ffffff;
+}
     /* --- Professional Announcement Styles --- */
     #number-announcement-overlay {
         position: fixed;
@@ -586,7 +828,23 @@
     }
 
     
-    #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 75vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+    #bookingGridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 8px;
+  max-height: 75vh;
+  overflow-y: auto;
+  border-radius: 10px;
+
+  /* Glass effect */
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
     
     #bookingGridContainer .ticket-view.sold {
         cursor: not-allowed;
@@ -671,7 +929,23 @@
         justify-content: center;
         transition: border-color 0.3s ease;
     }
-    #bookedTicketsDisplay { max-height: 80vh; overflow-y: auto; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 1rem; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+   #bookedTicketsDisplay {
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  /* Glass effect */
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
     .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
     .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
@@ -691,7 +965,7 @@
     .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
 
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
-    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
+    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: white; }
     .dashboard-view .gameSettingTable td::before { content: '' !important; }
     .dashboard-view .tableInp {
         margin: 0;
@@ -747,18 +1021,32 @@
     .dashboard-view .dividentConDiv table { width: 100%; color: var(--light-text-dash); border-collapse: collapse; }
     .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 6px; border: 1px solid var(--muted-color-dash); font-size: 0.85rem;}
     
-    .gamePopDiv { background: rgba(0, 0, 0, 0.8); }
-    .gameDiv {
-        position: relative;
-        height: 95vh;
-        width: 95%;
-        background: var(--primary-bg-dash);
-        margin: 2.5% auto;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
+   /* Background overlay (glass dark) */
+.gamePopDiv {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+/* Main game container (glass card) */
+.gameDiv {
+  position: relative;
+  height: 95vh;
+  width: 95%;
+  margin: 2.5% auto;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+
+  /* Glass effect */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
 
     .gamePopDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
     #agentDashboardView .runBtn { font-size: 1.5rem; }
@@ -817,7 +1105,7 @@
     #adminGameSettingTable .admin-ticket-row td {
         display: block;
         width: 100%;
-        padding: 0;
+        padding: 10px;
     }
      #adminGameSettingTable .admin-ticket-row.available-ticket td {
         display: table-cell;
@@ -1005,7 +1293,7 @@
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231abc9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+
         background-repeat: no-repeat;
         background-position: right 1rem center;
         background-size: 1em;
@@ -1589,7 +1877,8 @@
 
     <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
+<div class="timer-status-bar" id="public-timer-bar"
+     style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;">
             </div>
         </div>
 
@@ -1695,7 +1984,7 @@
                 <tr><td>Total ticket limit</td><td><input class="tableInp" id="totalTicketInp" type="number" value="600"></td></tr>
                 <tr><td>Ticket price</td><td><input class="tableInp" id="ticketPriceInp" type="number" value="300"></td></tr>
                 <tr><td>Agent commission</td><td><input class="tableInp" id="agentCommissionInp" type="number" value="50"></td></tr>
-                <tr><td colspan="2"><input class="tableInp" id="saveGameBtn" type="button" onclick="saveGameSetting()" value="SAVE SETTINGS & GENERATE WINNERS" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
+                <tr><td colspan="2"><input class="tableInp" id="saveGameBtn" type="button" onclick="saveGameSetting()" value="SAVE SETTINGS" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
             </tbody>
         </table>
     </div>
@@ -2054,7 +2343,7 @@
         </table>
 
           <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
                 <input type="text" class="searchInp" id="adminTicketSearchInp" placeholder="Enter name, phone, or ticket ID" style="background: var(--primary-bg-dash); color: var(--light-text-dash); border-color: var(--accent-color-dash);">
                 <button class="search-btn" id="adminSearchTicketBtn" style="background: var(--accent-color-dash);"><i class="fas fa-search"></i></button>
@@ -2063,7 +2352,7 @@
             <div class="ticketDisplayArea" id="adminTicketDisplayArea" style="padding: 0 1rem 1rem 1rem; max-height: 400px; overflow-y: auto;"></div>
         </section>
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
             <div class="number-board" id="runGamePopupBoard">
             </div>
         </section>
@@ -2071,7 +2360,7 @@
       
 
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
             <table class="dividend-table" id="runGameDividendTable" style="color: var(--light-text-dash);">
                 <thead><tr><th style="color: var(--accent-color-dash);">Dividend</th><th style="color: var(--accent-color-dash);">Winner</th></tr></thead>
                 <tbody></tbody>
