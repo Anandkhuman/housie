@@ -16,7 +16,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
 
 <style>
@@ -1675,6 +1674,18 @@
         animation: pulse-icon 1.5s infinite ease-in-out;
     }
     
+    #liveImagePopup .popup-content, #liveVideoPopup .popup-content {
+        padding: 0.5rem;
+        background: var(--primary-surface);
+    }
+    #liveImagePopup img, #liveVideoPopup video {
+        max-width: 100%;
+        max-height: 85vh;
+        height: auto;
+        display: block;
+        border-radius: 4px;
+    }
+    
     .announcement-controls {
         padding: 1rem;
         display: flex;
@@ -1925,17 +1936,6 @@
                 <input class="tableInp" type="file" id="liveVideoAnnounceInp" accept="video/mp4,video/webm" style="text-align: left; padding: 0.7rem 0.5rem;">
                 <button class="actionBtn" id="sendLiveVideoBtn">Send Video</button>
             </div>
-        </div>
-    </div>
-    <!-- CUSTOM PUSH NOTIFICATIONS ADMIN AREA -->
-    <div class="gameSettingDiv">
-        <button class="titleBtn">PUSH NOTIFICATIONS (ALL USERS)</button>
-        <div class="announcement-controls">
-            <label for="pushNotificationTitle">Notification Title</label>
-            <input type="text" id="pushNotificationTitle" class="tableInp" placeholder="Enter Title (e.g., Sintha Housie Live)">
-            <label for="pushNotificationMessage" style="margin-top: 1rem;">Notification Message</label>
-            <textarea id="pushNotificationMessage" class="tableInp" rows="3" placeholder="Enter push notification message here..."></textarea>
-            <button class="actionBtn" id="sendPushNotificationBtn">Send Push Notification</button>
         </div>
     </div>
     <div class="gameSettingDiv">
@@ -2253,7 +2253,7 @@
 
 <div class="overlay-popup top-down-notification-popup" id="firstVisitPopup">
     <div class="popup-content">
-        <button class="x-button" onclick="closeFirstVisitPopup()"><i class="fas fa-times"></i></button>
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="notification-body">
             <div class="notification-logo">
                 <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
@@ -2269,21 +2269,6 @@
                  <a href="https://sinthakeithel.in/tambola" target="_blank" class="login-btn" style="text-decoration: none;">Buy Now</a>
                  <button class="login-btn secondary" id="closeFirstVisitPopupBtn">Not Now</button>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- CUSTOM PUSH NOTIFICATION PROMPT POPUP -->
-<div class="overlay-popup" id="notificationPromptPopup">
-    <div class="popup-content" style="max-width: 400px; padding: 1.5rem; text-align: center;">
-        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-        <h3 class="popup-title">Stay Updated!</h3>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem;">
-            Receive instant push notifications when a new game is created, starts, or ends, so you never miss a session!
-        </p>
-        <div class="login-form">
-            <button class="login-btn" id="allowNotificationsBtn">Allow Notifications</button>
-            <button class="login-btn secondary" onclick="closePopups()">Later</button>
         </div>
     </div>
 </div>
@@ -2328,6 +2313,7 @@
 
 <audio id="backgroundMusicPlayer" loop></audio>
 <audio id="liveAudioPlayer"></audio>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
@@ -2343,15 +2329,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
-
-let messaging = null;
-try {
-    if (firebase.messaging.isSupported()) {
-        messaging = firebase.messaging();
-    }
-} catch (e) {
-    console.warn("FCM registration issue: Browser environment blocks or unsupported.", e);
-}
 
 let serverTimeOffset = 0;
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
@@ -2411,15 +2388,14 @@ function debounce(func, wait) {
 }
 
 let backgroundMusicPlayer, liveAudioPlayer;
-let mediaSource, sourceBuffer;
-let audioQueue = [];
-let isAppending = false;
-let isMediaSourceOpen = false;
 let lastProcessedTimestamp = 0;
-let localStream, mediaRecorder;
+let localStream;
 let isMicOn = false;
 let audioLibrary = {};
 let currentTrackId = null;
+let liveAudioQueue = [];
+let isLivePlaying = false;
+let currentLiveAudio = null;
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2604,7 +2580,7 @@ function bindEventListeners() {
     });
     document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
     document.getElementById('saveOwnerChangesBtn').addEventListener('click', saveTicketOwnerChanges);
-    document.getElementById('closeFirstVisitPopupBtn').addEventListener('click', closeFirstVisitPopup);
+    document.getElementById('closeFirstVisitPopupBtn').addEventListener('click', closePopups);
     document.getElementById('adminSearchTicketBtn').addEventListener('click', searchTicketAdmin);
     document.getElementById('adminTicketSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketAdmin(); });
     document.getElementById('adminClearSearchBtn').addEventListener('click', () => {
@@ -2617,12 +2593,6 @@ function bindEventListeners() {
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
     document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
-    
-    // Push notifications admin area trigger
-    document.getElementById('sendPushNotificationBtn').addEventListener('click', sendCustomPushNotification);
-    
-    // Allow push notification button inside custom prompt popup
-    document.getElementById('allowNotificationsBtn').addEventListener('click', requestSystemNotificationPermission);
 }
 
 function showPopup(id) {
@@ -3067,9 +3037,9 @@ function renderVisualTicketBookingPage() {
     const numSheets = Math.ceil(totalTickets / 6);
 
     for (let i = 0; i < numSheets; i++) {
-        const startTicketId = i * 6 + 1;
-        const endTicketId = startTicketId + 5;
-        const actualEndId = endTicketId > totalTickets ? totalTickets : endTicketId;
+        const startTicket = i * 6 + 1;
+        const endTicket = startTicket + 5;
+        const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
 
         const sheetWrapper = document.createElement('div');
         sheetWrapper.className = 'sheet-view';
@@ -3077,9 +3047,9 @@ function renderVisualTicketBookingPage() {
         const sheetHeader = document.createElement('div');
         sheetHeader.className = 'sheet-header';
         sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tkt ${startTicketId}-${actualEndId})</span>
+            <span>Sheet ${i + 1} (Tkt ${startTicket}-${actualEndId})</span>
             <label class="full-sheet-selector">
-                <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${actualEndId})"> Select Full
+                <input type="checkbox" onchange="selectFullSheet(this, ${startTicket}, ${actualEndId})"> Select Full
             </label>`;
         sheetWrapper.appendChild(sheetHeader);
 
@@ -3087,7 +3057,7 @@ function renderVisualTicketBookingPage() {
         sheetContent.className = 'sheet-content';
         sheetWrapper.appendChild(sheetContent);
 
-        for (let j = startTicketId; j <= endTicketId; j++) {
+        for (let j = startTicket; j <= endTicket; j++) {
             if (j > totalTickets) continue;
 
             const ticket = ticketsMap.get(j);
@@ -3749,13 +3719,6 @@ async function saveGameSetting() {
         try {
             await db.ref('settings/gameConfig').update(settingsToSave);
             showNotification('Game settings saved successfully!', 'success');
-            
-            // Push Notification trigger: Game Created
-            let dateStr = "soon";
-            if (newDateTime) {
-                dateStr = new Date(newDateTime).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            }
-            triggerGlobalPushNotification("New Game Created! 🎟️", `A new game has been scheduled on ${dateStr}. Book your tickets today!`);
         } catch (e) {
              showNotification('Error saving settings: ' + e.message, 'error');
         }
@@ -4461,6 +4424,7 @@ async function sharePoster() {
 
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
             await navigator.share({
+     
                 files: filesArray,
                 title: websiteName,
                 text: `Join the ${websiteName}. Check out the poster!`,
@@ -4757,10 +4721,6 @@ async function toggleGameRunner() {
             playSound(audioBaseUrl + "gamehasstarted.mp3");
 
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
-            
-            // Push Notification trigger: Game Started
-            triggerGlobalPushNotification("Game Started! ⚡", "The calling board has officially started. Join now to view the live numbers!");
-
             const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
             if (isNaN(intervalSeconds) || intervalSeconds < 1) {
                 showNotification("Set a valid call interval (>= 1 second).", 'error');
@@ -4838,11 +4798,8 @@ function callNextNumber() {
 
                 if (allClaimed) {
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
-                    // Push Notification trigger: Game Ended
-                    triggerGlobalPushNotification("Game Ended! 🏁", "All dividends have been successfully claimed. Check the winners board!");
                 } else if (finalState.calledNumbers?.length >= 90) {
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
-                    triggerGlobalPushNotification("Game Ended! 🏁", "All 90 numbers have been successfully drawn. Check your tickets!");
                 }
             }
         }
@@ -5625,44 +5582,103 @@ function togglePlaylistMode() {
 
 async function toggleMic() {
     if (isMicOn) {
-        if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
-        if (localStream) localStream.getTracks().forEach(track => track.stop());
-        document.getElementById('micToggleBtn').classList.remove('live');
-        document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
-        isMicOn = false;
-        await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
-        showNotification('Live announcement stopped.', 'info');
+        await stopMic();
     } else {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const options = { mimeType: 'audio/webm;codecs=opus' };
-            mediaRecorder = new MediaRecorder(localStream, options);
+        await startMic();
+    }
+}
 
-            mediaRecorder.ondataavailable = event => {
-                if (event.data.size > 0) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        db.ref('settings/audio/liveAnnouncement').update({
-                           audioChunk: reader.result,
-                           timestamp: firebase.database.ServerValue.TIMESTAMP 
-                        });
-                    };
-                    reader.readAsDataURL(event.data);
+async function startMic() {
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        isMicOn = true;
+        document.getElementById('micToggleBtn').classList.add('live');
+        document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
+        showNotification('Live announcement started!', 'success');
+        
+        await db.ref('settings/audio/liveAnnouncement').set({ 
+            isLive: true, 
+            timestamp: firebase.database.ServerValue.TIMESTAMP 
+        });
+
+        recordSegment();
+    } catch (err) {
+        showNotification('Could not access microphone: ' + err.message, 'error');
+        console.error(err);
+        await stopMic();
+    }
+}
+
+function recordSegment() {
+    if (!isMicOn || !localStream) return;
+
+    let mimeType = 'audio/webm';
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'audio/mp4';
+    }
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = ''; 
+    }
+
+    const options = mimeType ? { mimeType } : {};
+    let segmentRecorder;
+    try {
+        segmentRecorder = new MediaRecorder(localStream, options);
+    } catch (e) {
+        console.error("MediaRecorder creation failed, falling back", e);
+        segmentRecorder = new MediaRecorder(localStream);
+    }
+
+    let chunks = [];
+    segmentRecorder.ondataavailable = e => {
+        if (e.data && e.data.size > 0) {
+            chunks.push(e.data);
+        }
+    };
+
+    segmentRecorder.onstop = () => {
+        if (chunks.length > 0) {
+            const blob = new Blob(chunks, { type: segmentRecorder.mimeType || 'audio/webm' });
+            const reader = new FileReader();
+            reader.onload = () => {
+                if (isMicOn) {
+                    db.ref('settings/audio/liveAnnouncement').update({
+                        audioChunk: reader.result,
+                        mimeType: segmentRecorder.mimeType || 'audio/webm',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
                 }
             };
-            
-            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            mediaRecorder.start(1500);
-
-            document.getElementById('micToggleBtn').classList.add('live');
-            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
-            isMicOn = true;
-            showNotification('Live announcement started!', 'success');
-        } catch (err) {
-            showNotification('Could not access microphone: ' + err.message, 'error');
-            console.error(err);
+            reader.readAsDataURL(blob);
         }
+        if (isMicOn) {
+            setTimeout(recordSegment, 10);
+        }
+    };
+
+    segmentRecorder.start();
+    
+    setTimeout(() => {
+        if (segmentRecorder && segmentRecorder.state === "recording") {
+            segmentRecorder.stop();
+        }
+    }, 2000);
+}
+
+async function stopMic() {
+    isMicOn = false;
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
     }
+    document.getElementById('micToggleBtn').classList.remove('live');
+    document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
+    try {
+        await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
+    } catch (e) {
+        console.error(e);
+    }
+    showNotification('Live announcement stopped.', 'info');
 }
 
 function handleBackgroundMusicState(audioData) {
@@ -5714,85 +5730,62 @@ function handleBackgroundMusicState(audioData) {
 function handleLiveAudioStream(audioData) {
     const liveInfo = audioData.liveAnnouncement;
     if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
-        if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
-             audioQueue = [];
-             if (sourceBuffer && !sourceBuffer.updating) {
-                try {
-                    sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
-                } catch(e) { console.warn("Buffer clear failed", e); }
-             }
-             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null);
-        }
-
         lastProcessedTimestamp = liveInfo.timestamp;
         
-        if (liveAudioPlayer.paused) {
-            liveAudioPlayer.play().catch(e => {});
-        }
+        liveAudioQueue.push({
+            chunk: liveInfo.audioChunk,
+            mimeType: liveInfo.mimeType || 'audio/webm'
+        });
         
-        audioQueue.push(liveInfo.audioChunk);
-        processAudioQueue();
+        playLiveAudioQueue();
     } else if (liveInfo && !liveInfo.isLive) {
-        let vol = liveAudioPlayer.volume;
-        if (vol > 0) {
-            const fadeOutInterval = setInterval(() => {
-                vol -= 0.1;
-                if (vol <= 0) {
-                    liveAudioPlayer.volume = 0;
-                    liveAudioPlayer.pause();
-                    liveAudioPlayer.volume = 1;
-                    clearInterval(fadeOutInterval);
-                } else {
-                    liveAudioPlayer.volume = vol;
-                }
-            }, 50);
+        liveAudioQueue = [];
+        if (currentLiveAudio) {
+            currentLiveAudio.pause();
+            currentLiveAudio = null;
+        }
+        isLivePlaying = false;
+        if (backgroundMusicPlayer && !backgroundMusicPlayer.paused) {
+            backgroundMusicPlayer.volume = 1.0;
         }
     }
 }
 
-async function processAudioQueue() {
-    if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
+function playLiveAudioQueue() {
+    if (isLivePlaying || liveAudioQueue.length === 0) {
         return;
     }
-    isAppending = true;
     
-    const dataUrl = audioQueue.shift();
-    try {
-        const response = await fetch(dataUrl);
-        const arrayBuffer = await response.arrayBuffer();
-        sourceBuffer.appendBuffer(arrayBuffer);
-    } catch (error) {
-        console.error('Error processing audio chunk:', error);
-        isAppending = false; 
+    isLivePlaying = true;
+    const nextItem = liveAudioQueue.shift();
+    
+    const audio = new Audio(nextItem.chunk);
+    currentLiveAudio = audio;
+    
+    audio.onended = () => {
+        isLivePlaying = false;
+        currentLiveAudio = null;
+        playLiveAudioQueue();
+    };
+    
+    audio.onerror = (e) => {
+        console.error("Error playing live audio chunk:", e);
+        isLivePlaying = false;
+        currentLiveAudio = null;
+        playLiveAudioQueue();
+    };
+    
+    if (backgroundMusicPlayer && !backgroundMusicPlayer.paused) {
+        backgroundMusicPlayer.volume = 0.15;
     }
-}
-
-function initializeMediaSource() {
-    if ('MediaSource' in window) {
-        mediaSource = new MediaSource();
-        liveAudioPlayer.src = URL.createObjectURL(mediaSource);
-
-        mediaSource.addEventListener('sourceopen', () => {
-            try {
-                const mimeCodec = 'audio/webm; codecs="opus"';
-                if (MediaSource.isTypeSupported(mimeCodec)) {
-                    sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-                    sourceBuffer.addEventListener('updateend', () => {
-                        isAppending = false;
-                        processAudioQueue(); 
-                    });
-                    isMediaSourceOpen = true;
-                } else {
-                    console.error('Unsupported MIME type:', mimeCodec);
-                }
-            } catch (e) {
-                console.error('Exception while creating SourceBuffer:', e);
-            }
+    
+    audio.play()
+        .catch(err => {
+            console.warn("Playback blocked or failed:", err);
+            isLivePlaying = false;
+            currentLiveAudio = null;
+            playLiveAudioQueue();
         });
-    } else {
-        console.error('MediaSource API not supported.');
-        showNotification('Live audio streaming may not work on this browser.', 'error');
-    }
 }
 
 function playNextInPlaylist() {
@@ -5808,94 +5801,9 @@ function playNextInPlaylist() {
     }
 }
 
-// -------------------------------------------------------------
-// PUSH NOTIFICATION SEQUENTIAL LAUNCH SYSTEM & FCM INTEGRATION
-// -------------------------------------------------------------
-
-function closeFirstVisitPopup() {
-    closePopups();
-    setTimeout(() => {
-        checkAndPromptNotifications();
-    }, 1000); 
-}
-
-function checkAndPromptNotifications() {
-    if ('Notification' in window) {
-        if (Notification.permission === 'granted') {
-            getAndSaveFCMToken();
-        } else {
-            showPopup('notificationPromptPopup');
-        }
-    } else {
-        console.warn("This browser does not support HTML5 desktop notifications.");
-    }
-}
-
-function requestSystemNotificationPermission() {
-    if (!('Notification' in window)) return;
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            showNotification('Push notifications successfully enabled!', 'success');
-            getAndSaveFCMToken();
-        } else {
-            showNotification('Permission rejected. We will remind you on your next visit.', 'error');
-        }
-        closePopups();
-    });
-}
-
-function getAndSaveFCMToken() {
-    if (!messaging) return;
-    messaging.getToken({ vapidKey: 'BCw8OkFiTL45Gp_oYab3mBekbyiomfbROFNdnjtsM1eRISQGQXBoUHOGV_iVL9GBIZmpVfXlvNKYWOGesuHOpA' })
-    .then((currentToken) => {
-        if (currentToken) {
-            db.ref('fcmTokens/' + currentToken).set({
-                token: currentToken,
-                updatedAt: firebase.database.ServerValue.TIMESTAMP
-            });
-        }
-    }).catch((err) => {
-        console.warn('FCM Token generation failed or blocked by current network architecture.', err);
-    });
-}
-
-async function triggerGlobalPushNotification(title, body) {
-    try {
-        await db.ref('notificationsQueue').push({
-            title: title,
-            body: body,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-    } catch (e) {
-        console.error("Failed to enqueue push notification:", e);
-    }
-}
-
-async function sendCustomPushNotification() {
-    const titleInp = document.getElementById('pushNotificationTitle');
-    const messageInp = document.getElementById('pushNotificationMessage');
-    const title = titleInp.value.trim();
-    const body = messageInp.value.trim();
-
-    if (!title || !body) {
-        return showNotification("Please write both a title and message body.", "error");
-    }
-
-    try {
-        await triggerGlobalPushNotification(title, body);
-        showNotification("Push notification request successfully dispatched to all subscribers!", "success");
-        titleInp.value = '';
-        messageInp.value = '';
-    } catch(e) {
-        showNotification("Error sending notification request: " + e.message, "error");
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
-    
-    initializeMediaSource();
 
     document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
     document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
@@ -5912,43 +5820,11 @@ document.addEventListener('DOMContentLoaded', () => {
     bindEventListeners();
     gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
-    // Show first visit welcoming announcement popup shortly after load
     setTimeout(() => {
         showPopup('firstVisitPopup');
     }, 1500);
-
-    // Register active background SW registration (Necessary for FCM and background push notifications)
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/firebase-messaging-sw.js')
-        .then((registration) => {
-            if (messaging) {
-                messaging.useServiceWorker(registration);
-            }
-        }).catch((err) => {
-            console.warn('Service Worker registration skipped or failed.', err);
-        });
-    }
-
-    // Active Tab Listening: Immediately catch pushed messages when app is open in foreground
-    let isFirstPushRead = true;
-    db.ref('notificationsQueue').limitToLast(1).on('child_added', (snapshot) => {
-        if (isFirstPushRead) {
-            isFirstPushRead = false;
-            return;
-        }
-        const data = snapshot.val();
-        if (data && (Date.now() - data.timestamp) < 30000) {
-            showNotification(`📢 ${data.title}: ${data.body}`, 'info', 10000);
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(data.title, { 
-                    body: data.body, 
-                    icon: 'https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png' 
-                });
-            }
-        }
-    });
 });
 </script>
+
 </body>
 </html>
-
