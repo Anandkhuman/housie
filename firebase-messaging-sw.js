@@ -1,32 +1,38 @@
+
 importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js');
 
-// IMPORTANT: Your Firebase project configuration object
-const firebaseConfig = {
-    apiKey: "AIzaSyB2imEIvh_bWbYD_yPB7p3af7bV9OWdA5A",
-    authDomain: "sinthahousie-1dd3b.firebaseapp.com",
-    databaseURL: "https://sinthahousie-1dd3b-default-rtdb.firebaseio.com",
-    projectId: "sinthahousie-1dd3b",
-    storageBucket: "sinthahousie-1dd3b.firebasestorage.app",
-    messagingSenderId: "76567991256",
-    appId: "1:76567991256:web:c58b127b8d86d8a1c598ad",
-};
-
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp({
+  apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
+  authDomain: "sinthahousiev2.firebaseapp.com",
+  databaseURL: "https://sinthahousiev2-default-rtdb.firebaseio.com",
+  projectId: "sinthahousiev2",
+  storageBucket: "sinthahousiev2.firebasestorage.app",
+  messagingSenderId: "208652536969",
+  appId: "1:208652536969:web:08e153afe2794fb6610a58",
+  measurementId: "G-5WH1X6308S"
+});
 
 const messaging = firebase.messaging();
 
-// This listener handles messages received when the app is in the background or terminated.
-messaging.onBackgroundMessage(function(payload) {
-    console.log('[firebase-messaging-sw.js] Received background message: ', payload);
+messaging.onBackgroundMessage((payload) => {
+  console.log('[Background SW] Notification Received: ', payload);
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: payload.notification.icon || 'https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png',
+    data: {
+      url: self.registration.scope
+    }
+  };
 
-    // Customize the notification here
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        // IMPORTANT: Create an icon for your notifications
-        icon: 'https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png'
-    };
-
-    return self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data ? event.notification.data.url : '/')
+  );
+});
+
