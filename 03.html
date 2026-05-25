@@ -2328,7 +2328,6 @@
 
 <audio id="backgroundMusicPlayer" loop></audio>
 <audio id="liveAudioPlayer"></audio>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
@@ -3751,7 +3750,7 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             showNotification('Game settings saved successfully!', 'success');
             
-            // Push notification: Game Created
+            // Push Notification trigger: Game Created
             let dateStr = "soon";
             if (newDateTime) {
                 dateStr = new Date(newDateTime).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -4659,31 +4658,30 @@ function renderPublicBookingGrid() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'sheet-tick-box';
-            checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, actualEndId);
-            sheetRow.appendChild(checkbox);
-            
-            const buttonGroup = document.createElement('div');
-            buttonGroup.className = 'ticket-buttons-group';
+        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, actualEndId);
+        sheetRow.appendChild(checkbox);
+        
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'ticket-buttons-group';
 
-            for (let j = startTicket; j <= endTicket; j++) {
-                if (j > totalTickets) continue;
+        for (let j = startTicket; j <= endTicket; j++) {
+            if (j > totalTickets) continue;
 
-                const ticket = ticketsMap.get(j);
-                const btn = document.createElement('button');
-                btn.className = 'ticketBlockBtn';
-                btn.textContent = j;
-                btn.id = `public-ticket-btn-${j}`;
-                if (ticket && ticket.is_sold) {
-                    btn.disabled = true;
-                } else {
-                    btn.onclick = () => togglePublicPopupTicketSelection(j);
-                }
-                buttonGroup.appendChild(btn);
+            const ticket = ticketsMap.get(j);
+            const btn = document.createElement('button');
+            btn.className = 'ticketBlockBtn';
+            btn.textContent = j;
+            btn.id = `public-ticket-btn-${j}`;
+            if (ticket && ticket.is_sold) {
+                btn.disabled = true;
+            } else {
+                btn.onclick = () => togglePublicPopupTicketSelection(j);
             }
-
-            sheetRow.appendChild(buttonGroup);
-            container.appendChild(sheetRow);
+            buttonGroup.appendChild(btn);
         }
+
+        sheetRow.appendChild(buttonGroup);
+        container.appendChild(sheetRow);
     }
 }
 
@@ -5848,7 +5846,7 @@ function requestSystemNotificationPermission() {
 
 function getAndSaveFCMToken() {
     if (!messaging) return;
-    messaging.getToken({ vapidKey: 'BCw8OkFilTL45Gp_oYab3mBekbyiomfbROFNdnjtsM1eRISQGQXBoUHOGV_iVL9GBIZmpVfXIvNKYW0GesuH0pA' })
+    messaging.getToken({ vapidKey: 'BCw8OkFiTL45Gp_oYab3mBekbyiomfbROFNdnjtsM1eRISQGQXBoUHOGV_iVL9GBIZmpVfXlvNKYWOGesuHOpA' })
     .then((currentToken) => {
         if (currentToken) {
             db.ref('fcmTokens/' + currentToken).set({
@@ -5951,7 +5949,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
 </body>
 </html>
 
