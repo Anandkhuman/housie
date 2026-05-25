@@ -1675,18 +1675,6 @@
         animation: pulse-icon 1.5s infinite ease-in-out;
     }
     
-    #liveImagePopup .popup-content, #liveVideoPopup .popup-content {
-        padding: 0.5rem;
-        background: var(--primary-surface);
-    }
-    #liveImagePopup img, #liveVideoPopup video {
-        max-width: 100%;
-        max-height: 85vh;
-        height: auto;
-        display: block;
-        border-radius: 4px;
-    }
-    
     .announcement-controls {
         padding: 1rem;
         display: flex;
@@ -1836,20 +1824,6 @@
         </table>
     </div>
     <div class="gameSettingDiv">
-        <button class="titleBtn">PUSH NOTIFICATIONS (FCM)</button>
-        <table class="gameSettingTable">
-            <tbody>
-                <tr><td>FCM Server Key</td><td><input class="tableInp" id="fcmServerKeyInp" type="text" placeholder="Enter legacy Firebase server key"></td></tr>
-                <tr><td colspan="2"><input class="tableInp" id="saveFcmKeyBtn" type="button" onclick="saveFcmServerKey()" value="SAVE FCM SERVER KEY" style="background-color: var(--accent-color-dash); color: var(--light-text-dash); cursor: pointer;"></td></tr>
-            </tbody>
-        </table>
-        <div style="padding: 1.2rem; background-color: var(--secondary-bg-dash); display: flex; flex-direction: column; gap: 0.8rem; width:90%; margin: 10px auto;">
-            <input id="customPushTitleInp" class="tableInp" type="text" placeholder="Notification Title" style="text-align:left;">
-            <textarea id="customPushBodyInp" class="tableInp" placeholder="Type notification message here..." style="text-align:left;" rows="3"></textarea>
-            <button class="actionBtn" style="width:100%; height: auto; padding: 10px;" onclick="sendCustomPushNotification()">SEND CUSTOM PUSH NOTIFICATION</button>
-        </div>
-    </div>
-    <div class="gameSettingDiv">
         <button class="titleBtn">ACTION BUTTONS</button>
         <div class="actionBtnDiv">
             <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
@@ -1951,6 +1925,17 @@
                 <input class="tableInp" type="file" id="liveVideoAnnounceInp" accept="video/mp4,video/webm" style="text-align: left; padding: 0.7rem 0.5rem;">
                 <button class="actionBtn" id="sendLiveVideoBtn">Send Video</button>
             </div>
+        </div>
+    </div>
+    <!-- CUSTOM PUSH NOTIFICATIONS ADMIN AREA -->
+    <div class="gameSettingDiv">
+        <button class="titleBtn">PUSH NOTIFICATIONS (ALL USERS)</button>
+        <div class="announcement-controls">
+            <label for="pushNotificationTitle">Notification Title</label>
+            <input type="text" id="pushNotificationTitle" class="tableInp" placeholder="Enter Title (e.g., Sintha Housie Live)">
+            <label for="pushNotificationMessage" style="margin-top: 1rem;">Notification Message</label>
+            <textarea id="pushNotificationMessage" class="tableInp" rows="3" placeholder="Enter push notification message here..."></textarea>
+            <button class="actionBtn" id="sendPushNotificationBtn">Send Push Notification</button>
         </div>
     </div>
     <div class="gameSettingDiv">
@@ -2268,7 +2253,7 @@
 
 <div class="overlay-popup top-down-notification-popup" id="firstVisitPopup">
     <div class="popup-content">
-        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <button class="x-button" onclick="closeFirstVisitPopup()"><i class="fas fa-times"></i></button>
         <div class="notification-body">
             <div class="notification-logo">
                 <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
@@ -2288,16 +2273,17 @@
     </div>
 </div>
 
-<!-- custom modal for notification reminder on rejection -->
-<div class="overlay-popup" id="notificationPermissionPromptPopup">
-    <div class="popup-content" style="border-color: var(--accent-secondary); box-shadow: 0 0 20px rgba(255, 0, 160, 0.4);">
+<!-- CUSTOM PUSH NOTIFICATION PROMPT POPUP -->
+<div class="overlay-popup" id="notificationPromptPopup">
+    <div class="popup-content" style="max-width: 400px; padding: 1.5rem; text-align: center;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
-        <h3 class="popup-title">Enable Notifications</h3>
-        <p style="text-align: center; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1.5rem;">
-            You have not granted notification permission. Please enable notifications to get instant updates when the game is created, starts, and when you win.
+        <h3 class="popup-title">Stay Updated!</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem;">
+            Receive instant push notifications when a new game is created, starts, or ends, so you never miss a session!
         </p>
         <div class="login-form">
-             <button onclick="requestBrowserNotificationPermission()" class="login-btn secondary">Enable Now</button>
+            <button class="login-btn" id="allowNotificationsBtn">Allow Notifications</button>
+            <button class="login-btn secondary" onclick="closePopups()">Later</button>
         </div>
     </div>
 </div>
@@ -2359,6 +2345,15 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+let messaging = null;
+try {
+    if (firebase.messaging.isSupported()) {
+        messaging = firebase.messaging();
+    }
+} catch (e) {
+    console.warn("FCM registration issue: Browser environment blocks or unsupported.", e);
+}
+
 let serverTimeOffset = 0;
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
     serverTimeOffset = snap.val();
@@ -2408,7 +2403,6 @@ function cacheBoardCells() {
     }
 }
 
-// Optimization Utility: Debouncer to batch rapid UI mutations
 function debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -2427,20 +2421,6 @@ let localStream, mediaRecorder;
 let isMicOn = false;
 let audioLibrary = {};
 let currentTrackId = null;
-
-// Firebase Cloud Messaging (FCM) Integration Settings
-let messaging;
-let fcmServerKey = '';
-
-try {
-    if (firebase.messaging.isSupported()) {
-        messaging = firebase.messaging();
-    } else {
-        console.warn("FCM is not supported in this browser.");
-    }
-} catch (err) {
-    console.error("Error initializing FCM SDK:", err);
-}
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2476,7 +2456,6 @@ function showView(viewId) {
     document.body.classList.toggle('dashboard-view-active', isDashboard);
     renderDashboards();
     
-    // Efficient view rendering: Only run heavy DOM construction for the active view
     if (viewId === 'ticketBookingView') {
         renderVisualTicketBookingPage();
     } else if (viewId === 'publicView') {
@@ -2532,11 +2511,6 @@ auth.onAuthStateChanged(async (user) => {
             currentUserRole = userData ? userData.role : null;
             if (!currentUserRole) throw new Error("User role not found.");
             updateUIAfterLogin();
-            
-            // Check & Update FCM token mapped to user UID
-            if (Notification.permission === 'granted') {
-                initializeFCM();
-            }
         } catch (error) {
             console.error("Auth state error:", error.message, "Logging out.");
             showNotification(`Auth Error: ${error.message}`, 'error');
@@ -2631,7 +2605,7 @@ function bindEventListeners() {
     });
     document.getElementById('publicRequestBookingBtn').addEventListener('click', handlePublicPopupBookingRequest);
     document.getElementById('saveOwnerChangesBtn').addEventListener('click', saveTicketOwnerChanges);
-    document.getElementById('closeFirstVisitPopupBtn').addEventListener('click', closePopups);
+    document.getElementById('closeFirstVisitPopupBtn').addEventListener('click', closeFirstVisitPopup);
     document.getElementById('adminSearchTicketBtn').addEventListener('click', searchTicketAdmin);
     document.getElementById('adminTicketSearchInp').addEventListener('keyup', e => { if (e.key === "Enter") searchTicketAdmin(); });
     document.getElementById('adminClearSearchBtn').addEventListener('click', () => {
@@ -2644,6 +2618,12 @@ function bindEventListeners() {
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
     document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
+    
+    // Push notifications admin area trigger
+    document.getElementById('sendPushNotificationBtn').addEventListener('click', sendCustomPushNotification);
+    
+    // Allow push notification button inside custom prompt popup
+    document.getElementById('allowNotificationsBtn').addEventListener('click', requestSystemNotificationPermission);
 }
 
 function showPopup(id) {
@@ -2825,14 +2805,6 @@ function setupRealtimeListeners() {
             videoEl.play().catch(e => console.warn("Video autoplay blocked", e));
         }
     });
-
-    // Real-time updates of FCM Server Key
-    db.ref('settings/fcmServerKey').on('value', snapshot => {
-        fcmServerKey = snapshot.val() || '';
-        if (document.getElementById('fcmServerKeyInp')) {
-            document.getElementById('fcmServerKeyInp').value = fcmServerKey;
-        }
-    });
 }
 
 function renderDashboards() {
@@ -2871,7 +2843,6 @@ function updateGameRelatedUIs(gameState) {
     }
 }
 
-// Debounced wrapper of the game states to avoid UI freezing
 const debouncedUpdateGameRelatedUIs = debounce(updateGameRelatedUIs, 100);
 
 function updatePublicTicketUIs() {
@@ -3546,157 +3517,6 @@ function updateNumberBoard(called) {
     }
 }
 
-// Push notification handling module
-function initPushNotifications() {
-    if (!('Notification' in window)) {
-        console.warn("This browser does not support desktop notification");
-        return;
-    }
-
-    if (Notification.permission === 'default') {
-        requestBrowserNotificationPermission();
-    } else if (Notification.permission === 'denied') {
-        showNotificationPermissionBanner();
-    } else if (Notification.permission === 'granted') {
-        initializeFCM();
-    }
-}
-
-function requestBrowserNotificationPermission() {
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            showNotification("Notification permission granted!", "success");
-            closePopups();
-            initializeFCM();
-        } else if (permission === 'denied') {
-            showNotification("Notification permission denied. You can enable it in your browser settings.", "error");
-            showNotificationPermissionBanner();
-        }
-    });
-}
-
-function showNotificationPermissionBanner() {
-    showPopup('notificationPermissionPromptPopup');
-}
-
-function initializeFCM() {
-    if (!messaging) return;
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./firebase-messaging-sw.js')
-        .then((registration) => {
-            console.log('FCM Service Worker Registered successfully, scope:', registration.scope);
-            
-            messaging.getToken({ serviceWorkerRegistration: registration })
-            .then((currentToken) => {
-                if (currentToken) {
-                    saveTokenToDatabase(currentToken);
-                } else {
-                    console.warn('No registration token available. Request permission to generate one.');
-                }
-            }).catch((err) => {
-                console.error('An error occurred while retrieving token. ', err);
-            });
-        }).catch((err) => {
-            console.error('Service worker registration failed, error:', err);
-        });
-    }
-
-    messaging.onMessage((payload) => {
-        console.log('Foreground Message received: ', payload);
-        if (payload.notification) {
-            showNotification(`📢 ${payload.notification.title}: ${payload.notification.body}`, 'info', 8000);
-        }
-    });
-}
-
-function saveTokenToDatabase(token) {
-    const timestamp = firebase.database.ServerValue.TIMESTAMP;
-    if (!currentUser) {
-        db.ref('fcmTokens/' + token).set({
-            token: token,
-            updatedAt: timestamp
-        });
-    } else {
-        db.ref('fcmTokens/' + token).set({
-            token: token,
-            uid: currentUser.uid,
-            updatedAt: timestamp
-        });
-    }
-}
-
-async function saveFcmServerKey() {
-    const key = document.getElementById('fcmServerKeyInp').value.trim();
-    if (!key) return showNotification("Please enter FCM server key first.", "error");
-    try {
-        await db.ref('settings/fcmServerKey').set(key);
-        showNotification('FCM Server Key saved successfully!', 'success');
-    } catch (e) {
-        showNotification('Error saving FCM key: ' + e.message, 'error');
-    }
-}
-
-async function sendPushNotificationToAll(title, body) {
-    if (!fcmServerKey) {
-        console.warn("FCM Server Key holds no value. Cannot broadcast notifications.");
-        return;
-    }
-
-    try {
-        const snapshot = await db.ref('fcmTokens').once('value');
-        const tokensObj = snapshot.val();
-        if (!tokensObj) return;
-        
-        const tokens = Object.keys(tokensObj);
-        if (tokens.length === 0) return;
-
-        // Multicast in chunks of 1000 (standard FCM payload limit)
-        const chunkSize = 1000;
-        for (let i = 0; i < tokens.length; i += chunkSize) {
-            const chunk = tokens.slice(i, i + chunkSize);
-            const payload = {
-                registration_ids: chunk,
-                notification: {
-                    title: title,
-                    body: body,
-                    icon: "https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png",
-                    click_action: window.location.origin + window.location.pathname
-                },
-                data: {
-                    title: title,
-                    body: body
-                }
-            };
-
-            fetch('https://fcm.googleapis.com/fcm/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'key=' + fcmServerKey
-                },
-                body: JSON.stringify(payload)
-            }).then(res => res.json())
-              .then(data => console.log("Broadcasting success feedback: ", data))
-              .catch(err => console.error("Error pushing segment payload:", err));
-        }
-    } catch (e) {
-        console.error("FCM dispatch operation failed: ", e);
-    }
-}
-
-async function sendCustomPushNotification() {
-    const title = document.getElementById('customPushTitleInp').value.trim();
-    const body = document.getElementById('customPushBodyInp').value.trim();
-    if (!title || !body) return showNotification("Please enter both Title and Body.", "error");
-    
-    showNotification("Broadcasting notifications to all registered users...", "info");
-    await sendPushNotificationToAll(title, body);
-    showNotification("Custom push notification dispatched successfully!", "success");
-    document.getElementById('customPushTitleInp').value = '';
-    document.getElementById('customPushBodyInp').value = '';
-}
-
 function updateCalledNumbersList(called) {
     const listEl = document.getElementById('calledNumbersList');
     if(listEl) {
@@ -3931,9 +3751,12 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             showNotification('Game settings saved successfully!', 'success');
             
-            // Dispatch Game Creation Push Alert
-            const formattedDate = new Date(newDateTime).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            sendPushNotificationToAll("New Game Created! 🎟️", `New game schedule: ${formattedDate}. Grab your lucky tickets now!`);
+            // Push notification: Game Created
+            let dateStr = "soon";
+            if (newDateTime) {
+                dateStr = new Date(newDateTime).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
+            triggerGlobalPushNotification("New Game Created! 🎟️", `A new game has been scheduled on ${dateStr}. Book your tickets today!`);
         } catch (e) {
              showNotification('Error saving settings: ' + e.message, 'error');
         }
@@ -3948,9 +3771,6 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             await generateHousieTickets(true);
             showNotification('Settings saved and all tickets regenerated.', 'success');
-            
-            const formattedDate = new Date(newDateTime).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            sendPushNotificationToAll("New Game Created! 🎟️", `New game schedule: ${formattedDate}. Grab your lucky tickets now!`);
         };
 
         document.getElementById('confirmNoResetBtn').onclick = async () => {
@@ -3958,9 +3778,6 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             await updateTicketCountWithoutReset(newTotalTickets, oldTotalTickets);
             showNotification('Settings saved and ticket count adjusted.', 'success');
-            
-            const formattedDate = new Date(newDateTime).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            sendPushNotificationToAll("New Game Created! 🎟️", `New game schedule: ${formattedDate}. Grab your lucky tickets now!`);
         };
 
         showPopup('ticketResetConfirmPopup');
@@ -4842,30 +4659,31 @@ function renderPublicBookingGrid() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'sheet-tick-box';
-        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, actualEndId);
-        sheetRow.appendChild(checkbox);
-        
-        const buttonGroup = document.createElement('div');
-        buttonGroup.className = 'ticket-buttons-group';
+            checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, actualEndId);
+            sheetRow.appendChild(checkbox);
+            
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'ticket-buttons-group';
 
-        for (let j = startTicket; j <= endTicket; j++) {
-            if (j > totalTickets) continue;
+            for (let j = startTicket; j <= endTicket; j++) {
+                if (j > totalTickets) continue;
 
-            const ticket = ticketsMap.get(j);
-            const btn = document.createElement('button');
-            btn.className = 'ticketBlockBtn';
-            btn.textContent = j;
-            btn.id = `public-ticket-btn-${j}`;
-            if (ticket && ticket.is_sold) {
-                btn.disabled = true;
-            } else {
-                btn.onclick = () => togglePublicPopupTicketSelection(j);
+                const ticket = ticketsMap.get(j);
+                const btn = document.createElement('button');
+                btn.className = 'ticketBlockBtn';
+                btn.textContent = j;
+                btn.id = `public-ticket-btn-${j}`;
+                if (ticket && ticket.is_sold) {
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = () => togglePublicPopupTicketSelection(j);
+                }
+                buttonGroup.appendChild(btn);
             }
-            buttonGroup.appendChild(btn);
-        }
 
-        sheetRow.appendChild(buttonGroup);
-        container.appendChild(sheetRow);
+            sheetRow.appendChild(buttonGroup);
+            container.appendChild(sheetRow);
+        }
     }
 }
 
@@ -4942,8 +4760,8 @@ async function toggleGameRunner() {
 
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
             
-            // Dispatch Game Started Push Alert
-            sendPushNotificationToAll("Game is LIVE! 🔴", "Tambola board sequence has begun. Open the app to view called numbers!");
+            // Push Notification trigger: Game Started
+            triggerGlobalPushNotification("Game Started! ⚡", "The calling board has officially started. Join now to view the live numbers!");
 
             const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
             if (isNaN(intervalSeconds) || intervalSeconds < 1) {
@@ -5022,14 +4840,11 @@ function callNextNumber() {
 
                 if (allClaimed) {
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
-                    
-                    // Dispatch Game Ended (All Dividends Claimed) Push Alert
-                    sendPushNotificationToAll("Game Over! 🏁", "All dividends have been successfully claimed. Thanks for playing!");
+                    // Push Notification trigger: Game Ended
+                    triggerGlobalPushNotification("Game Ended! 🏁", "All dividends have been successfully claimed. Check the winners board!");
                 } else if (finalState.calledNumbers?.length >= 90) {
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
-                    
-                    // Dispatch Game Ended (90 Numbers Reached) Push Alert
-                    sendPushNotificationToAll("Game Over! 🏁", "All 90 numbers have been called. The game has ended!");
+                    triggerGlobalPushNotification("Game Ended! 🏁", "All 90 numbers have been successfully drawn. Check your tickets!");
                 }
             }
         }
@@ -5135,7 +4950,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 });
             }
         }
-        
         
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
             for (const ownerPhone in ticketsByOwner) {
@@ -5996,6 +5810,89 @@ function playNextInPlaylist() {
     }
 }
 
+// -------------------------------------------------------------
+// PUSH NOTIFICATION SEQUENTIAL LAUNCH SYSTEM & FCM INTEGRATION
+// -------------------------------------------------------------
+
+function closeFirstVisitPopup() {
+    closePopups();
+    setTimeout(() => {
+        checkAndPromptNotifications();
+    }, 1000); 
+}
+
+function checkAndPromptNotifications() {
+    if ('Notification' in window) {
+        if (Notification.permission === 'granted') {
+            getAndSaveFCMToken();
+        } else {
+            showPopup('notificationPromptPopup');
+        }
+    } else {
+        console.warn("This browser does not support HTML5 desktop notifications.");
+    }
+}
+
+function requestSystemNotificationPermission() {
+    if (!('Notification' in window)) return;
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            showNotification('Push notifications successfully enabled!', 'success');
+            getAndSaveFCMToken();
+        } else {
+            showNotification('Permission rejected. We will remind you on your next visit.', 'error');
+        }
+        closePopups();
+    });
+}
+
+function getAndSaveFCMToken() {
+    if (!messaging) return;
+    messaging.getToken({ vapidKey: 'BCw8OkFilTL45Gp_oYab3mBekbyiomfbROFNdnjtsM1eRISQGQXBoUHOGV_iVL9GBIZmpVfXIvNKYW0GesuH0pA' })
+    .then((currentToken) => {
+        if (currentToken) {
+            db.ref('fcmTokens/' + currentToken).set({
+                token: currentToken,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }).catch((err) => {
+        console.warn('FCM Token generation failed or blocked by current network architecture.', err);
+    });
+}
+
+async function triggerGlobalPushNotification(title, body) {
+    try {
+        await db.ref('notificationsQueue').push({
+            title: title,
+            body: body,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+    } catch (e) {
+        console.error("Failed to enqueue push notification:", e);
+    }
+}
+
+async function sendCustomPushNotification() {
+    const titleInp = document.getElementById('pushNotificationTitle');
+    const messageInp = document.getElementById('pushNotificationMessage');
+    const title = titleInp.value.trim();
+    const body = messageInp.value.trim();
+
+    if (!title || !body) {
+        return showNotification("Please write both a title and message body.", "error");
+    }
+
+    try {
+        await triggerGlobalPushNotification(title, body);
+        showNotification("Push notification request successfully dispatched to all subscribers!", "success");
+        titleInp.value = '';
+        messageInp.value = '';
+    } catch(e) {
+        showNotification("Error sending notification request: " + e.message, "error");
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
@@ -6015,17 +5912,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateNumberBoard();
     bindEventListeners();
-    
-    // Notification permission initialize operation
-    initPushNotifications();
-
     gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
+    // Show first visit welcoming announcement popup shortly after load
     setTimeout(() => {
         showPopup('firstVisitPopup');
     }, 1500);
+
+    // Register active background SW registration (Necessary for FCM and background push notifications)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then((registration) => {
+            if (messaging) {
+                messaging.useServiceWorker(registration);
+            }
+        }).catch((err) => {
+            console.warn('Service Worker registration skipped or failed.', err);
+        });
+    }
+
+    // Active Tab Listening: Immediately catch pushed messages when app is open in foreground
+    let isFirstPushRead = true;
+    db.ref('notificationsQueue').limitToLast(1).on('child_added', (snapshot) => {
+        if (isFirstPushRead) {
+            isFirstPushRead = false;
+            return;
+        }
+        const data = snapshot.val();
+        if (data && (Date.now() - data.timestamp) < 30000) {
+            showNotification(`📢 ${data.title}: ${data.body}`, 'info', 10000);
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(data.title, { 
+                    body: data.body, 
+                    icon: 'https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png' 
+                });
+            }
+        }
+    });
 });
 </script>
 
 </body>
 </html>
+
