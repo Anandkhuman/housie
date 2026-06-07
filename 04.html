@@ -88,8 +88,8 @@
     .overlay-popup, .gamePopDiv {
         position: fixed; z-index: 1000; width: 100%; height: 100%; top: 0; left: 0;
         display: none; align-items: center; justify-content: center; padding: 0.5rem;
-        background: rgba(16, 12, 42, 0.85);
-        backdrop-filter: blur(8px);
+        background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
+backdrop-filter: blur(8px);
         opacity: 0; visibility: hidden;
         transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
         overflow-y: auto;
@@ -105,8 +105,8 @@
         width: 100%;
         max-width: 500px;
         background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         border: 1px solid rgba(0, 246, 255, 0.4);
         border-radius: 12px;
         padding: 0;
@@ -206,6 +206,23 @@
             justify-content: center;
         }
     }
+    
+    #agentListPopup .popup-content {
+    background: rgba(10, 10, 12, 0.85) !important; /* Dark transparent background */
+    backdrop-filter: blur(15px) !important;        /* Background blur effect */
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important; /* Subtle border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;  /* Dark shadow */
+    padding: 1.5rem !important;                    /* Spacing aur padding */
+}
+
+/* Agent list ke andar ke cards ko bhi transparent dark se match karne ke liye */
+#agentListPopup .agent-list a {
+    background: rgba(255, 255, 255, 0.05) !important; /* Transparent dark cards */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
@@ -328,7 +345,7 @@
         position: relative;
         z-index: 1;
         width: 95%;
-        padding-top: 60px;
+        padding-top: 75px;
         padding-bottom: 120px;
     }
     .panel {
@@ -336,48 +353,56 @@
         backdrop-filter: blur(5px);
         border: 1px solid rgba(0, 246, 255, 0.4);
         border-radius: 12px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.1rem;
         box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 10px rgba(0, 246, 255, 0.1);
         opacity: 0;
-        transform: translateY(20px);
-        padding: 1rem;
+        transform: translateY(10px);
+        padding: 0.8rem;
         transition: all 0.3s ease;
     }
 
     .panel1 {
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 23, 42, 0.3);
         backdrop-filter: blur(5px);
-        border: 1px solid rgba(0, 246, 255, 0.4);
+        border: 1px solid rgba(0, 246, 255, 0.2);
         border-radius: 12px;
-        margin-bottom: 0.5rem;
-        box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 10px rgba(0, 246, 255, 0.1);
+        margin-bottom: 0.1rem;
+        box-shadow: 0 0 20px rgba(0, 246, 255, 0.15), inset 0 0 10px rgba(0, 246, 255, 0.05);
         opacity: 0;
         transform: translateY(20px);
-        padding: 1rem;
+        padding: 0.2rem;
         transition: all 0.3s ease;
+        margin: -1rem;
     }
 
     .top-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 998;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0.9rem 1rem;
-        background: url("https://i.ibb.co/tpChcp4Q/Chat-GPT-Image-Jun-7-2026-08-43-27-PM.png");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        overflow: hidden;
-        opacity: 0;
-        transform: translateY(-100%);
-        transition: all 0.4s ease;
-    }
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    z-index: 998;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    padding: 1.6rem 1rem;
+    border-radius: 15px;
+    
+    background-image: url("https://i.ibb.co/tpChcp4Q/Chat-GPT-Image-Jun-7-2026-08-43-27-PM.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    overflow: hidden;
+    
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
 
     .top-header::after {
         content: "";
@@ -395,7 +420,7 @@
         font-size: 1.3rem;
         font-weight: 700;
         letter-spacing: 2px;
-        text-align: center;
+        
         position: relative;
         background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff);
         background-size: 300%;
@@ -460,15 +485,23 @@
     }
 
     .panel-title {
-        font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
+        font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;
         color: #ffffff; text-align: center;
         text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
     }
-    .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
-    .logo-container { font-size: 1.8rem; color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-primary); animation: pulse-glow 3s infinite ease-in-out; }
-    @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .webTitle { font-size: 1.5rem; font-weight: 700; }
+   .title-container {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    justify-content: flex-start;
     
+}
+
+.webTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    transform: translate(50%, -15px);
+}
     .icon-bar { 
         display: flex; 
         gap: 0.2rem;
@@ -508,7 +541,7 @@
     }
     
     .timer-status-bar { width: 100%; padding: 0.2rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.5rem; }
-    .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.70rem; font-weight: 600; color: var(--text-secondary); }
+    .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: .90rem; font-weight: 600; color:#fff; }
     .info-item i { font-size: 1rem; color: var(--accent-primary); }
     
     .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
@@ -587,7 +620,7 @@
 
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
     .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: white; text-shadow: none; }
-
+    
     body {
         margin: 0;
         font-family: Arial, sans-serif;
@@ -601,7 +634,7 @@
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         padding: 0.8rem;
-        margin: 1rem;
+        margin: -1rem;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
@@ -628,7 +661,11 @@
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
-    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(1rem, 2.2vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; 
+       font-family: "Times New Roman", Times, Georgia, serif !important; /* Isse font force hoga */
+    font-weight: bold !important; 
+    font-size: clamp(1.2rem, 2.5vw, 1.4rem) !important; 
+        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -685,49 +722,43 @@
         color: #ffffff;
     }
 
-    /* Redesigned dividends and winners container layout */
+    /* Vibrant Pink VIEW button layout styling */
+    .pink-view-btn {
+        background-color: #ff007f;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem;
+        width: 60%;
+        min-width: 160px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pink-view-btn:hover {
+        background-color: #ff0055;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+    }
+    .pink-view-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Redesigned dividends and winners card containers */
     .dividend-row-card {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
-        padding: 0.8rem 1rem;
-        margin-bottom: 0.6rem;
-        border-radius: 8px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .dividend-row-card:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .dividend-row-card .dividend-card-name {
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 700;
-        font-size: 1.15rem;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    }
-
-    .dividend-row-card .winner-info {
-        margin-top: 0.4rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        border-top: 1px solid rgba(255, 255, 255, 0.15);
-        padding-top: 0.4rem;
-    }
-
-    .dividend-row-card .winner-details ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .dividend-row-card .winner-details li {
-        font-size: 0.9rem;
-        margin-bottom: 2px;
+        margin-bottom: 0.8rem;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 2px solid #b3002d;
     }
 
     #number-announcement-overlay {
@@ -1865,14 +1896,13 @@ body.dashboard-view-active #universalBookFloatBtn {
 <div id="publicView" class="view neon-view active">
     <header class="top-header">
         <div class="title-container">
-            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
             <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
     <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;"></div>
+            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; color: white !important; margin: 0px;"></div>
         </div>
 
         <main class="game-layout">
@@ -1895,9 +1925,9 @@ body.dashboard-view-active #universalBookFloatBtn {
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
                 </section>
 		
-                <!-- Redesigned dividends and winners layout (using class panel1) -->
+                <!-- Redesigned dividends and winners layout (using class panel1 to match the reference image) -->
                 <section class="panel1">
-                    <h2 class="panel-title">DIVIDENDS & WINNERS</h2>
+                    <h2 class="panel-title" style="color: #ffffff; font-weight: bold; margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem;">DIVIDENT LIST</h2>
                     <div class="dividend-cards-list" id="dividendListContainer"></div>
                 </section>
             </aside>
@@ -1918,14 +1948,14 @@ body.dashboard-view-active #universalBookFloatBtn {
 <div id="ticketBookingView" class="view neon-view">
     <header class="top-header">
          <div class="title-container">
-            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
+
             <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
     <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;"></div>
+            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0rem; margin: 0;"></div>
         </div>
 
         <section class="panel">
@@ -1979,6 +2009,7 @@ body.dashboard-view-active #universalBookFloatBtn {
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
             <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
             <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
+            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TKT</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
         </div>
     </div>
@@ -2310,7 +2341,7 @@ body.dashboard-view-active #universalBookFloatBtn {
     <div class="gameDiv" style="overflow-y: auto;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="panel" style="background: transparent; border: none; box-shadow: none; padding: 0; width: 95%; margin: 0.5rem auto;">
-            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0.5rem; margin-bottom: 0.5rem;"></div>
+            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0rem; margin-bottom: 0.5rem;"></div>
         </div>
         <table class="runGameTable gameSettingTable">
             <tbody>
@@ -3578,7 +3609,6 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
             
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
                         <div class="ticket-header" style="position: relative; padding-right: 35px;">Ticket ${ticket.id}: ${ticket.owner_name}</div>
-                        <!-- Absolute positioned download PDF button for player access -->
                         <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
@@ -3617,8 +3647,54 @@ function updateDisplayedTicketPublic() {
     });
 }
 
+// Unified renderer to keep public view cards synchronized
+function renderPublicDividends() {
+    const publicContainer = document.getElementById('dividendListContainer');
+    if (!publicContainer) return;
+
+    const dividends = gameSettingsData.dividends || [];
+    const winners = knownWinners || {};
+
+    if (dividends.length === 0) {
+        publicContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-style: italic;">No dividends configured yet.</p>';
+        return;
+    }
+
+    publicContainer.innerHTML = dividends.map(d => {
+        const safeName = d.name.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const dividendWinners = winners[d.name] || [];
+        
+        let winnerHTML = '';
+        if (dividendWinners.length > 0) {
+            winnerHTML = dividendWinners.map(w => 
+                `<div style="color: #000000; font-weight: bold; font-size: 1.05rem; margin-top: 4px;">
+                    ${w.name} <span style="font-weight: normal; color: #555555;">(Tkt: ${w.ticketId})</span>
+                </div>`
+            ).join('');
+        } else {
+            winnerHTML = `<div style="color: #888888; font-style: italic; font-size: 0.95rem;">Pending...</div>`;
+        }
+
+        return `
+        <div class="dividend-row-card">
+            <!-- Top dark blue section (Dividend Name) -->
+            <div style="background-color: #01579b; padding: 0.8rem; text-align: center; color: #ffffff; font-weight: bold; font-size: 1.25rem; font-family: sans-serif; border-bottom: 2px solid #b3002d;">
+                ${d.name}
+            </div>
+            <!-- Bottom white section (Winners / VIEW Button) -->
+            <div style="background-color: #ffffff; padding: 0.9rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                <div class="winner-info-area" style="width: 100%; margin-bottom: 0.4rem;">
+                    ${winnerHTML}
+                </div>
+                <button class="pink-view-btn" onclick="showAllWinningTicketsForDividend('${safeName}')">
+                    VIEW
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
 function populateDividendList(dividends) {
-    // Populate admin layout standard table
     const adminTbody = document.querySelector('#runGameDividendTable tbody');
     if (adminTbody) {
         adminTbody.innerHTML = (dividends || [])
@@ -3629,40 +3705,7 @@ function populateDividendList(dividends) {
             .join('');
     }
 
-    // Populate public visual layout in panel1 class with alternating container colors
-    const publicContainer = document.getElementById('dividendListContainer');
-    if (publicContainer) {
-        const colors = [
-            'rgba(231, 76, 60, 0.25)',   // Soft Red
-            'rgba(52, 152, 219, 0.25)',  // Soft Blue
-            'rgba(46, 204, 113, 0.25)',  // Soft Green
-            'rgba(241, 196, 15, 0.25)',  // Soft Yellow
-            'rgba(155, 89, 182, 0.25)',  // Soft Purple
-            'rgba(230, 126, 34, 0.25)',  // Soft Orange
-            'rgba(26, 188, 156, 0.25)',  // Soft Teal
-            'rgba(243, 156, 18, 0.25)',  // Soft Amber
-            'rgba(142, 68, 173, 0.25)',  // Dark Purple
-            'rgba(22, 160, 133, 0.25)',  // Dark Teal
-            'rgba(192, 57, 43, 0.25)',   // Dark Red
-            'rgba(39, 174, 96, 0.25)'    // Dark Green
-        ];
-        
-        publicContainer.innerHTML = (dividends || [])
-            .map((d, index) => {
-                const bgCol = colors[index % colors.length];
-                const borderCol = bgCol.replace('0.25', '0.6');
-                return `
-                <div class="dividend-row-card" data-dividend-name="${d.name.replace(/\s+/g, '-')}" style="background: ${bgCol}; border: 1px solid ${borderCol};">
-                    <div class="dividend-card-name" style="font-weight: 700; color: #ffffff; margin-bottom: 0.3rem;">
-                        ${d.name} <span style="font-size:0.8em; color: #e1efd6;">(₹${d.amount || 0})</span>
-                    </div>
-                    <div class="winner-info" style="font-size: 0.9rem; color: #ffffff;">
-                        <span class="winner-name">Pending...</span>
-                    </div>
-                </div>`;
-            })
-            .join('');
-    }
+    renderPublicDividends();
 }
 
 function updateWinners(winners) {
@@ -3673,13 +3716,6 @@ function updateWinners(winners) {
             el.innerHTML = `<span class="winner-name">Pending...</span>`;
         });
     });
-
-    const publicContainer = document.getElementById('dividendListContainer');
-    if (publicContainer) {
-        publicContainer.querySelectorAll('.winner-info').forEach(el => {
-            el.innerHTML = `<span class="winner-name">Pending...</span>`;
-        });
-    }
 
     for (const name in winners) {
         const winnerArray = winners[name];
@@ -3708,15 +3744,9 @@ function updateWinners(winners) {
                 if (winnerCell) winnerCell.innerHTML = finalHTML;
             }
         });
-
-        if (publicContainer) {
-            const card = publicContainer.querySelector(`.dividend-row-card[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
-            if (card) {
-                const winnerCell = card.querySelector('.winner-info');
-                if (winnerCell) winnerCell.innerHTML = finalHTML;
-            }
-        }
     }
+
+    renderPublicDividends();
 }
 
 function updateNumberBoard(called) {
@@ -3838,9 +3868,9 @@ function renderSheetWiseBookedList() {
 }
 
 function showAllWinningTicketsForDividend(dividendName) {
-    const winnerArray = winners[dividendName] || knownWinners[dividendName];
+    const winnerArray = knownWinners[dividendName];
     if (!winnerArray || winnerArray.length === 0) {
-        return showNotification("Winner information not found for this dividend.", "error");
+        return showNotification("Winner is pending for this dividend.", "info");
     }
 
     const displayArea = document.getElementById('winningTicketDisplayArea');
@@ -4056,7 +4086,7 @@ function updateAdminSettingsUI(data) {
 
     const table = document.getElementById('dividendSettingsTable');
     table.innerHTML = `
-        <thead><tr><th>Dividend Name & Amount</th><th>Active</th></tr></thead>
+        
         <tbody>
             ${allPossibleDividends.map(name => {
                 const dividendData = (data.dividends || []).find(d => d.name === name);
@@ -6247,7 +6277,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateNumberBoard();
     bindEventListeners();
-    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+    gsap.to('.top-header, .bottom-nav, .panel, .panel1', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
     makeElementDraggable(document.getElementById('universalBookFloatBtn'));
 
