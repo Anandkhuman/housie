@@ -1509,9 +1509,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
     }
     .agent-card-name small {
         font-weight: 400;
@@ -2163,6 +2160,23 @@ body.dashboard-view-active #universalBookFloatBtn {
     </div>
 </div>
 
+<!-- editAgentDetailsPopup added for Admin to edit Agent from Agent List -->
+<div class="overlay-popup" id="editAgentDetailsPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Edit Agent Details</h3>
+        <div class="login-form">
+             <input id="editAgentNameInp" type="text" class="agent-inp" placeholder="Agent Name" style="margin-bottom: 0.8rem;">
+             <input id="editAgentPhoneInp" type="tel" class="agent-inp" placeholder="Agent Phone" style="margin-bottom: 0.8rem;">
+             <select id="editAgentRoleSel" class="tableInp" style="background-color: var(--secondary-bg-dash); color: white; margin-bottom: 1.2rem;">
+                 <option value="agent">Agent</option>
+                 <option value="admin">Admin</option>
+             </select>
+             <button id="saveAgentDetailsChangesBtn" class="login-btn agent" onclick="saveAgentDetailsChanges()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
 <div class="overlay-popup" id="winningTicketViewerPopup">
     <div class="popup-content" style="background-color: #e0f7fa; border-color: #0288d1;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -2490,6 +2504,7 @@ let localStream, mediaRecorder;
 let isMicOn = false;
 let audioLibrary = {};
 let currentTrackId = null;
+let agentUidToEdit = null; // tracking which user role/phone/name is being edited
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2623,7 +2638,7 @@ async function signupUser() {
     const pass = document.getElementById('signupPassInp').value;
     if (!name || !email || !phone || !pass) return showNotification('Please fill all fields.', 'error');
     try {
-        const userCredential = await auth.createuserWithEmailAndPassword(email, pass);
+        const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
         await userCredential.user.updateProfile({ displayName: name });
         await db.ref('users/' + userCredential.user.uid).set({
             name, email, phone, role: 'admin', createdAt: firebase.database.ServerValue.TIMESTAMP
@@ -3259,7 +3274,10 @@ async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets
         agents.forEach(agent => {
             const link = document.createElement('a');
             link.href = '#';
-            link.onclick = async (e) => { e.preventDefault(); await redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
+            link.onclick = async (e) => { 
+                e.preventDefault(); 
+                await redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); 
+            };
             link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
         });
@@ -3351,7 +3369,7 @@ async function processBookingLink() {
 
         const ticketsRef = db.ref('tickets');
         const transactionResult = await ticketsRef.transaction(currentTickets => {
-            if (currentTickets === null) return;
+            if (currentTickets === null) return currentTickets; // FIXED: Changed return; to return currentTickets; to prevent aborting on initialization
             for (const id of ticketIdsToBook) {
                 if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
                     return;
@@ -3387,7 +3405,7 @@ async function processBookingLink() {
     };
 
     try {
-        const[successMsg] = await Promise.all([
+        const [successMsg] = await Promise.all([
             bookingLogic(),
             new Promise(resolve => setTimeout(resolve, 1500))
         ]);
@@ -3440,12 +3458,12 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
     if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
         const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
         if (initialTicket) {
-            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); // FIXED: String typecast for safety
         }
     } else {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
-            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) // FIXED: String typecast for safety
         );
     }
     
@@ -3550,7 +3568,7 @@ function updateWinners(winners) {
 
         let eyeIcon = '';
         if (winnerArray.length > 0) {
-            const safeName = name.replace(/'/g, "\\'");
+            const safeName = name.replace(/'/g, "\\'").replace(/"/g, '\\"'); // FIXED: Escaped both quote types safely
             eyeIcon = `<i class="fas fa-eye" onclick="showAllWinningTicketsForDividend('${safeName}')"></i>`;
         }
         
@@ -3941,11 +3959,14 @@ async function saveGameSetting() {
     const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
     const newDateTime = document.getElementById('dateTimeInp').value;
 
+    const priceVal = parseInt(document.getElementById('ticketPriceInp').value, 10);
+    const commVal = parseInt(document.getElementById('agentCommissionInp').value, 10);
+
     const settingsToSave = {
         gameDateTime: newDateTime,
-        totalTickets: newTotalTickets,
-        ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
-        agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
+        totalTickets: isNaN(newTotalTickets) ? 600 : newTotalTickets,
+        ticketPrice: isNaN(priceVal) ? 0 : priceVal, // FIXED: Protected from NaN crashes
+        agentCommission: isNaN(commVal) ? 0 : commVal, // FIXED: Protected from NaN crashes
     };
     
     const processSave = async () => {
@@ -4047,7 +4068,7 @@ async function saveDividendSettings() {
                  activeDividends.push({
                     name: name,
                     amount: amount
-                });
+                 });
             }
         }
     });
@@ -4129,6 +4150,53 @@ async function createAgentByAdmin() {
     }
 }
 
+function showEditAgentPopup(uid, name, phone, role) {
+    agentUidToEdit = uid;
+    document.getElementById('editAgentNameInp').value = name;
+    document.getElementById('editAgentPhoneInp').value = phone;
+    document.getElementById('editAgentRoleSel').value = role;
+    showPopup('editAgentDetailsPopup');
+}
+
+async function saveAgentDetailsChanges() {
+    if (!agentUidToEdit) return;
+    const newName = document.getElementById('editAgentNameInp').value.trim();
+    const newPhone = document.getElementById('editAgentPhoneInp').value.trim();
+    const newRole = document.getElementById('editAgentRoleSel').value;
+
+    if (!newName || !newPhone) {
+        return showNotification('Name and Phone cannot be empty.', 'error');
+    }
+
+    try {
+        const updates = {};
+        updates[`/users/${agentUidToEdit}/name`] = newName;
+        updates[`/users/${agentUidToEdit}/phone`] = newPhone;
+        updates[`/users/${agentUidToEdit}/role`] = newRole;
+
+        await db.ref().update(updates);
+        showNotification('Agent details updated successfully!', 'success');
+        closePopups();
+    } catch (e) {
+        showNotification('Error updating agent details: ' + e.message, 'error');
+    } finally {
+        agentUidToEdit = null;
+    }
+}
+
+function toggleAgentCardActions(uid) {
+    const actionDiv = document.getElementById(`agent-actions-${uid}`);
+    if (actionDiv) {
+        const isHidden = actionDiv.style.display === 'none';
+        document.querySelectorAll('.agent-card-actions-sub').forEach(el => {
+            if(el.id !== `agent-actions-${uid}`) {
+                el.style.display = 'none';
+            }
+        });
+        actionDiv.style.display = isHidden ? 'flex' : 'none';
+    }
+}
+
 async function changeUserRoleByAdmin(uid, newRole) {
     if (!currentUser) return;
     if (uid === currentUser.uid) {
@@ -4147,7 +4215,6 @@ async function changeUserRoleByAdmin(uid, newRole) {
 async function resetCallNum() {
     if(!confirm('Are you sure? This will reset all called numbers, winners, and the game timer.')) return;
     try {
-        // Safe copy of current winner list to archived historical DB before deletion
         const snap = await db.ref('gameState/currentState/winners').once('value');
         if (snap.exists() && snap.val() !== null) {
             await db.ref('lastGame/winners').set(snap.val());
@@ -4166,7 +4233,6 @@ async function resetCallNum() {
 async function resetTicket() {
     if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD.')) return;
     try {
-        // Safe copy of sold tickets list to archived historical DB before deletion
         const snap = await db.ref('tickets').once('value');
         if (snap.exists() && snap.val() !== null) {
             await db.ref('lastGame/tickets').set(snap.val());
@@ -4303,7 +4369,7 @@ function updateAdminList() {
 
     if (adminListState === 'tickets') {
         table.className = 'gameSettingTable1';
-        const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
+        const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm)); // FIXED: String typecast for safety
         table.innerHTML = `<thead><tr><th>Ticket Details</th></tr></thead><tbody>` +
             tickets.sort((a,b) => a.id - b.id).map(t => {
                 if (t.is_sold) {
@@ -4336,28 +4402,24 @@ function updateAdminList() {
     } else {
         table.className = 'gameSettingTable1 agent-list-view';
         const commissionPerTicket = gameSettingsData.agentCommission || 0;
-        const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').toLowerCase().includes(searchTerm));
+        const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || String(u.phone||'').toLowerCase().includes(searchTerm)); // FIXED: String typecast for safety
         
         const tableHTML = users.map(u => {
             const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
             const commission = soldCount * commissionPerTicket;
             const safeName = u.name ? u.name.replace(/'/g, "\\'") : 'N/A';
-            const actionButtonHTML = u.uid !== currentUser.uid 
-                ? `<i class="fas fa-trash-alt" title="Delete Account" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i>` 
-                : '<span>-</span>';
+            const safePhone = u.phone ? u.phone.replace(/'/g, "\\'") : '';
+            const safeRole = u.role ? u.role : 'agent';
+            
+            const deleteBtnHTML = u.uid !== currentUser.uid 
+                ? `<button class="actionBtn" style="background-color: #e74c3c;" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"><i class="fas fa-trash-alt"></i> Delete</button>` 
+                : '';
 
-            const roleSelectHTML = `
-                <select class="tableInp" style="width: auto; padding: 2px 8px; font-size: 0.8rem; height: auto; display: inline-block; vertical-align: middle; margin-left: 8px; background: var(--primary-bg-dash); color: white; border: 1px solid var(--accent-color-dash);" onchange="event.stopPropagation(); changeUserRoleByAdmin('${u.uid}', this.value)">
-                    <option value="agent" ${u.role === 'agent' ? 'selected' : ''}>Agent</option>
-                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-                </select>
-            `;
-
-            return `<tr class="agent-row-card" onclick="showAgentBookings('${u.uid}', '${safeName}')" title="Click to see tickets sold by ${safeName}">
+            return `<tr class="agent-row-card" onclick="toggleAgentCardActions('${u.uid}')" title="Click to show actions for ${safeName}">
                 <td colspan="5">
                     <div class="agent-card-container">
                         <div class="agent-card-info">
-                            <div class="agent-card-name">${u.name || 'N/A'} ${roleSelectHTML}</div>
+                            <div class="agent-card-name">${u.name || 'N/A'} <small style="text-transform:uppercase; font-size:0.75rem; color:var(--accent-color-dash);">(${u.role})</small></div>
                             <div class="agent-card-phone"><i class="fas fa-phone-alt"></i> ${u.phone || 'N/A'}</div>
                         </div>
                         <div class="agent-card-stats">
@@ -4370,9 +4432,11 @@ function updateAdminList() {
                                 <label>Commission</label>
                             </div>
                         </div>
-                        <div class="agent-card-actions">
-                            ${actionButtonHTML}
-                        </div>
+                    </div>
+                    <div class="agent-card-actions-sub" id="agent-actions-${u.uid}" style="display: none; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <button class="actionBtn" style="background-color: #2980b9;" onclick="event.stopPropagation(); showAgentBookings('${u.uid}', '${safeName}')"><i class="fas fa-eye"></i> View Tickets</button>
+                        <button class="actionBtn" style="background-color: #e67e22;" onclick="event.stopPropagation(); showEditAgentPopup('${u.uid}', '${safeName}', '${safePhone}', '${safeRole}')"><i class="fas fa-edit"></i> Edit</button>
+                        ${deleteBtnHTML}
                     </div>
                 </td>
             </tr>`;
@@ -4429,7 +4493,7 @@ async function saveTicketOwnerChanges() {
         return showNotification('Name and Phone cannot be empty.', 'error');
     }
 
-    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone)); // FIXED: String typecast for safety
 
     if (ownedTickets.length > 1) {
         const confirmText = document.getElementById('applyToAllConfirmText');
@@ -4451,7 +4515,7 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         let successMessage = '';
 
         if (applyToAll) {
-            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone)); // FIXED: String typecast for safety
             successMessage = `Details updated for all ${ticketsToUpdate.length} tickets owned by ${originalOwnerInfo.name}.`;
         } else {
             const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
@@ -4489,7 +4553,7 @@ function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
         return;
     }
 
-    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === ownerPhone);
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(ownerPhone)); // FIXED: String typecast for safety
 
     if (ownedTickets.length > 1) {
         ticketToDeleteInfo = { ticketId, ownerName, ownerPhone };
@@ -4514,7 +4578,7 @@ async function performDelete(identifier, deleteAll) {
         let successMessage = '';
 
         if (deleteAll) {
-            ticketsToReset = allTicketsData.filter(t => t.is_sold && t.owner_phone === identifier);
+            ticketsToReset = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(identifier)); // FIXED: String typecast for safety
             successMessage = `Deleted all ${ticketsToReset.length} tickets for the owner.`;
         } else {
             const singleTicket = allTicketsData.find(t => t.id === identifier);
@@ -4748,7 +4812,7 @@ function showAgentSoldTickets() {
     if (!currentUser || currentView !== 'agentDashboardView') return;
     const searchTerm = document.getElementById('agentSearchKeyInp').value.toLowerCase();
     const table = document.getElementById('agentSoldTicketsTable');
-    const myTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid && (!searchTerm || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm)));
+    const myTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid && (!searchTerm || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm))); // FIXED: String typecast for safety
 
     table.innerHTML = `<thead><tr><th>Ticket ID</th><th>Owner Name</th><th>Owner Phone</th></tr></thead><tbody>` +
         myTickets.sort((a,b) => a.id - b.id).map(t => `<tr><td data-label="ID">${t.id}</td><td data-label="Name">${t.owner_name}</td><td data-label="Phone">${t.owner_phone}</td></tr>`).join('') + `</tbody>`;
@@ -4961,1126 +5025,1128 @@ function handlePublicPopupBookingRequest() {
     const phone = document.getElementById('publicBookerPhoneInp').value.trim();
 
     if (!name || !phone) return showNotification('Please enter your name and phone number.', 'error');
-    
-        if (publicPopupSelectedTickets.length === 0) return showNotification('Please select tickets to book.', 'error');
-        openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
-    }
+    if (publicPopupSelectedTickets.length === 0) return showNotification('Please select tickets to book.', 'error');
+    openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
+}
 
-    function prepareAndShowRunGame() {
-        showPopup('runGameWindowDiv');
-    }
+function prepareAndShowRunGame() {
+    showPopup('runGameWindowDiv');
+}
 
-    async function toggleGameRunner() {
-        const gameStateRef = db.ref('gameState/currentState');
-        const isRunning = document.getElementById('callStatusInp').value === 'on';
-        if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+async function toggleGameRunner() {
+    const gameStateRef = db.ref('gameState/currentState');
+    const isRunning = document.getElementById('callStatusInp').value === 'on';
+    if (gameRunnerInterval) clearInterval(gameRunnerInterval);
 
-        try {
-            if (isRunning) {
-                await gameStateRef.child('isGameRunning').set(true);
-                await gameStateRef.transaction(currentData => {
-                    if (currentData) {
-                        if (!currentData.gameStartedAt) {
-                            currentData.gameStartedAt = firebase.database.ServerValue.TIMESTAMP;
-                        }
+    try {
+        if (isRunning) {
+            await gameStateRef.child('isGameRunning').set(true);
+            await gameStateRef.transaction(currentData => {
+                if (currentData) {
+                    if (!currentData.gameStartedAt) {
+                        currentData.gameStartedAt = firebase.database.ServerValue.TIMESTAMP;
                     }
-                    return currentData;
-                });
-                
-                playSound(audioBaseUrl + "gamehasstarted.mp3");
-
-                await triggerGlobalNotification('The game has started! Good luck!', 'success');
-                const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
-                if (isNaN(intervalSeconds) || intervalSeconds < 1) {
-                    showNotification("Set a valid call interval (>= 1 second).", 'error');
-                    document.getElementById('callStatusInp').value = 'off';
-                    await gameStateRef.child('isGameRunning').set(false);
-                    return;
                 }
-                gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
-                callNextNumber(); 
-            } else {
-                await gameStateRef.child('isGameRunning').set(false);
-            }
-            showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
-        } catch (e) {
-            showNotification("Error starting/stopping game: " + e.message, 'error');
-        }
-    }
+                return currentData;
+            });
+            
+            playSound(audioBaseUrl + "gamehasstarted.mp3");
 
-    function callNextNumber() {
-        const gameStateRef = db.ref('gameState/currentState');
-        gameStateRef.transaction(gameState => {
-            if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
-            if (!gameState.isGameRunning) {
-                if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            await triggerGlobalNotification('The game has started! Good luck!', 'success');
+            const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
+            if (isNaN(intervalSeconds) || intervalSeconds < 1) {
+                showNotification("Set a valid call interval (>= 1 second).", 'error');
+                document.getElementById('callStatusInp').value = 'off';
+                await gameStateRef.child('isGameRunning').set(false);
                 return;
             }
+            gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
+            callNextNumber(); 
+        } else {
+            await gameStateRef.child('isGameRunning').set(false);
+        }
+        showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
+    } catch (e) {
+        showNotification("Error starting/stopping game: " + e.message, 'error');
+    }
+}
 
-            const called = gameState.calledNumbers || [];
-            const activeDividends = gameSettingsData.dividends || [];
-            const currentWinners = gameState.winners || {};
-            const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
+function callNextNumber() {
+    const gameStateRef = db.ref('gameState/currentState');
+    gameStateRef.transaction(gameState => {
+        if (!gameState) return { isGameRunning: false, calledNumbers: [], winners: {} };
+        if (!gameState.isGameRunning) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            return;
+        }
 
-            if (areAllDividendsClaimed || called.length >= 90) {
-                if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                gameState.isGameRunning = false;
-                return gameState;
-            }
+        const called = gameState.calledNumbers || [];
+        const activeDividends = gameSettingsData.dividends || [];
+        const currentWinners = gameState.winners || {};
+        const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
 
-            let uncalled = [];
-            for (let i = 1; i <= 90; i++) {
-                if (!called.includes(i)) uncalled.push(i);
-            }
-            
-            if (uncalled.length === 0) {
-                if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                gameState.isGameRunning = false;
-                return gameState;
-            }
-
-            const randomIndex = Math.floor(Math.random() * uncalled.length);
-            const newNumber = uncalled[randomIndex];
-
-            gameState.calledNumbers = [...called, newNumber];
-            gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
-
-            const newWinners = gameState.winners;
-            const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
-            if(nowAllDividendsClaimed){
-                gameState.isGameRunning = false;
-            }
-
+        if (areAllDividendsClaimed || called.length >= 90) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameState.isGameRunning = false;
             return gameState;
-        }, (error, committed, snapshot) => {
-            if (error) {
-                console.error("Game call transaction failed: ", error);
-                showNotification('Game runner failed. Turning off.', 'error');
-                if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                gameStateRef.child('isGameRunning').set(false);
-            } else if (committed && snapshot.exists()) {
-                 const finalState = snapshot.val();
-                if (!finalState.isGameRunning) {
-                    if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                    const activeDividends = gameSettingsData.dividends || [];
-                    const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
+        }
 
-                    if (allClaimed) {
-                        triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
-                    } else if (finalState.calledNumbers?.length >= 90) {
-                        triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
-                    }
+        let uncalled = [];
+        for (let i = 1; i <= 90; i++) {
+            if (!called.includes(i)) uncalled.push(i);
+        }
+        
+        if (uncalled.length === 0) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameState.isGameRunning = false;
+            return gameState;
+        }
+
+        const randomIndex = Math.floor(Math.random() * uncalled.length);
+        const newNumber = uncalled[randomIndex];
+
+        gameState.calledNumbers = [...called, newNumber];
+        gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
+
+        const newWinners = gameState.winners;
+        const nowAllDividendsClaimed = activeDividends.every(div => newWinners[div.name]);
+        if(nowAllDividendsClaimed){
+            gameState.isGameRunning = false;
+        }
+
+        return gameState;
+    }, (error, committed, snapshot) => {
+        if (error) {
+            console.error("Game call transaction failed: ", error);
+            showNotification('Game runner failed. Turning off.', 'error');
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameStateRef.child('isGameRunning').set(false);
+        } else if (committed && snapshot.exists()) {
+            const finalState = snapshot.val();
+            if (!finalState.isGameRunning) {
+                if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+                const activeDividends = gameSettingsData.dividends || [];
+                const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
+
+                if (allClaimed) {
+                    triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
+                } else if (finalState.calledNumbers?.length >= 90) {
+                    triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
                 }
             }
-        });
-    }
+        }
+    });
+}
 
-    function checkAllWinners(calledNumbers, currentWinners) {
-        let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
-        const activeDividends = gameSettingsData.dividends || [];
-        if (activeDividends.length === 0) return updatedWinners;
-        const soldTickets = allTicketsData.filter(t => t.is_sold);
-        if (soldTickets.length === 0) return updatedWinners;
-        const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
-        if (!lastCalledNumber) return updatedWinners;
+function checkAllWinners(calledNumbers, currentWinners) {
+    let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
+    const activeDividends = gameSettingsData.dividends || [];
+    if (activeDividends.length === 0) return updatedWinners;
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    if (soldTickets.length === 0) return updatedWinners;
+    const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
+    if (!lastCalledNumber) return updatedWinners;
 
-        const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
-        const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
-            if (ticket.owner_phone) {
-                if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
-                acc[ticket.owner_phone].push(ticket);
-            }
-            return acc;
-        }, {});
+    const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
+        if (ticket.owner_phone) {
+            if (!acc[ticket.owner_phone]) acc[ticket.owner_phone] = [];
+            acc[ticket.owner_phone].push(ticket);
+        }
+        return acc;
+    }, {});
 
-        for (const dividend of activeDividends) {
-            if (currentWinners[dividend.name]) {
-                continue;
-            }
+    for (const dividend of activeDividends) {
+        if (currentWinners[dividend.name]) {
+            continue;
+        }
 
-            let winnersThisTurn = [];
+        let winnersThisTurn = [];
+        
+        for (const ticket of soldTickets) {
+            if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
             
-            for (const ticket of soldTickets) {
-                if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
-                
-                let isWinner = false;
-                let winningPatternNumbers = [];
-                
-                const checkPattern = (numbers) => {
-                    if (numbers && numbers.length > 0 && numbers.every(n => calledNumbers.includes(n))) {
-                        winningPatternNumbers = numbers;
-                        return true;
+            let isWinner = false;
+            let winningPatternNumbers = [];
+            
+            const checkPattern = (numbers) => {
+                if (numbers && numbers.length > 0 && numbers.every(n => calledNumbers.includes(n))) {
+                    winningPatternNumbers = numbers;
+                    return true;
+                }
+                return false;
+            };
+
+            const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
+            const allTicketNumbers = [...r1, ...r2, ...r3];
+
+            switch (dividend.name) {
+                case "Top Line":
+                    if (checkPattern(r1)) isWinner = true;
+                    break;
+                case "Middle Line":
+                    if (checkPattern(r2)) isWinner = true;
+                    break;
+                case "Bottom Line":
+                    if (checkPattern(r3)) isWinner = true;
+                    break;
+                case "Corners (4)":
+                    const corners = [r1[0], r1[r1.length - 1], r3[0], r3[r3.length - 1]].filter(Boolean);
+                    if (corners.length === 4 && checkPattern(corners)) isWinner = true;
+                    break;
+                case "Star":
+                    const midNumR2 = r2.length === 5 ? r2[2] : null;
+                    if (r1.length === 5 && midNumR2 && r3.length === 5) {
+                        const starNumbers = [r1[0], r1[4], midNumR2, r3[0], r3[4]].filter(Boolean);
+                        if (starNumbers.length === 5 && checkPattern(starNumbers)) isWinner = true;
                     }
-                    return false;
-                };
-
-                const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
-                const allTicketNumbers = [...r1, ...r2, ...r3];
-
-                switch (dividend.name) {
-                    case "Top Line":
-                        if (checkPattern(r1)) isWinner = true;
-                        break;
-                    case "Middle Line":
-                        if (checkPattern(r2)) isWinner = true;
-                        break;
-                    case "Bottom Line":
-                        if (checkPattern(r3)) isWinner = true;
-                        break;
-                    case "Corners (4)":
-                        const corners = [r1[0], r1[r1.length - 1], r3[0], r3[r3.length - 1]].filter(Boolean);
-                        if (corners.length === 4 && checkPattern(corners)) isWinner = true;
-                        break;
-                    case "Star":
-                        const midNumR2 = r2.length === 5 ? r2[2] : null;
-                        if (r1.length === 5 && midNumR2 && r3.length === 5) {
-                            const starNumbers = [r1[0], r1[4], midNumR2, r3[0], r3[4]].filter(Boolean);
-                            if (starNumbers.length === 5 && checkPattern(starNumbers)) isWinner = true;
+                    break;
+                case "First Full House":
+                case "Second Full House":
+                case "Third Full House":
+                    const previouslyWonFH = Object.values(currentWinners).flat().some(w => w.dividendName?.includes("Full House") && w.ticketId === ticket.id);
+                    if (!previouslyWonFH && checkPattern(allTicketNumbers)) {
+                        const claimedFHCount = Object.keys(currentWinners).filter(key => key.includes("Full House")).length;
+                        if ((dividend.name === "First Full House" && claimedFHCount === 0) ||
+                            (dividend.name === "Second Full House" && claimedFHCount === 1) ||
+                            (dividend.name === "Third Full House" && claimedFHCount === 2)) {
+                            isWinner = true;
                         }
-                        break;
-                    case "First Full House":
-                    case "Second Full House":
-                    case "Third Full House":
-                        const previouslyWonFH = Object.values(currentWinners).flat().some(w => w.dividendName?.includes("Full House") && w.ticketId === ticket.id);
-                        if (!previouslyWonFH && checkPattern(allTicketNumbers)) {
-                            const claimedFHCount = Object.keys(currentWinners).filter(key => key.includes("Full House")).length;
-                            if ((dividend.name === "First Full House" && claimedFHCount === 0) ||
-                                (dividend.name === "Second Full House" && claimedFHCount === 1) ||
-                                (dividend.name === "Third Full House" && claimedFHCount === 2)) {
-                                isWinner = true;
-                            }
-                        }
-                        break;
-                    default:
-                        if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
-                            const count = parseInt(dividend.name.match(/\d+/)[0], 10);
+                    }
+                    break;
+                default:
+                    if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
+                        const match = dividend.name.match(/\d+/); // FIXED: Prevent crash if matching fails
+                        if (match) {
+                            const count = parseInt(match[0], 10);
                             if (countMarked(ticket) === count) {
                                 isWinner = true;
                                 winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n));
                             }
                         }
-                        break;
-                }
-
-                if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
-                    winnersThisTurn.push({ 
-                        name: ticket.owner_name, 
-                        phone: ticket.owner_phone, 
-                        ticketId: ticket.id, 
-                        winningNumber: lastCalledNumber, 
-                        won_at: firebase.database.ServerValue.TIMESTAMP, 
-                        dividendName: dividend.name 
-                    });
-                }
+                    }
+                    break;
             }
-            
-            if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
-                for (const ownerPhone in ticketsByOwner) {
-                    const ownerTickets = ticketsByOwner[ownerPhone];
-                    const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
-                        const sheetNum = Math.floor((ticket.id - 1) / 6);
-                        acc[sheetNum] = acc[sheetNum] || [];
-                        acc[sheetNum].push(ticket);
-                        return acc;
-                    }, {});
 
-                    for (const sheetNum in ticketsBySheet) {
-                        const sheetTickets = ticketsBySheet[sheetNum];
-                        if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
-                            if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
-                                const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a, b) => a - b);
-                                winnersThisTurn.push({ 
-                                    name: sheetTickets[0].owner_name, 
-                                    phone: ownerPhone, 
-                                    ticketId: `Full Sheet (${fullSheetTicketIds.join(',')})`, 
-                                    winningNumber: lastCalledNumber, 
-                                    won_at: firebase.database.ServerValue.TIMESTAMP, 
-                                    dividendName: dividend.name 
+            if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
+                winnersThisTurn.push({ 
+                    name: ticket.owner_name, 
+                    phone: ticket.owner_phone, 
+                    ticketId: ticket.id, 
+                    winningNumber: lastCalledNumber, 
+                    won_at: firebase.database.ServerValue.TIMESTAMP, 
+                    dividendName: dividend.name 
+                });
+            }
+        }
+        
+        if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
+            for (const ownerPhone in ticketsByOwner) {
+                const ownerTickets = ticketsByOwner[ownerPhone];
+                const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
+                    const sheetNum = Math.floor((ticket.id - 1) / 6);
+                    acc[sheetNum] = acc[sheetNum] || [];
+                    acc[sheetNum].push(ticket);
+                    return acc;
+                }, {});
+
+                for (const sheetNum in ticketsBySheet) {
+                    const sheetTickets = ticketsBySheet[sheetNum];
+                    if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
+                        if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                            const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a, b) => a - b);
+                            winnersThisTurn.push({ 
+                                name: sheetTickets[0].owner_name, 
+                                phone: ownerPhone, 
+                                ticketId: `Full Sheet (${fullSheetTicketIds.join(',')})`, 
+                                winningNumber: lastCalledNumber, 
+                                won_at: firebase.database.ServerValue.TIMESTAMP, 
+                                dividendName: dividend.name 
+                            });
+                        }
+                    } else if (dividend.name === 'Half Sheet Bonus') {
+                        const sheetTicketIds = new Set(sheetTickets.map(t => t.id));
+                        const sheetStartId = parseInt(sheetNum) * 6 + 1;
+                        const firstHalfIds = [sheetStartId, sheetStartId + 1, sheetStartId + 2];
+                        const secondHalfIds = [sheetStartId + 3, sheetStartId + 4, sheetStartId + 5];
+
+                        const isFirstHalfComplete = firstHalfIds.every(id => sheetTicketIds.has(id));
+                        const isSecondHalfComplete = secondHalfIds.every(id => sheetTicketIds.has(id));
+
+                        if (isFirstHalfComplete) {
+                            const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                                winnersThisTurn.push({
+                                    name: halfSheetTickets[0].owner_name,
+                                    phone: ownerPhone,
+                                    ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
+                                    winningNumber: lastCalledNumber,
+                                    won_at: firebase.database.ServerValue.TIMESTAMP,
+                                    dividendName: dividend.name
                                 });
                             }
-                        } else if (dividend.name === 'Half Sheet Bonus') {
-                            const sheetTicketIds = new Set(sheetTickets.map(t => t.id));
-                            const sheetStartId = parseInt(sheetNum) * 6 + 1;
-                            const firstHalfIds = [sheetStartId, sheetStartId + 1, sheetStartId + 2];
-                            const secondHalfIds = [sheetStartId + 3, sheetStartId + 4, sheetStartId + 5];
-
-                            const isFirstHalfComplete = firstHalfIds.every(id => sheetTicketIds.has(id));
-                            const isSecondHalfComplete = secondHalfIds.every(id => sheetTicketIds.has(id));
-
-                            if (isFirstHalfComplete) {
-                                const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
-                                if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
-                                    winnersThisTurn.push({
-                                        name: halfSheetTickets[0].owner_name,
-                                        phone: ownerPhone,
-                                        ticketId: `Half Sheet (${firstHalfIds.join(',')})`,
-                                        winningNumber: lastCalledNumber,
-                                        won_at: firebase.database.ServerValue.TIMESTAMP,
-                                        dividendName: dividend.name
-                                    });
-                                }
-                            }
-                            if (isSecondHalfComplete) {
-                                const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
-                                if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
-                                    winnersThisTurn.push({
-                                        name: halfSheetTickets[0].owner_name,
-                                        phone: ownerPhone,
-                                        ticketId: `Half Sheet (${secondHalfIds.join(',')})`,
-                                        winningNumber: lastCalledNumber,
-                                        won_at: firebase.database.ServerValue.TIMESTAMP,
-                                        dividendName: dividend.name
-                                    });
-                                }
+                        }
+                        if (isSecondHalfComplete) {
+                            const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                                winnersThisTurn.push({
+                                    name: halfSheetTickets[0].owner_name,
+                                    phone: ownerPhone,
+                                    ticketId: `Half Sheet (${secondHalfIds.join(',')})`,
+                                    winningNumber: lastCalledNumber,
+                                    won_at: firebase.database.ServerValue.TIMESTAMP,
+                                    dividendName: dividend.name
+                                });
                             }
                         }
                     }
                 }
             }
-            
-            if (winnersThisTurn.length > 0) {
-                const uniqueWinners = winnersThisTurn.reduce((acc, current) => {
-                    if (!acc.some(item => item.name === current.name && item.ticketId === current.ticketId)) {
-                        acc.push(current);
-                    }
-                    return acc;
-                }, []);
-
-                if (uniqueWinners.length > 0) {
-                    updatedWinners[dividend.name] = uniqueWinners;
-                }
-            }
         }
         
-        return updatedWinners;
-    }
+        if (winnersThisTurn.length > 0) {
+            const uniqueWinners = winnersThisTurn.reduce((acc, current) => {
+                if (!acc.some(item => item.name === current.name && item.ticketId === current.ticketId)) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
 
-    async function generateHousieTickets(bypassConfirm = false) {
-        const totalTicketsStr = document.getElementById('totalTicketInp').value;
-        if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
-        const totalTickets = parseInt(totalTicketsStr, 10);
-        if (isNaN(totalTickets) || totalTickets <= 0) return showNotification("Please enter a valid number of tickets.", 'error');
+            if (uniqueWinners.length > 0) {
+                updatedWinners[dividend.name] = uniqueWinners;
+            }
+        }
+    }
+    
+    return updatedWinners;
+}
+
+async function generateHousieTickets(bypassConfirm = false) {
+    const totalTicketsStr = document.getElementById('totalTicketInp').value;
+    if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
+    const totalTickets = parseInt(totalTicketsStr, 10);
+    if (isNaN(totalTickets) || totalTickets <= 0) return showNotification("Please enter a valid number of tickets.", 'error');
+    
+    if (!bypassConfirm && !confirm(`This will DELETE ALL existing tickets and generate ${totalTickets} new ones. Are you sure?`)) return;
+
+    showNotification(`Generating ${totalTickets} new tickets... This may take a moment.`, 'info');
+
+    try {
+        const snap = await db.ref('tickets').once('value');
+        if (snap.exists() && snap.val() !== null) {
+            await db.ref('lastGame/tickets').set(snap.val());
+        }
         
-        if (!bypassConfirm && !confirm(`This will DELETE ALL existing tickets and generate ${totalTickets} new ones. Are you sure?`)) return;
-
-        showNotification(`Generating ${totalTickets} new tickets... This may take a moment.`, 'info');
-
-        try {
-            const snap = await db.ref('tickets').once('value');
-            if (snap.exists() && snap.val() !== null) {
-                await db.ref('lastGame/tickets').set(snap.val());
-            }
-            
-            const winnersSnap = await db.ref('gameState/currentState/winners').once('value');
-            if (winnersSnap.exists() && winnersSnap.val() !== null) {
-                await db.ref('lastGame/winners').set(winnersSnap.val());
-            }
-
-            await db.ref('/tickets').set(null); 
-            setTimeout(async () => {
-                const newTicketsObject = {};
-                const numSets = Math.ceil(totalTickets / 6);
-
-                for (let i = 0; i < numSets; i++) {
-                    const currentSet = createTambolaSetOf6();
-                    for (let j = 0; j < 6; j++) {
-                        const ticketId = i * 6 + j + 1;
-                        if (ticketId > totalTickets) break;
-                        
-                        newTicketsObject[ticketId] = {
-                            id: ticketId,
-                            numbers: currentSet[j],
-                            is_sold: false,
-                            owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
-                        };
-                    }
-                }
-                await db.ref('/tickets').set(newTicketsObject);
-                const successMsg = `${totalTickets} new tickets generated successfully!`;
-                showNotification(successMsg, 'success');
-            }, 50);
-        } catch (e) {
-            showNotification("Error generating tickets: " + e.message, 'error');
+        const winnersSnap = await db.ref('gameState/currentState/winners').once('value');
+        if (winnersSnap.exists() && winnersSnap.val() !== null) {
+            await db.ref('lastGame/winners').set(winnersSnap.val());
         }
+
+        await db.ref('/tickets').set(null); 
+        setTimeout(async () => {
+            const newTicketsObject = {};
+            const numSets = Math.ceil(totalTickets / 6);
+
+            for (let i = 0; i < numSets; i++) {
+                const currentSet = createTambolaSetOf6();
+                for (let j = 0; j < 6; j++) {
+                    const ticketId = i * 6 + j + 1;
+                    if (ticketId > totalTickets) break;
+                    
+                    newTicketsObject[ticketId] = {
+                        id: ticketId,
+                        numbers: currentSet[j],
+                        is_sold: false,
+                        owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
+                    };
+                }
+            }
+            await db.ref('/tickets').set(newTicketsObject);
+            const successMsg = `${totalTickets} new tickets generated successfully!`;
+            showNotification(successMsg, 'success');
+        }, 50);
+    } catch (e) {
+        showNotification("Error generating tickets: " + e.message, 'error');
     }
+}
 
-    const shuffleArray = (arr) => {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    };
+const shuffleArray = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+};
 
-    function createTambolaSetOf6() {
-        const columnCellCountsPerTicket = [
-            [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2], [1, 1, 2, 2, 2, 1, 2, 3, 1],
-            [2, 2, 1, 2, 1, 2, 1, 1, 3], [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
-        ];
+function createTambolaSetOf6() {
+    const columnCellCountsPerTicket = [
+        [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2], [1, 1, 2, 2, 2, 1, 2, 3, 1],
+        [2, 2, 1, 2, 1, 2, 1, 1, 3], [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
+    ];
 
-        const ticketLayouts = [];
-        for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
-            const layout = Array(3).fill(0).map(() => Array(9).fill(0));
-            const ticketColumnCount = columnCellCountsPerTicket[ticketIndex];
-            for (let colIndex = 0; colIndex < 9; colIndex++) {
-                const numCellsInCol = ticketColumnCount[colIndex];
-                const rowsToPlaceIn = shuffleArray([0, 1, 2]).slice(0, numCellsInCol);
-                for (const rowIndex of rowsToPlaceIn) {
-                    layout[rowIndex][colIndex] = 1;
-                }
-            }
-            let isBalanced = false;
-            while (!isBalanced) {
-                const rowCounts = layout.map(row => row.reduce((sum, cell) => sum + cell, 0));
-                if (rowCounts.every(count => count === 5)) {
-                    isBalanced = true;
-                    continue;
-                }
-                const overfullRowIndex = rowCounts.findIndex(count => count > 5);
-                const underfullRowIndex = rowCounts.findIndex(count => count < 5);
-                const swappableCols = [];
-                for (let colIndex = 0; colIndex < 9; colIndex++) {
-                    if (layout[overfullRowIndex][colIndex] === 1 && layout[underfullRowIndex][colIndex] === 0) {
-                        swappableCols.push(colIndex);
-                    }
-                }
-                if (swappableCols.length > 0) {
-                    const colToSwap = swappableCols[Math.floor(Math.random() * swappableCols.length)];
-                    layout[overfullRowIndex][colToSwap] = 0;
-                    layout[underfullRowIndex][colToSwap] = 1;
-                }
-            }
-            ticketLayouts.push(layout);
-        }
-
-        const numberPools = [
-            shuffleArray(Array.from({ length: 9 }, (_, i) => i + 1)),
-            shuffleArray(Array.from({ length: 10 }, (_, i) => i + 10)),
-            shuffleArray(Array.from({ length: 10 }, (_, i) => i + 20)),
-            shuffleArray(Array.from({ length: 10 }, (_, i) => i + 30)),
-            shuffleArray(Array.from({ length: 10 }, (_, i) => i + 40)),
-            shuffleArray(Array.from({ length: 10 }, (_, i) => i + 50)),
-            shuffleArray(Array.from({ length: 10 }, (_, i) => i + 60)),
-            shuffleArray(Array.from({ length: 10 }, (_, i) => i + 70)),
-            shuffleArray(Array.from({ length: 11 }, (_, i) => i + 80))
-        ];
-
-        const finalTickets = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
+    const ticketLayouts = [];
+    for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+        const layout = Array(3).fill(0).map(() => Array(9).fill(0));
+        const ticketColumnCount = columnCellCountsPerTicket[ticketIndex];
         for (let colIndex = 0; colIndex < 9; colIndex++) {
-            for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
-                for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
-                    if (ticketLayouts[ticketIndex][rowIndex][colIndex] === 1) {
-                        finalTickets[ticketIndex][rowIndex][colIndex] = numberPools[colIndex].pop();
-                    }
-                }
+            const numCellsInCol = ticketColumnCount[colIndex];
+            const rowsToPlaceIn = shuffleArray([0, 1, 2]).slice(0, numCellsInCol);
+            for (const rowIndex of rowsToPlaceIn) {
+                layout[rowIndex][colIndex] = 1;
             }
         }
-
-        for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+        let isBalanced = false;
+        while (!isBalanced) {
+            const rowCounts = layout.map(row => row.reduce((sum, cell) => sum + cell, 0));
+            if (rowCounts.every(count => count === 5)) {
+                isBalanced = true;
+                continue;
+            }
+            const overfullRowIndex = rowCounts.findIndex(count => count > 5);
+            const underfullRowIndex = rowCounts.findIndex(count => count < 5);
+            const swappableCols = [];
             for (let colIndex = 0; colIndex < 9; colIndex++) {
-                const columnValues = [];
-                for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
-                    if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
-                        columnValues.push(finalTickets[ticketIndex][rowIndex][colIndex]);
-                    }
+                if (layout[overfullRowIndex][colIndex] === 1 && layout[underfullRowIndex][colIndex] === 0) {
+                    swappableCols.push(colIndex);
                 }
-                columnValues.sort((a, b) => a - b);
-                
-                let valueIndex = 0;
-                for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
-                    if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
-                        finalTickets[ticketIndex][rowIndex][colIndex] = columnValues[valueIndex++];
-                    }
+            }
+            if (swappableCols.length > 0) {
+                const colToSwap = swappableCols[Math.floor(Math.random() * swappableCols.length)];
+                layout[overfullRowIndex][colToSwap] = 0;
+                layout[underfullRowIndex][colToSwap] = 1;
+            }
+        }
+        ticketLayouts.push(layout);
+    }
+
+    const numberPools = [
+        shuffleArray(Array.from({ length: 9 }, (_, i) => i + 1)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 10)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 20)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 30)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 40)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 50)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 60)),
+        shuffleArray(Array.from({ length: 10 }, (_, i) => i + 70)),
+        shuffleArray(Array.from({ length: 11 }, (_, i) => i + 80))
+    ];
+
+    const finalTickets = Array(6).fill(0).map(() => Array(3).fill(0).map(() => Array(9).fill(0)));
+    for (let colIndex = 0; colIndex < 9; colIndex++) {
+        for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (ticketLayouts[ticketIndex][rowIndex][colIndex] === 1) {
+                    finalTickets[ticketIndex][rowIndex][colIndex] = numberPools[colIndex].pop();
                 }
             }
         }
-        return finalTickets;
     }
 
-    function createListPDF(title, headers, dataRows, filename) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        doc.setFontSize(18);
-        doc.text(title, 105, 15, { align: 'center' });
-        doc.setFontSize(10);
-        doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
-
-        const startY = 35;
-        const colPositions = [15, 40, 120]; 
-
-        doc.setFont(undefined, 'bold');
-        headers.forEach((header, i) => {
-            doc.text(String(header), colPositions[i], startY);
-        });
-
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        let y = startY + 7;
-
-        dataRows.forEach(row => {
-            if (y > 280) { 
-                doc.addPage();
-                y = 15;
+    for (let ticketIndex = 0; ticketIndex < 6; ticketIndex++) {
+        for (let colIndex = 0; colIndex < 9; colIndex++) {
+            const columnValues = [];
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
+                    columnValues.push(finalTickets[ticketIndex][rowIndex][colIndex]);
+                }
             }
-            row.forEach((cell, i) => {
-                doc.text(String(cell || ''), colPositions[i], y);
-            });
-            y += 7;
-        });
-
-        doc.save(filename);
-    }
-
-    async function downloadPreviousGameTicketList() {
-        try {
-            const snapshot = await db.ref('lastGame/tickets').once('value');
-            const prevTicketsObject = snapshot.val();
+            columnValues.sort((a, b) => a - b);
             
-            if (!prevTicketsObject || Object.keys(prevTicketsObject).length === 0) {
-                return showNotification('No archived ticket data found.', 'info');
+            let valueIndex = 0;
+            for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+                if (finalTickets[ticketIndex][rowIndex][colIndex] !== 0) {
+                    finalTickets[ticketIndex][rowIndex][colIndex] = columnValues[valueIndex++];
+                }
             }
-
-            const prevTickets = Object.values(prevTicketsObject);
-            const usersSnapshot = await db.ref('users').once('value');
-            const users = usersSnapshot.val();
-            const userMap = new Map(Object.entries(users || {}).map(([uid, data]) => [uid, data]));
-
-            const prevSoldTickets = prevTickets.filter(t => t.is_sold);
-            if (prevSoldTickets.length === 0) {
-                return showNotification('No sold tickets found in archived data.', 'info');
-            }
-
-            const dataRows = prevSoldTickets.map(ticket => {
-                const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
-                const agentName = agent ? agent.name : 'Direct/Admin';
-                return [ticket.id, ticket.owner_name, agentName];
-            });
-
-            createListPDF(
-                'Previous Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'],
-                dataRows,
-                'Previous-Game-Tickets.pdf'
-            );
-        } catch (e) {
-            showNotification('Error downloading previous ticket list: ' + e.message, 'error');
         }
     }
+    return finalTickets;
+}
 
-    function downloadCurrentSoldTickets() {
-        const soldTickets = allTicketsData.filter(t => t.is_sold);
-        if (soldTickets.length === 0) {
-            return showNotification('No tickets have been sold in the current game yet.', 'info');
+function createListPDF(title, headers, dataRows, filename) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text(title, 105, 15, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
+
+    const startY = 35;
+    const colPositions = [15, 40, 120]; 
+
+    doc.setFont(undefined, 'bold');
+    headers.forEach((header, i) => {
+        doc.text(String(header), colPositions[i], startY);
+    });
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    let y = startY + 7;
+
+    dataRows.forEach(row => {
+        if (y > 280) { 
+            doc.addPage();
+            y = 15;
+        }
+        row.forEach((cell, i) => {
+            doc.text(String(cell || ''), colPositions[i], y);
+        });
+        y += 7;
+    });
+
+    doc.save(filename);
+}
+
+async function downloadPreviousGameTicketList() {
+    try {
+        const snapshot = await db.ref('lastGame/tickets').once('value');
+        const prevTicketsObject = snapshot.val();
+        
+        if (!prevTicketsObject || Object.keys(prevTicketsObject).length === 0) {
+            return showNotification('No archived ticket data found.', 'info');
         }
 
-        const userMap = new Map(allUsersData.map(u => [u.uid, u]));
+        const prevTickets = Object.values(prevTicketsObject);
+        const usersSnapshot = await db.ref('users').once('value');
+        const users = usersSnapshot.val();
+        const userMap = new Map(Object.entries(users || {}).map(([uid, data]) => [uid, data]));
 
-        const dataRows = soldTickets.map(ticket => {
+        const prevSoldTickets = prevTickets.filter(t => t.is_sold);
+        if (prevSoldTickets.length === 0) {
+            return showNotification('No sold tickets found in archived data.', 'info');
+        }
+
+        const dataRows = prevSoldTickets.map(ticket => {
             const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
             const agentName = agent ? agent.name : 'Direct/Admin';
             return [ticket.id, ticket.owner_name, agentName];
         });
 
         createListPDF(
-            'Current Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'],
+            'Previous Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'],
             dataRows,
-            'Current-Sold-Tickets.pdf'
+            'Previous-Game-Tickets.pdf'
         );
+    } catch (e) {
+        showNotification('Error downloading previous ticket list: ' + e.message, 'error');
+    }
+}
+
+function downloadCurrentSoldTickets() {
+    const soldTickets = allTicketsData.filter(t => t.is_sold);
+    if (soldTickets.length === 0) {
+        return showNotification('No tickets have been sold in the current game yet.', 'info');
     }
 
-    async function downloadTicketAsPDF(ticketId) {
-        const { jsPDF } = window.jspdf;
-        const ticketData = allTicketsData.find(t => t.id === ticketId);
-        if (!ticketData) return showNotification('Ticket data not found.', 'error');
+    const userMap = new Map(allUsersData.map(u => [u.uid, u]));
 
-        const doc = new jsPDF();
-        const cellWidth = 20;
-        const cellHeight = 15;
-        const startX = 15;
-        const startY = 20;
+    const dataRows = soldTickets.map(ticket => {
+        const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
+        const agentName = agent ? agent.name : 'Direct/Admin';
+        return [ticket.id, ticket.owner_name, agentName];
+    });
 
-        doc.setFontSize(16);
-        doc.text(`Housie Ticket ${ticketData.id}`, startX, startY);
-        if(ticketData.is_sold){
-             doc.setFontSize(10);
-             doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
+    createListPDF(
+        'Current Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'],
+        dataRows,
+        'Current-Sold-Tickets.pdf'
+    );
+}
+
+async function downloadTicketAsPDF(ticketId) {
+    const { jsPDF } = window.jspdf;
+    const ticketData = allTicketsData.find(t => t.id === ticketId);
+    if (!ticketData) return showNotification('Ticket data not found.', 'error');
+
+    const doc = new jsPDF();
+    const cellWidth = 20;
+    const cellHeight = 15;
+    const startX = 15;
+    const startY = 20;
+
+    doc.setFontSize(16);
+    doc.text(`Housie Ticket ${ticketData.id}`, startX, startY);
+    if(ticketData.is_sold){
+         doc.setFontSize(10);
+         doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
+    }
+
+    doc.setFontSize(14);
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 9; col++) {
+            const x = startX + col * cellWidth;
+            const y = startY + 15 + row * cellHeight;
+            doc.rect(x, y, cellWidth, cellHeight);
+            const num = ticketData.numbers[row][col];
+            if (num > 0) {
+                doc.text(String(num), x + cellWidth / 2, y + cellHeight / 2, { align: 'center', baseline: 'middle' });
+            }
+        }
+    }
+
+    doc.save(`Housie-Ticket-${ticketData.id}.pdf`);
+    showNotification(`Downloading PDF for ticket ${ticketData.id}.`, 'success');
+}
+
+async function downloadWinnersPDF() {
+    if (Object.keys(knownWinners).length === 0) {
+        return showNotification("No winners to download yet.", "info");
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Game Winners List', 105, 15, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
+
+    let y = 35;
+
+    for (const dividendName in knownWinners) {
+        if (y > 270) {
+            doc.addPage();
+            y = 15;
         }
 
         doc.setFontSize(14);
-        for (let row = 0; row < 3; row++) {
-            for (let col = 0; col < 9; col++) {
-                const x = startX + col * cellWidth;
-                const y = startY + 15 + row * cellHeight;
-                doc.rect(x, y, cellWidth, cellHeight);
-                const num = ticketData.numbers[row][col];
-                if (num > 0) {
-                    doc.text(String(num), x + cellWidth / 2, y + cellHeight / 2, { align: 'center', baseline: 'middle' });
-                }
-            }
-        }
+        doc.setFont(undefined, 'bold');
+        doc.text(dividendName, 15, y);
+        y += 7;
 
-        doc.save(`Housie-Ticket-${ticketData.id}.pdf`);
-        showNotification(`Downloading PDF for ticket ${ticketData.id}.`, 'success');
-    }
-
-    async function downloadWinnersPDF() {
-        if (Object.keys(knownWinners).length === 0) {
-            return showNotification("No winners to download yet.", "info");
-        }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        doc.setFontSize(18);
-        doc.text('Game Winners List', 105, 15, { align: 'center' });
         doc.setFontSize(10);
-        doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
+        doc.setFont(undefined, 'normal');
 
-        let y = 35;
-
-        for (const dividendName in knownWinners) {
-            if (y > 270) {
+        const winnerArray = knownWinners[dividendName];
+        winnerArray.forEach(winner => {
+            if (y > 280) {
                 doc.addPage();
                 y = 15;
             }
-
-            doc.setFontSize(14);
-            doc.setFont(undefined, 'bold');
-            doc.text(dividendName, 15, y);
+            const winnerText = ` - ${winner.name} (Ticket: ${winner.ticketId})`;
+            doc.text(winnerText, 20, y);
             y += 7;
-
-            doc.setFontSize(10);
-            doc.setFont(undefined, 'normal');
-
-            const winnerArray = knownWinners[dividendName];
-            winnerArray.forEach(winner => {
-                if (y > 280) {
-                    doc.addPage();
-                    y = 15;
-                }
-                const winnerText = ` - ${winner.name} (Ticket: ${winner.ticketId})`;
-                doc.text(winnerText, 20, y);
-                y += 7;
-            });
-            y += 5;
-        }
-
-        doc.save('Game-Winners.pdf');
-        showNotification('Winners PDF download started.', 'success');
-    }
-
-    function updateRunGameUI(gameState) {
-        if(document.getElementById('runGameWindowDiv').classList.contains('active')){
-            const isRunning = gameState.isGameRunning || false;
-            document.getElementById('callStatusInp').value = isRunning ? 'on' : 'off';
-        }
-    }
-
-    function searchTicketAdmin() {
-        const searchTerm = document.getElementById('adminTicketSearchInp').value.trim();
-        if (!searchTerm) return;
-        
-        let ticketsToDisplay = [];
-        const searchNumber = parseInt(searchTerm, 10);
-
-        if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
-            const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
-            if (initialTicket) {
-                ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
-            }
-        } else {
-            const lowerCaseSearchTerm = searchTerm.toLowerCase();
-            ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
-                ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
-            );
-        }
-        
-        if (ticketsToDisplay.length > 0) {
-            const ownerPhone = ticketsToDisplay[0].owner_phone;
-            const ownerName = ticketsToDisplay[0].owner_name;
-
-            if (adminDisplayedSearchPhones.has(ownerPhone)) {
-                showNotification(`${ownerName}'s tickets are already displayed.`, 'info');
-                return;
-            }
-            adminDisplayedSearchPhones.add(ownerPhone);
-
-            const groupWrapper = document.createElement('div');
-            groupWrapper.className = 'sheet-view';
-            groupWrapper.dataset.phone = ownerPhone;
-            
-            let ticketsHTML = '';
-            ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-                let gridHTML;
-                if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
-                     gridHTML = ticket.numbers.flat().map(n =>
-                        `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
-                    ).join('');
-                } else {
-                    gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
-                }
-                
-                ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                            <div class="ticket-header">Ticket ${ticket.id}</div>
-                            <div class="ticket-grid">${gridHTML}</div>
-                        </div>`;
-            });
-            
-            groupWrapper.innerHTML = `
-                <div class="sheet-header" style="position: relative; padding-right: 30px;">
-                    <span>${ownerName} - ${ownerPhone}</span>
-                    <button class="clear-search-btn" style="background: #e74c3c;" onclick="clearAdminSearchResult('${ownerPhone}')" title="Clear this result">&times;</button>
-                </div>
-                <div class="sheet-content">${ticketsHTML}</div>`;
-                
-            document.getElementById('adminTicketDisplayArea').prepend(groupWrapper);
-            updateAdminDisplayedTickets();
-        } else {
-            showNotification('No tickets found for that search term.', 'error');
-        }
-    }
-
-    function clearAdminSearchResult(phone) {
-        const group = document.querySelector(`#adminTicketDisplayArea .sheet-view[data-phone="${phone}"]`);
-        if (group) group.remove();
-        adminDisplayedSearchPhones.delete(phone);
-    }
-
-    function updateAdminDisplayedTickets() {
-        document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
-            ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
-                const num = parseInt(cell.dataset.num, 10);
-                if (num > 0) {
-                    const isCalled = currentCalledNumbers.includes(num);
-                    cell.classList.toggle('ticked', isCalled);
-                    cell.classList.remove('last-called-highlight');
-                    if (num === lastAnnouncedNumber) {
-                        cell.classList.add('last-called-highlight');
-                    }
-                }
-            });
         });
+        y += 5;
     }
 
-    async function sendLiveText() {
-        const input = document.getElementById('liveTextAnnounceInp');
-        const text = input.value.trim();
-        if (!text) return showNotification('Please enter a message to announce.', 'error');
+    doc.save('Game-Winners.pdf');
+    showNotification('Winners PDF download started.', 'success');
+}
+
+function updateRunGameUI(gameState) {
+    if(document.getElementById('runGameWindowDiv').classList.contains('active')){
+        const isRunning = gameState.isGameRunning || false;
+        document.getElementById('callStatusInp').value = isRunning ? 'on' : 'off';
+    }
+}
+
+function searchTicketAdmin() {
+    const searchTerm = document.getElementById('adminTicketSearchInp').value.trim();
+    if (!searchTerm) return;
+    
+    let ticketsToDisplay = [];
+    const searchNumber = parseInt(searchTerm, 10);
+
+    if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
+        const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
+        if (initialTicket) {
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); // FIXED: String typecast for safety
+        }
+    } else {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) // FIXED: String typecast for safety
+        );
+    }
+    
+    if (ticketsToDisplay.length > 0) {
+        const ownerPhone = ticketsToDisplay[0].owner_phone;
+        const ownerName = ticketsToDisplay[0].owner_name;
+
+        if (adminDisplayedSearchPhones.has(ownerPhone)) {
+            showNotification(`${ownerName}'s tickets are already displayed.`, 'info');
+            return;
+        }
+        adminDisplayedSearchPhones.add(ownerPhone);
+
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'sheet-view';
+        groupWrapper.dataset.phone = ownerPhone;
         
+        let ticketsHTML = '';
+        ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
+            let gridHTML;
+            if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
+                 gridHTML = ticket.numbers.flat().map(n =>
+                    `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
+                ).join('');
+            } else {
+                gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
+            }
+            
+            ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
+                        <div class="ticket-header">Ticket ${ticket.id}</div>
+                        <div class="ticket-grid">${gridHTML}</div>
+                    </div>`;
+        });
+        
+        groupWrapper.innerHTML = `
+            <div class="sheet-header" style="position: relative; padding-right: 30px;">
+                <span>${ownerName} - ${ownerPhone}</span>
+                <button class="clear-search-btn" style="background: #e74c3c;" onclick="clearAdminSearchResult('${ownerPhone}')" title="Clear this result">&times;</button>
+            </div>
+            <div class="sheet-content">${ticketsHTML}</div>`;
+            
+        document.getElementById('adminTicketDisplayArea').prepend(groupWrapper);
+        updateAdminDisplayedTickets();
+    } else {
+        showNotification('No tickets found for that search term.', 'error');
+    }
+}
+
+function clearAdminSearchResult(phone) {
+    const group = document.querySelector(`#adminTicketDisplayArea .sheet-view[data-phone="${phone}"]`);
+    if (group) group.remove();
+    adminDisplayedSearchPhones.delete(phone);
+}
+
+function updateAdminDisplayedTickets() {
+    document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
+        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
+            const num = parseInt(cell.dataset.num, 10);
+            if (num > 0) {
+                const isCalled = currentCalledNumbers.includes(num);
+                cell.classList.toggle('ticked', isCalled);
+                cell.classList.remove('last-called-highlight');
+                if (num === lastAnnouncedNumber) {
+                    cell.classList.add('last-called-highlight');
+                }
+            }
+        });
+    });
+}
+
+async function sendLiveText() {
+    const input = document.getElementById('liveTextAnnounceInp');
+    const text = input.value.trim();
+    if (!text) return showNotification('Please enter a message to announce.', 'error');
+    
+    try {
+        await db.ref('announcements/liveText').set({
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        input.value = '';
+    } catch(e) {
+        showNotification('Error sending announcement: ' + e.message, 'error');
+    }
+}
+
+async function sendLiveImage() {
+    const input = document.getElementById('liveImageAnnounceInp');
+    const file = input.files[0];
+    if (!file) return showNotification('Please select an image file.', 'error');
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
         try {
-            await db.ref('announcements/liveText').set({
-                text: text,
+            await db.ref('announcements/liveImage').set({
+                image: base64String,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
+            showNotification('Image announcement sent!', 'success');
             input.value = '';
-        } catch(e) {
-            showNotification('Error sending announcement: ' + e.message, 'error');
+        } catch (e) {
+            showNotification('Error sending image: ' + e.message, 'error');
         }
+    };
+    reader.onerror = () => showNotification('Error reading image file.', 'error');
+    reader.readAsDataURL(file);
+}
+
+async function sendLiveVideo() {
+    const input = document.getElementById('liveVideoAnnounceInp');
+    const file = input.files[0];
+    if (!file) return showNotification('Please select a video file.', 'error');
+    if (file.size > 20 * 1024 * 1024) {
+        return showNotification('Video file is too large. Please keep it under 20MB.', 'error');
     }
 
-    async function sendLiveImage() {
-        const input = document.getElementById('liveImageAnnounceInp');
-        const file = input.files[0];
-        if (!file) return showNotification('Please select an image file.', 'error');
-
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const base64String = event.target.result;
-            try {
-                await db.ref('announcements/liveImage').set({
-                    image: base64String,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                showNotification('Image announcement sent!', 'success');
-                input.value = '';
-            } catch (e) {
-                showNotification('Error sending image: ' + e.message, 'error');
-            }
-        };
-        reader.onerror = () => showNotification('Error reading image file.', 'error');
-        reader.readAsDataURL(file);
-    }
-
-    async function sendLiveVideo() {
-        const input = document.getElementById('liveVideoAnnounceInp');
-        const file = input.files[0];
-        if (!file) return showNotification('Please select a video file.', 'error');
-        if (file.size > 20 * 1024 * 1024) {
-            return showNotification('Video file is too large. Please keep it under 20MB.', 'error');
-        }
-
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const base64String = event.target.result;
-            try {
-                await db.ref('announcements/liveVideo').set({
-                    video: base64String,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                showNotification('Video announcement sent!', 'success');
-                input.value = '';
-            } catch (e) {
-                showNotification('Error sending video. It might be too large for the database. ' + e.message, 'error');
-            }
-        };
-        reader.onerror = () => showNotification('Error reading video file.', 'error');
-        reader.readAsDataURL(file);
-    }
-
-    function closeVideoPopup() {
-        const videoEl = document.getElementById('liveVideoDisplay');
-        videoEl.pause();
-        videoEl.src = "";
-        closePopups();
-    }
-
-    async function handleMusicUpload() {
-        const fileInput = document.getElementById('bgMusicUpload');
-        const file = fileInput.files[0];
-        if (!file) return showNotification('Please select an MP3 file first.', 'error');
-        if (file.type !== "audio/mpeg") return showNotification('Only MP3 files are allowed.', 'error');
-
-        showNotification(`Uploading '${file.name}'...`, 'info', 10000);
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const base64String = event.target.result;
-            try {
-                const newTrackRef = db.ref('settings/audio/musicLibrary').push();
-                await newTrackRef.set({
-                    id: newTrackRef.key,
-                    type: 'mp3',
-                    name: file.name,
-                    url: base64String
-                });
-                showNotification(`'${file.name}' uploaded successfully.`, 'success');
-                fileInput.value = '';
-            } catch (e) {
-                showNotification('Error uploading music: ' + e.message, 'error');
-            }
-        };
-        reader.onerror = () => showNotification('Error reading file.', 'error');
-        reader.readAsDataURL(file);
-    }
-
-    async function handleStreamingUrl() {
-        const urlInput = document.getElementById('streamingUrlInp');
-        const url = urlInput.value.trim();
-        if (!url) return showNotification('Please enter a streaming URL.', 'error');
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
         try {
-            new URL(url);
-        } catch (_) {
-            return showNotification('Invalid URL format.', 'error');
+            await db.ref('announcements/liveVideo').set({
+                video: base64String,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            showNotification('Video announcement sent!', 'success');
+            input.value = '';
+        } catch (e) {
+            showNotification('Error sending video. It might be too large for the database. ' + e.message, 'error');
         }
-        
+    };
+    reader.onerror = () => showNotification('Error reading video file.', 'error');
+    reader.readAsDataURL(file);
+}
+
+function closeVideoPopup() {
+    const videoEl = document.getElementById('liveVideoDisplay');
+    videoEl.pause();
+    videoEl.src = "";
+    closePopups();
+}
+
+async function handleMusicUpload() {
+    const fileInput = document.getElementById('bgMusicUpload');
+    const file = fileInput.files[0];
+    if (!file) return showNotification('Please select an MP3 file first.', 'error');
+    if (file.type !== "audio/mpeg") return showNotification('Only MP3 files are allowed.', 'error');
+
+    showNotification(`Uploading '${file.name}'...`, 'info', 10000);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
         try {
             const newTrackRef = db.ref('settings/audio/musicLibrary').push();
             await newTrackRef.set({
                 id: newTrackRef.key,
-                type: 'stream',
-                name: url.substring(url.lastIndexOf('/') + 1) || 'Streaming Link',
-                url: url
+                type: 'mp3',
+                name: file.name,
+                url: base64String
             });
-            showNotification('Streaming URL added to playlist.', 'success');
-            urlInput.value = '';
-        } catch(e) {
-            showNotification('Error adding URL: ' + e.message, 'error');
-        }
-    }
-
-    async function playTrack(trackId) {
-        if (!trackId || !audioLibrary[trackId]) return;
-        try {
-            const updates = {
-                currentTrackId: trackId,
-                playbackStartTime: firebase.database.ServerValue.TIMESTAMP
-            };
-            await db.ref('settings/audio').update(updates);
-            showNotification(`Now playing: ${audioLibrary[trackId].name}`, 'info');
-        } catch(e) {
-            showNotification('Error setting track: ' + e.message, 'error');
-        }
-    }
-
-    async function deleteTrack(trackId) {
-        if (!trackId || !audioLibrary[trackId]) return;
-        if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
-        try {
-            const updates = { [`musicLibrary/${trackId}`]: null };
-            if (currentTrackId === trackId) {
-                updates.currentTrackId = null;
-                updates.musicState = 'off';
-                updates.playbackStartTime = null;
-            }
-            await db.ref('settings/audio').update(updates);
-            showNotification('Track deleted.', 'success');
+            showNotification(`'${file.name}' uploaded successfully.`, 'success');
+            fileInput.value = '';
         } catch (e) {
-            showNotification('Error deleting track: ' + e.message, 'error');
+            showNotification('Error uploading music: ' + e.message, 'error');
         }
+    };
+    reader.onerror = () => showNotification('Error reading file.', 'error');
+    reader.readAsDataURL(file);
+}
+
+async function handleStreamingUrl() {
+    const urlInput = document.getElementById('streamingUrlInp');
+    const url = urlInput.value.trim();
+    if (!url) return showNotification('Please enter a streaming URL.', 'error');
+    try {
+        new URL(url);
+    } catch (_) {
+        return showNotification('Invalid URL format.', 'error');
     }
+    
+    try {
+        const newTrackRef = db.ref('settings/audio/musicLibrary').push();
+        await newTrackRef.set({
+            id: newTrackRef.key,
+            type: 'stream',
+            name: url.substring(url.lastIndexOf('/') + 1) || 'Streaming Link',
+            url: url
+        });
+        showNotification('Streaming URL added to playlist.', 'success');
+        urlInput.value = '';
+    } catch(e) {
+        showNotification('Error adding URL: ' + e.message, 'error');
+    }
+}
 
-    function renderMusicPlaylist() {
-        const dashboardContainer = document.getElementById('musicPlaylist');
-        const popupContainer = document.getElementById('popupMusicPlaylist');
-
-        const renderTo = (container) => {
-            if (!container) return;
-            if (Object.keys(audioLibrary).length === 0) {
-                container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded.</p>`;
-                return;
-            }
-            
-            container.innerHTML = Object.values(audioLibrary).map(track => `
-                <div class="playlist-item ${track.id === currentTrackId ? 'playing' : ''}">
-                    <div class="playlist-item-name">${track.name}</div>
-                    <div class="playlist-item-actions">
-                        <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
-                        <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                </div>
-            `).join('');
+async function playTrack(trackId) {
+    if (!trackId || !audioLibrary[trackId]) return;
+    try {
+        const updates = {
+            currentTrackId: trackId,
+            playbackStartTime: firebase.database.ServerValue.TIMESTAMP
         };
-
-        renderTo(dashboardContainer);
-        renderTo(popupContainer);
+        await db.ref('settings/audio').update(updates);
+        showNotification(`Now playing: ${audioLibrary[trackId].name}`, 'info');
+    } catch(e) {
+        showNotification('Error setting track: ' + e.message, 'error');
     }
+}
 
-    function toggleBgMusic() {
-        const state = document.getElementById('bgMusicState').value;
-        const updates = { musicState: state };
-        if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
-            const firstTrackId = Object.keys(audioLibrary)[0];
-            updates.currentTrackId = firstTrackId;
-            updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
-        } else if (state === 'on') {
-            updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
-        } else {
+async function deleteTrack(trackId) {
+    if (!trackId || !audioLibrary[trackId]) return;
+    if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
+    try {
+        const updates = { [`musicLibrary/${trackId}`]: null };
+        if (currentTrackId === trackId) {
+            updates.currentTrackId = null;
+            updates.musicState = 'off';
             updates.playbackStartTime = null;
         }
-        db.ref('settings/audio').update(updates)
-            .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
-            .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
+        await db.ref('settings/audio').update(updates);
+        showNotification('Track deleted.', 'success');
+    } catch (e) {
+        showNotification('Error deleting track: ' + e.message, 'error');
     }
+}
 
-    function togglePlaylistMode() {
-        const state = document.getElementById('playlistModeState').value;
-        db.ref('settings/audio/playlistMode').set(state)
-            .then(() => showNotification(`Playlist mode is now ${state.toUpperCase()}.`, 'info'))
-            .catch(e => showNotification('Error updating playlist mode: ' + e.message, 'error'));
-    }
+function renderMusicPlaylist() {
+    const dashboardContainer = document.getElementById('musicPlaylist');
+    const popupContainer = document.getElementById('popupMusicPlaylist');
 
-    async function toggleMic() {
-        if (isMicOn) {
-            if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
-            if (localStream) localStream.getTracks().forEach(track => track.stop());
-            document.getElementById('micToggleBtn').classList.remove('live');
-            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
-            isMicOn = false;
-            await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
-            showNotification('Live announcement stopped.', 'info');
-        } else {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const options = { mimeType: 'audio/webm;codecs=opus' };
-                mediaRecorder = new MediaRecorder(localStream, options);
-
-                mediaRecorder.ondataavailable = event => {
-                    if (event.data.size > 0) {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            db.ref('settings/audio/liveAnnouncement').update({
-                               audioChunk: reader.result,
-                               timestamp: firebase.database.ServerValue.TIMESTAMP 
-                            });
-                        };
-                        reader.readAsDataURL(event.data);
-                    }
-                };
-                
-                mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-                mediaRecorder.start(1500);
-
-                document.getElementById('micToggleBtn').classList.add('live');
-                document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
-                isMicOn = true;
-                showNotification('Live announcement started!', 'success');
-            } catch (err) {
-                showNotification('Could not access microphone: ' + err.message, 'error');
-                console.error(err);
-            }
-        }
-    }
-
-    function handleBackgroundMusicState(audioData) {
-        const musicState = audioData.musicState || 'off';
-        const playlistMode = audioData.playlistMode || 'off';
-        const trackId = audioData.currentTrackId;
-        const track = trackId ? audioData.musicLibrary?.[trackId] : null;
-        const playbackStartTime = audioData.playbackStartTime || 0;
-
-        if (document.getElementById('bgMusicState')) {
-            document.getElementById('bgMusicState').value = musicState;
-        }
-        if (document.getElementById('playlistModeState')) {
-            document.getElementById('playlistModeState').value = playlistMode;
-        }
-
-        backgroundMusicPlayer.loop = (playlistMode === 'off');
-
-        if (musicState === 'on' && track && track.url && playbackStartTime > 0) {
-            const hasSourceChanged = backgroundMusicPlayer.src !== track.url;
-            if (hasSourceChanged) {
-                backgroundMusicPlayer.src = track.url;
-            }
-
-            const serverTime = getEstimatedServerTime();
-            const elapsedTime = (serverTime - playbackStartTime) / 1000;
-            
-            const seekAndPlay = () => {
-                if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
-                     backgroundMusicPlayer.currentTime = elapsedTime % backgroundMusicPlayer.duration;
-                }
-                 if (backgroundMusicPlayer.paused) {
-                     backgroundMusicPlayer.play().catch(e => {});
-                 }
-            };
-
-            if(backgroundMusicPlayer.readyState >= 2) {
-                seekAndPlay();
-            } else {
-                backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
-            }
-        } else {
-            if (!backgroundMusicPlayer.paused) {
-                backgroundMusicPlayer.pause();
-            }
-        }
-    }
-
-    function handleLiveAudioStream(audioData) {
-        const liveInfo = audioData.liveAnnouncement;
-        if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
-            if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
-                 audioQueue = [];
-                 if (sourceBuffer && !sourceBuffer.updating) {
-                    try {
-                        sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
-                    } catch(e) { console.warn("Buffer clear failed", e); }
-                 }
-                 db.ref('settings/audio/liveAnnouncement/isNewStream').set(null);
-            }
-
-            lastProcessedTimestamp = liveInfo.timestamp;
-            
-            if (liveAudioPlayer.paused) {
-                liveAudioPlayer.play().catch(e => {});
-            }
-            
-            audioQueue.push(liveInfo.audioChunk);
-            processAudioQueue();
-        } else if (liveInfo && !liveInfo.isLive) {
-            let vol = liveAudioPlayer.volume;
-            if (vol > 0) {
-                const fadeOutInterval = setInterval(() => {
-                    vol -= 0.1;
-                    if (vol <= 0) {
-                        liveAudioPlayer.volume = 0;
-                        liveAudioPlayer.pause();
-                        liveAudioPlayer.volume = 1;
-                        clearInterval(fadeOutInterval);
-                    } else {
-                        liveAudioPlayer.volume = vol;
-                    }
-                }, 50);
-            }
-        }
-    }
-
-    async function processAudioQueue() {
-        if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
+    const renderTo = (container) => {
+        if (!container) return;
+        if (Object.keys(audioLibrary).length === 0) {
+            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded.</p>`;
             return;
         }
-        isAppending = true;
         
-        const dataUrl = audioQueue.shift();
+        container.innerHTML = Object.values(audioLibrary).map(track => `
+            <div class="playlist-item ${track.id === currentTrackId ? 'playing' : ''}">
+                <div class="playlist-item-name">${track.name}</div>
+                <div class="playlist-item-actions">
+                    <button title="Play this track for everyone" onclick="playTrack('${track.id}')"><i class="fas fa-play-circle"></i></button>
+                    <button title="Delete this track" onclick="deleteTrack('${track.id}')"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    renderTo(dashboardContainer);
+    renderTo(popupContainer);
+}
+
+function toggleBgMusic() {
+    const state = document.getElementById('bgMusicState').value;
+    const updates = { musicState: state };
+    if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
+        const firstTrackId = Object.keys(audioLibrary)[0];
+        updates.currentTrackId = firstTrackId;
+        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+    } else if (state === 'on') {
+        updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
+    } else {
+        updates.playbackStartTime = null;
+    }
+    db.ref('settings/audio').update(updates)
+        .then(() => showNotification(`Background music turned ${state.toUpperCase()}.`, 'info'))
+        .catch(e => showNotification('Error updating music state: ' + e.message, 'error'));
+}
+
+function togglePlaylistMode() {
+    const state = document.getElementById('playlistModeState').value;
+    db.ref('settings/audio/playlistMode').set(state)
+        .then(() => showNotification(`Playlist mode is now ${state.toUpperCase()}.`, 'info'))
+        .catch(e => showNotification('Error updating playlist mode: ' + e.message, 'error'));
+}
+
+async function toggleMic() {
+    if (isMicOn) {
+        if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+        if (localStream) localStream.getTracks().forEach(track => track.stop());
+        document.getElementById('micToggleBtn').classList.remove('live');
+        document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
+        isMicOn = false;
+        await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
+        showNotification('Live announcement stopped.', 'info');
+    } else {
         try {
-            const response = await fetch(dataUrl);
-            const arrayBuffer = await response.arrayBuffer();
-            sourceBuffer.appendBuffer(arrayBuffer);
-        } catch (error) {
-            console.error('Error processing audio chunk:', error);
-            isAppending = false; 
-        }
-    }
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const options = { mimeType: 'audio/webm;codecs=opus' };
+            mediaRecorder = new MediaRecorder(localStream, options);
 
-    function initializeMediaSource() {
-        if ('MediaSource' in window) {
-            mediaSource = new MediaSource();
-            liveAudioPlayer.src = URL.createObjectURL(mediaSource);
-
-            mediaSource.addEventListener('sourceopen', () => {
-                try {
-                    const mimeCodec = 'audio/webm; codecs="opus"';
-                    if (MediaSource.isTypeSupported(mimeCodec)) {
-                        sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-                        sourceBuffer.addEventListener('updateend', () => {
-                            isAppending = false;
-                            processAudioQueue(); 
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        db.ref('settings/audio/liveAnnouncement').update({
+                           audioChunk: reader.result,
+                           timestamp: firebase.database.ServerValue.TIMESTAMP 
                         });
-                        isMediaSourceOpen = true;
-                    } else {
-                        console.error('Unsupported MIME type:', mimeCodec);
-                    }
-                } catch (e) {
-                    console.error('Exception while creating SourceBuffer:', e);
+                    };
+                    reader.readAsDataURL(event.data);
                 }
-            });
+            };
+            
+            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            mediaRecorder.start(1500);
+
+            document.getElementById('micToggleBtn').classList.add('live');
+            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
+            isMicOn = true;
+            showNotification('Live announcement started!', 'success');
+        } catch (err) {
+            showNotification('Could not access microphone: ' + err.message, 'error');
+            console.error(err);
+        }
+    }
+}
+
+function handleBackgroundMusicState(audioData) {
+    const musicState = audioData.musicState || 'off';
+    const playlistMode = audioData.playlistMode || 'off';
+    const trackId = audioData.currentTrackId;
+    const track = trackId ? audioData.musicLibrary?.[trackId] : null;
+    const playbackStartTime = audioData.playbackStartTime || 0;
+
+    if (document.getElementById('bgMusicState')) {
+        document.getElementById('bgMusicState').value = musicState;
+    }
+    if (document.getElementById('playlistModeState')) {
+        document.getElementById('playlistModeState').value = playlistMode;
+    }
+
+    backgroundMusicPlayer.loop = (playlistMode === 'off');
+
+    if (musicState === 'on' && track && track.url && playbackStartTime > 0) {
+        const hasSourceChanged = backgroundMusicPlayer.src !== track.url;
+        if (hasSourceChanged) {
+            backgroundMusicPlayer.src = track.url;
+        }
+
+        const serverTime = getEstimatedServerTime();
+        const elapsedTime = (serverTime - playbackStartTime) / 1000;
+        
+        const seekAndPlay = () => {
+            if (Math.abs(backgroundMusicPlayer.currentTime - elapsedTime) > 1.5) { 
+                 backgroundMusicPlayer.currentTime = elapsedTime % backgroundMusicPlayer.duration;
+            }
+             if (backgroundMusicPlayer.paused) {
+                 backgroundMusicPlayer.play().catch(e => {});
+             }
+        };
+
+        if(backgroundMusicPlayer.readyState >= 2) {
+            seekAndPlay();
         } else {
-            console.error('MediaSource API not supported.');
-            showNotification('Live audio streaming may not work on this browser.', 'error');
+            backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
+        }
+    } else {
+        if (!backgroundMusicPlayer.paused) {
+            backgroundMusicPlayer.pause();
         }
     }
+}
 
-    function playNextInPlaylist() {
-        if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
+function handleLiveAudioStream(audioData) {
+    const liveInfo = audioData.liveAnnouncement;
+    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
+        if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
+             audioQueue = [];
+             if (sourceBuffer && !sourceBuffer.updating) {
+                try {
+                    sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
+                } catch(e) { console.warn("Buffer clear failed", e); }
+             }
+             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null);
+        }
+
+        lastProcessedTimestamp = liveInfo.timestamp;
         
-        const trackIds = Object.keys(audioLibrary);
-        const currentIndex = trackIds.indexOf(currentTrackId);
+        if (liveAudioPlayer.paused) {
+            liveAudioPlayer.play().catch(e => {});
+        }
         
-        if (currentIndex !== -1) {
-            const nextIndex = (currentIndex + 1) % trackIds.length;
-            const nextTrackId = trackIds[nextIndex];
-            playTrack(nextTrackId);
+        audioQueue.push(liveInfo.audioChunk);
+        processAudioQueue();
+    } else if (liveInfo && !liveInfo.isLive) {
+        let vol = liveAudioPlayer.volume;
+        if (vol > 0) {
+            const fadeOutInterval = setInterval(() => {
+                vol -= 0.1;
+                if (vol <= 0) {
+                    liveAudioPlayer.volume = 0;
+                    liveAudioPlayer.pause();
+                    liveAudioPlayer.volume = 1;
+                    clearInterval(fadeOutInterval);
+                } else {
+                    liveAudioPlayer.volume = vol;
+                }
+            }, 50);
         }
     }
+}
 
-    document.addEventListener('DOMContentLoaded', () => {
-        backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
-        liveAudioPlayer = document.getElementById('liveAudioPlayer');
-        
-        initializeMediaSource();
+async function processAudioQueue() {
+    if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
+        return;
+    }
+    isAppending = true;
+    
+    const dataUrl = audioQueue.shift();
+    try {
+        const response = await fetch(dataUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        sourceBuffer.appendBuffer(arrayBuffer);
+    } catch (error) {
+        console.error('Error processing audio chunk:', error);
+        isAppending = false; 
+    }
+}
 
-        document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
-        document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
-        document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
+function initializeMediaSource() {
+    if ('MediaSource' in window) {
+        mediaSource = new MediaSource();
+        liveAudioPlayer.src = URL.createObjectURL(mediaSource);
 
-        backgroundMusicPlayer.addEventListener('ended', () => {
-            const playlistMode = document.getElementById('playlistModeState')?.value || 'off';
-            if (playlistMode === 'on' && currentUserRole === 'admin') {
-                playNextInPlaylist();
+        mediaSource.addEventListener('sourceopen', () => {
+            try {
+                const mimeCodec = 'audio/webm; codecs="opus"';
+                if (MediaSource.isTypeSupported(mimeCodec)) {
+                    sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+                    sourceBuffer.addEventListener('updateend', () => {
+                        isAppending = false;
+                        processAudioQueue(); 
+                    });
+                    isMediaSourceOpen = true;
+                } else {
+                    console.error('Unsupported MIME type:', mimeCodec);
+                }
+            } catch (e) {
+                console.error('Exception while creating SourceBuffer:', e);
             }
         });
+    } else {
+        console.error('MediaSource API not supported.');
+        showNotification('Live audio streaming may not work on this browser.', 'error');
+    }
+}
 
-        generateNumberBoard();
-        bindEventListeners();
-        gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+function playNextInPlaylist() {
+    if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
+    
+    const trackIds = Object.keys(audioLibrary);
+    const currentIndex = trackIds.indexOf(currentTrackId);
+    
+    if (currentIndex !== -1) {
+        const nextIndex = (currentIndex + 1) % trackIds.length;
+        const nextTrackId = trackIds[nextIndex];
+        playTrack(nextTrackId);
+    }
+}
 
-        makeElementDraggable(document.getElementById('universalBookFloatBtn'));
+document.addEventListener('DOMContentLoaded', () => {
+    backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
+    liveAudioPlayer = document.getElementById('liveAudioPlayer');
+    
+    initializeMediaSource();
 
-        setTimeout(() => {
-            showPopup('firstVisitPopup');
-        }, 1500);
+    document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
+    document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
+    document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
+
+    backgroundMusicPlayer.addEventListener('ended', () => {
+        const playlistMode = document.getElementById('playlistModeState')?.value || 'off';
+        if (playlistMode === 'on' && currentUserRole === 'admin') {
+            playNextInPlaylist();
+        }
     });
+
+    generateNumberBoard();
+    bindEventListeners();
+    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+
+    makeElementDraggable(document.getElementById('universalBookFloatBtn'));
+
+    setTimeout(() => {
+        showPopup('firstVisitPopup');
+    }, 1500);
+});
 </script>
 </body>
 </html>
