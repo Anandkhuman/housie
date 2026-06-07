@@ -2523,6 +2523,10 @@ function playSound(src) {
 }
 
 function showView(viewId) {
+    if (currentView === viewId && document.getElementById(viewId).classList.contains('active')) {
+        return; // Navigation Redundancy Check (Prevents freezing when tapping current active tab)
+    }
+
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => {
         if (v.id === viewId) {
@@ -2703,6 +2707,40 @@ function bindEventListeners() {
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
     document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
+
+    // Dynamic Visual Click Event Delegation for Performance Boost
+    const bookingGrid = document.getElementById('bookingGridContainer');
+    if (bookingGrid) {
+        bookingGrid.addEventListener('click', (e) => {
+            const ticketView = e.target.closest('.ticket-view');
+            if (ticketView && !ticketView.classList.contains('sold') && ticketView.id && ticketView.id.startsWith('booking-ticket-')) {
+                const ticketId = parseInt(ticketView.id.replace('booking-ticket-', ''), 10);
+                togglePublicTicketSelection(ticketId);
+            }
+        });
+    }
+
+    const dashTicketContainer = document.getElementById('dashTicketBlockDiv');
+    if (dashTicketContainer) {
+        dashTicketContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.ticketBlockBtn');
+            if (btn && !btn.disabled && btn.id && btn.id.startsWith('dash-ticket-btn-')) {
+                btn.classList.toggle('selected');
+                updateDashboardSelectionIndicator();
+            }
+        });
+    }
+
+    const publicBookingGridContainer = document.getElementById('publicBookingGrid');
+    if (publicBookingGridContainer) {
+        publicBookingGridContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.ticketBlockBtn');
+            if (btn && !btn.disabled && btn.id && btn.id.startsWith('public-ticket-btn-')) {
+                const ticketId = parseInt(btn.textContent, 10);
+                togglePublicPopupTicketSelection(ticketId);
+            }
+        });
+    }
 }
 
 function showPopup(id) {
@@ -3129,11 +3167,11 @@ function updateCountdownTimers(targetDateString) {
     countdownInterval = setInterval(update, 1000);
 }
 
+// Render Optimization: Visual Booking grid is now compiled as a single string to prevent lagging
 function renderVisualTicketBookingPage() {
     if (currentView !== 'ticketBookingView') return;
     const gridContainer = document.getElementById('bookingGridContainer');
     if (!gridContainer) return;
-    gridContainer.innerHTML = '';
 
     publicSelectedTickets = [];
     updatePublicSelectionIndicator();
@@ -3146,45 +3184,36 @@ function renderVisualTicketBookingPage() {
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicketId = i * 6 + 1;
         const endTicketId = startTicketId + 5;
         const actualEndId = endTicketId > totalTickets ? totalTickets : endTicketId;
 
-        const sheetWrapper = document.createElement('div');
-        sheetWrapper.className = 'sheet-view';
-
-        const sheetHeader = document.createElement('div');
-        sheetHeader.className = 'sheet-header';
-        sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tkt ${startTicketId}-${actualEndId})</span>
-            <label class="full-sheet-selector">
-                <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${actualEndId})"> Select Full
-            </label>`;
-        sheetWrapper.appendChild(sheetHeader);
-
-        const sheetContent = document.createElement('div');
-        sheetContent.className = 'sheet-content';
-        sheetWrapper.appendChild(sheetContent);
+        htmlString += `
+        <div class="sheet-view">
+            <div class="sheet-header">
+                <span>Sheet ${i + 1} (Tkt ${startTicketId}-${actualEndId})</span>
+                <label class="full-sheet-selector">
+                    <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${actualEndId})"> Select Full
+                </label>
+            </div>
+            <div class="sheet-content">`;
 
         for (let j = startTicketId; j <= endTicketId; j++) {
             if (j > totalTickets) continue;
 
             const ticket = ticketsMap.get(j);
-            const ticketView = document.createElement('div');
-            ticketView.id = `booking-ticket-${j}`;
-            ticketView.className = 'ticket-view';
-            
-            let headerHTML;
+            let extraClass = '';
+            let headerHTML = '';
             let gridHTML = '';
 
             if (ticket) {
                 if (ticket.is_sold) {
-                    ticketView.classList.add('sold');
+                    extraClass = ' sold';
                     headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status sold">SOLD</span></div>`;
                 } else {
-                    ticketView.onclick = () => togglePublicTicketSelection(j);
                     headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status available">AVAILABLE</span></div>`;
                 }
                 
@@ -3200,11 +3229,15 @@ function renderVisualTicketBookingPage() {
                 gridHTML = '<p style="text-align:center; padding: 1rem;">Data missing</p>';
             }
 
-            ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
-            sheetContent.appendChild(ticketView);
+            htmlString += `
+            <div id="booking-ticket-${j}" class="ticket-view${extraClass}">
+                ${headerHTML}
+                <div class="ticket-grid">${gridHTML}</div>
+            </div>`;
         }
-        gridContainer.appendChild(sheetWrapper);
+        htmlString += `</div></div>`;
     }
+    gridContainer.innerHTML = htmlString;
 }
 
 function selectFullSheet(checkbox, startId, endId) {
@@ -3369,7 +3402,7 @@ async function processBookingLink() {
 
         const ticketsRef = db.ref('tickets');
         const transactionResult = await ticketsRef.transaction(currentTickets => {
-            if (currentTickets === null) return currentTickets; // FIXED: Changed return; to return currentTickets; to prevent aborting on initialization
+            if (currentTickets === null) return currentTickets; 
             for (const id of ticketIdsToBook) {
                 if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
                     return;
@@ -3458,12 +3491,12 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
     if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
         const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
         if (initialTicket) {
-            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); // FIXED: String typecast for safety
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); 
         }
     } else {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
-            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) // FIXED: String typecast for safety
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) 
         );
     }
     
@@ -3515,19 +3548,22 @@ function clearSearchResult(phone) {
     displayedSearchPhones.delete(phone);
 }
 
+// Visual Ticked Search: Lookups updated to $O(1)$ Set complexity for optimal lag-free operations
 function updateDisplayedTicketPublic() {
-    document.querySelectorAll('#ticketDisplayArea .ticket-view, #bookedTicketsDisplay .ticket-view').forEach(ticketView => {
-        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
-            const num = parseInt(cell.dataset.num, 10);
-            if (num > 0) {
-                 const isCalled = currentCalledNumbers.includes(num);
-                 cell.classList.toggle('ticked', isCalled);
-                 cell.classList.remove('last-called-highlight');
-                 if (num === lastAnnouncedNumber) {
-                      cell.classList.add('last-called-highlight');
-                 }
+    const lastCalled = lastAnnouncedNumber;
+    const calledSet = new Set(currentCalledNumbers);
+    
+    const cells = document.querySelectorAll('#ticketDisplayArea .ticket-num[data-num], #bookedTicketsDisplay .ticket-num[data-num]');
+    cells.forEach(cell => {
+        const num = parseInt(cell.dataset.num, 10);
+        if (num > 0) {
+            const isCalled = calledSet.has(num);
+            cell.classList.toggle('ticked', isCalled);
+            cell.classList.remove('last-called-highlight');
+            if (num === lastCalled) {
+                cell.classList.add('last-called-highlight');
             }
-        });
+        }
     });
 }
 
@@ -3568,7 +3604,7 @@ function updateWinners(winners) {
 
         let eyeIcon = '';
         if (winnerArray.length > 0) {
-            const safeName = name.replace(/'/g, "\\'").replace(/"/g, '\\"'); // FIXED: Escaped both quote types safely
+            const safeName = name.replace(/'/g, "\\'").replace(/"/g, '\\"'); 
             eyeIcon = `<i class="fas fa-eye" onclick="showAllWinningTicketsForDividend('${safeName}')"></i>`;
         }
         
@@ -3622,6 +3658,7 @@ function goToBooking(ticketId) {
     }, 200);
 }
 
+// Optimize List Rendering: Batching single HTML string assignment to avoid heavy DOM loops
 function renderSheetWiseBookedList() {
     if (currentView !== 'publicView') return;
     const container = document.getElementById('bookedTicketsDisplay');
@@ -3634,7 +3671,6 @@ function renderSheetWiseBookedList() {
 
     const totalTickets = gameSettingsData.totalTickets;
     const allTicketsMap = new Map(allTicketsData.map(t => [t.id, t]));
-    container.innerHTML = '';
 
     if (allTicketsMap.size === 0) {
         container.innerHTML = '<p style="text-align:center; font-style: italic; color: #01579b;">No tickets have been generated by the admin.</p>';
@@ -3642,48 +3678,45 @@ function renderSheetWiseBookedList() {
     }
 
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
 
-        const sheetWrapper = document.createElement('div');
-        sheetWrapper.className = 'sheet-view';
-
-        const sheetHeader = document.createElement('div');
-        sheetHeader.className = 'sheet-header';
-        sheetHeader.textContent = `Sheet ${i + 1} (Tickets ${startTicket}-${actualEndId})`;
-        sheetWrapper.appendChild(sheetHeader);
-
-        const sheetContent = document.createElement('div');
-        sheetContent.className = 'sheet-content';
-        sheetWrapper.appendChild(sheetContent);
+        htmlString += `
+        <div class="sheet-view">
+            <div class="sheet-header">Sheet ${i + 1} (Tickets ${startTicket}-${actualEndId})</div>
+            <div class="sheet-content">`;
 
         for (let j = startTicket; j <= endTicket; j++) {
             if (j > totalTickets) continue;
 
             const ticket = allTicketsMap.get(j);
-            const ticketViewWrapper = document.createElement('div');
-            const ticketView = document.createElement('div');
-            ticketView.className = 'ticket-view';
-            ticketView.setAttribute('data-ticket-id', j);
-
             if (!ticket) {
-                ticketView.innerHTML = `<div class="ticket-header">Ticket ${j} Data Missing</div>`;
+                htmlString += `
+                <div class="ticket-view" data-ticket-id="${j}">
+                    <div class="ticket-header">Ticket ${j} Data Missing</div>
+                </div>`;
             } else {
-                let headerHTML;
+                let headerHTML = '';
                 if (ticket.is_sold) {
-                    headerHTML = `<div class="ticket-header" style="position: relative; padding-right: 35px;"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${j}</span></div>`;
+                    headerHTML = `
+                    <div class="ticket-header" style="position: relative; padding-right: 35px;">
+                        <div>${ticket.owner_name}</div>
+                        <span style="font-weight:normal;">Ticket ${j}</span>
+                    </div>
+                    <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${j})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>`;
                 } else {
                     headerHTML = `
-                        <div class="ticket-header">
-                            <span>Ticket ${j}</span>
-                            <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
-                        </div>`;
+                    <div class="ticket-header">
+                        <span>Ticket ${j}</span>
+                        <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
+                    </div>`;
                 }
                 
-                let gridHTML;
+                let gridHTML = '';
                 if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
                     gridHTML = ticket.numbers.flat().map(n =>
                         `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
@@ -3692,18 +3725,16 @@ function renderSheetWiseBookedList() {
                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
                 }
 
-                if (ticket.is_sold) {
-                    ticketView.innerHTML = `${headerHTML}<div class="download-pdf-btn" onclick="downloadTicketAsPDF(${j})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div><div class="ticket-grid">${gridHTML}</div>`;
-                } else {
-                    ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
-                }
+                htmlString += `
+                <div class="ticket-view" data-ticket-id="${j}">
+                    ${headerHTML}
+                    <div class="ticket-grid">${gridHTML}</div>
+                </div>`;
             }
-            ticketViewWrapper.appendChild(ticketView);
-            sheetContent.appendChild(ticketViewWrapper);
         }
-        container.appendChild(sheetWrapper);
+        htmlString += `</div></div>`;
     }
-
+    container.innerHTML = htmlString;
     updateDisplayedTicketPublic();
 }
 
@@ -3965,8 +3996,8 @@ async function saveGameSetting() {
     const settingsToSave = {
         gameDateTime: newDateTime,
         totalTickets: isNaN(newTotalTickets) ? 600 : newTotalTickets,
-        ticketPrice: isNaN(priceVal) ? 0 : priceVal, // FIXED: Protected from NaN crashes
-        agentCommission: isNaN(commVal) ? 0 : commVal, // FIXED: Protected from NaN crashes
+        ticketPrice: isNaN(priceVal) ? 0 : priceVal, 
+        agentCommission: isNaN(commVal) ? 0 : commVal, 
     };
     
     const processSave = async () => {
@@ -4369,7 +4400,7 @@ function updateAdminList() {
 
     if (adminListState === 'tickets') {
         table.className = 'gameSettingTable1';
-        const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm)); // FIXED: String typecast for safety
+        const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm)); 
         table.innerHTML = `<thead><tr><th>Ticket Details</th></tr></thead><tbody>` +
             tickets.sort((a,b) => a.id - b.id).map(t => {
                 if (t.is_sold) {
@@ -4402,7 +4433,7 @@ function updateAdminList() {
     } else {
         table.className = 'gameSettingTable1 agent-list-view';
         const commissionPerTicket = gameSettingsData.agentCommission || 0;
-        const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || String(u.phone||'').toLowerCase().includes(searchTerm)); // FIXED: String typecast for safety
+        const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || String(u.phone||'').toLowerCase().includes(searchTerm)); 
         
         const tableHTML = users.map(u => {
             const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
@@ -4493,7 +4524,7 @@ async function saveTicketOwnerChanges() {
         return showNotification('Name and Phone cannot be empty.', 'error');
     }
 
-    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone)); // FIXED: String typecast for safety
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone));
 
     if (ownedTickets.length > 1) {
         const confirmText = document.getElementById('applyToAllConfirmText');
@@ -4515,7 +4546,7 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         let successMessage = '';
 
         if (applyToAll) {
-            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone)); // FIXED: String typecast for safety
+            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone));
             successMessage = `Details updated for all ${ticketsToUpdate.length} tickets owned by ${originalOwnerInfo.name}.`;
         } else {
             const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
@@ -4553,7 +4584,7 @@ function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
         return;
     }
 
-    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(ownerPhone)); // FIXED: String typecast for safety
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(ownerPhone));
 
     if (ownedTickets.length > 1) {
         ticketToDeleteInfo = { ticketId, ownerName, ownerPhone };
@@ -4578,7 +4609,7 @@ async function performDelete(identifier, deleteAll) {
         let successMessage = '';
 
         if (deleteAll) {
-            ticketsToReset = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(identifier)); // FIXED: String typecast for safety
+            ticketsToReset = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(identifier));
             successMessage = `Deleted all ${ticketsToReset.length} tickets for the owner.`;
         } else {
             const singleTicket = allTicketsData.find(t => t.id === identifier);
@@ -4812,16 +4843,16 @@ function showAgentSoldTickets() {
     if (!currentUser || currentView !== 'agentDashboardView') return;
     const searchTerm = document.getElementById('agentSearchKeyInp').value.toLowerCase();
     const table = document.getElementById('agentSoldTicketsTable');
-    const myTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid && (!searchTerm || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm))); // FIXED: String typecast for safety
+    const myTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid && (!searchTerm || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm))); 
 
     table.innerHTML = `<thead><tr><th>Ticket ID</th><th>Owner Name</th><th>Owner Phone</th></tr></thead><tbody>` +
         myTickets.sort((a,b) => a.id - b.id).map(t => `<tr><td data-label="ID">${t.id}</td><td data-label="Name">${t.owner_name}</td><td data-label="Phone">${t.owner_phone}</td></tr>`).join('') + `</tbody>`;
 }
 
+// Optimization: Single HTML string generation to eliminate list delay inside popups
 function updateDashboardBookingPopup() {
     const container = document.getElementById('dashTicketBlockDiv');
     if (!container) return;
-    container.innerHTML = '';
     const indicator = document.getElementById('dashboardSelectionIndicator');
     if (indicator) indicator.textContent = '';
 
@@ -4833,46 +4864,31 @@ function updateDashboardBookingPopup() {
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
 
-        const sheetRow = document.createElement('div');
-        sheetRow.className = 'compact-sheet-row';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'sheet-tick-box';
-        checkbox.onchange = () => selectFullSheetDashboard(checkbox, startTicket, actualEndId);
-        sheetRow.appendChild(checkbox);
-
-        const buttonGroup = document.createElement('div');
-        buttonGroup.className = 'ticket-buttons-group';
+        htmlString += `
+        <div class="compact-sheet-row">
+            <input type="checkbox" class="sheet-tick-box" onchange="selectFullSheetDashboard(this, ${startTicket}, ${actualEndId})">
+            <div class="ticket-buttons-group">`;
 
         for (let j = startTicket; j <= endTicket; j++) {
             if (j > totalTickets) continue;
 
             const ticket = ticketsMap.get(j);
-            const btn = document.createElement('button');
-            btn.className = 'ticketBlockBtn';
-            btn.textContent = j;
-            btn.id = `dash-ticket-btn-${j}`;
-            if (ticket && ticket.is_sold) {
-                btn.disabled = true;
-            } else {
-                btn.onclick = () => {
-                    btn.classList.toggle('selected');
-                    updateDashboardSelectionIndicator();
-                };
-            }
-            buttonGroup.appendChild(btn);
+            const isSold = ticket && ticket.is_sold;
+            const disabledAttr = isSold ? 'disabled' : '';
+            
+            htmlString += `<button class="ticketBlockBtn" id="dash-ticket-btn-${j}" ${disabledAttr}>${j}</button>`;
         }
         
-        sheetRow.appendChild(buttonGroup);
-        container.appendChild(sheetRow);
+        htmlString += `</div></div>`;
     }
+    container.innerHTML = htmlString;
 }
 
 function selectFullSheetDashboard(checkbox, startId, endId) {
@@ -4881,12 +4897,13 @@ function selectFullSheetDashboard(checkbox, startId, endId) {
         if (btn && !btn.disabled) {
             const isSelected = btn.classList.contains('selected');
             if (checkbox.checked && !isSelected) {
-                btn.click();
+                btn.classList.add('selected');
             } else if (!checkbox.checked && isSelected) {
-                btn.click();
+                btn.classList.remove('selected');
             }
         }
     }
+    updateDashboardSelectionIndicator();
 }
 
 function updateDashboardSelectionIndicator() {
@@ -4895,7 +4912,7 @@ function updateDashboardSelectionIndicator() {
     const indicator = document.getElementById('dashboardSelectionIndicator');
     if (indicator) {
         const result = checkSheetSelection(selectedIds);
-        indicator.textContent = result.message;
+        indicator.textContent = result.message || 'Select tickets to see booking options';
         indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
     }
 }
@@ -4927,10 +4944,10 @@ async function handleDashboardBooking() {
     } catch(e) { showNotification('Error booking tickets: ' + e.message, 'error'); }
 }
 
+// Optimization: Single HTML string generation for public booking grid inside the popup
 function renderPublicBookingGrid() {
     const container = document.getElementById('publicBookingGrid');
     if (!container) return;
-    container.innerHTML = '';
     publicPopupSelectedTickets = [];
     updatePublicBookingIndicator();
 
@@ -4942,43 +4959,31 @@ function renderPublicBookingGrid() {
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
         
-        const sheetRow = document.createElement('div');
-        sheetRow.className = 'compact-sheet-row';
-        
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'sheet-tick-box';
-        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, actualEndId);
-        sheetRow.appendChild(checkbox);
-        
-        const buttonGroup = document.createElement('div');
-        buttonGroup.className = 'ticket-buttons-group';
+        htmlString += `
+        <div class="compact-sheet-row">
+            <input type="checkbox" class="sheet-tick-box" onchange="selectFullSheetPublic(this, ${startTicket}, ${actualEndId})">
+            <div class="ticket-buttons-group">`;
 
         for (let j = startTicket; j <= endTicket; j++) {
             if (j > totalTickets) continue;
 
             const ticket = ticketsMap.get(j);
-            const btn = document.createElement('button');
-            btn.className = 'ticketBlockBtn';
-            btn.textContent = j;
-            btn.id = `public-ticket-btn-${j}`;
-            if (ticket && ticket.is_sold) {
-                btn.disabled = true;
-            } else {
-                btn.onclick = () => togglePublicPopupTicketSelection(j);
-            }
-            buttonGroup.appendChild(btn);
+            const isSold = ticket && ticket.is_sold;
+            const disabledAttr = isSold ? 'disabled' : '';
+            
+            htmlString += `<button class="ticketBlockBtn" id="public-ticket-btn-${j}" ${disabledAttr}>${j}</button>`;
         }
 
-        sheetRow.appendChild(buttonGroup);
-        container.appendChild(sheetRow);
+        htmlString += `</div></div>`;
     }
+    container.innerHTML = htmlString;
 }
 
 function togglePublicPopupTicketSelection(ticketId) {
@@ -5014,7 +5019,7 @@ function updatePublicBookingIndicator() {
     const indicator = document.getElementById('publicBookingIndicator');
     if (indicator) {
         const result = checkSheetSelection(publicPopupSelectedTickets);
-        indicator.textContent = result.message;
+        indicator.textContent = result.message || 'Select tickets to see booking options';
         indicator.style.color = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
         indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
     }
@@ -5138,6 +5143,7 @@ function callNextNumber() {
     });
 }
 
+// Computational optimization: converted lookups to a Set to ensure 0ms processing delay
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
     const activeDividends = gameSettingsData.dividends || [];
@@ -5147,7 +5153,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     if (!lastCalledNumber) return updatedWinners;
 
-    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+    const calledSet = new Set(calledNumbers);
+    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledSet.has(n)).length;
 
     const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
         if (ticket.owner_phone) {
@@ -5171,7 +5178,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
             let winningPatternNumbers = [];
             
             const checkPattern = (numbers) => {
-                if (numbers && numbers.length > 0 && numbers.every(n => calledNumbers.includes(n))) {
+                if (numbers && numbers.length > 0 && numbers.every(n => calledSet.has(n))) {
                     winningPatternNumbers = numbers;
                     return true;
                 }
@@ -5217,12 +5224,12 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     break;
                 default:
                     if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
-                        const match = dividend.name.match(/\d+/); // FIXED: Prevent crash if matching fails
+                        const match = dividend.name.match(/\d+/);
                         if (match) {
                             const count = parseInt(match[0], 10);
                             if (countMarked(ticket) === count) {
                                 isWinner = true;
-                                winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n));
+                                winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledSet.has(n));
                             }
                         }
                     }
@@ -5653,12 +5660,12 @@ function searchTicketAdmin() {
     if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
         const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
         if (initialTicket) {
-            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); // FIXED: String typecast for safety
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); 
         }
     } else {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
-            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) // FIXED: String typecast for safety
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) 
         );
     }
     
@@ -5713,19 +5720,21 @@ function clearAdminSearchResult(phone) {
     adminDisplayedSearchPhones.delete(phone);
 }
 
+// Optimization: Converted lookups inside admin visual area to a Set for lag-free visual sync
 function updateAdminDisplayedTickets() {
-    document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
-        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
-            const num = parseInt(cell.dataset.num, 10);
-            if (num > 0) {
-                const isCalled = currentCalledNumbers.includes(num);
-                cell.classList.toggle('ticked', isCalled);
-                cell.classList.remove('last-called-highlight');
-                if (num === lastAnnouncedNumber) {
-                    cell.classList.add('last-called-highlight');
-                }
+    const calledSet = new Set(currentCalledNumbers);
+    const lastCalled = lastAnnouncedNumber;
+    const cells = document.querySelectorAll('#adminTicketDisplayArea .ticket-num[data-num]');
+    cells.forEach(cell => {
+        const num = parseInt(cell.dataset.num, 10);
+        if (num > 0) {
+            const isCalled = calledSet.has(num);
+            cell.classList.toggle('ticked', isCalled);
+            cell.classList.remove('last-called-highlight');
+            if (num === lastCalled) {
+                cell.classList.add('last-called-highlight');
             }
-        });
+        }
     });
 }
 
