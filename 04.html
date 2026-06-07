@@ -62,7 +62,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url("https://images.unsplash.com/photo-1501785888041-af3ef285b470");
+        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url("https://i.ibb.co/gb2q30kV/bg.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -344,6 +344,19 @@
         transition: all 0.3s ease;
     }
 
+    .panel1 {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(0, 246, 255, 0.4);
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 10px rgba(0, 246, 255, 0.1);
+        opacity: 0;
+        transform: translateY(20px);
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
     .top-header {
         position: fixed;
         top: 0;
@@ -354,7 +367,7 @@
         justify-content: center;
         align-items: center;
         padding: 0.9rem 1rem;
-        background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url("https://images.unsplash.com/photo-1611078489935-0cb964de46d6");
+        background: url("https://i.ibb.co/tpChcp4Q/Chat-GPT-Image-Jun-7-2026-08-43-27-PM.png");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -672,6 +685,51 @@
         color: #ffffff;
     }
 
+    /* Redesigned dividends and winners container layout */
+    .dividend-row-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.6rem;
+        border-radius: 8px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .dividend-row-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .dividend-row-card .dividend-card-name {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .dividend-row-card .winner-info {
+        margin-top: 0.4rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        padding-top: 0.4rem;
+    }
+
+    .dividend-row-card .winner-details ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .dividend-row-card .winner-details li {
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+
     #number-announcement-overlay {
         position: fixed;
         top: 0;
@@ -841,7 +899,7 @@
     .dashboard-view .actionBtn { margin: 4px; background: var(--accent-color-dash); color: var(--light-text-dash); font-weight: bold; border-radius: 4px; border: 0; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.8rem; height: auto; padding: 8px 4px; flex-grow: 1; }
     .dashboard-view .actionBtn:hover { background: #16a085; }
     .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
-    .dashboard-view .gameSettingTable thead { display: none; }
+    .dashboard-view .gameSettingTable_thead { display: none; }
     .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
     .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 2fr 1fr; gap: 0px; align-items: center;}
     .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
@@ -1837,17 +1895,10 @@ body.dashboard-view-active #universalBookFloatBtn {
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
                 </section>
 		
-                <section class="panel">
+                <!-- Redesigned dividends and winners layout (using class panel1) -->
+                <section class="panel1">
                     <h2 class="panel-title">DIVIDENDS & WINNERS</h2>
-                    <table class="dividend-table" id="dividendListTable">
-                        <thead><tr><th>Dividend Name</th><th>Winner</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </section>
-
-                <section class="panel">
-                    <h2 class="panel-title">ALL TICKETS STATUS</h2>
-                    <div id="bookedTicketsDisplay"></div>
+                    <div class="dividend-cards-list" id="dividendListContainer"></div>
                 </section>
             </aside>
         </main>
@@ -1928,7 +1979,6 @@ body.dashboard-view-active #universalBookFloatBtn {
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
             <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
             <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
-            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TKT</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
         </div>
     </div>
@@ -3548,7 +3598,7 @@ function clearSearchResult(phone) {
     displayedSearchPhones.delete(phone);
 }
 
-// Visual Ticked Search: Lookups updated to $O(1)$ Set complexity for optimal lag-free operations
+// Visual Ticked Search: Lookups updated to Set complexity for optimal lag-free operations
 function updateDisplayedTicketPublic() {
     const lastCalled = lastAnnouncedNumber;
     const calledSet = new Set(currentCalledNumbers);
@@ -3568,27 +3618,68 @@ function updateDisplayedTicketPublic() {
 }
 
 function populateDividendList(dividends) {
-    const tbodies = document.querySelectorAll('#dividendListTable tbody, #runGameDividendTable tbody');
-    if(tbodies.length === 0) return;
-    
-    const rowsHTML = (dividends || [])
-        .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
-                      <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
-                      <td class="winner-info"><span class="winner-name">Pending...</span></td>
-                  </tr>`)
-        .join('');
+    // Populate admin layout standard table
+    const adminTbody = document.querySelector('#runGameDividendTable tbody');
+    if (adminTbody) {
+        adminTbody.innerHTML = (dividends || [])
+            .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
+                          <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
+                          <td class="winner-info"><span class="winner-name">Pending...</span></td>
+                      </tr>`)
+            .join('');
+    }
 
-    tbodies.forEach(tbody => tbody.innerHTML = rowsHTML);
+    // Populate public visual layout in panel1 class with alternating container colors
+    const publicContainer = document.getElementById('dividendListContainer');
+    if (publicContainer) {
+        const colors = [
+            'rgba(231, 76, 60, 0.25)',   // Soft Red
+            'rgba(52, 152, 219, 0.25)',  // Soft Blue
+            'rgba(46, 204, 113, 0.25)',  // Soft Green
+            'rgba(241, 196, 15, 0.25)',  // Soft Yellow
+            'rgba(155, 89, 182, 0.25)',  // Soft Purple
+            'rgba(230, 126, 34, 0.25)',  // Soft Orange
+            'rgba(26, 188, 156, 0.25)',  // Soft Teal
+            'rgba(243, 156, 18, 0.25)',  // Soft Amber
+            'rgba(142, 68, 173, 0.25)',  // Dark Purple
+            'rgba(22, 160, 133, 0.25)',  // Dark Teal
+            'rgba(192, 57, 43, 0.25)',   // Dark Red
+            'rgba(39, 174, 96, 0.25)'    // Dark Green
+        ];
+        
+        publicContainer.innerHTML = (dividends || [])
+            .map((d, index) => {
+                const bgCol = colors[index % colors.length];
+                const borderCol = bgCol.replace('0.25', '0.6');
+                return `
+                <div class="dividend-row-card" data-dividend-name="${d.name.replace(/\s+/g, '-')}" style="background: ${bgCol}; border: 1px solid ${borderCol};">
+                    <div class="dividend-card-name" style="font-weight: 700; color: #ffffff; margin-bottom: 0.3rem;">
+                        ${d.name} <span style="font-size:0.8em; color: #e1efd6;">(₹${d.amount || 0})</span>
+                    </div>
+                    <div class="winner-info" style="font-size: 0.9rem; color: #ffffff;">
+                        <span class="winner-name">Pending...</span>
+                    </div>
+                </div>`;
+            })
+            .join('');
+    }
 }
 
 function updateWinners(winners) {
-    const tables = document.querySelectorAll('#dividendListTable, #runGameDividendTable');
+    const tables = document.querySelectorAll('#runGameDividendTable');
     
     tables.forEach(table => {
         table.querySelectorAll('.winner-info').forEach(el => {
             el.innerHTML = `<span class="winner-name">Pending...</span>`;
         });
     });
+
+    const publicContainer = document.getElementById('dividendListContainer');
+    if (publicContainer) {
+        publicContainer.querySelectorAll('.winner-info').forEach(el => {
+            el.innerHTML = `<span class="winner-name">Pending...</span>`;
+        });
+    }
 
     for (const name in winners) {
         const winnerArray = winners[name];
@@ -3605,7 +3696,7 @@ function updateWinners(winners) {
         let eyeIcon = '';
         if (winnerArray.length > 0) {
             const safeName = name.replace(/'/g, "\\'").replace(/"/g, '\\"'); 
-            eyeIcon = `<i class="fas fa-eye" onclick="showAllWinningTicketsForDividend('${safeName}')"></i>`;
+            eyeIcon = `<i class="fas fa-eye" onclick="showAllWinningTicketsForDividend('${safeName}')" style="cursor: pointer; color: var(--accent-primary); margin-left: 10px;"></i>`;
         }
         
         const finalHTML = `<div class="winner-details">${winnerListHTML} ${shareText}</div> ${eyeIcon}`;
@@ -3617,6 +3708,14 @@ function updateWinners(winners) {
                 if (winnerCell) winnerCell.innerHTML = finalHTML;
             }
         });
+
+        if (publicContainer) {
+            const card = publicContainer.querySelector(`.dividend-row-card[data-dividend-name="${name.replace(/\s+/g, '-')}"]`);
+            if (card) {
+                const winnerCell = card.querySelector('.winner-info');
+                if (winnerCell) winnerCell.innerHTML = finalHTML;
+            }
+        }
     }
 }
 
@@ -3739,7 +3838,7 @@ function renderSheetWiseBookedList() {
 }
 
 function showAllWinningTicketsForDividend(dividendName) {
-    const winnerArray = knownWinners[dividendName];
+    const winnerArray = winners[dividendName] || knownWinners[dividendName];
     if (!winnerArray || winnerArray.length === 0) {
         return showNotification("Winner information not found for this dividend.", "error");
     }
