@@ -1,27 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Housie</title>
+    <title>SINTHA HOUSIE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@400;700&family=Lobster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Loaded jsPDF script to fix PDF download operations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></radialGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
-
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
 
 <style>
     :root {
-        --bg-color: #100c2A;
+        --bg-color: linear-gradient(135deg, green, gold);
         --primary-surface: #19153a;
         --secondary-surface: #2c2850;
         --accent-primary: #00f6ff;
@@ -37,7 +36,7 @@
         --secondary-bg-dash: #34495e;
         --accent-color-dash: #1abc9c;
         --muted-color-dash: #7f8c8d;
-        --light-text-dash: #ffffee;
+        --light-text-dash: #ffffff;
     }
 
     @keyframes pulse-highlight {
@@ -55,17 +54,21 @@
     ::-webkit-scrollbar-track { background: var(--secondary-surface); }
     ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, var(--font-family-neon);
-        color: var(--text-primary);
-        background-color: var(--bg-color);
-        overflow-x: hidden;
-        transition: background-color 0.3s, color 0.3s;
-        font-size: 14px;
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url("https://images.unsplash.com/photo-1501785888041-af3ef285b470");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: -1;
     }
 
     body.dashboard-view-active {
-      
         background-color: #1d2b40;
         font-family: sans-serif;
         color: var(--light-text-dash);
@@ -98,109 +101,114 @@
     .overlay-popup.active, .gamePopDiv.active { opacity: 1; visibility: visible; }
 
     .popup-content {
-        width: 100%; max-width: 500px;
-        background: var(--primary-surface);
-        border: 1px solid var(--accent-primary); border-radius: 8px;
-        padding: 0; position: relative; max-height: 90vh; overflow-y: auto;
-        box-shadow: 0 0 20px rgba(0, 246, 255, 0.4);
+        width: 100%;
+        max-width: 500px;
+        background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 246, 255, 0.4);
+        border-radius: 12px;
+        padding: 0;
+        position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 0 25px rgba(0, 246, 255, 0.35), inset 0 0 10px rgba(0, 246, 255, 0.15);
         transform: scale(0.95);
         transition: transform var(--transition-speed) var(--transition-ease);
     }
     .overlay-popup.active .popup-content { transform: scale(1); }
 
     .top-down-notification-popup {
-    background: transparent;
-    backdrop-filter: none;
-    align-items: flex-start;
-    padding-top: 6px;
-    pointer-events: none;
-    height: auto;
-    justify-content: center;
-    z-index: 10000;
-    transform: translateY(-150%);
-    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
+        background: transparent;
+        backdrop-filter: none;
+        align-items: flex-start;
+        padding-top: 6px;
+        pointer-events: none;
+        height: auto;
+        justify-content: center;
+        z-index: 10000;
+        transform: translateY(-150%);
+        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
 
-.top-down-notification-popup.active {
-    transform: translateY(0);
-}
+    .top-down-notification-popup.active {
+        transform: translateY(0);
+    }
 
-.top-down-notification-popup .popup-content {
-    max-width: 600px;
-    width: 95%;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    margin: 0 auto;
-    transform: none !important;
-    pointer-events: auto;
-    max-height: none;
-    overflow-y: visible;
-}
+    .top-down-notification-popup .popup-content {
+        max-width: 600px;
+        width: 95%;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        margin: 0 auto;
+        transform: none !important;
+        pointer-events: auto;
+        max-height: none;
+        overflow-y: visible;
+    }
 
-.top-down-notification-popup .notification-body {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    flex-wrap: wrap;
-}
-
-.top-down-notification-popup .notification-logo img {
-    max-width: 45px !important;
-    height: auto;
-    flex-shrink: 0;
-}
-
-.top-down-notification-popup .notification-text-content .popup-title {
-    display: none;
-}
-
-.top-down-notification-popup .notification-text-content {
-    flex-grow: 1;
-}
-
-.top-down-notification-popup .notification-text-content p {
-    margin: 0;
-    line-height: 1.4;
-    font-size: 0.85rem;
-    text-align: left;
-}
-
-.top-down-notification-popup .notification-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-shrink: 0;
-}
-
-.top-down-notification-popup .notification-actions .login-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    margin: 0;
-    width: auto;
-}
-
-/* Mobile View ke liye Specific Centering Layout */
-@media (max-width: 768px) {
     .top-down-notification-popup .notification-body {
-        justify-content: center; /* Sabhi items ko center karega */
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+        flex-wrap: wrap;
+    }
+
+    .top-down-notification-popup .notification-logo img {
+        max-width: 45px !important;
+        height: auto;
+        flex-shrink: 0;
+    }
+
+    .top-down-notification-popup .notification-text-content .popup-title {
+        display: none;
+    }
+
+    .top-down-notification-popup .notification-text-content {
+        flex-grow: 1;
     }
 
     .top-down-notification-popup .notification-text-content p {
-        text-align: center; /* Text ko center karega */
+        margin: 0;
+        line-height: 1.4;
+        font-size: 0.85rem;
+        text-align: left;
+        color: white;
     }
-    
+
     .top-down-notification-popup .notification-actions {
-        width: 100%;
-        margin-top: 0.3rem;
-        justify-content: center; /* Buttons ko center karega */
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
     }
-}
 
+    .top-down-notification-popup .notification-actions .login-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        margin: 0;
+        width: auto;
+    }
 
+    @media (max-width: 768px) {
+        .top-down-notification-popup .notification-body {
+            justify-content: center;
+        }
+
+        .top-down-notification-popup .notification-text-content p {
+            text-align: center;
+        }
+        
+        .top-down-notification-popup .notification-actions {
+            width: 100%;
+            margin-top: 0.3rem;
+            justify-content: center;
+        }
+    }
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
-        cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;
+        cursor: pointer; color: red; font-size: 1.3rem;
         transition: color 0.3s, transform 0.3s;
         z-index: 10;
     }
@@ -219,25 +227,43 @@
     input[type="datetime-local"],
     input[type="url"],
     select,
+    textarea.tableInp,
     .agent-inp,
     .searchInp,
     .tableInp {
         width: 100%;
         font-size: 0.9rem;
         padding: 0.7rem 1rem;
-        border-radius: 4px;
+        border-radius: 8px;
         text-align: center;
         font-family: var(--font-family-neon);
-        background: var(--secondary-surface);
-        border: 1px solid var(--accent-primary);
-        color: var(--text-primary);
-    }
-    .dashboard-view .tableInp {
-         background-color: white;
-         color: var(--text-dark);
-         border: 1px solid var(--secondary-bg-dash);
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        transition: all 0.2s ease;
     }
 
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: rgba(0, 0, 0, 0.6);
+    }
+
+    .dashboard-view .tableInp {
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--text-dark);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(2px);
+    }
 
     .login-form input {
         margin-bottom: 0.8rem;
@@ -295,9 +321,6 @@
     .notification.error { background-color: #e74c3c; }
     .notification.info { background-color: #3498db; }
 
-    .neon-view {
-    }
-    
     .page-wrapper {
         max-width: 1400px;
         margin: 0 auto;
@@ -305,35 +328,82 @@
         z-index: 1;
         width: 95%;
         padding-top: 60px;
-        padding-bottom: 120px; /* Increased padding to avoid overlap with new footer */
+        padding-bottom: 120px;
     }
     .panel {
-        background: var(--primary-surface); 
-        border: 1px solid var(--accent-primary);
-        border-radius: 8px; 
-        margin-bottom: 0.1rem;
-        
-        box-shadow: 0 0 15px rgba(0, 246, 255, 0.2), inset 0 0 8px rgba(0, 246, 255, 0.1);
-        opacity: 0; 
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(0, 246, 255, 0.4);
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 10px rgba(0, 246, 255, 0.1);
+        opacity: 0;
         transform: translateY(20px);
         padding: 1rem;
+        transition: all 0.3s ease;
     }
-    
+
     .top-header {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         z-index: 998;
-        background: var(--primary-surface);
-        border-bottom: 2px solid var(--accent-primary);
-        box-shadow: 0 5px 15px rgba(0, 246, 255, 0.2);
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 0.8rem 1rem;
+        padding: 0.9rem 1rem;
+        background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url("https://images.unsplash.com/photo-1611078489935-0cb964de46d6");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        overflow: hidden;
         opacity: 0;
         transform: translateY(-100%);
+        transition: all 0.4s ease;
+    }
+
+    .top-header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff, #0088ff, #00f6ff);
+        background-size: 300% 100%;
+        animation: borderFlow 4s linear infinite;
+    }
+
+    .top-header h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-align: center;
+        position: relative;
+        background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff);
+        background-size: 300%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: textFlow 4s linear infinite;
+        text-shadow: 0 0 10px rgba(0,246,255,0.4);
+    }
+
+    @keyframes borderFlow {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 300% 50%; }
+    }
+
+    @keyframes textFlow {
+        0% { background-position: 0%; }
+        100% { background-position: 300%; }
+    }
+
+    .top-header.active {
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .bottom-nav {
@@ -343,12 +413,28 @@
         right: 0;
         width: 100%;
         z-index: 999;
-        background: var(--primary-surface);
-        border-top: 2px solid var(--accent-primary);
-        box-shadow: 0 -5px 15px rgba(0, 246, 255, 0.2);
+        background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(0, 246, 255, 0.5);
+        box-shadow: 0 -5px 20px rgba(0, 246, 255, 0.25), inset 0 0 8px rgba(0, 246, 255, 0.1);
+        padding: 0.3rem 0;
         opacity: 0; 
         transform: translateY(100%);
-        padding: 0.3rem 0;
+        transition: all 0.3s ease;
+    }
+
+    .bottom-nav.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .top-header:hover {
+        box-shadow: 0 5px 25px rgba(0, 246, 255, 0.5);
+    }
+
+    .bottom-nav:hover {
+        box-shadow: 0 -5px 25px rgba(0, 246, 255, 0.5), inset 0 0 10px rgba(0, 246, 255, 0.2);
     }
 
     .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
@@ -361,7 +447,7 @@
 
     .panel-title {
         font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
-        color: var(--accent-primary); text-align: center;
+        color: #ffffff; text-align: center;
         text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
     }
     .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
@@ -410,18 +496,32 @@
     .timer-status-bar { width: 100%; padding: 0.2rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.5rem; }
     .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.70rem; font-weight: 600; color: var(--text-secondary); }
     .info-item i { font-size: 1rem; color: var(--accent-primary); }
-    .info-separator { display: none; }
+    
     .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
-        background: var(--secondary-surface); border-radius: 4px;
+        background: #e1efd6; border-radius: 4px;
         font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
-        color: var(--text-secondary); text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
+        color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
     .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
-    .called-numbers-list { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px; overflow-y: auto; padding: 0.4rem; background: var(--secondary-surface); border-radius: 4px; }
+    
+    .called-numbers-list {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-height: 120px;
+        overflow-y: auto;
+        padding: 0.4rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
     .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     
     .search-container { display: flex; margin-bottom: 1rem; gap: 4px; }
@@ -471,12 +571,45 @@
         margin-bottom: 0;
     }
 
-
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
-    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: #01579b; text-shadow: none; }
-    .sheet-view { background-color: #ffffff; border: 1px solid #0277bd; border-radius: 6px; padding: 0.8rem; margin-bottom: 1rem; }
-    .sheet-header { color: #01579b; border-bottom: 1px solid #b3e5fc; font-size: 1rem; margin-bottom: 0.8rem; background: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; padding-bottom: 0.5rem; }
-    .sheet-content { display: grid; gap: 0.8rem; grid-template-columns: 1fr !important; }
+    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: white; text-shadow: none; }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    }
+
+    .sheet-view {
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 0.8rem;
+        margin: 1rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .sheet-header {
+        color: white;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        padding-bottom: 0.5rem;
+    }
+
+    .sheet-content {
+        display: grid;
+        gap: 0.8rem;
+        grid-template-columns: 1fr !important;
+        color: #e3f2fd;
+    }    
+    
     .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
@@ -520,7 +653,6 @@
     .dividend-table th, .dividend-table td { padding: 0.8rem; text-align: left; border-top: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; }
     .dividend-table th { font-weight: 700; color: var(--accent-secondary); font-size: 0.95rem; }
     .dividend-table tbody tr { transition: background-color var(--transition-speed) ease; }
-    .dividend-table tbody tr:hover { background-color: rgba(255, 0, 160, 0.1); }
     .dividend-table .winner-info { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
     .dividend-table .winner-details { flex-grow: 1; }
     .dividend-table .winner-details ul { list-style: none; padding: 0; margin: 0; }
@@ -529,8 +661,16 @@
     .dividend-table .prize-share { font-size: 0.8em; color: var(--text-secondary); font-style: italic; display: block; margin-top: 2px;}
     .dividend-table .winner-info .fa-eye { flex-shrink: 0; margin-left: 10px; cursor: pointer; color: var(--accent-primary); font-size: 1.1rem; transition: transform 0.2s; padding-top: 4px; }
     .dividend-table .winner-info .fa-eye:hover { transform: scale(1.2); }
+    .dividend-table th,
+    .dividend-table td {
+        padding: 0.9rem;
+        text-align: left;
+        border-top: 1px solid rgba(255, 0, 160, 0.4);
+        font-size: 0.9rem;
+        vertical-align: top;
+        color: #ffffff;
+    }
 
-    /* --- Professional Announcement Styles --- */
     #number-announcement-overlay {
         position: fixed;
         top: 0;
@@ -541,8 +681,6 @@
         justify-content: center;
         align-items: flex-start;
         pointer-events: none;
-        
-        /* Initial state: Hidden and transparent */
         opacity: 0;
         visibility: hidden;
     }
@@ -555,12 +693,9 @@
         transform: translateX(-50%);
         width: 120px;
         height: 40px;
-        
-        
     }
     
     #announced-number-display {
-        /* This is the ball */
         position: relative;
         width: 60px;
         height: 60px;
@@ -578,14 +713,24 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 -3px 5px rgba(0,0,0,0.2);
         border: 3px solid #b3a500;
         pointer-events: auto;
-        
-        /* Reset any old properties */
         padding: 0;
         text-shadow: none;
     }
-
     
-    #bookingGridContainer { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 75vh; overflow-y: auto; border-radius: 6px; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+    #bookingGridContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 8px;
+        max-height: 75vh;
+        overflow-y: auto;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
     
     #bookingGridContainer .ticket-view.sold {
         cursor: not-allowed;
@@ -597,9 +742,13 @@
         background-color: #ffcdd2;
         color: #c62828;
     }
-    #bookingGridContainer .ticket-view.sold .ticket-header span,
+    #bookingGridContainer .ticket-view.sold .ticket-header span:not(.ticket-status),
     #bookingGridContainer .ticket-view.sold .ticket-header div {
         color: #c62828 !important;
+    }
+    .ticket-header span.ticket-status.sold {
+        background-color: #c62828;
+        color: white !important;
     }
     #bookingGridContainer .ticket-view.sold .ticket-num.empty {
         background-color: #ffebee;
@@ -609,16 +758,42 @@
         background-color: #e3f2fd;
         border-color: #90caf9;
     }
-    #bookingGridContainer .ticket-view:not(.sold) .ticket-header {
-        background-color: #bbdefb;
-        color: #1565c0;
-    }
-     #bookingGridContainer .ticket-view:not(.sold) .ticket-header span,
-     #bookingGridContainer .ticket-view:not(.sold) .ticket-header div {
+
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-header span:not(.ticket-status),
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-header div {
         color: #1565c0 !important;
-     }
+    }
+
+    .ticket-header span.ticket-status.available {
+        background-color: #2e7d32;
+        color: white !important;
+    }
+
     #bookingGridContainer .ticket-view:not(.sold) .ticket-num.empty {
         background-color: #e3f2fd;
+    }
+
+    .ticket-header span.ticket-status {
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        float: right;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.5;
+    }
+    .ticket-header span.ticket-status.sold {
+        background-color: #c62828;
+        color: white;
+    }
+    .ticket-header span.ticket-status.available {
+        background-color: #2e7d32;
+        color: white;
+    }
+    .ticket-header span.ticket-status.missing {
+        background-color: #7f8c8d;
+        color: white;
     }
 
     .selection-indicator {
@@ -637,7 +812,21 @@
         justify-content: center;
         transition: border-color 0.3s ease;
     }
-    #bookedTicketsDisplay { max-height: 80vh; overflow-y: auto; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 1rem; background-color: #e0f7fa; border: 1px solid #b3e5fc; }
+
+    #bookedTicketsDisplay {
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 8px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
     .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
     .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
@@ -657,7 +846,7 @@
     .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
 
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
-    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: var(--muted-color-dash); }
+    .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: white; }
     .dashboard-view .gameSettingTable td::before { content: '' !important; }
     .dashboard-view .tableInp {
         margin: 0;
@@ -713,17 +902,25 @@
     .dashboard-view .dividentConDiv table { width: 100%; color: var(--light-text-dash); border-collapse: collapse; }
     .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 6px; border: 1px solid var(--muted-color-dash); font-size: 0.85rem;}
     
-    .gamePopDiv { background: rgba(0, 0, 0, 0.8); }
+    .gamePopDiv {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
     .gameDiv {
         position: relative;
         height: 95vh;
         width: 95%;
-        background: var(--primary-bg-dash);
         margin: 2.5% auto;
-        border-radius: 8px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     }
 
     .gamePopDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
@@ -771,8 +968,8 @@
         color: #e74c3c;
         margin-left: 10px;
     }
-     #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover,
-     #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt:hover {
+    #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover,
+    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt:hover {
         transform: scale(1.2);
     }
     #adminGameSettingTable .booked-ticket-line-2 {
@@ -783,9 +980,9 @@
     #adminGameSettingTable .admin-ticket-row td {
         display: block;
         width: 100%;
-        padding: 0;
+        padding: 6px;
     }
-     #adminGameSettingTable .admin-ticket-row.available-ticket td {
+    #adminGameSettingTable .admin-ticket-row.available-ticket td {
         display: table-cell;
     }
     
@@ -859,7 +1056,7 @@
         z-index: 2;
     }
 
-   .poster-title {
+    .poster-title {
         font-size: 2em;
         text-transform: uppercase;
         font-weight: 700;
@@ -971,7 +1168,6 @@
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231abc9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right 1rem center;
         background-size: 1em;
@@ -982,7 +1178,7 @@
         margin: 0 !important;
         height: auto;
         font-size: 1rem;
-	    border-radius: 10px;
+        border-radius: 10px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -1038,7 +1234,6 @@
         line-height: 35px;
     }
     
-    /* --- Poster Maker Styles --- */
     #poster-bg-controls {
         display: flex;
         flex-wrap: nowrap;
@@ -1131,10 +1326,9 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
-    /* --- NEW STYLES FOR BOOKING PAGE --- */
     #publicBookingActionFooter {
         position: fixed;
-        bottom: 55px; /* Adjust if bottom-nav height changes */
+        bottom: 55px;
         left: 0;
         width: 100%;
         background: var(--primary-surface);
@@ -1175,310 +1369,471 @@
             margin-bottom: 0.8rem;
         }
     }
-.success-animation {
-    margin: 0 auto 1rem auto;
-    width: 100px;
-    height: 100px;
-}
+    
+    .loading-spinner-container {
+        display: none;
+        margin: 0 auto 1.5rem auto;
+        width: 80px;
+        height: 80px;
+    }
+    .loading-spinner {
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+    }
+    .loading-spinner:after {
+        content: " ";
+        display: block;
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        border-radius: 50%;
+        border: 6px solid var(--accent-primary);
+        border-color: var(--accent-primary) transparent var(--accent-primary) transparent;
+        animation: lds-dual-ring 1.2s linear infinite;
+    }
+    @keyframes lds-dual-ring {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    #bookingSuccessPopup.processing .success-animation {
+        display: none;
+    }
+    #bookingSuccessPopup.processing .loading-spinner-container {
+        display: block;
+    }
+    
+    .success-animation {
+        margin: 0 auto 1rem auto;
+        width: 100px;
+        height: 100px;
+    }
 
-.checkmark {
-    width: 100px;
-    height: 100px;
+    .checkmark {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 2;
+        stroke: #ffffff;
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px #2ecc71;
+        margin: 0 auto;
+        animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
+    }
+
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #2ecc71;
+        fill: none;
+        animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+
+    @keyframes stroke_anim {
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    @keyframes scale_anim {
+        0% { transform: none; }
+        20% { transform: scale3d(1.1, 1.1, 1); }
+        40% { transform: scale3d(0.9, 0.9, 1); }
+        60% { transform: scale3d(1.03, 1.03, 1); }
+        80% { transform: scale3d(0.97, 0.97, 1); }
+        100% { transform: none; }
+    }
+
+    @keyframes fill_anim {
+        100% {
+            box-shadow: inset 0px 0px 0px 50px #2ecc71;
+        }
+    }
+
+    #adminGameSettingTable.agent-list-view {
+        display: block;
+    }
+    #adminGameSettingTable.agent-list-view thead {
+        display: none;
+    }
+    #adminGameSettingTable.agent-list-view tbody,
+    #adminGameSettingTable.agent-list-view tr.agent-row-card {
+        display: block;
+        width: 100%;
+    }
+    tr.agent-row-card {
+        margin-bottom: 0.5rem !important;
+        padding: 0 !important;
+        border: 1px solid transparent !important;
+        border-radius: 6px;
+        background-color: var(--secondary-bg-dash);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    tr.agent-row-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-color: var(--accent-color-dash) !important;
+    }
+    tr.agent-row-card td {
+        display: block;
+        padding: 0.8rem !important;
+        border: none !important;
+    }
+    .agent-card-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+    }
+    .agent-card-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+    .agent-card-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--light-text-dash);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .agent-card-name small {
+        font-weight: 400;
+        font-size: 0.8em;
+        color: var(--muted-color-dash);
+        text-transform: capitalize;
+    }
+    .agent-card-phone {
+        font-size: 0.85rem;
+        color: var(--muted-color-dash);
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .agent-card-stats {
+        display: flex;
+        gap: 1rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .agent-stat-item {
+        display: flex;
+        flex-direction: column;
+        min-width: 80px;
+    }
+    .agent-stat-item span {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--accent-color-dash);
+    }
+    .agent-stat-item label {
+        font-size: 0.7rem;
+        color: var(--muted-color-dash);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .agent-card-actions {
+        flex-shrink: 0;
+        padding-left: 0.5rem;
+    }
+    .agent-card-actions .fa-trash-alt {
+        color: #e74c3c;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.2s, color 0.2s;
+    }
+    .agent-card-actions .fa-trash-alt:hover {
+        transform: scale(1.2);
+        color: #ff7675;
+    }
+    .agent-card-actions span {
+        color: var(--muted-color-dash);
+        font-size: 1.2rem;
+    }
+
+    @keyframes mic-live-glow {
+        0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+        50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
+        100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
+    }
+
+    #micToggleBtn.live {
+        background-color: #e74c3c;
+        color: white;
+        animation: mic-live-glow 1.5s infinite;
+    }
+
+    .music-control-wrapper {
+        display: flex;
+        gap: 5px;
+    }
+    .music-control-wrapper .tableInp {
+        flex-grow: 1;
+    }
+    .music-control-wrapper .actionBtn {
+        width: auto !important;
+        flex-grow: 0;
+        padding: 0 1rem;
+    }
+
+    #musicPlaylist, #popupMusicPlaylist {
+        max-height: 250px;
+        overflow-y: auto;
+        background: var(--secondary-bg-dash);
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+    #musicPlaylist {
+        margin: 1rem 2.5% 0 2.5%;
+        width: 95%;
+    }
+    #popupMusicPlaylist {
+        padding: 0 0.5rem 0.5rem 0.5rem;
+    }
+
+    .playlist-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--primary-bg-dash);
+        color: var(--light-text-dash);
+        transition: background-color 0.3s;
+    }
+    .playlist-item:last-child {
+        border-bottom: none;
+    }
+    .playlist-item-name {
+        flex-grow: 1;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .playlist-item-actions button {
+        background: transparent;
+        border: none;
+        color: var(--light-text-dash);
+        cursor: pointer;
+        font-size: 1rem;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        transition: background-color 0.2s, transform 0.2s;
+        position: relative;
+        z-index: 1;
+    }
+    .playlist-item-actions button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+    }
+    .playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
+    .playlist-item-actions .fa-trash-alt { color: #e74c3c; }
+
+    @keyframes glowing-gradient-border {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    @keyframes pulse-icon {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+
+    .playlist-item.playing .playlist-item-actions button:first-child::before {
+        content: '';
+        position: absolute;
+        top: -3px; left: -3px;
+        right: -3px; bottom: -3px;
+        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary));
+        background-size: 400% 400%;
+        border-radius: 50%;
+        z-index: -1;
+        animation: glowing-gradient-border 4s linear infinite;
+        filter: blur(4px);
+    }
+    .playlist-item.playing .playlist-item-actions button:first-child {
+        background-color: var(--primary-bg-dash) !important;
+        transform: scale(1.1);
+    }
+    .playlist-item.playing .playlist-item-actions .fa-play-circle {
+        color: var(--accent-primary);
+        animation: pulse-icon 1.5s infinite ease-in-out;
+    }
+    
+    .marquee-container {
+        background: rgba(0, 246, 255, 0.1);
+        border: 1px solid rgba(0, 246, 255, 0.3);
+        border-radius: 6px;
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        z-index: 10;
+        position: relative;
+    }
+
+    #liveImagePopup .popup-content, #liveVideoPopup .popup-content {
+        padding: 0.5rem;
+        background: var(--primary-surface);
+    }
+    #liveImagePopup img, #liveVideoPopup video {
+        max-width: 100%;
+        max-height: 85vh;
+        height: auto;
+        display: block;
+        border-radius: 4px;
+    }
+    
+    .announcement-controls {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .announcement-controls label {
+        font-weight: bold;
+        color: var(--muted-color-dash);
+        font-size: 0.9rem;
+    }
+
+    .announcement-controls textarea.tableInp {
+        background-color: white;
+        color: var(--text-dark);
+        border: 1px solid var(--secondary-bg-dash);
+        min-height: 100px;
+        resize: vertical;
+        text-align: left !important;
+        padding: 0.7rem 1rem !important;
+    }
+
+    .announcement-controls .actionBtn {
+        width: 100%;
+        margin: 0.25rem 0 0 0;
+    }
+/* --- Floating booking button CSS --- */
+.universal-float-btn {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    top: auto;
+    left: auto;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
-    display: block;
-    stroke-width: 2;
-    stroke: #ffffff;
-    stroke-miterlimit: 10;
-    box-shadow: inset 0px 0px 0px #2ecc71;
-    margin: 0 auto;
-    animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
-}
-
-.checkmark__circle {
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    stroke-width: 2;
-    stroke-miterlimit: 10;
-    stroke: #2ecc71;
-    fill: none;
-    animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-
-.checkmark__check {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-}
-
-@keyframes stroke_anim {
-    100% {
-        stroke-dashoffset: 0;
-    }
-}
-
-@keyframes scale_anim {
-    0% {
-        transform: none;
-    }
-    20% {
-        transform: scale3d(1.1, 1.1, 1);
-    }
-    40% {
-        transform: scale3d(0.9, 0.9, 1);
-    }
-    60% {
-        transform: scale3d(1.03, 1.03, 1);
-    }
-    80% {
-        transform: scale3d(0.97, 0.97, 1);
-    }
-    100% {
-        transform: none;
-    }
-}
-
-@keyframes fill_anim {
-    100% {
-        box-shadow: inset 0px 0px 0px 50px #2ecc71;
-    }
-}
-
-/* --- NEW AGENT LIST CARD STYLES --- */
-#adminGameSettingTable.agent-list-view {
-    display: block;
-}
-#adminGameSettingTable.agent-list-view thead {
-    display: none;
-}
-#adminGameSettingTable.agent-list-view tbody,
-#adminGameSettingTable.agent-list-view tr.agent-row-card {
-    display: block;
-    width: 100%;
-}
-tr.agent-row-card {
-    margin-bottom: 0.5rem !important;
-    padding: 0 !important;
-    border: 1px solid transparent !important;
-    border-radius: 6px;
-    background-color: var(--secondary-bg-dash);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-tr.agent-row-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    border-color: var(--accent-color-dash) !important;
-}
-tr.agent-row-card td {
-    display: block;
-    padding: 0.8rem !important;
-    border: none !important;
-}
-.agent-card-container {
+box-shadow:
+    0 0 10px rgba(0, 198, 255, 0.6),
+    0 0 20px rgba(37, 117, 252, 0.5),
+    0 0 35px rgba(106, 17, 203, 0.45),
+    inset 0 0 10px rgba(0, 198, 255, 0.6),
+    inset 0 0 20px rgba(37, 117, 252, 0.5),
+    inset 0 0 35px rgba(106, 17, 203, 0.45);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    width: 100%;
-}
-.agent-card-info {
-    flex-grow: 1;
-    min-width: 0;
-}
-.agent-card-name {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--light-text-dash);
-    white-space: nowrap;
+    justify-content: center;
+    cursor: grab;
+    z-index: 997;
+    user-select: none;
+    -webkit-user-drag: none;
     overflow: hidden;
-    text-overflow: ellipsis;
-}
-.agent-card-name small {
-    font-weight: 400;
-    font-size: 0.8em;
-    color: var(--muted-color-dash);
-    text-transform: capitalize;
-}
-.agent-card-phone {
-    font-size: 0.85rem;
-    color: var(--muted-color-dash);
-    margin-top: 4px;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-.agent-card-stats {
-    display: flex;
-    gap: 1rem;
-    text-align: center;
-    flex-shrink: 0;
-}
-.agent-stat-item {
-    display: flex;
-    flex-direction: column;
-    min-width: 80px;
-}
-.agent-stat-item span {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--accent-color-dash);
-}
-.agent-stat-item label {
-    font-size: 0.7rem;
-    color: var(--muted-color-dash);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.agent-card-actions {
-    flex-shrink: 0;
-    padding-left: 0.5rem;
-}
-.agent-card-actions .fa-trash-alt {
-    color: #e74c3c;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: transform 0.2s, color 0.2s;
-}
-.agent-card-actions .fa-trash-alt:hover {
-    transform: scale(1.2);
-    color: #ff7675;
-}
-.agent-card-actions span {
-    color: var(--muted-color-dash);
-    font-size: 1.2rem;
-}
 
-/* NEW AUDIO STYLES */
-@keyframes mic-live-glow {
-    0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-    50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
-    100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-}
-
-#micToggleBtn.live {
-    background-color: #e74c3c;
-    color: white;
-    animation: mic-live-glow 1.5s infinite;
-}
-
-.music-control-wrapper {
-    display: flex;
-    gap: 5px;
-}
-.music-control-wrapper .tableInp {
-    flex-grow: 1;
-}
-.music-control-wrapper .actionBtn {
-    width: auto !important;
-    flex-grow: 0;
-    padding: 0 1rem;
-}
-
-#musicPlaylist, #popupMusicPlaylist {
-    max-height: 250px;
-    overflow-y: auto;
-    background: var(--secondary-bg-dash);
-    border-radius: 4px;
-    padding: 0.5rem;
-}
-#musicPlaylist {
-    margin: 1rem 2.5% 0 2.5%;
-    width: 95%;
-}
-#popupMusicPlaylist {
-    padding: 0 0.5rem 0.5rem 0.5rem;
-}
-
-.playlist-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--primary-bg-dash);
-    color: var(--light-text-dash);
-    transition: background-color 0.3s;
-}
-.playlist-item:last-child {
-    border-bottom: none;
-}
-.playlist-item-name {
-    flex-grow: 1;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.playlist-item-actions button {
     background: transparent;
-    border: none;
-    color: var(--light-text-dash);
-    cursor: pointer;
-    font-size: 1rem;
-    width: 30px;
-    height: 30px;
+}
+
+.universal-float-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
     border-radius: 50%;
-    transition: background-color 0.2s, transform 0.2s;
-    position: relative; /* For gradient */
+    padding: 2px;
+
+    background: linear-gradient(
+        270deg,
+        #00c6ff,
+        #0072ff,
+        #6a11cb,
+        #2575fc,
+        #00c6ff
+    );
+    background-size: 400% 400%;
+    animation: borderGradient 4s linear infinite;
+
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.universal-float-btn:active {
+    cursor: grabbing;
+}
+
+.universal-float-btn img {
+    width: 98%;
+    height: 98%;
+    object-fit: cover;
+    pointer-events: none;
+    transform: scale(1);
+    border-radius: 50%;
+    position: relative;
     z-index: 1;
 }
-.playlist-item-actions button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
-}
-.playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
-.playlist-item-actions .fa-trash-alt { color: #e74c3c; }
 
-/* NEW Playlist Animation Styles */
-@keyframes glowing-gradient-border {
+/* Border animation */
+@keyframes borderGradient {
     0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-@keyframes pulse-icon {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+    100% { background-position: 100% 50%; }
 }
 
-.playlist-item.playing .playlist-item-actions button:first-child::before {
-    content: '';
-    position: absolute;
-    top: -3px; left: -3px;
-    right: -3px; bottom: -3px;
-    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary));
-    background-size: 400% 400%;
-    border-radius: 50%;
-    z-index: -1;
-    animation: glowing-gradient-border 4s linear infinite;
-    filter: blur(4px);
+/* Hide floating button if active dashboard mode is on */
+body.dashboard-view-active #universalBookFloatBtn {
+    display: none !important;
 }
-.playlist-item.playing .playlist-item-actions button:first-child {
-    background-color: var(--primary-bg-dash) !important;
-    transform: scale(1.1);
-}
-.playlist-item.playing .playlist-item-actions .fa-play-circle {
-    color: var(--accent-primary);
-    animation: pulse-icon 1.5s infinite ease-in-out;
-}
-
 </style>
 </head>
 <body>
 
 <div id="notification-container"></div>
 
+<!-- Floating Draggable Ticket Booking GIF Button -->
+<div class="universal-float-btn" id="universalBookFloatBtn" title="Hold & drag anywhere. Tap to Book.">
+    <img src="https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif" alt="Booking Ticket GIF">
+</div>
+
 <div id="publicView" class="view neon-view active">
     <header class="top-header">
         <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">Demo Housie</h1>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
     <div class="page-wrapper">
+        <!-- Live Custom Marquee Below Header inside Public View -->
+        <div class="marquee-container">
+            <i class="fas fa-bullhorn" style="color: var(--accent-primary); margin-right: 10px; flex-shrink: 0;"></i>
+            <marquee id="publicMarquee" behavior="scroll" direction="left" scrollamount="4" style="font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem;"></marquee>
+        </div>
+
         <div class="panel">
-            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
-            </div>
+            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;"></div>
         </div>
 
         <main class="game-layout">
@@ -1501,7 +1856,7 @@ tr.agent-row-card td {
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
                 </section>
 		
-		<section class="panel">
+                <section class="panel">
                     <h2 class="panel-title">DIVIDENDS & WINNERS</h2>
                     <table class="dividend-table" id="dividendListTable">
                         <thead><tr><th>Dividend Name</th><th>Winner</th></tr></thead>
@@ -1509,12 +1864,10 @@ tr.agent-row-card td {
                     </table>
                 </section>
 
-                 <section class="panel">
+                <section class="panel">
                     <h2 class="panel-title">ALL TICKETS STATUS</h2>
-                    <div id="bookedTicketsDisplay">
-                    </div>
+                    <div id="bookedTicketsDisplay"></div>
                 </section>
-                
             </aside>
         </main>
     </div>
@@ -1534,24 +1887,27 @@ tr.agent-row-card td {
     <header class="top-header">
          <div class="title-container">
             <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">Demo Housie</h1>
+            <h1 class="webTitle">SINTHA HOUSIE</h1>
         </div>
     </header>
 
     <div class="page-wrapper">
+        <!-- Live Custom Marquee Below Header inside Booking View -->
+        <div class="marquee-container">
+            <i class="fas fa-bullhorn" style="color: var(--accent-primary); margin-right: 10px; flex-shrink: 0;"></i>
+            <marquee id="bookingMarquee" behavior="scroll" direction="left" scrollamount="4" style="font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.95rem;"></marquee>
+        </div>
+
         <div class="panel">
-            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
-            </div>
+            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;"></div>
         </div>
 
         <section class="panel">
-            <h2 class="panel-title"></h2>
-            <div id="bookingGridContainer">
-            </div>
+            <h2 class="panel-title">SELECT TICKETS</h2>
+            <div id="bookingGridContainer"></div>
         </section>
     </div>
 
-    <!-- NEW CONDITIONAL BOOKING FOOTER -->
     <div id="publicBookingActionFooter">
         <div class="booking-form-row">
             <input type="text" id="bookerName" placeholder="Your Name">
@@ -1571,6 +1927,7 @@ tr.agent-row-card td {
         </div>
     </nav>
 </div>
+
 <div id="adminDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
         <div class="titleBtn">ADMIN DASHBOARD</div>
@@ -1596,26 +1953,25 @@ tr.agent-row-card td {
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
             <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
             <button class="actionBtn" onclick="downloadPreviousGameTicketList()">PREV. GAME TICKETS</button>
-            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TICKETS</button>
+            <button class="actionBtn" onclick="downloadCurrentSoldTickets()">DOWNLOAD CURRENT TKT</button>
             <button class="actionBtn" onclick="downloadWinnersPDF()">DOWNLOAD WINNERS PDF</button>
         </div>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">START GAME CALLING</button>
-        <button class="runBtn" onclick="showPopup('runGameWindowDiv')" id="runGameBtn">RUN GAME</button>
+        <button class="runBtn" onclick="prepareAndShowRunGame()" id="runGameBtn">RUN GAME</button>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">DIVIDEND SETTINGS</button>
-        <table class="gameSettingTable" id="dividendSettingsTable">
-        </table>
+        <table class="gameSettingTable" id="dividendSettingsTable"></table>
          <div style="width: 80%; margin: 10px auto; display:flex; gap: 10px;">
-            <button class="actionBtn" style="flex-grow: 1;" id="saveDividentBtn" onclick="saveDividendSettings()">SAVE DEVIDENDS</button>
-	    <button class="actionBtn" style="flex-grow: 1;" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
+            <button class="actionBtn" style="flex-grow: 1;" id="saveDividentBtn" onclick="saveDividendSettings()">SAVE DIVIDENDS</button>
+	        <button class="actionBtn" style="flex-grow: 1;" id="makePosterBtn" onclick="showPosterModal()">MAKE POSTER</button>
         </div>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">AUDIO CONTROLS</button>
-        <table class="gameSettingTable" id="audioControlsTable">
+        <table class="announcement-controls" id="audioControlsTable">
             <tbody>
                 <tr>
                     <td>Background Music</td>
@@ -1671,12 +2027,39 @@ tr.agent-row-card td {
                 </tr>
             </tbody>
         </table>
-    
+    </div>
+    <div class="gameSettingDiv">
+        <button class="titleBtn">REAL-TIME ANNOUNCEMENTS</button>
+        <div class="announcement-controls">
+            <label for="liveTextAnnounceInp">Text Message</label>
+            <textarea id="liveTextAnnounceInp" class="tableInp" rows="4" placeholder="Enter your full announcement here. It will be visible to all users."></textarea>
+            <button class="actionBtn" id="sendLiveTextBtn">Send Text</button>
+
+            <label for="liveImageAnnounceInp" style="margin-top: 1rem; border-top: 1px solid var(--secondary-bg-dash); padding-top: 1rem;">Image Upload (advertise)</label>
+            <div class="music-control-wrapper">
+                <input class="tableInp" type="file" id="liveImageAnnounceInp" accept="image/*" style="text-align: left; padding: 0.7rem 0.5rem;">
+                <button class="actionBtn" id="sendLiveImageBtn">Send Image</button>
+            </div>
+            
+            <label for="liveVideoAnnounceInp" style="margin-top: 1rem; border-top: 1px solid var(--secondary-bg-dash); padding-top: 1rem;">Video Upload</label>
+            <div class="music-control-wrapper">
+                <input class="tableInp" type="file" id="liveVideoAnnounceInp" accept="video/mp4,video/webm" style="text-align: left; padding: 0.7rem 0.5rem;">
+                <button class="actionBtn" id="sendLiveVideoBtn">Send Video</button>
+            </div>
+        </div>
+    </div>
+    <!-- New Marquee settings block under announcements -->
+    <div class="gameSettingDiv">
+        <button class="titleBtn">MARQUEE ANNOUNCEMENT TEXT</button>
+        <div class="announcement-controls">
+            <label for="marqueeTextInp">Custom Marquee Text</label>
+            <textarea id="marqueeTextInp" class="tableInp" rows="4" placeholder="Enter custom message. Leave empty to display the default notice."></textarea>
+            <button class="actionBtn" onclick="saveMarqueeText()">SAVE MARQUEE TEXT</button>
+        </div>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">BUSINESS INFO</button>
-        <table class="gameSettingTable" id="businessInfoTable">
-        </table>
+        <table class="gameSettingTable" id="businessInfoTable"></table>
     </div>
     <div class="gameSettingDiv">
         <button class="titleBtn">ADMIN INFO</button>
@@ -1714,6 +2097,7 @@ tr.agent-row-card td {
     </div>
     <button class="bookFloatBtn" id="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
 </div>
+
 <div id="agentDashboardView" class="view dashboard-view">
     <div class="gameSettingDiv">
         <div class="titleBtn">AGENT DASHBOARD</div>
@@ -1724,8 +2108,7 @@ tr.agent-row-card td {
     </div>
     <div class="gameSettingDiv">
         <div class="titleBtn">GAME & SALES INFO</div>
-        <table class="gameSettingTable" id="agentBusinessInfoTable">
-        </table>
+        <table class="gameSettingTable" id="agentBusinessInfoTable"></table>
     </div>
     <div class="gameSettingDiv">
         <div class="titleBtn">AGENT INFO</div>
@@ -1740,12 +2123,11 @@ tr.agent-row-card td {
     <div class="gameSettingDiv" style="margin-bottom: 80px;">
         <div class="titleBtn">MY SOLD TICKETS</div>
         <input class="searchInp" placeholder="Enter keyword" id="agentSearchKeyInp" onkeyup="showAgentSoldTickets()">
-        <table class="gameSettingTable" id="agentSoldTicketsTable">
-        </table>
+        <table class="gameSettingTable" id="agentSoldTicketsTable"></table>
     </div>
-
     <button class="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
 </div>
+
 <div class="overlay-popup" id="loginPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1757,7 +2139,6 @@ tr.agent-row-card td {
                 <input type="button" class="login-btn agent" value="AGENT LOGIN" id="agentLoginBtn">
                 <input type="button" class="login-btn admin" value="ADMIN LOGIN" id="adminLoginBtn">
                 <a href="#" class="forgot-password-link" id="forgotPasswordLink">Forgot Password?</a>
-    
                 <input type="button" class="login-btn secondary" value="Good Luck" id="showSignupFormBtn">
             </div>
         </div>
@@ -1775,6 +2156,7 @@ tr.agent-row-card td {
         </div>
     </div>
 </div>
+
 <div class="overlay-popup" id="agentListPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1782,9 +2164,11 @@ tr.agent-row-card td {
         <div class="agent-list" id="agentListContainer"></div>
     </div>
 </div>
+
 <div id="number-announcement-overlay">
     <div id="announced-number-display">--</div>
 </div>
+
 <div class="overlay-popup" id="agentSelectionPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1792,6 +2176,7 @@ tr.agent-row-card td {
         <div class="agent-list" id="bookingAgentListContainer"></div>
     </div>
 </div>
+
 <div class="overlay-popup" id="editOwnerPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1804,14 +2189,15 @@ tr.agent-row-card td {
         </div>
     </div>
 </div>
+
 <div class="overlay-popup" id="winningTicketViewerPopup">
     <div class="popup-content" style="background-color: #e0f7fa; border-color: #0288d1;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" id="winningTicketPopupTitle" style="color: #01579b; text-shadow: none;">Winning Ticket</h3>
-        <div id="winningTicketDisplayArea" style="padding-top: 1rem;">
-        </div>
+        <div id="winningTicketDisplayArea" style="padding-top: 1rem;"></div>
     </div>
 </div>
+
 <div class="overlay-popup" id="applyToAllConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1824,6 +2210,7 @@ tr.agent-row-card td {
         </div>
     </div>
 </div>
+
 <div class="overlay-popup" id="deleteConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1836,6 +2223,7 @@ tr.agent-row-card td {
         </div>
     </div>
 </div>
+
 <div class="overlay-popup" id="ticketResetConfirmPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1848,6 +2236,7 @@ tr.agent-row-card td {
         </div>
     </div>
 </div>
+
 <div class="gamePopDiv" id="dashboardBookingPopup">
     <div class="gameDiv">
         <div class="booking-popup-header">
@@ -1860,10 +2249,10 @@ tr.agent-row-card td {
              <div id="dashboardSelectionIndicator" class="selection-indicator" style="width: 100%; margin: 0.8rem 0; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
             <input class="bookBtn" type="button" id="dashBookBtn" onclick="handleDashboardBooking()" value="BOOK NOW">
         </div>
-        <div class="ticketBlockDiv" id="dashTicketBlockDiv">
-        </div>
+        <div class="ticketBlockDiv" id="dashTicketBlockDiv"></div>
     </div>
 </div>
+
 <div class="gamePopDiv" id="publicBookingPopup">
     <div class="gameDiv">
         <div class="booking-popup-header">
@@ -1876,16 +2265,15 @@ tr.agent-row-card td {
              <div id="publicBookingIndicator" class="selection-indicator" style="width: 100%; margin: 0.8rem 0; color: var(--light-text-dash); border-color: var(--accent-color-dash); background: rgba(26, 188, 156, 0.1);"></div>
             <input class="bookBtn" type="button" id="publicRequestBookingBtn" value="REQUEST BOOKING">
         </div>
-        <div class="ticketBlockDiv" id="publicBookingGrid">
-        </div>
+        <div class="ticketBlockDiv" id="publicBookingGrid"></div>
     </div>
 </div>
+
 <div class="gamePopDiv" id="runGameWindowDiv">
     <div class="gameDiv" style="overflow-y: auto;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="panel" style="background: transparent; border: none; box-shadow: none; padding: 0; width: 95%; margin: 0.5rem auto;">
-            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0; margin-bottom: 1rem;">
-            </div>
+            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0.5rem; margin-bottom: 0.5rem;"></div>
         </div>
         <table class="runGameTable gameSettingTable">
             <tbody>
@@ -1899,9 +2287,9 @@ tr.agent-row-card td {
                 </tr>
             </tbody>
         </table>
-     
-          <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
+
+        <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">VIEW TICKET</h2>
             <div class="search-container" style="padding: 0 1rem 1rem 1rem;">
                 <input type="text" class="searchInp" id="adminTicketSearchInp" placeholder="Enter name, phone, or ticket ID" style="background: var(--primary-bg-dash); color: var(--light-text-dash); border-color: var(--accent-color-dash);">
                 <button class="search-btn" id="adminSearchTicketBtn" style="background: var(--accent-color-dash);"><i class="fas fa-search"></i></button>
@@ -1910,33 +2298,30 @@ tr.agent-row-card td {
             <div class="ticketDisplayArea" id="adminTicketDisplayArea" style="padding: 0 1rem 1rem 1rem; max-height: 400px; overflow-y: auto;"></div>
         </section>
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
-            <div class="number-board" id="runGamePopupBoard">
-            </div>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">GAME BOARD</h2>
+            <div class="number-board" id="runGamePopupBoard"></div>
         </section>
 
-      
-
         <section class="panel" style="background: var(--secondary-bg-dash); width: 95%; margin: 1rem auto; border-color: var(--accent-color-dash);">
-            <h2 class="panel-title" style="color: var(--light-text-dash); text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
+            <h2 class="panel-title" style="color: white; text-shadow: none; font-size: 1.2rem;">DIVIDENDS & WINNERS</h2>
             <table class="dividend-table" id="runGameDividendTable" style="color: var(--light-text-dash);">
                 <thead><tr><th style="color: var(--accent-color-dash);">Dividend</th><th style="color: var(--accent-color-dash);">Winner</th></tr></thead>
                 <tbody></tbody>
             </table>
         </section>
 
-	<div style="font-weight:bold;font-size:10px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
-
-      </div>
+	    <div style="font-weight:bold;font-size:10px;display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;background:#ff4d4d;color:#fff;box-shadow:0 0 12px rgba(255,77,77,0.8);animation:blink 2s infinite; margin: 1rem auto;"><i class="fas fa-exclamation-triangle"></i> DO NOT CLOSE THIS PAGE WHILE GAME IS RUNNING</div><style>@keyframes blink{50%{background:#fff;color:#ff4d4d;box-shadow:0 0 12px rgba(255,0,0,0.8);}}</style>
+    </div>
 </div>
+
 <div class="overlay-popup" id="genericInfoPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" id="genericInfoPopupTitle">Info</h3>
-        <div id="genericInfoPopupContent" style="text-align: left; color: var(--text-secondary); line-height: 1.6;">
-        </div>
+        <div id="genericInfoPopupContent" style="text-align: left; color: var(--text-secondary); line-height: 1.6;"></div>
     </div>
 </div>
+
 <div class="overlay-popup" id="posterMakerPopup">
     <div class="popup-content" style="max-width: 650px; background: var(--primary-bg-dash);">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -1976,9 +2361,7 @@ tr.agent-row-card td {
             <button class="actionBtn" onclick="changePosterBackground(this, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg25.jpg')">BG 25</button>
         </div>
 
-
-        <div id="posterContent">
-        </div>
+        <div id="posterContent"></div>
 
         <div class="poster-actions">
             <button class="actionBtn" id="savePosterBtn" onclick="savePosterAsImage()"><i class="fas fa-download"></i> Save as File</button>
@@ -2002,16 +2385,18 @@ tr.agent-row-card td {
                 </p>
             </div>
             <div class="notification-actions">
-                 <a href="https://sinthahousie.in/contact" target="_blank" class="login-btn" style="text-decoration: none;">Contact Us</a>
+                 <a href="https://sinthakeithel.in/tambola" target="_blank" class="login-btn" style="text-decoration: none;">Buy Now</a>
                  <button class="login-btn secondary" id="closeFirstVisitPopupBtn">Not Now</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- NEW: Booking Success Popup -->
 <div class="overlay-popup" id="bookingSuccessPopup">
     <div class="popup-content" style="background: var(--primary-surface); border-color: #2ecc71; box-shadow: 0 0 20px rgba(46, 204, 113, 0.5); padding: 2rem;">
+        <div class="loading-spinner-container">
+            <div class="loading-spinner"></div>
+        </div>
         <div class="success-animation">
             <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                 <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
@@ -2023,26 +2408,32 @@ tr.agent-row-card td {
     </div>
 </div>
 
-<!-- NEW: Playlist Popup -->
 <div class="overlay-popup" id="playlistPopup">
     <div class="popup-content" style="max-width: 600px; background: var(--primary-bg-dash);">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <h3 class="popup-title" style="color: var(--light-text-dash);">Music Playlist</h3>
-        <div id="popupMusicPlaylist" style="max-height: 70vh; overflow-y: auto;">
-            <!-- Playlist will be rendered here -->
-        </div>
+        <div id="popupMusicPlaylist" style="max-height: 70vh; overflow-y: auto;"></div>
     </div>
 </div>
 
+<div class="overlay-popup" id="liveImagePopup">
+    <div class="popup-content">
+         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+         <img id="liveImageDisplay" src="" alt="Live Announcement">
+    </div>
+</div>
 
-<!-- Global Audio Players -->
+<div class="overlay-popup" id="liveVideoPopup">
+    <div class="popup-content">
+         <button class="x-button" onclick="closeVideoPopup()"><i class="fas fa-times"></i></button>
+         <video id="liveVideoDisplay" controls autoplay muted playsinline style="max-width: 100%; max-height: 85vh; border-radius: 4px;"></video>
+    </div>
+</div>
+
 <audio id="backgroundMusicPlayer" loop></audio>
 <audio id="liveAudioPlayer"></audio>
 
-
 <script>
-// --- START OF FIXED SCRIPT ---
-
 const firebaseConfig = {
   apiKey: "AIzaSyAjvI_Vl4trHwZAosaGLdEYQ87jJHeGYwc",
   authDomain: "studio-ahutj.firebaseapp.com",
@@ -2053,12 +2444,10 @@ const firebaseConfig = {
   appId: "1:636752463109:web:da78d4100720a39a20a36c"
 };
 
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// --- NEW: For music synchronization ---
 let serverTimeOffset = 0;
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
     serverTimeOffset = snap.val();
@@ -2067,10 +2456,7 @@ db.ref('.info/serverTimeOffset').on('value', (snap) => {
 function getEstimatedServerTime() {
     return Date.now() + serverTimeOffset;
 }
-// --- END NEW ---
 
-
-// State Variables
 const audioBaseUrl = "https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/";
 let currentView = 'publicView';
 let currentUser = null;
@@ -2085,8 +2471,8 @@ let isAnnouncing = false;
 let countdownInterval = null;
 let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
-let knownWinners = {};
-let isInitialWinnerLoad = true;
+let knownWinners = {}; 
+let isInitialWinnerLoad = true; 
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
@@ -2097,25 +2483,39 @@ let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
 let adminDisplayedSearchPhones = new Set();
 const popupCloseTimeouts = new Map();
-const listeners = {}; // To keep track of Firebase listeners
+const listeners = {};
 
-// --- AUDIO FIX: Variables for Media Source Streaming ---
-let backgroundMusicPlayer;
-let liveAudioPlayer;
-let mediaSource;
-let sourceBuffer;
+const domCache = {
+    publicCells: {},
+    adminCells: {}
+};
+
+function cacheBoardCells() {
+    for (let i = 1; i <= 90; i++) {
+        domCache.publicCells[i] = document.getElementById(`num-${i}`);
+        domCache.adminCells[i] = document.getElementById(`run-game-popup-num-${i}`);
+    }
+}
+
+// Optimization Utility: Debouncer to batch rapid UI mutations
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+let backgroundMusicPlayer, liveAudioPlayer;
+let mediaSource, sourceBuffer;
 let audioQueue = [];
 let isAppending = false;
 let isMediaSourceOpen = false;
 let lastProcessedTimestamp = 0;
-// --- End Audio Fix Variables ---
-
-let localStream;
-let mediaRecorder;
+let localStream, mediaRecorder;
 let isMicOn = false;
 let audioLibrary = {};
 let currentTrackId = null;
-
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2128,8 +2528,6 @@ const allPossibleDividends = [
     "Early 5", "Quick 7", "Corners (4)", "Star"
 ];
 
-// --- Core App Logic ---
-
 function playSound(src) {
     const sound = new Audio(src);
     sound.play().catch(error => {});
@@ -2137,15 +2535,27 @@ function playSound(src) {
 
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    const newView = document.getElementById(viewId);
-    if (newView) {
-        newView.classList.add('active');
-        currentView = viewId;
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-        const isDashboard = viewId === 'adminDashboardView' || viewId === 'agentDashboardView';
-        document.body.classList.toggle('dashboard-view-active', isDashboard);
-        // After changing view, re-render dashboards if necessary
-        renderDashboards();
+    document.querySelectorAll('.view').forEach(v => {
+        if (v.id === viewId) {
+             v.style.display = 'block';
+             setTimeout(() => v.classList.add('active'), 10);
+        } else {
+             v.classList.remove('active');
+             v.style.display = 'none';
+        }
+    });
+
+    currentView = viewId;
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+    const isDashboard = viewId.includes('DashboardView');
+    document.body.classList.toggle('dashboard-view-active', isDashboard);
+    renderDashboards();
+    
+    // Efficient view rendering: Only run heavy DOM construction for the active view
+    if (viewId === 'ticketBookingView') {
+        renderVisualTicketBookingPage();
+    } else if (viewId === 'publicView') {
+        renderSheetWiseBookedList();
     }
 }
 
@@ -2187,8 +2597,6 @@ async function triggerGlobalNotification(message, type = 'info') {
         });
     } catch (e) { console.error('Error triggering global notification:', e); }
 }
-
-// --- Authentication ---
 
 auth.onAuthStateChanged(async (user) => {
     currentUser = user;
@@ -2267,12 +2675,8 @@ async function handleForgotPassword(e) {
     } catch (error) { showNotification(`Error: ${error.message}`, 'error'); }
 }
 
-
-// --- Popups and UI Helpers ---
-
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -2306,9 +2710,26 @@ function bindEventListeners() {
     });
     document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
     document.getElementById('viewPlaylistBtn').addEventListener('click', () => showPopup('playlistPopup'));
+    
+    document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
+    document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
+    document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
 }
 
 function showPopup(id) {
+    document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
+        if (p.id !== id) {
+            p.style.pointerEvents = 'none';
+            p.classList.remove('active');
+            if (popupCloseTimeouts.has(p.id)) {
+                clearTimeout(popupCloseTimeouts.get(p.id));
+                popupCloseTimeouts.delete(p.id);
+            }
+            p.style.display = 'none';
+            p.style.pointerEvents = 'auto';
+        }
+    });
+
     const popup = document.getElementById(id);
     if (popup) {
         if (popupCloseTimeouts.has(id)) {
@@ -2325,14 +2746,17 @@ function closePopups() {
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
         p.style.pointerEvents = 'none';
         p.classList.remove('active');
+
         if (popupCloseTimeouts.has(p.id)) {
             clearTimeout(popupCloseTimeouts.get(p.id));
         }
+
         const timeoutId = setTimeout(() => {
             p.style.display = 'none';
             p.style.pointerEvents = 'auto';
             popupCloseTimeouts.delete(p.id);
         }, 450);
+
         popupCloseTimeouts.set(p.id, timeoutId);
     });
 }
@@ -2360,8 +2784,6 @@ function showAgentListPopup() {
     showPopup('agentListPopup');
 }
 
-// --- Data Listeners & UI Updaters ---
-
 function setupRealtimeListeners() {
     Object.values(listeners).forEach(ref => ref.off());
 
@@ -2383,6 +2805,7 @@ function setupRealtimeListeners() {
             }
         }
         currentCalledNumbers = newNumbers;
+        
         const newWinners = data.winners || {};
         if (!isInitialWinnerLoad) {
             for (const dividendName in newWinners) {
@@ -2390,6 +2813,7 @@ function setupRealtimeListeners() {
                 const oldWinnerArray = knownWinners[dividendName] || [];
                 const oldWinnerTicketIds = new Set(oldWinnerArray.map(w => w.ticketId));
                 const justAnnouncedWinners = newWinnerArray.filter(w => !oldWinnerTicketIds.has(w.ticketId));
+
                 if (justAnnouncedWinners.length > 0) {
                     const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
                     const msg = `${winnerNames} has won ${dividendName}!`;
@@ -2400,14 +2824,15 @@ function setupRealtimeListeners() {
         }
         knownWinners = newWinners;
         isInitialWinnerLoad = false;
-        updateGameRelatedUIs(data);
+
+        debouncedUpdateGameRelatedUIs(data);
     }, err => { console.error("GameState listener error:", err); });
 
     listeners.tickets = db.ref('tickets');
     listeners.tickets.on('value', snapshot => {
         const ticketsObject = snapshot.val();
         allTicketsData = ticketsObject ? Object.values(ticketsObject) : [];
-        updatePublicTicketUIs();
+        debouncedUpdatePublicTicketUIs();
         renderDashboards();
     }, err => { console.error("Tickets listener error:", err); });
 
@@ -2415,7 +2840,6 @@ function setupRealtimeListeners() {
     listeners.users.on('value', snapshot => {
         const usersObject = snapshot.val();
         allUsersData = usersObject ? Object.entries(usersObject).map(([uid, data]) => ({ uid, ...data })) : [];
-        updatePublicUserUIs();
         renderDashboards();
     }, err => { console.error("Users listener error:", err); });
 
@@ -2440,6 +2864,37 @@ function setupRealtimeListeners() {
              renderMusicPlaylist();
         }
     }, err => console.error("Audio listener error:", err));
+
+    listeners.liveText = db.ref('announcements/liveText');
+    listeners.liveText.on('value', snapshot => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        if (data && (Date.now() - data.timestamp) < 20000) {
+            showNotification(`📢 Admin: ${data.text}`, 'info', 10000);
+        }
+    });
+
+    listeners.liveImage = db.ref('announcements/liveImage');
+    listeners.liveImage.on('value', snapshot => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        if (data && data.image && (Date.now() - data.timestamp) < 30000) {
+            document.getElementById('liveImageDisplay').src = data.image;
+            showPopup('liveImagePopup');
+        }
+    });
+    
+    listeners.liveVideo = db.ref('announcements/liveVideo');
+    listeners.liveVideo.on('value', snapshot => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        if (data && data.video && (Date.now() - data.timestamp) < 60000) {
+            const videoEl = document.getElementById('liveVideoDisplay');
+            videoEl.src = data.video;
+            showPopup('liveVideoPopup');
+            videoEl.play().catch(e => console.warn("Video autoplay blocked", e));
+        }
+    });
 }
 
 function renderDashboards() {
@@ -2461,11 +2916,24 @@ function renderDashboards() {
     }
 }
 
-
 function updateAllUIsWithSettings(data) {
     document.getElementById('whatsappGroupLink').href = data.whatsappLink || '#';
     updateCountdownTimers(data.gameDateTime);
     populateDividendList(data.dividends || []);
+
+    // Set Marquee text dynamically
+    const defaultMarqueeText = "Please check what time the game will start. After booking your tickets, complete your payment. If payment is not sent before the game starts, your ticket will be cancelled, or you will not receive any prize after winning. All admin and agent names and contact details are shown below. If any agent does not reply within 2 minutes, please book through another agent for your first booking process.";
+    const marqueeText = data.marqueeText || defaultMarqueeText;
+    const publicMarquee = document.getElementById('publicMarquee');
+    const bookingMarquee = document.getElementById('bookingMarquee');
+    if (publicMarquee) publicMarquee.textContent = marqueeText;
+    if (bookingMarquee) bookingMarquee.textContent = marqueeText;
+
+    // Populating marquee settings input without breaking input focus
+    const marqueeInp = document.getElementById('marqueeTextInp');
+    if (marqueeInp && !marqueeInp.matches(':focus')) {
+        marqueeInp.value = data.marqueeText || '';
+    }
 }
 
 function updateGameRelatedUIs(gameState) {
@@ -2478,9 +2946,16 @@ function updateGameRelatedUIs(gameState) {
         updateAdminDisplayedTickets();
     }
 }
+
+// Debounced wrapper of the game states to avoid UI freezing
+const debouncedUpdateGameRelatedUIs = debounce(updateGameRelatedUIs, 100);
+
 function updatePublicTicketUIs() {
-    renderVisualTicketBookingPage();
-    renderSheetWiseBookedList();
+    if (currentView === 'ticketBookingView') {
+        renderVisualTicketBookingPage();
+    } else if (currentView === 'publicView') {
+        renderSheetWiseBookedList();
+    }
     if (document.getElementById('ticketDisplayArea').innerHTML) {
         const currentPhones = Array.from(displayedSearchPhones);
         document.getElementById('ticketDisplayArea').innerHTML = '';
@@ -2492,8 +2967,8 @@ function updatePublicTicketUIs() {
         renderPublicBookingGrid();
     }
 }
-function updatePublicUserUIs() { }
 
+const debouncedUpdatePublicTicketUIs = debounce(updatePublicTicketUIs, 100);
 
 function updateUIAfterLogin() {
     document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.style.display = 'none');
@@ -2581,6 +3056,7 @@ function checkSheetSelection(selectedIds) {
     const message = parts.join(' & ') + ' Selected';
     return { valid: true, message: message };
 }
+
 function generateNumberBoard() {
     const publicBoard = document.getElementById('numberBoard');
     const adminPopupBoard = document.getElementById('runGamePopupBoard');
@@ -2597,9 +3073,10 @@ function generateNumberBoard() {
 
     if(publicBoard) publicBoard.innerHTML = boardHtml;
     if(adminPopupBoard) adminPopupBoard.innerHTML = adminPopupBoardHtml;
+    
+    cacheBoardCells();
 }
 
-// --- Professional announceNumber function ---
 function announceNumber(number) {
     isAnnouncing = true;
     lastAnnouncedNumber = number;
@@ -2612,22 +3089,21 @@ function announceNumber(number) {
     
     numberDisplay.textContent = number;
 
-    // Kill any previous animation to prevent overlap
     gsap.killTweensOf([overlay, numberDisplay]);
 
     gsap.timeline({ onComplete: () => { isAnnouncing = false; } })
-      .set(numberDisplay, { y: '-100px' }) // Start ball hidden 'inside' dispenser
-      .to(overlay, { autoAlpha: 1, duration: 0.2 }) // Show dispenser
+      .set(numberDisplay, { y: '-100px' })
+      .to(overlay, { autoAlpha: 1, duration: 0.2 })
       .to(numberDisplay, { 
-          y: 0, // Drop ball down to its final position
+          y: 0, 
           duration: 1.2, 
-          ease: 'elastic.out(1, 0.7)' // Bouncy effect
+          ease: 'elastic.out(1, 0.7)'
       })
       .to(overlay, { 
-          autoAlpha: 0, // Fade out the whole thing
+          autoAlpha: 0, 
           duration: 0.5, 
           ease: 'power2.in' 
-      }, "+=2.5"); // Wait 2.5 seconds before fading out
+      }, "+=2.5");
 }
 
 function updateCountdownTimers(targetDateString) {
@@ -2679,17 +3155,16 @@ function updateCountdownTimers(targetDateString) {
 }
 
 function renderVisualTicketBookingPage() {
+    if (currentView !== 'ticketBookingView') return;
     const gridContainer = document.getElementById('bookingGridContainer');
     if (!gridContainer) return;
     gridContainer.innerHTML = '';
 
-    if (currentView === 'ticketBookingView') {
-        publicSelectedTickets = [];
-        updatePublicSelectionIndicator();
-    }
+    publicSelectedTickets = [];
+    updatePublicSelectionIndicator();
 
     const totalTickets = gameSettingsData.totalTickets || 0;
-    if (allTicketsData.length === 0 || totalTickets === 0) {
+    if (totalTickets === 0) {
         gridContainer.innerHTML = '<p style="text-align: center;">Tickets have not been generated by the admin yet.</p>';
         return;
     }
@@ -2700,15 +3175,17 @@ function renderVisualTicketBookingPage() {
     for (let i = 0; i < numSheets; i++) {
         const startTicketId = i * 6 + 1;
         const endTicketId = startTicketId + 5;
+        const actualEndId = endTicketId > totalTickets ? totalTickets : endTicketId;
+
         const sheetWrapper = document.createElement('div');
         sheetWrapper.className = 'sheet-view';
 
         const sheetHeader = document.createElement('div');
         sheetHeader.className = 'sheet-header';
         sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tkt ${startTicketId}-${endTicketId})</span>
+            <span>Sheet ${i + 1} (Tkt ${startTicketId}-${actualEndId})</span>
             <label class="full-sheet-selector">
-                <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${endTicketId})"> Select Full
+                <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${actualEndId})"> Select Full
             </label>`;
         sheetWrapper.appendChild(sheetHeader);
 
@@ -2717,20 +3194,25 @@ function renderVisualTicketBookingPage() {
         sheetWrapper.appendChild(sheetContent);
 
         for (let j = startTicketId; j <= endTicketId; j++) {
+            if (j > totalTickets) continue;
+
             const ticket = ticketsMap.get(j);
             const ticketView = document.createElement('div');
             ticketView.id = `booking-ticket-${j}`;
             ticketView.className = 'ticket-view';
-            if (ticket && ticket.is_sold) {
-                ticketView.classList.add('sold');
-            } else {
-                ticketView.onclick = () => togglePublicTicketSelection(j);
-            }
-
-            let headerHTML = `<div class="ticket-header">Ticket ${j}</div>`;
+            
+            let headerHTML;
             let gridHTML = '';
 
             if (ticket) {
+                if (ticket.is_sold) {
+                    ticketView.classList.add('sold');
+                    headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status sold">SOLD</span></div>`;
+                } else {
+                    ticketView.onclick = () => togglePublicTicketSelection(j);
+                    headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status available">AVAILABLE</span></div>`;
+                }
+                
                 if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
                     gridHTML = ticket.numbers.flat().map(n =>
                         `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
@@ -2739,6 +3221,7 @@ function renderVisualTicketBookingPage() {
                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
                 }
             } else {
+                headerHTML = `<div class="ticket-header">Ticket ${j} <span class="ticket-status missing">DATA MISSING</span></div>`;
                 gridHTML = '<p style="text-align:center; padding: 1rem;">Data missing</p>';
             }
 
@@ -2787,7 +3270,6 @@ function togglePublicTicketSelection(ticketId) {
     }
 }
 
-
 function updatePublicSelectionIndicator() {
     const indicator = document.getElementById('publicSelectionIndicator');
     if (!indicator) return;
@@ -2795,7 +3277,6 @@ function updatePublicSelectionIndicator() {
     indicator.textContent = result.message || 'Select tickets to see booking options';
     indicator.style.borderColor = result.valid ? 'var(--accent-primary)' : 'var(--accent-secondary)';
 }
-
 
 function handlePublicBookingRequest() {
     const name = document.getElementById('bookerName').value.trim();
@@ -2850,22 +3331,18 @@ async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
     try {
         const snapshot = await db.ref(`bookingRequests/${code}`).once('value');
         if (snapshot.exists()) {
-            return redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds); // Recurse on collision
+            return redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds);
         }
 
         await db.ref(`bookingRequests/${code}`).set(bookingRequest);
 
         const baseURL = window.location.origin + window.location.pathname;
         const bookingLink = `${baseURL}?book=${code}`;
-
         const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
-        
         const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm (Admin/Agent Only):*\n${bookingLink}`;
-        
         const cleanPhone = agentPhone.replace(/\D/g, '');
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
         closePopups();
-
     } catch (error) {
         console.error("Error creating booking link:", error);
         showNotification("Could not create booking link. Please try again.", "error");
@@ -2875,125 +3352,121 @@ async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
 async function processBookingLink() {
     const urlParams = new URLSearchParams(window.location.search);
     const bookingCode = urlParams.get('book');
-    
     if (!bookingCode) return;
 
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    
     const popup = document.getElementById('bookingSuccessPopup');
     const titleEl = document.getElementById('bookingSuccessTitle');
     const messageEl = document.getElementById('bookingSuccessMessage');
-    const checkmarkSVG = popup.querySelector('.checkmark');
 
+    popup.classList.add('processing'); 
     titleEl.textContent = 'Processing Booking...';
-    messageEl.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top: 1rem;">Please wait while we confirm the booking.</p>';
-    if (checkmarkSVG) checkmarkSVG.style.display = 'none';
-    
+    titleEl.style.color = 'var(--accent-primary)'; 
+    titleEl.style.textShadow = '0 0 8px var(--accent-primary)';
+    messageEl.textContent = 'Please wait while we verify ticket availability...';
     showPopup('bookingSuccessPopup');
-
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    const handleErrorAndCleanup = (msg) => {
-        closePopups();
-        showNotification(msg, 'error');
-        handleRouting();
-    };
+    const bookingLogic = async () => {
+        const startTime = Date.now();
+        while (!authInitialized && Date.now() - startTime < 8000) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
+            throw new Error('You must be logged in as an Admin or Agent to confirm a booking.');
+        }
 
-    const startTime = Date.now();
-    while (!authInitialized && Date.now() - startTime < 8000) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    
-    if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
-        handleErrorAndCleanup('You must be logged in as an Admin or Agent to confirm a booking.');
-        showPopup('loginPopup');
-        return;
-    }
-
-    while (allTicketsData.length === 0 && Date.now() - startTime < 15000) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    if (allTicketsData.length === 0) {
-        handleErrorAndCleanup('Could not load ticket data. Please refresh and try again.');
-        return;
-    }
-    
-    const requestRef = db.ref(`bookingRequests/${bookingCode}`);
-    try {
+        const requestRef = db.ref(`bookingRequests/${bookingCode}`);
         const snapshot = await requestRef.once('value');
         if (!snapshot.exists()) {
-            handleErrorAndCleanup('This booking link is invalid or has already been used.');
-            return;
+            throw new Error('This booking link is invalid or has already been used.');
         }
 
         const requestData = snapshot.val();
         const { name, phone, tickets: ticketIdsToBook } = requestData;
 
         if (!name || !phone || !Array.isArray(ticketIdsToBook) || ticketIdsToBook.length === 0) {
-            handleErrorAndCleanup('Invalid data in booking link.');
             await requestRef.remove();
-            return;
+            throw new Error('Invalid data found in the booking link.');
         }
 
-        const alreadySold = [];
-        for (const id of ticketIdsToBook) {
-            const ticketData = allTicketsData.find(t => t.id === id);
-            if (ticketData && ticketData.is_sold) {
-                alreadySold.push(id);
+        const ticketsRef = db.ref('tickets');
+        const transactionResult = await ticketsRef.transaction(currentTickets => {
+            if (currentTickets === null) return;
+            for (const id of ticketIdsToBook) {
+                if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
+                    return;
+                }
             }
-        }
-        
-        if (alreadySold.length > 0) {
-             handleErrorAndCleanup(`Cannot book. Ticket(s) ${alreadySold.join(', ')} are already sold.`);
-             await requestRef.remove();
-             return;
-        }
-
-        const updates = {};
-        const timestamp = firebase.database.ServerValue.TIMESTAMP;
-        ticketIdsToBook.forEach(id => {
-            updates[`/tickets/${id}/is_sold`] = true;
-            updates[`/tickets/${id}/owner_name`] = name;
-            updates[`/tickets/${id}/owner_name_lower`] = name.toLowerCase();
-            updates[`/tickets/${id}/owner_phone`] = phone;
-            updates[`/tickets/${id}/agent_uid`] = currentUser.uid;
-            updates[`/tickets/${id}/sold_at`] = timestamp;
+            const timestamp = firebase.database.ServerValue.TIMESTAMP;
+            ticketIdsToBook.forEach(id => {
+                currentTickets[id].is_sold = true;
+                currentTickets[id].owner_name = name;
+                currentTickets[id].owner_name_lower = name.toLowerCase();
+                currentTickets[id].owner_phone = phone;
+                currentTickets[id].agent_uid = currentUser.uid;
+                currentTickets[id].sold_at = timestamp;
+            });
+            return currentTickets;
         });
 
-        await db.ref().update(updates);
         await requestRef.remove();
 
-        const successMsg = `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting to dashboard...`;
-        
+        if (!transactionResult.committed) {
+            const freshSnapshot = await ticketsRef.once('value');
+            const freshTickets = freshSnapshot.val();
+            const soldTickets = ticketIdsToBook.filter(id => freshTickets[id] && freshTickets[id].is_sold);
+            if (soldTickets.length > 0) {
+                throw new Error(`Booking failed. Ticket(s) ${soldTickets.join(', ')} were already sold.`);
+            } else {
+                throw new Error('Booking failed due to a data conflict. Please refresh and try again.');
+            }
+        }
+
+        triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
+        return `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting...`;
+    };
+
+    try {
+        const[successMsg] = await Promise.all([
+            bookingLogic(),
+            new Promise(resolve => setTimeout(resolve, 1500))
+        ]);
+
+        popup.classList.remove('processing');
         titleEl.textContent = 'Booking Successful!';
+        titleEl.style.color = '#2ecc71';
+        titleEl.style.textShadow = '0 0 8px #2ecc71';
         messageEl.textContent = successMsg;
-        
+        const checkmarkSVG = popup.querySelector('.checkmark');
         if (checkmarkSVG) {
-            checkmarkSVG.style.display = 'block';
             const circle = popup.querySelector('.checkmark__circle');
             const check = popup.querySelector('.checkmark__check');
-            checkmarkSVG.style.animation = 'none';
-            circle.style.animation = 'none';
-            check.style.animation = 'none';
-            void checkmarkSVG.offsetWidth; 
+            [checkmarkSVG, circle, check].forEach(el => {
+                el.style.animation = 'none';
+                void el.offsetWidth;
+            });
             checkmarkSVG.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
             circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
             check.style.animation = 'stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards';
         }
-
-        triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
-
+        
         setTimeout(() => {
             if (currentUserRole) {
                 window.location.hash = currentUserRole;
             } else {
                 handleRouting();
             }
-        }, 4000);
-
+            closePopups();
+        }, 2500);
     } catch(e) {
-        handleErrorAndCleanup('Error processing booking: ' + e.message);
-        await requestRef.remove().catch(err => console.error("Failed to cleanup requestRef on error", err));
+        popup.classList.remove('processing');
+        closePopups();
+        showNotification(e.message, 'error');
+        if (e.message.includes('must be logged in')) {
+            showPopup('loginPopup');
+        } else {
+            handleRouting();
+        }
     }
 }
 
@@ -3043,7 +3516,9 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
             }
             
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="ticket-header">Ticket ${ticket.id}: ${ticket.owner_name}</div>
+                        <div class="ticket-header" style="position: relative; padding-right: 35px;">Ticket ${ticket.id}: ${ticket.owner_name}</div>
+                        <!-- Absolute positioned download PDF button for player access -->
+                        <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         });
@@ -3069,10 +3544,10 @@ function updateDisplayedTicketPublic() {
             if (num > 0) {
                  const isCalled = currentCalledNumbers.includes(num);
                  cell.classList.toggle('ticked', isCalled);
-                cell.classList.remove('last-called-highlight');
-                if (num === lastAnnouncedNumber) {
-                     cell.classList.add('last-called-highlight');
-                }
+                 cell.classList.remove('last-called-highlight');
+                 if (num === lastAnnouncedNumber) {
+                      cell.classList.add('last-called-highlight');
+                 }
             }
         });
     });
@@ -3131,18 +3606,17 @@ function updateWinners(winners) {
     }
 }
 
-
 function updateNumberBoard(called) {
     const lastCalled = called.length > 0 ? called[called.length - 1] : null;
     for (let i = 1; i <= 90; i++) {
         const isCalled = called.includes(i);
-        const publicCell = document.getElementById(`num-${i}`);
+        const publicCell = domCache.publicCells[i];
         if(publicCell){
             publicCell.classList.toggle('called', isCalled);
             publicCell.classList.toggle('last-called-highlight', i === lastCalled);
         }
 
-        const adminCell = document.getElementById(`run-game-popup-num-${i}`);
+        const adminCell = domCache.adminCells[i];
         if(adminCell){
             adminCell.classList.toggle('called', isCalled);
             adminCell.classList.toggle('last-called-highlight', i === lastCalled);
@@ -3171,6 +3645,7 @@ function goToBooking(ticketId) {
 }
 
 function renderSheetWiseBookedList() {
+    if (currentView !== 'publicView') return;
     const container = document.getElementById('bookedTicketsDisplay');
     if (!container) return;
 
@@ -3193,13 +3668,14 @@ function renderSheetWiseBookedList() {
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
+        const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
 
         const sheetWrapper = document.createElement('div');
         sheetWrapper.className = 'sheet-view';
 
         const sheetHeader = document.createElement('div');
         sheetHeader.className = 'sheet-header';
-        sheetHeader.textContent = `Sheet ${i + 1} (Tickets ${startTicket}-${endTicket})`;
+        sheetHeader.textContent = `Sheet ${i + 1} (Tickets ${startTicket}-${actualEndId})`;
         sheetWrapper.appendChild(sheetHeader);
 
         const sheetContent = document.createElement('div');
@@ -3207,6 +3683,8 @@ function renderSheetWiseBookedList() {
         sheetWrapper.appendChild(sheetContent);
 
         for (let j = startTicket; j <= endTicket; j++) {
+            if (j > totalTickets) continue;
+
             const ticket = allTicketsMap.get(j);
             const ticketViewWrapper = document.createElement('div');
             const ticketView = document.createElement('div');
@@ -3216,9 +3694,9 @@ function renderSheetWiseBookedList() {
             if (!ticket) {
                 ticketView.innerHTML = `<div class="ticket-header">Ticket ${j} Data Missing</div>`;
             } else {
-                 let headerHTML;
+                let headerHTML;
                 if (ticket.is_sold) {
-                    headerHTML = `<div class="ticket-header"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${j}</span></div>`;
+                    headerHTML = `<div class="ticket-header" style="position: relative; padding-right: 35px;"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${j}</span></div>`;
                 } else {
                     headerHTML = `
                         <div class="ticket-header">
@@ -3236,7 +3714,11 @@ function renderSheetWiseBookedList() {
                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
                 }
 
-                ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
+                if (ticket.is_sold) {
+                    ticketView.innerHTML = `${headerHTML}<div class="download-pdf-btn" onclick="downloadTicketAsPDF(${j})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div><div class="ticket-grid">${gridHTML}</div>`;
+                } else {
+                    ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
+                }
             }
             ticketViewWrapper.appendChild(ticketView);
             sheetContent.appendChild(ticketViewWrapper);
@@ -3299,12 +3781,12 @@ function showAllWinningTicketsForDividend(dividendName) {
                         return `<div class="${classes}" data-num="${n}">${n > 0 ? n : ''}</div>`;
                     }).join('');
                 } else {
-                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
                 }
 
-
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
-                                    <div class="ticket-header">Ticket ${ticket.id}</div>
+                                    <div class="ticket-header" style="position: relative; padding-right: 35px;">Ticket ${ticket.id}</div>
+                                    <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>
                                     <div class="ticket-grid">${gridHTML}</div>
                                </div>`;
             });
@@ -3323,6 +3805,136 @@ function toggleDividendAmountInput(checkbox) {
         amountInput.disabled = !checkbox.checked;
         if (!checkbox.checked) {
             amountInput.value = '';
+        }
+    }
+}
+
+// Global click handler (will be executed dynamically by dragging script upon standard tab/clicks)
+function handleUniversalFloatClick() {
+    if (!currentUser || !currentUserRole) {
+        renderPublicBookingGrid();
+        showPopup('publicBookingPopup');
+    } else if (currentUserRole === 'admin' || currentUserRole === 'agent') {
+        updateDashboardBookingPopup();
+        showPopup('dashboardBookingPopup');
+    } else {
+        renderPublicBookingGrid();
+        showPopup('publicBookingPopup');
+    }
+}
+
+// Custom Drag and Drop Engine for the Floating Button (with Boundary Constrains)
+function makeElementDraggable(elmnt) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    let startX = 0, startY = 0;
+    const dragThreshold = 6; // Minimal px threshold to mark as an active drag
+    let isDragging = false;
+
+    elmnt.addEventListener('mousedown', dragMouseDown);
+    elmnt.addEventListener('touchstart', dragTouchStart, { passive: false });
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = false;
+        
+        document.addEventListener('mouseup', closeDragElement);
+        document.addEventListener('mousemove', elementDrag);
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        if (Math.abs(e.clientX - startX) > dragThreshold || Math.abs(e.clientY - startY) > dragThreshold) {
+            isDragging = true;
+        }
+
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+
+        // Viewport boundaries constrain
+        const maxLeft = window.innerWidth - elmnt.offsetWidth;
+        const maxTop = window.innerHeight - elmnt.offsetHeight;
+        
+        if (newLeft < 0) newLeft = 0;
+        if (newLeft > maxLeft) newLeft = maxLeft;
+        if (newTop < 0) newTop = 0;
+        if (newTop > maxTop) newTop = maxTop;
+
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
+        elmnt.style.bottom = "auto";
+        elmnt.style.right = "auto";
+    }
+
+    function closeDragElement(e) {
+        document.removeEventListener('mouseup', closeDragElement);
+        document.removeEventListener('mousemove', elementDrag);
+        
+        // Execute booking popup trigger only if elements were not dragged
+        if (!isDragging) {
+            handleUniversalFloatClick();
+        }
+    }
+
+    function dragTouchStart(e) {
+        const touch = e.touches[0];
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        isDragging = false;
+
+        document.addEventListener('touchend', closeDragTouch);
+        document.addEventListener('touchmove', elementTouchDrag, { passive: false });
+    }
+
+    function elementTouchDrag(e) {
+        e.preventDefault(); // Prevent touch browser scroll lock
+        const touch = e.touches[0];
+        pos1 = pos3 - touch.clientX;
+        pos2 = pos4 - touch.clientY;
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+
+        if (Math.abs(touch.clientX - startX) > dragThreshold || Math.abs(touch.clientY - startY) > dragThreshold) {
+            isDragging = true;
+        }
+
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+
+        const maxLeft = window.innerWidth - elmnt.offsetWidth;
+        const maxTop = window.innerHeight - elmnt.offsetHeight;
+        
+        if (newLeft < 0) newLeft = 0;
+        if (newLeft > maxLeft) newLeft = maxLeft;
+        if (newTop < 0) newTop = 0;
+        if (newTop > maxTop) newTop = maxTop;
+
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
+        elmnt.style.bottom = "auto";
+        elmnt.style.right = "auto";
+    }
+
+    function closeDragTouch(e) {
+        document.removeEventListener('touchend', closeDragTouch);
+        document.removeEventListener('touchmove', elementTouchDrag);
+        
+        if (!isDragging) {
+            handleUniversalFloatClick();
         }
     }
 }
@@ -3367,13 +3979,23 @@ function updateAdminInfoUI() {
 async function saveGameSetting() {
     const oldTotalTickets = gameSettingsData.totalTickets || 0;
     const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
+    const newDateTime = document.getElementById('dateTimeInp').value;
 
     const settingsToSave = {
-        gameDateTime: document.getElementById('dateTimeInp').value,
+        gameDateTime: newDateTime,
         totalTickets: newTotalTickets,
         ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
         agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
     };
+    
+    const processSave = async () => {
+        try {
+            await db.ref('settings/gameConfig').update(settingsToSave);
+            showNotification('Game settings saved successfully!', 'success');
+        } catch (e) {
+             showNotification('Error saving settings: ' + e.message, 'error');
+        }
+    }
 
     if (oldTotalTickets !== newTotalTickets && newTotalTickets > 0) {
         const confirmText = document.getElementById('ticketResetConfirmText');
@@ -3395,13 +4017,7 @@ async function saveGameSetting() {
 
         showPopup('ticketResetConfirmPopup');
     } else {
-        try {
-            await db.ref('settings/gameConfig').update(settingsToSave);
-            showNotification('Game settings saved successfully!', 'success');
-            await triggerGlobalNotification('Admin has updated the game settings.', 'info');
-        } catch (e) {
-            showNotification('Error saving settings: ' + e.message, 'error');
-        }
+        await processSave();
     }
 }
 
@@ -3483,7 +4099,6 @@ async function saveDividendSettings() {
     try {
         await db.ref('settings/gameConfig/dividends').set(activeDividends);
         showNotification('Dividend settings saved!', 'success');
-        await triggerGlobalNotification('Admin has updated the dividend settings.', 'info');
     } catch (e) { showNotification('Error saving dividends: ' + e.message, 'error'); }
 }
 
@@ -3506,7 +4121,7 @@ async function saveAdminInfo() {
         } else {
             showNotification('Admin info updated!', 'success');
         }
-        await triggerGlobalNotification('Admin info has been updated.', 'info');
+
         document.getElementById('adminPassInp').value = '';
     } catch(e) {
         showNotification("Error updating info: " + e.message, 'error');
@@ -3538,14 +4153,13 @@ async function createAgentByAdmin() {
 
         await secondaryAuth.signOut();
         const successMsg = `Agent '${name}' created successfully!`;
-        showNotification(successMsg, 'success');
+
         await triggerGlobalNotification(successMsg, 'success');
 
         document.getElementById('createAgentNameInp').value = '';
         document.getElementById('createAgentEmailInp').value = '';
         document.getElementById('createAgentPhoneInp').value = '';
         document.getElementById('createAgentPassInp').value = '';
-
     } catch (error) {
         showNotification(`Error creating agent: ${error.message}`, 'error');
     } finally {
@@ -3556,6 +4170,12 @@ async function createAgentByAdmin() {
 async function resetCallNum() {
     if(!confirm('Are you sure? This will reset all called numbers, winners, and the game timer.')) return;
     try {
+        // Safe copy of current winner list to archived historical DB before deletion
+        const snap = await db.ref('gameState/currentState/winners').once('value');
+        if (snap.exists() && snap.val() !== null) {
+            await db.ref('lastGame/winners').set(snap.val());
+        }
+
         await db.ref('gameState/currentState').update({
             calledNumbers: null,
             winners: null,
@@ -3563,12 +4183,18 @@ async function resetCallNum() {
             gameStartedAt: null 
         });
         showNotification('Game state has been reset.', 'success');
-        await triggerGlobalNotification('Admin has reset the game board.', 'info');
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
 }
+
 async function resetTicket() {
     if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD.')) return;
     try {
+        // Safe copy of sold tickets list to archived historical DB before deletion
+        const snap = await db.ref('tickets').once('value');
+        if (snap.exists() && snap.val() !== null) {
+            await db.ref('lastGame/tickets').set(snap.val());
+        }
+
         const updates = {};
         allTicketsData.forEach(ticket => {
             if (ticket.is_sold) {
@@ -3584,7 +4210,6 @@ async function resetTicket() {
            await db.ref().update(updates);
         }
         showNotification('All sold tickets have been reset.', 'success');
-        await triggerGlobalNotification('Admin has reset all sold tickets.', 'info');
     } catch (e) { showNotification('Error resetting tickets: ' + e.message, 'error'); }
 }
 
@@ -3596,14 +4221,15 @@ async function resetAgent() {
         if (agents.length === 0) return showNotification("No agents to delete.", "info");
 
         agents.forEach(agent => {
-            updates[`/users/${agent.uid}`] = null;
+          updates[`/users/${agent.uid}`] = null;
         });
         await db.ref().update(updates);
 
         const msg = `${agents.length} agent account(s) deleted.`;
         showNotification(msg, 'success');
-        await triggerGlobalNotification(msg, 'info');
-    } catch (e) { showNotification('Error deleting agents: ' + e.message, 'error'); }
+    } catch (e) { 
+        showNotification('Error deleting agents: ' + e.message, 'error'); 
+    }
 }
 
 function showLastSoldTicket() {
@@ -3650,7 +4276,6 @@ async function showPreviousGameWinners() {
 
         contentEl.innerHTML = contentHTML;
         showPopup('genericInfoPopup');
-
     } catch (e) {
         showNotification('Error fetching previous winners: ' + e.message, 'error');
     }
@@ -3740,7 +4365,6 @@ function updateAdminList() {
             const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
             const commission = soldCount * commissionPerTicket;
             const safeName = u.name ? u.name.replace(/'/g, "\\'") : 'N/A';
-            
             const actionButtonHTML = u.role === 'agent' 
                 ? `<i class="fas fa-trash-alt" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i>` 
                 : '<span>-</span>';
@@ -3799,10 +4423,8 @@ function showAgentBookings(agentUid, agentName) {
         contentHTML += '</ul>';
         contentEl.innerHTML = contentHTML;
     }
-    
     showPopup('genericInfoPopup');
 }
-
 
 function showEditTicketPopup(ticketId, currentName, currentPhone) {
     ticketIdToEdit = ticketId; 
@@ -3866,7 +4488,6 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
 
         await db.ref().update(updates);
         showNotification(successMessage, 'success');
-
     } catch (e) {
         showNotification('Error updating ticket(s): ' + e.message, 'error');
     } finally {
@@ -3932,9 +4553,7 @@ async function performDelete(identifier, deleteAll) {
         });
 
         await db.ref().update(updates);
-        showNotification(successMessage, 'success');
         triggerGlobalNotification(`Admin made ${ticketsToReset.length} ticket(s) available again.`, 'info');
-
     } catch (e) {
         showNotification('Error deleting ticket(s): ' + e.message, 'error');
     } finally {
@@ -3942,7 +4561,6 @@ async function performDelete(identifier, deleteAll) {
         ticketToDeleteInfo = {};
     }
 }
-
 
 async function deleteUser(uid, name) {
     if (uid === currentUser.uid) {
@@ -3959,7 +4577,6 @@ async function deleteUser(uid, name) {
         await db.ref(`users/${uid}`).remove();
         const msg = `Agent '${name}' has been deleted.`;
         showNotification(msg, 'success');
-        await triggerGlobalNotification(msg, 'info');
     } catch (e) {
         showNotification('Error deleting user: ' + e.message, 'error');
     }
@@ -3999,7 +4616,7 @@ function handlePosterBgUpload(event) {
 }
 
 function showPosterModal() {
-    const title = "Demo Housie";
+    const title = "SINTHA HOUSIE";
     const gameDateTime = gameSettingsData.gameDateTime;
     const ticketPrice = gameSettingsData.ticketPrice || 'N/A';
     const totalTickets = gameSettingsData.totalTickets || 'N/A';
@@ -4054,7 +4671,6 @@ function showPosterModal() {
     showPopup('posterMakerPopup');
 }
 
-
 function savePosterAsImage() {
     const posterElement = document.getElementById('posterContent');
     if (!posterElement) return showNotification('Poster element not found.', 'error');
@@ -4065,6 +4681,7 @@ function savePosterAsImage() {
         useCORS: true, 
         allowTaint: true,
         logging: false,
+        scale: 3,
     }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'sintha-housie-poster.png';
@@ -4073,7 +4690,7 @@ function savePosterAsImage() {
         showNotification('Poster download started!', 'success');
     }).catch(err => {
         console.error("html2canvas error:", err);
-        showNotification('Could not generate poster image. Check console for errors.', 'error');
+        showNotification('Could not generate poster image.', 'error');
     });
 }
 
@@ -4084,14 +4701,14 @@ async function sharePoster() {
     showNotification('Preparing poster for sharing...', 'info');
 
     try {
-        const canvas = await html2canvas(posterElement, { useCORS: true, allowTaint: true });
+        const canvas = await html2canvas(posterElement, { useCORS: true, allowTaint: true, scale: 3});
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
 
-        const websiteName = "Demo Housie Game!";
+        const websiteName = "SINTHA HOUSIE Game!";
         const websiteLink = window.location.href.split('#')[0];
-        
+
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
             await navigator.share({
                 files: filesArray,
@@ -4174,6 +4791,7 @@ function updateDashboardBookingPopup() {
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
+        const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
 
         const sheetRow = document.createElement('div');
         sheetRow.className = 'compact-sheet-row';
@@ -4181,13 +4799,15 @@ function updateDashboardBookingPopup() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'sheet-tick-box';
-        checkbox.onchange = () => selectFullSheetDashboard(checkbox, startTicket, endTicket);
+        checkbox.onchange = () => selectFullSheetDashboard(checkbox, startTicket, actualEndId);
         sheetRow.appendChild(checkbox);
 
         const buttonGroup = document.createElement('div');
         buttonGroup.className = 'ticket-buttons-group';
 
         for (let j = startTicket; j <= endTicket; j++) {
+            if (j > totalTickets) continue;
+
             const ticket = ticketsMap.get(j);
             const btn = document.createElement('button');
             btn.className = 'ticketBlockBtn';
@@ -4280,6 +4900,7 @@ function renderPublicBookingGrid() {
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
+        const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
         
         const sheetRow = document.createElement('div');
         sheetRow.className = 'compact-sheet-row';
@@ -4287,13 +4908,15 @@ function renderPublicBookingGrid() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'sheet-tick-box';
-        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, endTicket);
+        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, actualEndId);
         sheetRow.appendChild(checkbox);
         
         const buttonGroup = document.createElement('div');
         buttonGroup.className = 'ticket-buttons-group';
 
         for (let j = startTicket; j <= endTicket; j++) {
+            if (j > totalTickets) continue;
+
             const ticket = ticketsMap.get(j);
             const btn = document.createElement('button');
             btn.className = 'ticketBlockBtn';
@@ -4360,6 +4983,10 @@ function handlePublicPopupBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicPopupSelectedTickets);
 }
 
+function prepareAndShowRunGame() {
+    showPopup('runGameWindowDiv');
+}
+
 async function toggleGameRunner() {
     const gameStateRef = db.ref('gameState/currentState');
     const isRunning = document.getElementById('callStatusInp').value === 'on';
@@ -4398,30 +5025,6 @@ async function toggleGameRunner() {
     }
 }
 
-async function setNextCallNumber() {
-    const inputEl = document.getElementById('nextCallInp');
-    const numberToSet = parseInt(inputEl.value, 10);
-
-    if (isNaN(numberToSet) || numberToSet < 1 || numberToSet > 90) {
-        showNotification('Please enter a valid number between 1 and 90.', 'error');
-        return;
-    }
-
-    if (currentCalledNumbers.includes(numberToSet)) {
-        showNotification(`Number ${numberToSet} has already been called.`, 'error');
-        return;
-    }
-    
-    try {
-        await db.ref('gameState/currentState/nextManualCall').set(numberToSet);
-        showNotification(`Next number is set to ${numberToSet}. It will be called on the next interval.`, 'success');
-        inputEl.value = '';
-    } catch (error) {
-        showNotification(`Error setting next number: ${error.message}`, 'error');
-        console.error("Error in setNextCallNumber:", error);
-    }
-}
-
 function callNextNumber() {
     const gameStateRef = db.ref('gameState/currentState');
     gameStateRef.transaction(gameState => {
@@ -4436,31 +5039,25 @@ function callNextNumber() {
         const currentWinners = gameState.winners || {};
         const areAllDividendsClaimed = activeDividends.every(div => currentWinners[div.name]);
 
-        if (called.length >= 90 || areAllDividendsClaimed) {
+        if (areAllDividendsClaimed || called.length >= 90) {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameState.isGameRunning = false;
             return gameState;
         }
 
-        let newNumber;
-        const availableNumbers = Array.from({length: 90}, (_, i) => i + 1).filter(n => !called.includes(n));
-        
-        const manualCallNum = gameState.nextManualCall;
-        
-        if (manualCallNum && availableNumbers.includes(manualCallNum)) {
-            newNumber = manualCallNum;
-            delete gameState.nextManualCall; 
-        } else {
-            if (gameState.nextManualCall) {
-                delete gameState.nextManualCall;
-            }
-            if (availableNumbers.length === 0) {
-                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
-                 gameState.isGameRunning = false;
-                 return gameState;
-            }
-            newNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+        let uncalled = [];
+        for (let i = 1; i <= 90; i++) {
+            if (!called.includes(i)) uncalled.push(i);
         }
+        
+        if (uncalled.length === 0) {
+            if (gameRunnerInterval) clearInterval(gameRunnerInterval);
+            gameState.isGameRunning = false;
+            return gameState;
+        }
+
+        const randomIndex = Math.floor(Math.random() * uncalled.length);
+        const newNumber = uncalled[randomIndex];
 
         gameState.calledNumbers = [...called, newNumber];
         gameState.winners = checkAllWinners(gameState.calledNumbers, gameState.winners || {});
@@ -4486,10 +5083,8 @@ function callNextNumber() {
                 const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
 
                 if (allClaimed) {
-                    showNotification("All dividends won! Game over.", 'info');
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
                 } else if (finalState.calledNumbers?.length >= 90) {
-                    showNotification("All 90 numbers called! Game over.", 'info');
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
                 }
             }
@@ -4497,14 +5092,15 @@ function callNextNumber() {
     });
 }
 
-
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
     const activeDividends = gameSettingsData.dividends || [];
+    if (activeDividends.length === 0) return updatedWinners;
     const soldTickets = allTicketsData.filter(t => t.is_sold);
+    if (soldTickets.length === 0) return updatedWinners;
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
-    
-    const check = (numbers) => numbers.every(n => calledNumbers.includes(n));
+    if (!lastCalledNumber) return updatedWinners;
+
     const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
 
     const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
@@ -4516,7 +5112,9 @@ function checkAllWinners(calledNumbers, currentWinners) {
     }, {});
 
     for (const dividend of activeDividends) {
-        if (updatedWinners[dividend.name]) continue;
+        if (currentWinners[dividend.name]) {
+            continue;
+        }
 
         let winnersThisTurn = [];
         
@@ -4525,22 +5123,27 @@ function checkAllWinners(calledNumbers, currentWinners) {
             
             let isWinner = false;
             let winningPatternNumbers = [];
-            const checkPattern = (numbers) => {
-                winningPatternNumbers = numbers;
-                return check(numbers);
-            };
             
+            const checkPattern = (numbers) => {
+                if (numbers && numbers.length > 0 && numbers.every(n => calledNumbers.includes(n))) {
+                    winningPatternNumbers = numbers;
+                    return true;
+                }
+                return false;
+            };
+
             const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
+            const allTicketNumbers = [...r1, ...r2, ...r3];
 
             switch (dividend.name) {
                 case "Top Line":
-                    if (r1.length > 0 && checkPattern(r1)) isWinner = true;
+                    if (checkPattern(r1)) isWinner = true;
                     break;
                 case "Middle Line":
-                    if (r2.length > 0 && checkPattern(r2)) isWinner = true;
+                    if (checkPattern(r2)) isWinner = true;
                     break;
                 case "Bottom Line":
-                    if (r3.length > 0 && checkPattern(r3)) isWinner = true;
+                    if (checkPattern(r3)) isWinner = true;
                     break;
                 case "Corners (4)":
                     const corners = [r1[0], r1[r1.length - 1], r3[0], r3[r3.length - 1]].filter(Boolean);
@@ -4550,22 +5153,18 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     const midNumR2 = r2.length === 5 ? r2[2] : null;
                     if (r1.length === 5 && midNumR2 && r3.length === 5) {
                         const starNumbers = [r1[0], r1[4], midNumR2, r3[0], r3[4]].filter(Boolean);
-                        if(starNumbers.length === 5 && checkPattern(starNumbers)) isWinner = true;
+                        if (starNumbers.length === 5 && checkPattern(starNumbers)) isWinner = true;
                     }
                     break;
                 case "First Full House":
                 case "Second Full House":
                 case "Third Full House":
-                    const housefullWinnersData = Object.values(updatedWinners).flat().filter(w => w.dividendName?.includes("Full House"));
-                    const housefullWinnerTicketIds = housefullWinnersData.map(w => w.ticketId);
-                    const allTicketNumbers = r1.concat(r2, r3);
-
-                    if (checkPattern(allTicketNumbers) && !housefullWinnerTicketIds.includes(ticket.id)) {
-                        const claimedPrizesCount = Object.keys(updatedWinners).filter(key => key.includes("Full House")).length;
-                        
-                        if ((dividend.name === "First Full House" && claimedPrizesCount === 0) ||
-                            (dividend.name === "Second Full House" && claimedPrizesCount === 1) ||
-                            (dividend.name === "Third Full House" && claimedPrizesCount === 2)) {
+                    const previouslyWonFH = Object.values(currentWinners).flat().some(w => w.dividendName?.includes("Full House") && w.ticketId === ticket.id);
+                    if (!previouslyWonFH && checkPattern(allTicketNumbers)) {
+                        const claimedFHCount = Object.keys(currentWinners).filter(key => key.includes("Full House")).length;
+                        if ((dividend.name === "First Full House" && claimedFHCount === 0) ||
+                            (dividend.name === "Second Full House" && claimedFHCount === 1) ||
+                            (dividend.name === "Third Full House" && claimedFHCount === 2)) {
                             isWinner = true;
                         }
                     }
@@ -4575,22 +5174,31 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         const count = parseInt(dividend.name.match(/\d+/)[0], 10);
                         if (countMarked(ticket) === count) {
                             isWinner = true;
-                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).slice(0, count);
+                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n));
                         }
                     }
                     break;
             }
+
             if (isWinner && winningPatternNumbers.includes(lastCalledNumber)) {
-                winnersThisTurn.push({ name: ticket.owner_name, phone: ticket.owner_phone, ticketId: ticket.id, winningNumber: lastCalledNumber, won_at: firebase.database.ServerValue.TIMESTAMP, dividendName: dividend.name });
+                winnersThisTurn.push({ 
+                    name: ticket.owner_name, 
+                    phone: ticket.owner_phone, 
+                    ticketId: ticket.id, 
+                    winningNumber: lastCalledNumber, 
+                    won_at: firebase.database.ServerValue.TIMESTAMP, 
+                    dividendName: dividend.name 
+                });
             }
         }
-
+        
+        
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
             for (const ownerPhone in ticketsByOwner) {
                 const ownerTickets = ticketsByOwner[ownerPhone];
                 const ticketsBySheet = ownerTickets.reduce((acc, ticket) => {
                     const sheetNum = Math.floor((ticket.id - 1) / 6);
-                    if (!acc[sheetNum]) acc[sheetNum] = [];
+                    acc[sheetNum] = acc[sheetNum] || [];
                     acc[sheetNum].push(ticket);
                     return acc;
                 }, {});
@@ -4599,7 +5207,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     const sheetTickets = ticketsBySheet[sheetNum];
                     if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
                         if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
-                            const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a,b)=>a-b);
+                            const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a, b) => a - b);
                             winnersThisTurn.push({ 
                                 name: sheetTickets[0].owner_name, 
                                 phone: ownerPhone, 
@@ -4612,13 +5220,13 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     } else if (dividend.name === 'Half Sheet Bonus') {
                         const sheetTicketIds = new Set(sheetTickets.map(t => t.id));
                         const sheetStartId = parseInt(sheetNum) * 6 + 1;
-                        
                         const firstHalfIds = [sheetStartId, sheetStartId + 1, sheetStartId + 2];
                         const secondHalfIds = [sheetStartId + 3, sheetStartId + 4, sheetStartId + 5];
 
-                        let winnerFoundInSheet = false;
+                        const isFirstHalfComplete = firstHalfIds.every(id => sheetTicketIds.has(id));
+                        const isSecondHalfComplete = secondHalfIds.every(id => sheetTicketIds.has(id));
 
-                        if (firstHalfIds.every(id => sheetTicketIds.has(id))) {
+                        if (isFirstHalfComplete) {
                             const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
@@ -4629,11 +5237,9 @@ function checkAllWinners(calledNumbers, currentWinners) {
                                     won_at: firebase.database.ServerValue.TIMESTAMP,
                                     dividendName: dividend.name
                                 });
-                                winnerFoundInSheet = true;
                             }
                         }
-
-                        if (!winnerFoundInSheet && secondHalfIds.every(id => sheetTicketIds.has(id))) {
+                        if (isSecondHalfComplete) {
                             const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
                             if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
@@ -4650,12 +5256,21 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 }
             }
         }
-
-
+        
         if (winnersThisTurn.length > 0) {
-            updatedWinners[dividend.name] = winnersThisTurn;
+            const uniqueWinners = winnersThisTurn.reduce((acc, current) => {
+                if (!acc.some(item => item.name === current.name && item.ticketId === current.ticketId)) {
+                    acc.push(current);
+                }
+                return acc;
+            }, []);
+
+            if (uniqueWinners.length > 0) {
+                updatedWinners[dividend.name] = uniqueWinners;
+            }
         }
     }
+    
     return updatedWinners;
 }
 
@@ -4664,22 +5279,34 @@ async function generateHousieTickets(bypassConfirm = false) {
     if (!totalTicketsStr) return showNotification("Please enter the total number of tickets.", 'error');
     const totalTickets = parseInt(totalTicketsStr, 10);
     if (isNaN(totalTickets) || totalTickets <= 0) return showNotification("Please enter a valid number of tickets.", 'error');
-    if (totalTickets % 6 !== 0) return showNotification('Total tickets must be a multiple of 6.', 'error');
+    
     if (!bypassConfirm && !confirm(`This will DELETE ALL existing tickets and generate ${totalTickets} new ones. Are you sure?`)) return;
 
     showNotification(`Generating ${totalTickets} new tickets... This may take a moment.`, 'info');
-    await triggerGlobalNotification('Admin is generating new tickets...', 'info');
 
     try {
+        // Archiving both current tickets and winners to lastGame historical DB before generating new ones
+        const snap = await db.ref('tickets').once('value');
+        if (snap.exists() && snap.val() !== null) {
+            await db.ref('lastGame/tickets').set(snap.val());
+        }
+        
+        const winnersSnap = await db.ref('gameState/currentState/winners').once('value');
+        if (winnersSnap.exists() && winnersSnap.val() !== null) {
+            await db.ref('lastGame/winners').set(winnersSnap.val());
+        }
+
         await db.ref('/tickets').set(null); 
         setTimeout(async () => {
             const newTicketsObject = {};
-            const numSets = totalTickets / 6;
+            const numSets = Math.ceil(totalTickets / 6);
 
             for (let i = 0; i < numSets; i++) {
                 const currentSet = createTambolaSetOf6();
                 for (let j = 0; j < 6; j++) {
                     const ticketId = i * 6 + j + 1;
+                    if (ticketId > totalTickets) break;
+                    
                     newTicketsObject[ticketId] = {
                         id: ticketId,
                         numbers: currentSet[j],
@@ -4691,9 +5318,7 @@ async function generateHousieTickets(bypassConfirm = false) {
             await db.ref('/tickets').set(newTicketsObject);
             const successMsg = `${totalTickets} new tickets generated successfully!`;
             showNotification(successMsg, 'success');
-            await triggerGlobalNotification(successMsg, 'success');
         }, 50);
-
     } catch (e) {
         showNotification("Error generating tickets: " + e.message, 'error');
     }
@@ -4709,9 +5334,8 @@ const shuffleArray = (arr) => {
 
 function createTambolaSetOf6() {
     const columnCellCountsPerTicket = [
-        [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2],
-        [1, 1, 2, 2, 2, 1, 2, 3, 1], [2, 2, 1, 2, 1, 2, 1, 1, 3],
-        [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
+        [1, 2, 1, 2, 1, 2, 2, 2, 2], [1, 1, 2, 1, 2, 2, 2, 2, 2], [1, 1, 2, 2, 2, 1, 2, 3, 1],
+        [2, 2, 1, 2, 1, 2, 1, 1, 3], [2, 2, 2, 1, 2, 1, 2, 1, 2], [2, 2, 2, 2, 2, 2, 1, 1, 1]
     ];
 
     const ticketLayouts = [];
@@ -4790,8 +5414,6 @@ function createTambolaSetOf6() {
             }
         }
     }
-
-    
     return finalTickets;
 }
 
@@ -4807,10 +5429,10 @@ function createListPDF(title, headers, dataRows, filename) {
     const startY = 35;
     const colPositions = [15, 40, 120]; 
 
-    doc.setFontSize(12);
+    // Render Headers
     doc.setFont(undefined, 'bold');
     headers.forEach((header, i) => {
-        doc.text(header, colPositions[i], startY);
+        doc.text(String(header), colPositions[i], startY);
     });
 
     doc.setFontSize(10);
@@ -4823,7 +5445,7 @@ function createListPDF(title, headers, dataRows, filename) {
             y = 15;
         }
         row.forEach((cell, i) => {
-            doc.text(String(cell), colPositions[i], y);
+            doc.text(String(cell || ''), colPositions[i], y);
         });
         y += 7;
     });
@@ -4845,19 +5467,23 @@ async function downloadPreviousGameTicketList() {
         const users = usersSnapshot.val();
         const userMap = new Map(Object.entries(users || {}).map(([uid, data]) => [uid, data]));
 
-        const dataRows = prevTickets.map(ticket => {
+        // Listing only sold historical tickets to prevent printing blank pages
+        const prevSoldTickets = prevTickets.filter(t => t.is_sold);
+        if (prevSoldTickets.length === 0) {
+            return showNotification('No sold tickets found in archived data.', 'info');
+        }
+
+        const dataRows = prevSoldTickets.map(ticket => {
             const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
             const agentName = agent ? agent.name : 'Direct/Admin';
             return [ticket.id, ticket.owner_name, agentName];
         });
 
         createListPDF(
-            'Previous Game - Sold Tickets',
-            ['Ticket ID', 'Owner Name', 'Booked By'],
+            'Previous Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'],
             dataRows,
             'Previous-Game-Tickets.pdf'
         );
-
     } catch (e) {
         showNotification('Error downloading previous ticket list: ' + e.message, 'error');
     }
@@ -4878,8 +5504,7 @@ function downloadCurrentSoldTickets() {
     });
 
     createListPDF(
-        'Current Game - Sold Tickets',
-        ['Ticket ID', 'Owner Name', 'Booked By'],
+        'Current Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'],
         dataRows,
         'Current-Sold-Tickets.pdf'
     );
@@ -4899,8 +5524,8 @@ async function downloadTicketAsPDF(ticketId) {
     doc.setFontSize(16);
     doc.text(`Housie Ticket ${ticketData.id}`, startX, startY);
     if(ticketData.is_sold){
-        doc.setFontSize(10);
-        doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
+         doc.setFontSize(10);
+         doc.text(`Owner: ${ticketData.owner_name} (${ticketData.owner_phone})`, startX, startY + 7);
     }
 
     doc.setFontSize(14);
@@ -4916,52 +5541,54 @@ async function downloadTicketAsPDF(ticketId) {
         }
     }
 
-    doc.save(`Housie-Ticket-${ticketId}.pdf`);
-    showNotification(`Downloading PDF for ticket ${ticketId}.`, 'success');
+    doc.save(`Housie-Ticket-${ticketData.id}.pdf`);
+    showNotification(`Downloading PDF for ticket ${ticketData.id}.`, 'success');
 }
 
 async function downloadWinnersPDF() {
     if (Object.keys(knownWinners).length === 0) {
-        showNotification("No winners to download yet.", "info");
-        return;
+        return showNotification("No winners to download yet.", "info");
     }
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
-    doc.setFontSize(18);
-    doc.text("Housie Game - Winners List", 105, 15, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text(new Date().toLocaleString(), 105, 20, { align: 'center' });
-
-    const tableData = Object.entries(knownWinners).flatMap(([dividend, winnerArray]) => 
-        winnerArray.map(winner => [
-            dividend,
-            winner.name,
-            String(winner.ticketId)
-        ])
-    );
     
-    let y = 35;
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text("Dividend", 15, y);
-    doc.text("Winner Name", 80, y);
-    doc.text("Ticket ID", 150, y);
-    doc.setFont(undefined, 'normal');
-    y += 7;
+    doc.setFontSize(18);
+    doc.text('Game Winners List', 105, 15, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 22, { align: 'center' });
 
-    tableData.forEach(row => {
-        doc.text(row[0], 15, y);
-        doc.text(row[1], 80, y);
-        doc.text(row[2], 150, y);
-        y += 7;
-        if (y > 280) {
+    let y = 35;
+
+    for (const dividendName in knownWinners) {
+        if (y > 270) {
             doc.addPage();
             y = 15;
         }
-    });
 
-    doc.save("Housie-Winners.pdf");
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text(dividendName, 15, y);
+        y += 7;
+
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+
+        const winnerArray = knownWinners[dividendName];
+        winnerArray.forEach(winner => {
+            if (y > 280) {
+                doc.addPage();
+                y = 15;
+            }
+            const winnerText = ` - ${winner.name} (Ticket: ${winner.ticketId})`;
+            doc.text(winnerText, 20, y);
+            y += 7;
+        });
+        y += 5;
+    }
+
+    doc.save('Game-Winners.pdf');
+    showNotification('Winners PDF download started.', 'success');
 }
 
 function updateRunGameUI(gameState) {
@@ -5006,8 +5633,6 @@ function searchTicketAdmin() {
         
         let ticketsHTML = '';
         ticketsToDisplay.sort((a, b) => a.id - b.id).forEach(ticket => {
-       
-        
             let gridHTML;
             if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
                  gridHTML = ticket.numbers.flat().map(n =>
@@ -5059,7 +5684,90 @@ function updateAdminDisplayedTickets() {
     });
 }
 
-// --- NEW: Audio Control Functions ---
+async function sendLiveText() {
+    const input = document.getElementById('liveTextAnnounceInp');
+    const text = input.value.trim();
+    if (!text) return showNotification('Please enter a message to announce.', 'error');
+    
+    try {
+        await db.ref('announcements/liveText').set({
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        input.value = '';
+    } catch(e) {
+        showNotification('Error sending announcement: ' + e.message, 'error');
+    }
+}
+
+async function sendLiveImage() {
+    const input = document.getElementById('liveImageAnnounceInp');
+    const file = input.files[0];
+    if (!file) return showNotification('Please select an image file.', 'error');
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
+        try {
+            await db.ref('announcements/liveImage').set({
+                image: base64String,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            showNotification('Image announcement sent!', 'success');
+            input.value = '';
+        } catch (e) {
+            showNotification('Error sending image: ' + e.message, 'error');
+        }
+    };
+    reader.onerror = () => showNotification('Error reading image file.', 'error');
+    reader.readAsDataURL(file);
+}
+
+async function sendLiveVideo() {
+    const input = document.getElementById('liveVideoAnnounceInp');
+    const file = input.files[0];
+    if (!file) return showNotification('Please select a video file.', 'error');
+    if (file.size > 20 * 1024 * 1024) {
+        return showNotification('Video file is too large. Please keep it under 20MB.', 'error');
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const base64String = event.target.result;
+        try {
+            await db.ref('announcements/liveVideo').set({
+                video: base64String,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            showNotification('Video announcement sent!', 'success');
+            input.value = '';
+        } catch (e) {
+            showNotification('Error sending video. It might be too large for the database. ' + e.message, 'error');
+        }
+    };
+    reader.onerror = () => showNotification('Error reading video file.', 'error');
+    reader.readAsDataURL(file);
+}
+
+function closeVideoPopup() {
+    const videoEl = document.getElementById('liveVideoDisplay');
+    videoEl.pause();
+    videoEl.src = "";
+    closePopups();
+}
+
+async function saveMarqueeText() {
+    const marqueeInp = document.getElementById('marqueeTextInp');
+    if (!marqueeInp) return;
+    const text = marqueeInp.value.trim();
+    try {
+        await db.ref('settings/gameConfig/marqueeText').set(text);
+        showNotification('Marquee text updated successfully!', 'success');
+    } catch(e) {
+        showNotification('Error saving marquee text: ' + e.message, 'error');
+    }
+}
+
 async function handleMusicUpload() {
     const fileInput = document.getElementById('bgMusicUpload');
     const file = fileInput.files[0];
@@ -5079,7 +5787,7 @@ async function handleMusicUpload() {
                 url: base64String
             });
             showNotification(`'${file.name}' uploaded successfully.`, 'success');
-            fileInput.value = ''; // Reset file input
+            fileInput.value = '';
         } catch (e) {
             showNotification('Error uploading music: ' + e.message, 'error');
         }
@@ -5093,7 +5801,7 @@ async function handleStreamingUrl() {
     const url = urlInput.value.trim();
     if (!url) return showNotification('Please enter a streaming URL.', 'error');
     try {
-        new URL(url); // Basic validation
+        new URL(url);
     } catch (_) {
         return showNotification('Invalid URL format.', 'error');
     }
@@ -5116,7 +5824,6 @@ async function handleStreamingUrl() {
 async function playTrack(trackId) {
     if (!trackId || !audioLibrary[trackId]) return;
     try {
-        // When a new track is played, reset the start time for synchronization
         const updates = {
             currentTrackId: trackId,
             playbackStartTime: firebase.database.ServerValue.TIMESTAMP
@@ -5132,12 +5839,10 @@ async function deleteTrack(trackId) {
     if (!trackId || !audioLibrary[trackId]) return;
     if (!confirm(`Are you sure you want to delete "${audioLibrary[trackId].name}"?`)) return;
     try {
-        const updates = {
-            [`musicLibrary/${trackId}`]: null
-        };
+        const updates = { [`musicLibrary/${trackId}`]: null };
         if (currentTrackId === trackId) {
             updates.currentTrackId = null;
-            updates.musicState = 'off'; // Turn off music if the current track is deleted
+            updates.musicState = 'off';
             updates.playbackStartTime = null;
         }
         await db.ref('settings/audio').update(updates);
@@ -5154,7 +5859,7 @@ function renderMusicPlaylist() {
     const renderTo = (container) => {
         if (!container) return;
         if (Object.keys(audioLibrary).length === 0) {
-            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded. Use the controls to add songs.</p>`;
+            container.innerHTML = `<p style="text-align: center; color: var(--muted-color-dash); padding: 1rem;">No music uploaded.</p>`;
             return;
         }
         
@@ -5173,21 +5878,16 @@ function renderMusicPlaylist() {
     renderTo(popupContainer);
 }
 
-
 function toggleBgMusic() {
     const state = document.getElementById('bgMusicState').value;
-    const updates = {
-        musicState: state
-    };
+    const updates = { musicState: state };
     if (state === 'on' && !currentTrackId && Object.keys(audioLibrary).length > 0) {
-        // If turning on and no track is selected, play the first one
         const firstTrackId = Object.keys(audioLibrary)[0];
         updates.currentTrackId = firstTrackId;
         updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
     } else if (state === 'on') {
         updates.playbackStartTime = firebase.database.ServerValue.TIMESTAMP;
-    }
-    else {
+    } else {
         updates.playbackStartTime = null;
     }
     db.ref('settings/audio').update(updates)
@@ -5231,7 +5931,7 @@ async function toggleMic() {
             };
             
             mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            mediaRecorder.start(1500); // Chunk every 1.5 seconds
+            mediaRecorder.start(1500);
 
             document.getElementById('micToggleBtn').classList.add('live');
             document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
@@ -5278,12 +5978,11 @@ function handleBackgroundMusicState(audioData) {
              }
         };
 
-        if(backgroundMusicPlayer.readyState >= 2) { // HAVE_CURRENT_DATA
+        if(backgroundMusicPlayer.readyState >= 2) {
             seekAndPlay();
         } else {
             backgroundMusicPlayer.addEventListener('canplay', seekAndPlay, { once: true });
         }
-
     } else {
         if (!backgroundMusicPlayer.paused) {
             backgroundMusicPlayer.pause();
@@ -5291,20 +5990,17 @@ function handleBackgroundMusicState(audioData) {
     }
 }
 
-
 function handleLiveAudioStream(audioData) {
     const liveInfo = audioData.liveAnnouncement;
     if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
-        
         if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
-             console.log("New live stream detected, resetting buffer.");
              audioQueue = [];
              if (sourceBuffer && !sourceBuffer.updating) {
                 try {
                     sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
-                } catch(e) { console.warn("Buffer clear failed, might be empty", e); }
+                } catch(e) { console.warn("Buffer clear failed", e); }
              }
-             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null); // Mark as processed
+             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null);
         }
 
         lastProcessedTimestamp = liveInfo.timestamp;
@@ -5316,7 +6012,6 @@ function handleLiveAudioStream(audioData) {
         audioQueue.push(liveInfo.audioChunk);
         processAudioQueue();
     } else if (liveInfo && !liveInfo.isLive) {
-        // If live stream is off, fade out the audio
         let vol = liveAudioPlayer.volume;
         if (vol > 0) {
             const fadeOutInterval = setInterval(() => {
@@ -5324,7 +6019,7 @@ function handleLiveAudioStream(audioData) {
                 if (vol <= 0) {
                     liveAudioPlayer.volume = 0;
                     liveAudioPlayer.pause();
-                    liveAudioPlayer.volume = 1; // Reset for next time
+                    liveAudioPlayer.volume = 1;
                     clearInterval(fadeOutInterval);
                 } else {
                     liveAudioPlayer.volume = vol;
@@ -5374,7 +6069,7 @@ function initializeMediaSource() {
             }
         });
     } else {
-        console.error('MediaSource API not supported in this browser.');
+        console.error('MediaSource API not supported.');
         showNotification('Live audio streaming may not work on this browser.', 'error');
     }
 }
@@ -5413,26 +6108,13 @@ document.addEventListener('DOMContentLoaded', () => {
     bindEventListeners();
     gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
+    // Enable drag actions for floating visual gift book button
+    makeElementDraggable(document.getElementById('universalBookFloatBtn'));
+
     setTimeout(() => {
         showPopup('firstVisitPopup');
     }, 1500);
 });
-
 </script>
-
-	<script>
-(function(){
-    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
-    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
-    document['addEventListener']('keydown',function(_0x2){
-        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
-        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J','C']['includes'](_0x2['key']['toUpperCase']()))||
-           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
-            _0x2['preventDefault']();
-        }
-    });
-})();
-	</script>
-
 </body>
 </html>
