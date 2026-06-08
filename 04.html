@@ -216,7 +216,6 @@ backdrop-filter: blur(8px);
     padding: 1.5rem !important;                    /* Spacing aur padding */
 }
 
-/* Agent list ke andar ke cards ko bhi transparent dark se match karne ke liye */
 #agentListPopup .agent-list a {
     background: rgba(255, 255, 255, 0.05) !important; /* Transparent dark cards */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -273,7 +272,7 @@ backdrop-filter: blur(8px);
 
     input::placeholder,
     textarea::placeholder {
-        color: rgba(0, 0, 0, 0.6);
+        color: #000;
     }
 
     .dashboard-view .tableInp {
@@ -535,7 +534,7 @@ backdrop-filter: blur(8px);
     .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
-        background: #e1efd6; border-radius: 4px;
+        background: #e1efd6; border-radius: 6px;
         font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
         color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
@@ -1913,7 +1912,7 @@ body.dashboard-view-active #universalBookFloatBtn {
 		
                 <!-- Redesigned dividends and winners layout (using class panel1 to match the reference image) -->
                 <section class="panel1">
-                    <h2 class="panel-title" style="color: #ffffff; font-weight: bold; margin-bottom: 0.5rem; text-align: center; font-size: 1.5rem;">DIVIDENT LIST</h2>
+                    <h2 class="panel-title" style="color: #ffffff; font-weight: bold; margin-bottom: 0.5rem; text-align: center; font-size: 1.1rem;">DIVIDENT LIST</h2>
                     <div class="dividend-cards-list" id="dividendListContainer"></div>
                 </section>
             </aside>
@@ -3650,7 +3649,7 @@ function renderPublicDividends() {
         let winnerHTML = '';
         if (dividendWinners.length > 0) {
             winnerHTML = dividendWinners.map(w => 
-                `<div style="color: #000000; font-weight: bold; font-size: 1.05rem; margin-top: 4px;">
+                `<div style="color: #000000; font-weight: bold; font-size: 1.01rem; margin-top: 4px;">
                     ${w.name} <span style="font-weight: normal; color: #555555;">(Tkt: ${w.ticketId})</span>
                 </div>`
             ).join('');
@@ -3661,11 +3660,11 @@ function renderPublicDividends() {
         return `
         <div class="dividend-row-card">
             <!-- Top dark blue section (Dividend Name) -->
-            <div style="background-color: #01579b; padding: 0.8rem; text-align: center; color: #ffffff; font-weight: bold; font-size: 1.25rem; font-family: sans-serif; border-bottom: 2px solid #b3002d;">
+            <div style="background-color: #01579b; padding: 0.5rem; text-align: center; color: #ffffff; font-weight: bold; font-size: 1.01rem; font-family: sans-serif; border-bottom: 0.4px solid #b3002d;">
                 ${d.name}
             </div>
             <!-- Bottom white section (Winners / VIEW Button) -->
-            <div style="background-color: #ffffff; padding: 0.9rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+            <div style="background-color: #ffffff; padding: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
                 <div class="winner-info-area" style="width: 100%; margin-bottom: 0.4rem;">
                     ${winnerHTML}
                 </div>
