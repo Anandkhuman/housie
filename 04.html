@@ -3650,7 +3650,7 @@ function renderPublicDividends() {
         if (dividendWinners.length > 0) {
             winnerHTML = dividendWinners.map(w => 
                 `<div style="color: #000000; font-weight: bold; font-size: 1.01rem; margin-top: 2px;">
-                    ${w.name} <span style="font-weight: normal; color: #000000;">(Tkt: ${w.ticketId})</span>
+                    ${w.name} <span style="font-weight: bold; color: #000000;">(Tkt: ${w.ticketId})</span>
                 </div>`
             ).join('');
         } else {
