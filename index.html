@@ -11,12 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@400;700&family=Lobster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Loaded jsPDF script to fix PDF download operations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></linearGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
 
 <style>
     :root {
@@ -61,7 +62,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url("https://images.unsplash.com/photo-1501785888041-af3ef285b470");
+        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url("https://i.ibb.co/gb2q30kV/bg.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -87,8 +88,8 @@
     .overlay-popup, .gamePopDiv {
         position: fixed; z-index: 1000; width: 100%; height: 100%; top: 0; left: 0;
         display: none; align-items: center; justify-content: center; padding: 0.5rem;
-        background: rgba(16, 12, 42, 0.85);
-        backdrop-filter: blur(8px);
+        background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
+backdrop-filter: blur(8px);
         opacity: 0; visibility: hidden;
         transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
         overflow-y: auto;
@@ -104,8 +105,8 @@
         width: 100%;
         max-width: 500px;
         background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         border: 1px solid rgba(0, 246, 255, 0.4);
         border-radius: 12px;
         padding: 0;
@@ -205,6 +206,22 @@
             justify-content: center;
         }
     }
+    
+    #agentListPopup .popup-content {
+    background: rgba(10, 10, 12, 0.85) !important; /* Dark transparent background */
+    backdrop-filter: blur(15px) !important;        /* Background blur effect */
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important; /* Subtle border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;  /* Dark shadow */
+    padding: 1.5rem !important;                    /* Spacing aur padding */
+}
+
+#agentListPopup .agent-list a {
+    background: rgba(255, 255, 255, 0.05) !important; /* Transparent dark cards */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
@@ -255,7 +272,7 @@
 
     input::placeholder,
     textarea::placeholder {
-        color: rgba(0, 0, 0, 0.6);
+        color: #000;
     }
 
     .dashboard-view .tableInp {
@@ -327,43 +344,64 @@
         position: relative;
         z-index: 1;
         width: 95%;
-        padding-top: 60px;
+        padding-top: 75px;
         padding-bottom: 120px;
     }
     .panel {
-        background: rgba(25, 43, 64, 0.5);
-        backdrop-filter: blur(1px);
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(5px);
         border: 1px solid rgba(0, 246, 255, 0.4);
         border-radius: 12px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.1rem;
         box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 10px rgba(0, 246, 255, 0.1);
         opacity: 0;
-        transform: translateY(20px);
-        padding: 1rem;
+        transform: translateY(10px);
+        padding: 0.8rem;
         transition: all 0.3s ease;
     }
 
-    .top-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 998;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0.9rem 1rem;
-        background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url("https://images.unsplash.com/photo-1611078489935-0cb964de46d6");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        overflow: hidden;
+    .panel1 {
+        background: rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(0, 246, 255, 0.2);
+        border-radius: 12px;
+        margin-bottom: 0.1rem;
+        box-shadow: 0 0 20px rgba(0, 246, 255, 0.15), inset 0 0 10px rgba(0, 246, 255, 0.05);
         opacity: 0;
-        transform: translateY(-100%);
-        transition: all 0.4s ease;
+        transform: translateY(20px);
+        padding: 0.1rem;
+        transition: all 0.3s ease;
+        margin: -1rem;
     }
+
+    .top-header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 96%;
+    z-index: 998;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    padding: 2.1rem 1rem;
+    border-radius: 15px;
+    
+    background-image: url("https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    overflow: hidden;
+    
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
 
     .top-header::after {
         content: "";
@@ -381,7 +419,7 @@
         font-size: 1.3rem;
         font-weight: 700;
         letter-spacing: 2px;
-        text-align: center;
+        
         position: relative;
         background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff);
         background-size: 300%;
@@ -446,15 +484,11 @@
     }
 
     .panel-title {
-        font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
+        font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;
         color: #ffffff; text-align: center;
         text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
     }
-    .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
-    .logo-container { font-size: 1.8rem; color: var(--accent-primary); text-shadow: 0 0 10px var(--accent-primary); animation: pulse-glow 3s infinite ease-in-out; }
-    @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .webTitle { font-size: 1.5rem; font-weight: 700; }
-    
+ 
     .icon-bar { 
         display: flex; 
         gap: 0.2rem;
@@ -494,13 +528,13 @@
     }
     
     .timer-status-bar { width: 100%; padding: 0.2rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.5rem; }
-    .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.70rem; font-weight: 600; color: var(--text-secondary); }
+    .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: .650rem; font-weight: 600; color:#fff; }
     .info-item i { font-size: 1rem; color: var(--accent-primary); }
     
     .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
-        background: #e1efd6; border-radius: 4px;
+        background: #e1efd6; border-radius: 6px;
         font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
         color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
@@ -573,7 +607,7 @@
 
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
     .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: white; text-shadow: none; }
-
+    
     body {
         margin: 0;
         font-family: Arial, sans-serif;
@@ -587,7 +621,7 @@
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         padding: 0.8rem;
-        margin: 1rem;
+        margin: -1rem;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
@@ -614,7 +648,11 @@
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
-    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; font-size: clamp(1rem, 2.2vw, 0.9rem); padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+    .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; 
+       font-family: "Times New Roman", Times, Georgia, serif !important; /* Isse font force hoga */
+    font-weight: bold !important; 
+    font-size: clamp(1.2rem, 2.5vw, 1.4rem) !important; 
+        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -669,6 +707,45 @@
         font-size: 0.9rem;
         vertical-align: top;
         color: #ffffff;
+    }
+
+    /* Vibrant Pink VIEW button layout styling */
+    .pink-view-btn {
+        background-color: #ff007f;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.3rem;
+        width: 40%;
+        min-width: 160px;
+        font-weight: bold;
+        font-size: 0.80rem;
+        cursor: pointer;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pink-view-btn:hover {
+        background-color: #ff0055;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+    }
+    .pink-view-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Redesigned dividends and winners card containers */
+    .dividend-row-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        margin-bottom: 0.2rem;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 2px solid #b3002d;
     }
 
     #number-announcement-overlay {
@@ -840,7 +917,7 @@
     .dashboard-view .actionBtn { margin: 4px; background: var(--accent-color-dash); color: var(--light-text-dash); font-weight: bold; border-radius: 4px; border: 0; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.8rem; height: auto; padding: 8px 4px; flex-grow: 1; }
     .dashboard-view .actionBtn:hover { background: #16a085; }
     .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
-    .dashboard-view .gameSettingTable thead { display: none; }
+    .dashboard-view .gameSettingTable_thead { display: none; }
     .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
     .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 2fr 1fr; gap: 0px; align-items: center;}
     .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
@@ -1673,7 +1750,7 @@
         color: var(--accent-primary);
         animation: pulse-icon 1.5s infinite ease-in-out;
     }
-    
+
     #liveImagePopup .popup-content, #liveVideoPopup .popup-content {
         padding: 0.5rem;
         background: var(--primary-surface);
@@ -1713,23 +1790,104 @@
         width: 100%;
         margin: 0.25rem 0 0 0;
     }
+/* --- Floating booking button CSS --- */
+.universal-float-btn {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    top: auto;
+    left: auto;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+box-shadow:
+    0 0 10px rgba(0, 198, 255, 0.6),
+    0 0 20px rgba(37, 117, 252, 0.5),
+    0 0 35px rgba(106, 17, 203, 0.45),
+    inset 0 0 10px rgba(0, 198, 255, 0.6),
+    inset 0 0 20px rgba(37, 117, 252, 0.5),
+    inset 0 0 35px rgba(106, 17, 203, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    z-index: 997;
+    user-select: none;
+    -webkit-user-drag: none;
+    overflow: hidden;
+
+    background: transparent;
+}
+
+.universal-float-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 2px;
+
+    background: linear-gradient(
+        270deg,
+        #00c6ff,
+        #0072ff,
+        #6a11cb,
+        #2575fc,
+        #00c6ff
+    );
+    background-size: 400% 400%;
+    animation: borderGradient 4s linear infinite;
+
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.universal-float-btn:active {
+    cursor: grabbing;
+}
+
+.universal-float-btn img {
+    width: 98%;
+    height: 98%;
+    object-fit: cover;
+    pointer-events: none;
+    transform: scale(1);
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+}
+
+/* Border animation */
+@keyframes borderGradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+/* Hide floating button if active dashboard mode is on */
+body.dashboard-view-active #universalBookFloatBtn {
+    display: none !important;
+}
 </style>
 </head>
 <body>
 
 <div id="notification-container"></div>
 
+<!-- Floating Draggable Ticket Booking GIF Button -->
+<div class="universal-float-btn" id="universalBookFloatBtn" title="Hold & drag anywhere. Tap to Book.">
+    <img src="https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif" alt="Booking Ticket GIF">
+</div>
+
 <div id="publicView" class="view neon-view active">
     <header class="top-header">
-        <div class="title-container">
-            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">SINTHA HOUSIE</h1>
-        </div>
+       
     </header>
 
     <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;"></div>
+            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; color: white !important; margin: 0px;"></div>
         </div>
 
         <main class="game-layout">
@@ -1752,17 +1910,10 @@
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
                 </section>
 		
-                <section class="panel">
-                    <h2 class="panel-title">DIVIDENDS & WINNERS</h2>
-                    <table class="dividend-table" id="dividendListTable">
-                        <thead><tr><th>Dividend Name</th><th>Winner</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </section>
-
-                <section class="panel">
-                    <h2 class="panel-title">ALL TICKETS STATUS</h2>
-                    <div id="bookedTicketsDisplay"></div>
+                <!-- Redesigned dividends and winners layout (using class panel1 to match the reference image) -->
+                <section class="panel1">
+                    <h2 class="panel-title" style="color: #ffffff; font-weight: bold; margin-top: 0.4rem; text-align: center; font-size: 1.1rem;">DIVIDENT LIST</h2>
+                    <div class="dividend-cards-list" id="dividendListContainer"></div>
                 </section>
             </aside>
         </main>
@@ -1771,7 +1922,7 @@
     <nav class="bottom-nav">
         <div class="icon-bar" id="public-icon-bar">
             <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
-            <a href="#book" id="navigateToBooking" class="icon-btn"><i class="fas fa-ticket-alt"></i><span>Book</span></a>
+            <a href="#book" id="navigateToBooking" class="icon-btn"><i class="fas fa-ticket-alt"></i><span>Tickets</span></a>
             <button class="icon-btn" id="showAgentsBtn"><i class="fas fa-users"></i><span>Agents</span></button>
             <button class="icon-btn" id="publicLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
             <button class="icon-btn" id="publicLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
@@ -1781,15 +1932,12 @@
 
 <div id="ticketBookingView" class="view neon-view">
     <header class="top-header">
-         <div class="title-container">
-            <div class="logo-container"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="webTitle">SINTHA HOUSIE</h1>
-        </div>
+        
     </header>
 
     <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;"></div>
+            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0rem; margin: 0;"></div>
         </div>
 
         <section class="panel">
@@ -1958,13 +2106,17 @@
         </table>
     </div>
     <div class="gameSettingDiv">
-        <button class="titleBtn">CREATE NEW AGENT</button>
+        <button class="titleBtn">CREATE NEW ACCOUNT</button>
         <div style="padding: 1.2rem; background-color: var(--secondary-bg-dash); display: flex; flex-direction: column; gap: 0.8rem; width:80%; margin:auto;">
-            <input id="createAgentNameInp" class="tableInp" type="text" placeholder="Agent's Full Name" style="text-align:left;">
-            <input id="createAgentEmailInp" class="tableInp" type="email" placeholder="Agent's Email Address" style="text-align:left;">
-            <input id="createAgentPhoneInp" class="tableInp" type="tel" placeholder="Agent's Phone Number" style="text-align:left;">
+            <input id="createAgentNameInp" class="tableInp" type="text" placeholder="Full Name" style="text-align:left;">
+            <input id="createAgentEmailInp" class="tableInp" type="email" placeholder="Email Address" style="text-align:left;">
+            <input id="createAgentPhoneInp" class="tableInp" type="tel" placeholder="Phone Number" style="text-align:left;">
             <input id="createAgentPassInp" class="tableInp" type="password" placeholder="Set Temporary Password" style="text-align:left;">
-            <button class="actionBtn" style="width:100%; height: auto; padding: 10px;" onclick="createAgentByAdmin()">CREATE AGENT ACCOUNT</button>
+            <select id="createAgentRoleSel" class="tableInp" style="text-align:left; background-color: var(--primary-bg-dash); color: white;">
+                <option value="agent">Role: Agent</option>
+                <option value="admin">Role: Admin</option>
+            </select>
+            <button class="actionBtn" style="width:100%; height: auto; padding: 10px;" onclick="createAgentByAdmin()">CREATE ACCOUNT</button>
         </div>
     </div>
     <div class="gameSettingDiv" style="margin-bottom: 80px;">
@@ -2071,6 +2223,23 @@
     </div>
 </div>
 
+<!-- editAgentDetailsPopup added for Admin to edit Agent from Agent List -->
+<div class="overlay-popup" id="editAgentDetailsPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Edit Agent Details</h3>
+        <div class="login-form">
+             <input id="editAgentNameInp" type="text" class="agent-inp" placeholder="Agent Name" style="margin-bottom: 0.8rem;">
+             <input id="editAgentPhoneInp" type="tel" class="agent-inp" placeholder="Agent Phone" style="margin-bottom: 0.8rem;">
+             <select id="editAgentRoleSel" class="tableInp" style="background-color: var(--secondary-bg-dash); color: white; margin-bottom: 1.2rem;">
+                 <option value="agent">Agent</option>
+                 <option value="admin">Admin</option>
+             </select>
+             <button id="saveAgentDetailsChangesBtn" class="login-btn agent" onclick="saveAgentDetailsChanges()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
 <div class="overlay-popup" id="winningTicketViewerPopup">
     <div class="popup-content" style="background-color: #e0f7fa; border-color: #0288d1;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -2154,7 +2323,7 @@
     <div class="gameDiv" style="overflow-y: auto;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="panel" style="background: transparent; border: none; box-shadow: none; padding: 0; width: 95%; margin: 0.5rem auto;">
-            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0.5rem; margin-bottom: 0.5rem;"></div>
+            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0rem; margin-bottom: 0.5rem;"></div>
         </div>
         <table class="runGameTable gameSettingTable">
             <tbody>
@@ -2398,6 +2567,7 @@ let localStream, mediaRecorder;
 let isMicOn = false;
 let audioLibrary = {};
 let currentTrackId = null;
+let agentUidToEdit = null; // tracking which user role/phone/name is being edited
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2416,6 +2586,10 @@ function playSound(src) {
 }
 
 function showView(viewId) {
+    if (currentView === viewId && document.getElementById(viewId).classList.contains('active')) {
+        return; // Navigation Redundancy Check (Prevents freezing when tapping current active tab)
+    }
+
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => {
         if (v.id === viewId) {
@@ -2596,6 +2770,40 @@ function bindEventListeners() {
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
     document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
+
+    // Dynamic Visual Click Event Delegation for Performance Boost
+    const bookingGrid = document.getElementById('bookingGridContainer');
+    if (bookingGrid) {
+        bookingGrid.addEventListener('click', (e) => {
+            const ticketView = e.target.closest('.ticket-view');
+            if (ticketView && !ticketView.classList.contains('sold') && ticketView.id && ticketView.id.startsWith('booking-ticket-')) {
+                const ticketId = parseInt(ticketView.id.replace('booking-ticket-', ''), 10);
+                togglePublicTicketSelection(ticketId);
+            }
+        });
+    }
+
+    const dashTicketContainer = document.getElementById('dashTicketBlockDiv');
+    if (dashTicketContainer) {
+        dashTicketContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.ticketBlockBtn');
+            if (btn && !btn.disabled && btn.id && btn.id.startsWith('dash-ticket-btn-')) {
+                btn.classList.toggle('selected');
+                updateDashboardSelectionIndicator();
+            }
+        });
+    }
+
+    const publicBookingGridContainer = document.getElementById('publicBookingGrid');
+    if (publicBookingGridContainer) {
+        publicBookingGridContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.ticketBlockBtn');
+            if (btn && !btn.disabled && btn.id && btn.id.startsWith('public-ticket-btn-')) {
+                const ticketId = parseInt(btn.textContent, 10);
+                togglePublicPopupTicketSelection(ticketId);
+            }
+        });
+    }
 }
 
 function showPopup(id) {
@@ -3022,11 +3230,11 @@ function updateCountdownTimers(targetDateString) {
     countdownInterval = setInterval(update, 1000);
 }
 
+// Render Optimization: Visual Booking grid is now compiled as a single string to prevent lagging
 function renderVisualTicketBookingPage() {
     if (currentView !== 'ticketBookingView') return;
     const gridContainer = document.getElementById('bookingGridContainer');
     if (!gridContainer) return;
-    gridContainer.innerHTML = '';
 
     publicSelectedTickets = [];
     updatePublicSelectionIndicator();
@@ -3039,45 +3247,36 @@ function renderVisualTicketBookingPage() {
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicketId = i * 6 + 1;
         const endTicketId = startTicketId + 5;
         const actualEndId = endTicketId > totalTickets ? totalTickets : endTicketId;
 
-        const sheetWrapper = document.createElement('div');
-        sheetWrapper.className = 'sheet-view';
-
-        const sheetHeader = document.createElement('div');
-        sheetHeader.className = 'sheet-header';
-        sheetHeader.innerHTML = `
-            <span>Sheet ${i + 1} (Tkt ${startTicketId}-${actualEndId})</span>
-            <label class="full-sheet-selector">
-                <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${actualEndId})"> Select Full
-            </label>`;
-        sheetWrapper.appendChild(sheetHeader);
-
-        const sheetContent = document.createElement('div');
-        sheetContent.className = 'sheet-content';
-        sheetWrapper.appendChild(sheetContent);
+        htmlString += `
+        <div class="sheet-view">
+            <div class="sheet-header">
+                <span>Sheet ${i + 1} (Tkt ${startTicketId}-${actualEndId})</span>
+                <label class="full-sheet-selector">
+                    <input type="checkbox" onchange="selectFullSheet(this, ${startTicketId}, ${actualEndId})"> Select Full
+                </label>
+            </div>
+            <div class="sheet-content">`;
 
         for (let j = startTicketId; j <= endTicketId; j++) {
             if (j > totalTickets) continue;
 
             const ticket = ticketsMap.get(j);
-            const ticketView = document.createElement('div');
-            ticketView.id = `booking-ticket-${j}`;
-            ticketView.className = 'ticket-view';
-            
-            let headerHTML;
+            let extraClass = '';
+            let headerHTML = '';
             let gridHTML = '';
 
             if (ticket) {
                 if (ticket.is_sold) {
-                    ticketView.classList.add('sold');
+                    extraClass = ' sold';
                     headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status sold">SOLD</span></div>`;
                 } else {
-                    ticketView.onclick = () => togglePublicTicketSelection(j);
                     headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status available">AVAILABLE</span></div>`;
                 }
                 
@@ -3093,11 +3292,15 @@ function renderVisualTicketBookingPage() {
                 gridHTML = '<p style="text-align:center; padding: 1rem;">Data missing</p>';
             }
 
-            ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
-            sheetContent.appendChild(ticketView);
+            htmlString += `
+            <div id="booking-ticket-${j}" class="ticket-view${extraClass}">
+                ${headerHTML}
+                <div class="ticket-grid">${gridHTML}</div>
+            </div>`;
         }
-        gridContainer.appendChild(sheetWrapper);
+        htmlString += `</div></div>`;
     }
+    gridContainer.innerHTML = htmlString;
 }
 
 function selectFullSheet(checkbox, startId, endId) {
@@ -3167,7 +3370,10 @@ async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets
         agents.forEach(agent => {
             const link = document.createElement('a');
             link.href = '#';
-            link.onclick = async (e) => { e.preventDefault(); await redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); };
+            link.onclick = async (e) => { 
+                e.preventDefault(); 
+                await redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); 
+            };
             link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
         });
@@ -3259,7 +3465,7 @@ async function processBookingLink() {
 
         const ticketsRef = db.ref('tickets');
         const transactionResult = await ticketsRef.transaction(currentTickets => {
-            if (currentTickets === null) return;
+            if (currentTickets === null) return currentTickets; 
             for (const id of ticketIdsToBook) {
                 if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
                     return;
@@ -3295,7 +3501,7 @@ async function processBookingLink() {
     };
 
     try {
-        const[successMsg] = await Promise.all([
+        const [successMsg] = await Promise.all([
             bookingLogic(),
             new Promise(resolve => setTimeout(resolve, 1500))
         ]);
@@ -3348,12 +3554,12 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
     if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
         const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
         if (initialTicket) {
-            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); 
         }
     } else {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
-            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) 
         );
     }
     
@@ -3384,7 +3590,8 @@ function searchTicketPublic(searchTermOverride = null, isRerender = false) {
             }
             
             ticketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}">
-                        <div class="ticket-header">Ticket ${ticket.id}: ${ticket.owner_name}</div>
+                        <div class="ticket-header" style="position: relative; padding-right: 35px;">Ticket ${ticket.id}: ${ticket.owner_name}</div>
+                        <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>
                         <div class="ticket-grid">${gridHTML}</div>
                     </div>`;
         });
@@ -3403,38 +3610,88 @@ function clearSearchResult(phone) {
     displayedSearchPhones.delete(phone);
 }
 
+// Visual Ticked Search: Lookups updated to Set complexity for optimal lag-free operations
 function updateDisplayedTicketPublic() {
-    document.querySelectorAll('#ticketDisplayArea .ticket-view, #bookedTicketsDisplay .ticket-view').forEach(ticketView => {
-        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
-            const num = parseInt(cell.dataset.num, 10);
-            if (num > 0) {
-                 const isCalled = currentCalledNumbers.includes(num);
-                 cell.classList.toggle('ticked', isCalled);
-                 cell.classList.remove('last-called-highlight');
-                 if (num === lastAnnouncedNumber) {
-                      cell.classList.add('last-called-highlight');
-                 }
+    const lastCalled = lastAnnouncedNumber;
+    const calledSet = new Set(currentCalledNumbers);
+    
+    const cells = document.querySelectorAll('#ticketDisplayArea .ticket-num[data-num], #bookedTicketsDisplay .ticket-num[data-num]');
+    cells.forEach(cell => {
+        const num = parseInt(cell.dataset.num, 10);
+        if (num > 0) {
+            const isCalled = calledSet.has(num);
+            cell.classList.toggle('ticked', isCalled);
+            cell.classList.remove('last-called-highlight');
+            if (num === lastCalled) {
+                cell.classList.add('last-called-highlight');
             }
-        });
+        }
     });
 }
 
-function populateDividendList(dividends) {
-    const tbodies = document.querySelectorAll('#dividendListTable tbody, #runGameDividendTable tbody');
-    if(tbodies.length === 0) return;
-    
-    const rowsHTML = (dividends || [])
-        .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
-                      <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
-                      <td class="winner-info"><span class="winner-name">Pending...</span></td>
-                  </tr>`)
-        .join('');
+// Unified renderer to keep public view cards synchronized
+function renderPublicDividends() {
+    const publicContainer = document.getElementById('dividendListContainer');
+    if (!publicContainer) return;
 
-    tbodies.forEach(tbody => tbody.innerHTML = rowsHTML);
+    const dividends = gameSettingsData.dividends || [];
+    const winners = knownWinners || {};
+
+    if (dividends.length === 0) {
+        publicContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-style: italic;">No dividends configured yet.</p>';
+        return;
+    }
+
+    publicContainer.innerHTML = dividends.map(d => {
+        const safeName = d.name.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const dividendWinners = winners[d.name] || [];
+        
+        let winnerHTML = '';
+        if (dividendWinners.length > 0) {
+            winnerHTML = dividendWinners.map(w => 
+                `<div style="color: #000000; font-weight: bold; font-size: 1.01rem; margin-top: 2px;">
+                    ${w.name} <span style="font-weight: bold; color: #000000;">(Tkt: ${w.ticketId})</span>
+                </div>`
+            ).join('');
+        } else {
+            winnerHTML = `<div style="color: #000000; font-style: italic; font-size: 0.95rem;">Pending...</div>`;
+        }
+
+        return `
+        <div class="dividend-row-card">
+            <!-- Top dark blue section (Dividend Name) -->
+            <div style="background-color: #01579b; padding: 0.5rem; text-align: center; color: #ffffff; font-weight: bold; font-size: 1.01rem; font-family: sans-serif; border-bottom: 0.4px solid #b3002d;">
+                ${d.name}
+            </div>
+            <!-- Bottom white section (Winners / VIEW Button) -->
+            <div style="background-color: #ffffff; padding: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                <div class="winner-info-area" style="width: 100%; margin-bottom: 0rem;">
+                    ${winnerHTML}
+                </div>
+                <button class="pink-view-btn" onclick="showAllWinningTicketsForDividend('${safeName}')">
+                    VIEW
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function populateDividendList(dividends) {
+    const adminTbody = document.querySelector('#runGameDividendTable tbody');
+    if (adminTbody) {
+        adminTbody.innerHTML = (dividends || [])
+            .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
+                          <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
+                          <td class="winner-info"><span class="winner-name">Pending...</span></td>
+                      </tr>`)
+            .join('');
+    }
+
+    renderPublicDividends();
 }
 
 function updateWinners(winners) {
-    const tables = document.querySelectorAll('#dividendListTable, #runGameDividendTable');
+    const tables = document.querySelectorAll('#runGameDividendTable');
     
     tables.forEach(table => {
         table.querySelectorAll('.winner-info').forEach(el => {
@@ -3456,8 +3713,8 @@ function updateWinners(winners) {
 
         let eyeIcon = '';
         if (winnerArray.length > 0) {
-            const safeName = name.replace(/'/g, "\\'");
-            eyeIcon = `<i class="fas fa-eye" onclick="showAllWinningTicketsForDividend('${safeName}')"></i>`;
+            const safeName = name.replace(/'/g, "\\'").replace(/"/g, '\\"'); 
+            eyeIcon = `<i class="fas fa-eye" onclick="showAllWinningTicketsForDividend('${safeName}')" style="cursor: pointer; color: var(--accent-primary); margin-left: 10px;"></i>`;
         }
         
         const finalHTML = `<div class="winner-details">${winnerListHTML} ${shareText}</div> ${eyeIcon}`;
@@ -3470,6 +3727,8 @@ function updateWinners(winners) {
             }
         });
     }
+
+    renderPublicDividends();
 }
 
 function updateNumberBoard(called) {
@@ -3510,6 +3769,7 @@ function goToBooking(ticketId) {
     }, 200);
 }
 
+// Optimize List Rendering: Batching single HTML string assignment to avoid heavy DOM loops
 function renderSheetWiseBookedList() {
     if (currentView !== 'publicView') return;
     const container = document.getElementById('bookedTicketsDisplay');
@@ -3522,7 +3782,6 @@ function renderSheetWiseBookedList() {
 
     const totalTickets = gameSettingsData.totalTickets;
     const allTicketsMap = new Map(allTicketsData.map(t => [t.id, t]));
-    container.innerHTML = '';
 
     if (allTicketsMap.size === 0) {
         container.innerHTML = '<p style="text-align:center; font-style: italic; color: #01579b;">No tickets have been generated by the admin.</p>';
@@ -3530,48 +3789,45 @@ function renderSheetWiseBookedList() {
     }
 
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
 
-        const sheetWrapper = document.createElement('div');
-        sheetWrapper.className = 'sheet-view';
-
-        const sheetHeader = document.createElement('div');
-        sheetHeader.className = 'sheet-header';
-        sheetHeader.textContent = `Sheet ${i + 1} (Tickets ${startTicket}-${actualEndId})`;
-        sheetWrapper.appendChild(sheetHeader);
-
-        const sheetContent = document.createElement('div');
-        sheetContent.className = 'sheet-content';
-        sheetWrapper.appendChild(sheetContent);
+        htmlString += `
+        <div class="sheet-view">
+            <div class="sheet-header">Sheet ${i + 1} (Tickets ${startTicket}-${actualEndId})</div>
+            <div class="sheet-content">`;
 
         for (let j = startTicket; j <= endTicket; j++) {
             if (j > totalTickets) continue;
 
             const ticket = allTicketsMap.get(j);
-            const ticketViewWrapper = document.createElement('div');
-            const ticketView = document.createElement('div');
-            ticketView.className = 'ticket-view';
-            ticketView.setAttribute('data-ticket-id', j);
-
             if (!ticket) {
-                ticketView.innerHTML = `<div class="ticket-header">Ticket ${j} Data Missing</div>`;
+                htmlString += `
+                <div class="ticket-view" data-ticket-id="${j}">
+                    <div class="ticket-header">Ticket ${j} Data Missing</div>
+                </div>`;
             } else {
-                let headerHTML;
+                let headerHTML = '';
                 if (ticket.is_sold) {
-                    headerHTML = `<div class="ticket-header"><div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${j}</span></div>`;
+                    headerHTML = `
+                    <div class="ticket-header" style="position: relative; padding-right: 35px;">
+                        <div>${ticket.owner_name}</div>
+                        <span style="font-weight:normal;">Ticket ${j}</span>
+                    </div>
+                    <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${j})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>`;
                 } else {
                     headerHTML = `
-                        <div class="ticket-header">
-                            <span>Ticket ${j}</span>
-                            <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
-                        </div>`;
+                    <div class="ticket-header">
+                        <span>Ticket ${j}</span>
+                        <button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>
+                    </div>`;
                 }
                 
-                let gridHTML;
+                let gridHTML = '';
                 if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
                     gridHTML = ticket.numbers.flat().map(n =>
                         `<div class="ticket-num ${n > 0 ? '' : 'empty'}" data-num="${n}">${n > 0 ? n : ''}</div>`
@@ -3580,21 +3836,23 @@ function renderSheetWiseBookedList() {
                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
                 }
 
-                ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
+                htmlString += `
+                <div class="ticket-view" data-ticket-id="${j}">
+                    ${headerHTML}
+                    <div class="ticket-grid">${gridHTML}</div>
+                </div>`;
             }
-            ticketViewWrapper.appendChild(ticketView);
-            sheetContent.appendChild(ticketViewWrapper);
         }
-        container.appendChild(sheetWrapper);
+        htmlString += `</div></div>`;
     }
-
+    container.innerHTML = htmlString;
     updateDisplayedTicketPublic();
 }
 
 function showAllWinningTicketsForDividend(dividendName) {
     const winnerArray = knownWinners[dividendName];
     if (!winnerArray || winnerArray.length === 0) {
-        return showNotification("Winner information not found for this dividend.", "error");
+        return showNotification("Winner is pending for this dividend.", "info");
     }
 
     const displayArea = document.getElementById('winningTicketDisplayArea');
@@ -3643,11 +3901,12 @@ function showAllWinningTicketsForDividend(dividendName) {
                         return `<div class="${classes}" data-num="${n}">${n > 0 ? n : ''}</div>`;
                     }).join('');
                 } else {
-                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
+                     gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual data missing.</p>';
                 }
 
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
-                                    <div class="ticket-header">Ticket ${ticket.id}</div>
+                                    <div class="ticket-header" style="position: relative; padding-right: 35px;">Ticket ${ticket.id}</div>
+                                    <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>
                                     <div class="ticket-grid">${gridHTML}</div>
                                </div>`;
             });
@@ -3670,6 +3929,136 @@ function toggleDividendAmountInput(checkbox) {
     }
 }
 
+// Global click handler (will be executed dynamically by dragging script upon standard tab/clicks)
+function handleUniversalFloatClick() {
+    if (!currentUser || !currentUserRole) {
+        renderPublicBookingGrid();
+        showPopup('publicBookingPopup');
+    } else if (currentUserRole === 'admin' || currentUserRole === 'agent') {
+        updateDashboardBookingPopup();
+        showPopup('dashboardBookingPopup');
+    } else {
+        renderPublicBookingGrid();
+        showPopup('publicBookingPopup');
+    }
+}
+
+// Custom Drag and Drop Engine for the Floating Button (with Boundary Constrains)
+function makeElementDraggable(elmnt) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    let startX = 0, startY = 0;
+    const dragThreshold = 6; // Minimal px threshold to mark as an active drag
+    let isDragging = false;
+
+    elmnt.addEventListener('mousedown', dragMouseDown);
+    elmnt.addEventListener('touchstart', dragTouchStart, { passive: false });
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = false;
+        
+        document.addEventListener('mouseup', closeDragElement);
+        document.addEventListener('mousemove', elementDrag);
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        if (Math.abs(e.clientX - startX) > dragThreshold || Math.abs(e.clientY - startY) > dragThreshold) {
+            isDragging = true;
+        }
+
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+
+        // Viewport boundaries constrain
+        const maxLeft = window.innerWidth - elmnt.offsetWidth;
+        const maxTop = window.innerHeight - elmnt.offsetHeight;
+        
+        if (newLeft < 0) newLeft = 0;
+        if (newLeft > maxLeft) newLeft = maxLeft;
+        if (newTop < 0) newTop = 0;
+        if (newTop > maxTop) newTop = maxTop;
+
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
+        elmnt.style.bottom = "auto";
+        elmnt.style.right = "auto";
+    }
+
+    function closeDragElement(e) {
+        document.removeEventListener('mouseup', closeDragElement);
+        document.removeEventListener('mousemove', elementDrag);
+        
+        // Execute booking popup trigger only if elements were not dragged
+        if (!isDragging) {
+            handleUniversalFloatClick();
+        }
+    }
+
+    function dragTouchStart(e) {
+        const touch = e.touches[0];
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        isDragging = false;
+
+        document.addEventListener('touchend', closeDragTouch);
+        document.addEventListener('touchmove', elementTouchDrag, { passive: false });
+    }
+
+    function elementTouchDrag(e) {
+        e.preventDefault(); // Prevent touch browser scroll lock
+        const touch = e.touches[0];
+        pos1 = pos3 - touch.clientX;
+        pos2 = pos4 - touch.clientY;
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+
+        if (Math.abs(touch.clientX - startX) > dragThreshold || Math.abs(touch.clientY - startY) > dragThreshold) {
+            isDragging = true;
+        }
+
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+
+        const maxLeft = window.innerWidth - elmnt.offsetWidth;
+        const maxTop = window.innerHeight - elmnt.offsetHeight;
+        
+        if (newLeft < 0) newLeft = 0;
+        if (newLeft > maxLeft) newLeft = maxLeft;
+        if (newTop < 0) newTop = 0;
+        if (newTop > maxTop) newTop = maxTop;
+
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
+        elmnt.style.bottom = "auto";
+        elmnt.style.right = "auto";
+    }
+
+    function closeDragTouch(e) {
+        document.removeEventListener('touchend', closeDragTouch);
+        document.removeEventListener('touchmove', elementTouchDrag);
+        
+        if (!isDragging) {
+            handleUniversalFloatClick();
+        }
+    }
+}
+
 function updateAdminSettingsUI(data) {
     if (currentView !== 'adminDashboardView') return;
     document.getElementById('dateTimeInp').value = data.gameDateTime || '';
@@ -3679,7 +4068,7 @@ function updateAdminSettingsUI(data) {
 
     const table = document.getElementById('dividendSettingsTable');
     table.innerHTML = `
-        <thead><tr><th>Dividend Name & Amount</th><th>Active</th></tr></thead>
+        
         <tbody>
             ${allPossibleDividends.map(name => {
                 const dividendData = (data.dividends || []).find(d => d.name === name);
@@ -3712,11 +4101,14 @@ async function saveGameSetting() {
     const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
     const newDateTime = document.getElementById('dateTimeInp').value;
 
+    const priceVal = parseInt(document.getElementById('ticketPriceInp').value, 10);
+    const commVal = parseInt(document.getElementById('agentCommissionInp').value, 10);
+
     const settingsToSave = {
         gameDateTime: newDateTime,
-        totalTickets: newTotalTickets,
-        ticketPrice: parseInt(document.getElementById('ticketPriceInp').value, 10),
-        agentCommission: parseInt(document.getElementById('agentCommissionInp').value, 10),
+        totalTickets: isNaN(newTotalTickets) ? 600 : newTotalTickets,
+        ticketPrice: isNaN(priceVal) ? 0 : priceVal, 
+        agentCommission: isNaN(commVal) ? 0 : commVal, 
     };
     
     const processSave = async () => {
@@ -3818,7 +4210,7 @@ async function saveDividendSettings() {
                  activeDividends.push({
                     name: name,
                     amount: amount
-                });
+                 });
             }
         }
     });
@@ -3860,14 +4252,15 @@ async function saveAdminInfo() {
 }
 
 async function createAgentByAdmin() {
-    if (currentUserRole !== 'admin') return showNotification("Only admins can create agents.", 'error');
+    if (currentUserRole !== 'admin') return showNotification("Only admins can create accounts.", 'error');
 
     const name = document.getElementById('createAgentNameInp').value.trim();
     const email = document.getElementById('createAgentEmailInp').value.trim();
     const phone = document.getElementById('createAgentPhoneInp').value.trim();
     const pass = document.getElementById('createAgentPassInp').value;
+    const selectedRole = document.getElementById('createAgentRoleSel').value;
 
-    if (!name || !email || !phone || !pass) return showNotification('Please fill all fields for the new agent.', 'error');
+    if (!name || !email || !phone || !pass) return showNotification('Please fill all fields for the new account.', 'error');
     if (pass.length < 6) return showNotification("Password must be at least 6 characters.", 'error');
 
     const secondaryApp = firebase.initializeApp(firebaseConfig, 'agent-creator-' + Date.now());
@@ -3877,13 +4270,13 @@ async function createAgentByAdmin() {
         const newUser = userCredential.user;
 
         await db.ref('users/' + newUser.uid).set({
-            name, email, phone, role: 'agent',
+            name, email, phone, role: selectedRole,
             createdBy: currentUser.uid,
             createdAt: firebase.database.ServerValue.TIMESTAMP
         });
 
         await secondaryAuth.signOut();
-        const successMsg = `Agent '${name}' created successfully!`;
+        const successMsg = `${selectedRole === 'admin' ? 'Admin' : 'Agent'} '${name}' created successfully!`;
 
         await triggerGlobalNotification(successMsg, 'success');
 
@@ -3891,16 +4284,84 @@ async function createAgentByAdmin() {
         document.getElementById('createAgentEmailInp').value = '';
         document.getElementById('createAgentPhoneInp').value = '';
         document.getElementById('createAgentPassInp').value = '';
+        document.getElementById('createAgentRoleSel').value = 'agent';
     } catch (error) {
-        showNotification(`Error creating agent: ${error.message}`, 'error');
+        showNotification(`Error creating user: ${error.message}`, 'error');
     } finally {
         await secondaryApp.delete();
+    }
+}
+
+function showEditAgentPopup(uid, name, phone, role) {
+    agentUidToEdit = uid;
+    document.getElementById('editAgentNameInp').value = name;
+    document.getElementById('editAgentPhoneInp').value = phone;
+    document.getElementById('editAgentRoleSel').value = role;
+    showPopup('editAgentDetailsPopup');
+}
+
+async function saveAgentDetailsChanges() {
+    if (!agentUidToEdit) return;
+    const newName = document.getElementById('editAgentNameInp').value.trim();
+    const newPhone = document.getElementById('editAgentPhoneInp').value.trim();
+    const newRole = document.getElementById('editAgentRoleSel').value;
+
+    if (!newName || !newPhone) {
+        return showNotification('Name and Phone cannot be empty.', 'error');
+    }
+
+    try {
+        const updates = {};
+        updates[`/users/${agentUidToEdit}/name`] = newName;
+        updates[`/users/${agentUidToEdit}/phone`] = newPhone;
+        updates[`/users/${agentUidToEdit}/role`] = newRole;
+
+        await db.ref().update(updates);
+        showNotification('Agent details updated successfully!', 'success');
+        closePopups();
+    } catch (e) {
+        showNotification('Error updating agent details: ' + e.message, 'error');
+    } finally {
+        agentUidToEdit = null;
+    }
+}
+
+function toggleAgentCardActions(uid) {
+    const actionDiv = document.getElementById(`agent-actions-${uid}`);
+    if (actionDiv) {
+        const isHidden = actionDiv.style.display === 'none';
+        document.querySelectorAll('.agent-card-actions-sub').forEach(el => {
+            if(el.id !== `agent-actions-${uid}`) {
+                el.style.display = 'none';
+            }
+        });
+        actionDiv.style.display = isHidden ? 'flex' : 'none';
+    }
+}
+
+async function changeUserRoleByAdmin(uid, newRole) {
+    if (!currentUser) return;
+    if (uid === currentUser.uid) {
+        showNotification("You cannot change your own role.", "error");
+        renderDashboards();
+        return;
+    }
+    try {
+        await db.ref(`users/${uid}/role`).set(newRole);
+        showNotification("User role updated successfully!", "success");
+    } catch (e) {
+        showNotification("Error changing role: " + e.message, "error");
     }
 }
 
 async function resetCallNum() {
     if(!confirm('Are you sure? This will reset all called numbers, winners, and the game timer.')) return;
     try {
+        const snap = await db.ref('gameState/currentState/winners').once('value');
+        if (snap.exists() && snap.val() !== null) {
+            await db.ref('lastGame/winners').set(snap.val());
+        }
+
         await db.ref('gameState/currentState').update({
             calledNumbers: null,
             winners: null,
@@ -3914,6 +4375,11 @@ async function resetCallNum() {
 async function resetTicket() {
     if(!confirm('Are you sure? This will mark all sold tickets as UNSOLD.')) return;
     try {
+        const snap = await db.ref('tickets').once('value');
+        if (snap.exists() && snap.val() !== null) {
+            await db.ref('lastGame/tickets').set(snap.val());
+        }
+
         const updates = {};
         allTicketsData.forEach(ticket => {
             if (ticket.is_sold) {
@@ -3940,13 +4406,15 @@ async function resetAgent() {
         if (agents.length === 0) return showNotification("No agents to delete.", "info");
 
         agents.forEach(agent => {
-            updates[`/users/${agent.uid}`] = null;
+          updates[`/users/${agent.uid}`] = null;
         });
         await db.ref().update(updates);
 
         const msg = `${agents.length} agent account(s) deleted.`;
         showNotification(msg, 'success');
-    } catch (e) { showNotification('Error deleting agents: ' + e.message, 'error'); }
+    } catch (e) { 
+        showNotification('Error deleting agents: ' + e.message, 'error'); 
+    }
 }
 
 function showLastSoldTicket() {
@@ -4043,7 +4511,7 @@ function updateAdminList() {
 
     if (adminListState === 'tickets') {
         table.className = 'gameSettingTable1';
-        const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm));
+        const tickets = allTicketsData.filter(t => !searchTerm || t.id.toString().includes(searchTerm) || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm)); 
         table.innerHTML = `<thead><tr><th>Ticket Details</th></tr></thead><tbody>` +
             tickets.sort((a,b) => a.id - b.id).map(t => {
                 if (t.is_sold) {
@@ -4076,21 +4544,24 @@ function updateAdminList() {
     } else {
         table.className = 'gameSettingTable1 agent-list-view';
         const commissionPerTicket = gameSettingsData.agentCommission || 0;
-        const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || (u.phone||'').toLowerCase().includes(searchTerm));
+        const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || String(u.phone||'').toLowerCase().includes(searchTerm)); 
         
         const tableHTML = users.map(u => {
             const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
             const commission = soldCount * commissionPerTicket;
             const safeName = u.name ? u.name.replace(/'/g, "\\'") : 'N/A';
-            const actionButtonHTML = u.role === 'agent' 
-                ? `<i class="fas fa-trash-alt" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i>` 
-                : '<span>-</span>';
+            const safePhone = u.phone ? u.phone.replace(/'/g, "\\'") : '';
+            const safeRole = u.role ? u.role : 'agent';
+            
+            const deleteBtnHTML = u.uid !== currentUser.uid 
+                ? `<button class="actionBtn" style="background-color: #e74c3c;" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"><i class="fas fa-trash-alt"></i> Delete</button>` 
+                : '';
 
-            return `<tr class="agent-row-card" onclick="showAgentBookings('${u.uid}', '${safeName}')" title="Click to see tickets sold by ${safeName}">
+            return `<tr class="agent-row-card" onclick="toggleAgentCardActions('${u.uid}')" title="Click to show actions for ${safeName}">
                 <td colspan="5">
                     <div class="agent-card-container">
                         <div class="agent-card-info">
-                            <div class="agent-card-name">${u.name || 'N/A'} <small>(${u.role})</small></div>
+                            <div class="agent-card-name">${u.name || 'N/A'} <small style="text-transform:uppercase; font-size:0.75rem; color:var(--accent-color-dash);">(${u.role})</small></div>
                             <div class="agent-card-phone"><i class="fas fa-phone-alt"></i> ${u.phone || 'N/A'}</div>
                         </div>
                         <div class="agent-card-stats">
@@ -4103,9 +4574,11 @@ function updateAdminList() {
                                 <label>Commission</label>
                             </div>
                         </div>
-                        <div class="agent-card-actions">
-                            ${actionButtonHTML}
-                        </div>
+                    </div>
+                    <div class="agent-card-actions-sub" id="agent-actions-${u.uid}" style="display: none; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <button class="actionBtn" style="background-color: #2980b9;" onclick="event.stopPropagation(); showAgentBookings('${u.uid}', '${safeName}')"><i class="fas fa-eye"></i> View Tickets</button>
+                        <button class="actionBtn" style="background-color: #e67e22;" onclick="event.stopPropagation(); showEditAgentPopup('${u.uid}', '${safeName}', '${safePhone}', '${safeRole}')"><i class="fas fa-edit"></i> Edit</button>
+                        ${deleteBtnHTML}
                     </div>
                 </td>
             </tr>`;
@@ -4162,7 +4635,7 @@ async function saveTicketOwnerChanges() {
         return showNotification('Name and Phone cannot be empty.', 'error');
     }
 
-    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone));
 
     if (ownedTickets.length > 1) {
         const confirmText = document.getElementById('applyToAllConfirmText');
@@ -4184,7 +4657,7 @@ async function applyOwnerChanges(applyToAll, newName, newPhone) {
         let successMessage = '';
 
         if (applyToAll) {
-            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
+            ticketsToUpdate = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(originalOwnerInfo.phone));
             successMessage = `Details updated for all ${ticketsToUpdate.length} tickets owned by ${originalOwnerInfo.name}.`;
         } else {
             const singleTicket = allTicketsData.find(t => t.id === ticketIdToEdit);
@@ -4222,7 +4695,7 @@ function promptDeleteTicket(ticketId, ownerName, ownerPhone) {
         return;
     }
 
-    const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === ownerPhone);
+    const ownedTickets = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(ownerPhone));
 
     if (ownedTickets.length > 1) {
         ticketToDeleteInfo = { ticketId, ownerName, ownerPhone };
@@ -4247,7 +4720,7 @@ async function performDelete(identifier, deleteAll) {
         let successMessage = '';
 
         if (deleteAll) {
-            ticketsToReset = allTicketsData.filter(t => t.is_sold && t.owner_phone === identifier);
+            ticketsToReset = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(identifier));
             successMessage = `Deleted all ${ticketsToReset.length} tickets for the owner.`;
         } else {
             const singleTicket = allTicketsData.find(t => t.id === identifier);
@@ -4284,15 +4757,13 @@ async function deleteUser(uid, name) {
         return showNotification("You cannot delete your own account.", "error");
     }
     const userToDelete = allUsersData.find(u => u.uid === uid);
-    if (userToDelete && userToDelete.role === 'admin') {
-        return showNotification("Admins cannot be deleted from this panel.", "error");
-    }
+    if (!userToDelete) return;
 
-    if (!confirm(`Are you sure you want to PERMANENTLY DELETE the agent '${name}'? This action cannot be undone.`)) return;
+    if (!confirm(`Are you sure you want to PERMANENTLY DELETE user '${name}'? This action cannot be undone.`)) return;
 
     try {
         await db.ref(`users/${uid}`).remove();
-        const msg = `Agent '${name}' has been deleted.`;
+        const msg = `User '${name}' has been deleted.`;
         showNotification(msg, 'success');
     } catch (e) {
         showNotification('Error deleting user: ' + e.message, 'error');
@@ -4483,16 +4954,16 @@ function showAgentSoldTickets() {
     if (!currentUser || currentView !== 'agentDashboardView') return;
     const searchTerm = document.getElementById('agentSearchKeyInp').value.toLowerCase();
     const table = document.getElementById('agentSoldTicketsTable');
-    const myTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid && (!searchTerm || (t.owner_name_lower||'').includes(searchTerm) || (t.owner_phone||'').includes(searchTerm)));
+    const myTickets = allTicketsData.filter(t => t.agent_uid === currentUser.uid && (!searchTerm || (t.owner_name_lower||'').includes(searchTerm) || String(t.owner_phone||'').includes(searchTerm))); 
 
     table.innerHTML = `<thead><tr><th>Ticket ID</th><th>Owner Name</th><th>Owner Phone</th></tr></thead><tbody>` +
         myTickets.sort((a,b) => a.id - b.id).map(t => `<tr><td data-label="ID">${t.id}</td><td data-label="Name">${t.owner_name}</td><td data-label="Phone">${t.owner_phone}</td></tr>`).join('') + `</tbody>`;
 }
 
+// Optimization: Single HTML string generation to eliminate list delay inside popups
 function updateDashboardBookingPopup() {
     const container = document.getElementById('dashTicketBlockDiv');
     if (!container) return;
-    container.innerHTML = '';
     const indicator = document.getElementById('dashboardSelectionIndicator');
     if (indicator) indicator.textContent = '';
 
@@ -4504,46 +4975,31 @@ function updateDashboardBookingPopup() {
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
 
-        const sheetRow = document.createElement('div');
-        sheetRow.className = 'compact-sheet-row';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'sheet-tick-box';
-        checkbox.onchange = () => selectFullSheetDashboard(checkbox, startTicket, actualEndId);
-        sheetRow.appendChild(checkbox);
-
-        const buttonGroup = document.createElement('div');
-        buttonGroup.className = 'ticket-buttons-group';
+        htmlString += `
+        <div class="compact-sheet-row">
+            <input type="checkbox" class="sheet-tick-box" onchange="selectFullSheetDashboard(this, ${startTicket}, ${actualEndId})">
+            <div class="ticket-buttons-group">`;
 
         for (let j = startTicket; j <= endTicket; j++) {
             if (j > totalTickets) continue;
 
             const ticket = ticketsMap.get(j);
-            const btn = document.createElement('button');
-            btn.className = 'ticketBlockBtn';
-            btn.textContent = j;
-            btn.id = `dash-ticket-btn-${j}`;
-            if (ticket && ticket.is_sold) {
-                btn.disabled = true;
-            } else {
-                btn.onclick = () => {
-                    btn.classList.toggle('selected');
-                    updateDashboardSelectionIndicator();
-                };
-            }
-            buttonGroup.appendChild(btn);
+            const isSold = ticket && ticket.is_sold;
+            const disabledAttr = isSold ? 'disabled' : '';
+            
+            htmlString += `<button class="ticketBlockBtn" id="dash-ticket-btn-${j}" ${disabledAttr}>${j}</button>`;
         }
         
-        sheetRow.appendChild(buttonGroup);
-        container.appendChild(sheetRow);
+        htmlString += `</div></div>`;
     }
+    container.innerHTML = htmlString;
 }
 
 function selectFullSheetDashboard(checkbox, startId, endId) {
@@ -4552,12 +5008,13 @@ function selectFullSheetDashboard(checkbox, startId, endId) {
         if (btn && !btn.disabled) {
             const isSelected = btn.classList.contains('selected');
             if (checkbox.checked && !isSelected) {
-                btn.click();
+                btn.classList.add('selected');
             } else if (!checkbox.checked && isSelected) {
-                btn.click();
+                btn.classList.remove('selected');
             }
         }
     }
+    updateDashboardSelectionIndicator();
 }
 
 function updateDashboardSelectionIndicator() {
@@ -4566,7 +5023,7 @@ function updateDashboardSelectionIndicator() {
     const indicator = document.getElementById('dashboardSelectionIndicator');
     if (indicator) {
         const result = checkSheetSelection(selectedIds);
-        indicator.textContent = result.message;
+        indicator.textContent = result.message || 'Select tickets to see booking options';
         indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
     }
 }
@@ -4598,10 +5055,10 @@ async function handleDashboardBooking() {
     } catch(e) { showNotification('Error booking tickets: ' + e.message, 'error'); }
 }
 
+// Optimization: Single HTML string generation for public booking grid inside the popup
 function renderPublicBookingGrid() {
     const container = document.getElementById('publicBookingGrid');
     if (!container) return;
-    container.innerHTML = '';
     publicPopupSelectedTickets = [];
     updatePublicBookingIndicator();
 
@@ -4613,43 +5070,31 @@ function renderPublicBookingGrid() {
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
     const numSheets = Math.ceil(totalTickets / 6);
+    let htmlString = '';
 
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
         const actualEndId = endTicket > totalTickets ? totalTickets : endTicket;
         
-        const sheetRow = document.createElement('div');
-        sheetRow.className = 'compact-sheet-row';
-        
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'sheet-tick-box';
-        checkbox.onchange = () => selectFullSheetPublic(checkbox, startTicket, actualEndId);
-        sheetRow.appendChild(checkbox);
-        
-        const buttonGroup = document.createElement('div');
-        buttonGroup.className = 'ticket-buttons-group';
+        htmlString += `
+        <div class="compact-sheet-row">
+            <input type="checkbox" class="sheet-tick-box" onchange="selectFullSheetPublic(this, ${startTicket}, ${actualEndId})">
+            <div class="ticket-buttons-group">`;
 
         for (let j = startTicket; j <= endTicket; j++) {
             if (j > totalTickets) continue;
 
             const ticket = ticketsMap.get(j);
-            const btn = document.createElement('button');
-            btn.className = 'ticketBlockBtn';
-            btn.textContent = j;
-            btn.id = `public-ticket-btn-${j}`;
-            if (ticket && ticket.is_sold) {
-                btn.disabled = true;
-            } else {
-                btn.onclick = () => togglePublicPopupTicketSelection(j);
-            }
-            buttonGroup.appendChild(btn);
+            const isSold = ticket && ticket.is_sold;
+            const disabledAttr = isSold ? 'disabled' : '';
+            
+            htmlString += `<button class="ticketBlockBtn" id="public-ticket-btn-${j}" ${disabledAttr}>${j}</button>`;
         }
 
-        sheetRow.appendChild(buttonGroup);
-        container.appendChild(sheetRow);
+        htmlString += `</div></div>`;
     }
+    container.innerHTML = htmlString;
 }
 
 function togglePublicPopupTicketSelection(ticketId) {
@@ -4685,7 +5130,7 @@ function updatePublicBookingIndicator() {
     const indicator = document.getElementById('publicBookingIndicator');
     if (indicator) {
         const result = checkSheetSelection(publicPopupSelectedTickets);
-        indicator.textContent = result.message;
+        indicator.textContent = result.message || 'Select tickets to see booking options';
         indicator.style.color = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
         indicator.style.borderColor = result.valid ? 'var(--accent-color-dash)' : '#e74c3c';
     }
@@ -4793,7 +5238,7 @@ function callNextNumber() {
             if (gameRunnerInterval) clearInterval(gameRunnerInterval);
             gameStateRef.child('isGameRunning').set(false);
         } else if (committed && snapshot.exists()) {
-             const finalState = snapshot.val();
+            const finalState = snapshot.val();
             if (!finalState.isGameRunning) {
                 if (gameRunnerInterval) clearInterval(gameRunnerInterval);
                 const activeDividends = gameSettingsData.dividends || [];
@@ -4809,6 +5254,7 @@ function callNextNumber() {
     });
 }
 
+// Computational optimization: converted lookups to a Set to ensure 0ms processing delay
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
     const activeDividends = gameSettingsData.dividends || [];
@@ -4818,7 +5264,8 @@ function checkAllWinners(calledNumbers, currentWinners) {
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     if (!lastCalledNumber) return updatedWinners;
 
-    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+    const calledSet = new Set(calledNumbers);
+    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledSet.has(n)).length;
 
     const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
         if (ticket.owner_phone) {
@@ -4842,7 +5289,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
             let winningPatternNumbers = [];
             
             const checkPattern = (numbers) => {
-                if (numbers && numbers.length > 0 && numbers.every(n => calledNumbers.includes(n))) {
+                if (numbers && numbers.length > 0 && numbers.every(n => calledSet.has(n))) {
                     winningPatternNumbers = numbers;
                     return true;
                 }
@@ -4888,10 +5335,13 @@ function checkAllWinners(calledNumbers, currentWinners) {
                     break;
                 default:
                     if (dividend.name.startsWith("Early") || dividend.name.startsWith("Quick")) {
-                        const count = parseInt(dividend.name.match(/\d+/)[0], 10);
-                        if (countMarked(ticket) === count) {
-                            isWinner = true;
-                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n));
+                        const match = dividend.name.match(/\d+/);
+                        if (match) {
+                            const count = parseInt(match[0], 10);
+                            if (countMarked(ticket) === count) {
+                                isWinner = true;
+                                winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledSet.has(n));
+                            }
                         }
                     }
                     break;
@@ -4908,7 +5358,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 });
             }
         }
-        
         
         if (dividend.name === 'Full Sheet Bonus' || dividend.name === 'Half Sheet Bonus') {
             for (const ownerPhone in ticketsByOwner) {
@@ -5002,6 +5451,16 @@ async function generateHousieTickets(bypassConfirm = false) {
     showNotification(`Generating ${totalTickets} new tickets... This may take a moment.`, 'info');
 
     try {
+        const snap = await db.ref('tickets').once('value');
+        if (snap.exists() && snap.val() !== null) {
+            await db.ref('lastGame/tickets').set(snap.val());
+        }
+        
+        const winnersSnap = await db.ref('gameState/currentState/winners').once('value');
+        if (winnersSnap.exists() && winnersSnap.val() !== null) {
+            await db.ref('lastGame/winners').set(winnersSnap.val());
+        }
+
         await db.ref('/tickets').set(null); 
         setTimeout(async () => {
             const newTicketsObject = {};
@@ -5135,6 +5594,11 @@ function createListPDF(title, headers, dataRows, filename) {
     const startY = 35;
     const colPositions = [15, 40, 120]; 
 
+    doc.setFont(undefined, 'bold');
+    headers.forEach((header, i) => {
+        doc.text(String(header), colPositions[i], startY);
+    });
+
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     let y = startY + 7;
@@ -5145,7 +5609,7 @@ function createListPDF(title, headers, dataRows, filename) {
             y = 15;
         }
         row.forEach((cell, i) => {
-            doc.text(String(cell), colPositions[i], y);
+            doc.text(String(cell || ''), colPositions[i], y);
         });
         y += 7;
     });
@@ -5167,7 +5631,12 @@ async function downloadPreviousGameTicketList() {
         const users = usersSnapshot.val();
         const userMap = new Map(Object.entries(users || {}).map(([uid, data]) => [uid, data]));
 
-        const dataRows = prevTickets.map(ticket => {
+        const prevSoldTickets = prevTickets.filter(t => t.is_sold);
+        if (prevSoldTickets.length === 0) {
+            return showNotification('No sold tickets found in archived data.', 'info');
+        }
+
+        const dataRows = prevSoldTickets.map(ticket => {
             const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
             const agentName = agent ? agent.name : 'Direct/Admin';
             return [ticket.id, ticket.owner_name, agentName];
@@ -5302,12 +5771,12 @@ function searchTicketAdmin() {
     if (!isNaN(searchNumber) && searchTerm.toString().match(/^\d+$/)) {
         const initialTicket = allTicketsData.find(t => t.id === searchNumber && t.is_sold);
         if (initialTicket) {
-            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && t.owner_phone === initialTicket.owner_phone);
+            ticketsToDisplay = allTicketsData.filter(t => t.is_sold && String(t.owner_phone) === String(initialTicket.owner_phone)); 
         }
     } else {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         ticketsToDisplay = allTicketsData.filter(t => t.is_sold &&
-            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || (t.owner_phone || '').includes(lowerCaseSearchTerm))
+            ((t.owner_name_lower || '').includes(lowerCaseSearchTerm) || String(t.owner_phone || '').includes(lowerCaseSearchTerm)) 
         );
     }
     
@@ -5362,19 +5831,21 @@ function clearAdminSearchResult(phone) {
     adminDisplayedSearchPhones.delete(phone);
 }
 
+// Optimization: Converted lookups inside admin visual area to a Set for lag-free visual sync
 function updateAdminDisplayedTickets() {
-    document.querySelectorAll('#adminTicketDisplayArea .ticket-view').forEach(ticketView => {
-        ticketView.querySelectorAll('.ticket-num[data-num]').forEach(cell => {
-            const num = parseInt(cell.dataset.num, 10);
-            if (num > 0) {
-                const isCalled = currentCalledNumbers.includes(num);
-                cell.classList.toggle('ticked', isCalled);
-                cell.classList.remove('last-called-highlight');
-                if (num === lastAnnouncedNumber) {
-                    cell.classList.add('last-called-highlight');
-                }
+    const calledSet = new Set(currentCalledNumbers);
+    const lastCalled = lastAnnouncedNumber;
+    const cells = document.querySelectorAll('#adminTicketDisplayArea .ticket-num[data-num]');
+    cells.forEach(cell => {
+        const num = parseInt(cell.dataset.num, 10);
+        if (num > 0) {
+            const isCalled = calledSet.has(num);
+            cell.classList.toggle('ticked', isCalled);
+            cell.classList.remove('last-called-highlight');
+            if (num === lastCalled) {
+                cell.classList.add('last-called-highlight');
             }
-        });
+        }
     });
 }
 
@@ -5788,25 +6259,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateNumberBoard();
     bindEventListeners();
-    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+    gsap.to('.top-header, .bottom-nav, .panel, .panel1', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+
+    makeElementDraggable(document.getElementById('universalBookFloatBtn'));
 
     setTimeout(() => {
         showPopup('firstVisitPopup');
     }, 1500);
 });
 </script>
-	<script>
-(function(){
-    function _0x1a3c(_0x12, _0x34){return _0x1a3c=_0x34?function(_0x56){return _0x56.toString(36)}:function(_0x56){return _0x56};return _0x1a3c(_0x12,_0x34);}
-    document['addEventListener']('contextmenu',function(_0x1){_0x1['preventDefault']();});
-    document['addEventListener']('keydown',function(_0x2){
-        if(_0x2['key']==='F12'){_0x2['preventDefault']();}
-        if((_0x2['ctrlKey']&&_0x2['shiftKey']&&['I','J']['includes'](_0x2['key']['toUpperCase']()))||
-           (_0x2['ctrlKey']&&['U','S']['includes'](_0x2['key']['toUpperCase']()))){
-            _0x2['preventDefault']();
-        }
-    });
-})();
-	</script>
 </body>
 </html>
