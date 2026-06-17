@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sintha Sports Live</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#031b0f,#0a3d2a,#00a86b);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:1400px;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.header h1{
+    color:#fff;
+    font-size:42px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-shadow:0 0 15px rgba(0,255,170,0.5);
+}
+
+.live{
+    color:#ff2d2d;
+}
+
+.player-box{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+}
+
+iframe{
+    width:100%;
+    height:80vh;
+    border:none;
+}
+
+.footer{
+    text-align:center;
+    color:#d0fbe8;
+    margin-top:15px;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Sintha Sports <span class="live">LIVE</span></h1>
+    </div>
+
+    <div class="player-box">
+        <iframe
+            src="https://sayanchannelcdn02.pages.dev/football/english"
+            allowfullscreen
+            allow="autoplay; fullscreen">
+        </iframe>
+    </div>
+
+    <div class="footer">
+        © 2026 Sintha Sports Live
+    </div>
+
+</div>
+
+</body>
+</html>
