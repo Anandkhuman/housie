@@ -4,129 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Player</title>
+    <title>Live Sports Stream</title>
     
-    <!-- Player के लिए सीएसएस -->
+    <!-- CSS Tweak for Video Width -->
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            background-color: #000; /* Black background for player */
         }
-        body {
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: sans-serif;
-        }
-        .player-box {
+        #jwplayer-container {
             width: 100%;
-            max-width: 800px;
-            background: #000;
-            overflow: hidden;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .buttons {
-            display: flex;
-            width: 100%;
-        }
-        .buttons button {
-            flex: 1;
-            border: none;
-            padding: 12px 5px;
-            background: #1a1a1a;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .buttons button:hover {
-            background-color: #333;
-        }
-        .buttons button.active {
-            background: #e50914;
-        }
-        .buttons button span {
-            display: block;
-            font-size: 10px;
-            font-weight: 400;
-            margin-top: 2px;
+            max-width: 800px; /* Aap isko apne hisaab se adjust kar sakte hain */
+            margin: 0 auto;
         }
         video {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            display: block;
-        }
-        @media(max-width: 768px) {
-            .buttons button {
-                font-size: 12px;
-                padding: 10px 3px;
-            }
+            width: 100% !important;
         }
     </style>
-    
-    <!-- HLS.js लाइब्रेरी -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
-    <div class="player-box">
-        <div class="buttons">
-            <button class="active" onclick="loadPlayer(this, 'https://live.kooran53.cfd/goolato3.m3u8')">
-                SERVER 1
-                <span>Main</span>
-            </button>
-            <button onclick="loadPlayer(this, 'https://live05.msdht.app/live/14830711.m3u8')">
-                SERVER 2
-                <span>Backup</span>
-            </button>
-        </div>
-        <video id="video" controls autoplay playsinline></video>
-    </div>
+    <!-- JW Player Container -->
+    <div id="jwplayer-container"></div>
 
-    <!-- प्लेयर की कार्यक्षमता के लिए जावास्क्रिप्ट -->
+    <!-- JW Player Script & Key (Zaroori: src mein https:// zaroor lagayein) -->
+    <script src='https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js'></script>
+    <script>jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
+
+    <!-- JW Player Setup -->
     <script>
-        var video = document.getElementById("video");
-        var hls;
-
-        function loadPlayer(button, videoSrc) {
-            // सभी बटनों से 'active' क्लास हटा दें
-            document.querySelectorAll(".buttons button").forEach(btn => {
-                btn.classList.remove("active");
-            });
-
-            // क्लिक किए गए बटन पर 'active' क्लास जोड़ें
-            button.classList.add("active");
-
-            // यदि पिछला HLS उदाहरण मौजूद है तो उसे नष्ट कर दें
-            if (hls) {
-                hls.destroy();
+    jwplayer("jwplayer-container").setup({
+      playlist: [{
+        sources: [{
+          file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+          type: "dash",
+          drm: {
+            clearkey: {
+              keyId: "433ffba670963e70857859a9dff4be04",
+              key: "51ede3a821229fe81e71282c8eff80e3"
             }
-
-            // HLS समर्थन के लिए जाँच करें
-            if (Hls.isSupported()) {
-                hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                video.play();
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
-                });
-            }
-        }
-
-        // प्रारंभ में पहला वीडियो लोड करें
-        loadPlayer(
-            document.querySelector(".buttons button.active"),
-            "https://live.kooran53.cfd/goolato3.m3u8"
-        );
+          }
+        }]
+      }],
+      width: "100%",
+      aspectratio: "16:9",
+      autostart: true,
+      mute: false
+    });
     </script>
 
 </body>
