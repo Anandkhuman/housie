@@ -4,54 +4,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Sports Stream</title>
-    
-    <!-- CSS Tweak for Video Width -->
+    <title>Sintha Live - Streaming</title>
+
+    <!-- Player Libraries (JW Player & Shaka Player) -->
+    <script src='https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mux.js/6.3.0/mux.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.10/shaka-player.ui.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.10/controls.min.css" rel="stylesheet" />
+
     <style>
+        /* General Page Styling */
         body {
             margin: 0;
             padding: 0;
-            background-color: #000; /* Black background for player */
+            background-color: #111111;
+            font-family: Arial, sans-serif;
+            color: white;
         }
-        #jwplayer-container {
+
+        /* Header Styling */
+        header {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #e50914;
+        }
+        header h1 {
+            margin: 0;
+            color: #e50914; /* Netflix Red theme */
+            font-size: 32px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Navigation Bar Styling - SINGLE LINE SCROLLABLE */
+        nav {
+            display: flex;
+            flex-wrap: nowrap; /* Ek line mein fix karne ke liye */
+            overflow-x: auto; /* Horizontal scroll enable karne ke liye */
+            background-color: #222;
+            padding: 10px;
+            gap: 10px;
+            -webkit-overflow-scrolling: touch; /* Mobile par smooth scroll */
+            scrollbar-width: none; /* Firefox mein scrollbar hide karega */
+        }
+        
+        /* Chrome/Safari mein scrollbar hide karne ke liye */
+        nav::-webkit-scrollbar {
+            display: none; 
+        }
+
+        nav button {
+            flex: 0 0 auto; /* Button ko chhota hone se rokne ke liye */
+            background-color: #333;
+            color: white;
+            border: 1px solid #444;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        nav button:hover {
+            background-color: #e50914;
+        }
+        nav button.active {
+            background-color: #e50914;
+            border-color: #e50914;
+            font-weight: bold;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 10px;
+        }
+
+        /* Video Container Wrapper */
+        .server-tab {
+            display: none; /* Hide all by default */
             width: 100%;
-            max-width: 800px; /* Aap isko apne hisaab se adjust kar sakte hain */
-            margin: 0 auto;
+            max-width: 850px;
         }
-        video {
-            width: 100% !important;
+        .server-tab.active {
+            display: block; /* Show active */
+        }
+
+        /* Video Box Styling */
+        .video-box {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+        .video-box iframe, .video-box video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+        }
+        
+        /* Shaka Player Tweak */
+        .shaka-video-container .material-icons-round {
+            color: #f1ff00;
         }
     </style>
 </head>
 <body>
 
-    <!-- JW Player Container -->
-    <div id="jwplayer-container"></div>
+    <!-- Header -->
+    <header>
+        <h1>Sintha Live</h1>
+    </header>
 
-    <!-- JW Player Script & Key (Zaroori: src mein https:// zaroor lagayein) -->
-    <script src='https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js'></script>
-    <script>jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
+    <!-- Navigation Bar (Scrollable) -->
+    <nav>
+        <button class="nav-btn active" onclick="switchServer('server1', this)">Server 1 (JW)</button>
+        <button class="nav-btn" onclick="switchServer('server2', this)">Server 2</button>
+        <button class="nav-btn" onclick="switchServer('server3', this)">Server 3</button>
+        <button class="nav-btn" onclick="switchServer('server4', this)">Server 4</button>
+        <button class="nav-btn" onclick="switchServer('server5', this)">Server 5</button>
+        <button class="nav-btn" onclick="switchServer('server6', this)">Server 6 (Shaka)</button>
+    </nav>
 
-    <!-- JW Player Setup -->
+    <!-- Main Content -->
+    <div class="main-container">
+
+        <!-- Server 1: JW Player -->
+        <div id="server1" class="server-tab active">
+            <div class="video-box">
+                <div id="jwplayer-container"></div>
+            </div>
+        </div>
+
+        <!-- Server 2: Nusa Himen Iframe -->
+        <div id="server2" class="server-tab">
+            <div class="video-box">
+                <!-- Iframe ko pause karne ke liye data-src use kiya hai -->
+                <iframe allowfullscreen="true" src="" data-src="https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8"></iframe>
+            </div>
+        </div>
+
+        <!-- Server 3: HD Muesra Iframe -->
+        <div id="server3" class="server-tab">
+            <div class="video-box">
+                <iframe allowfullscreen="true" src="" data-src="https://hd.muesra.sbs/albaplayer/oooe/?serv=0"></iframe>
+            </div>
+        </div>
+
+        <!-- Server 4: Kooralive Bein Sports Iframe -->
+        <div id="server4" class="server-tab">
+            <div class="video-box">
+                <iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe>
+            </div>
+        </div>
+
+        <!-- Server 5: Veotest Iframe -->
+        <div id="server5" class="server-tab">
+            <div class="video-box">
+                <iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe>
+            </div>
+        </div>
+
+        <!-- Server 6: Shaka Player -->
+        <div id="server6" class="server-tab">
+            <div class="video-box" data-shaka-player-container>
+                <video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts for Players and Logic -->
     <script>
-    jwplayer("jwplayer-container").setup({
-      playlist: [{
-        sources: [{
-          file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
-          type: "dash",
-          drm: {
-            clearkey: {
-              keyId: "433ffba670963e70857859a9dff4be04",
-              key: "51ede3a821229fe81e71282c8eff80e3"
+        // ------------------------------------
+        // Server Switching & Auto-Pause Logic
+        // ------------------------------------
+        function switchServer(serverId, btnElement) {
+            // 1. Update active class on Navigation Buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            // 2. PAUSE/STOP OLD VIDEOS
+            
+            // Pause JW Player (Server 1)
+            try {
+                if (jwplayer("jwplayer-container").getState() === 'playing' || jwplayer("jwplayer-container").getState() === 'buffering') {
+                    jwplayer("jwplayer-container").pause();
+                }
+            } catch (e) {}
+
+            // Pause Shaka Player (Server 6)
+            try {
+                const shakaVideo = document.getElementById('youtube-theme');
+                if (shakaVideo && !shakaVideo.paused) {
+                    shakaVideo.pause();
+                }
+            } catch (e) {}
+
+            // Stop Iframes (Server 2, 3, 4, 5) by removing their src
+            document.querySelectorAll('.server-tab iframe').forEach(iframe => {
+                iframe.src = ""; 
+            });
+
+            // 3. Hide all server tabs
+            document.querySelectorAll('.server-tab').forEach(tab => tab.classList.remove('active'));
+            
+            // 4. Show the newly selected server tab
+            const activeTab = document.getElementById(serverId);
+            activeTab.classList.add('active');
+
+            // 5. PLAY NEW VIDEO
+            
+            // If the selected tab has an iframe, load its video
+            const activeIframe = activeTab.querySelector('iframe');
+            if (activeIframe) {
+                activeIframe.src = activeIframe.getAttribute('data-src');
             }
-          }
-        }]
-      }],
-      width: "100%",
-      aspectratio: "16:9",
-      autostart: true,
-      mute: false
-    });
+
+            // If selected tab is JW Player, play it
+            if (serverId === 'server1') {
+                try { jwplayer("jwplayer-container").play(); } catch (e) {}
+            }
+
+            // If selected tab is Shaka Player, play it
+            if (serverId === 'server6') {
+                try { document.getElementById('youtube-theme').play(); } catch (e) {}
+            }
+        }
+
+
+        // ------------------------------------
+        // Setup JW Player (Server 1)
+        // ------------------------------------
+        jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
+        jwplayer("jwplayer-container").setup({
+            playlist: [{
+                sources: [{
+                    file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+                    type: "dash",
+                    drm: {
+                        clearkey: {
+                            keyId: "433ffba670963e70857859a9dff4be04",
+                            key: "51ede3a821229fe81e71282c8eff80e3"
+                        }
+                    }
+                }]
+            }],
+            width: "100%",
+            height: "100%", 
+            aspectratio: "16:9",
+            autostart: true, // Will play because it's the active tab on load
+            mute: false
+        });
+
+
+        // ------------------------------------
+        // Setup Shaka Player (Server 6)
+        // ------------------------------------
+        const manifestUri = 'https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd';
+
+        async function initShaka() {
+            const video = document.getElementById('youtube-theme');
+            const ui = video['ui'];
+            
+            const config = {
+                'seekBarColors': {
+                    base: 'rgba(255,255,255,.2)',
+                    buffered: 'rgba(255,255,255,.4)',
+                    played: 'rgb(255,0,0)',
+                }
+            };
+            ui.configure(config);
+
+            const controls = ui.getControls();
+            const player = controls.getPlayer();
+            
+            player.configure({
+                drm: {
+                    clearKeys: {
+                        "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3"
+                    }
+                }
+            });
+
+            window.player = player;
+            window.ui = ui;
+
+            try {
+                await player.load(manifestUri);
+                
+                // Important: Pause Shaka Player on load because it is hidden
+                if (!document.getElementById('server6').classList.contains('active')) {
+                    video.pause();
+                }
+
+                setTimeout(() => {
+                    const menuBtn = document.querySelector('.shaka-overflow-menu-button');
+                    if(menuBtn) menuBtn.innerHTML = 'settings';
+                }, 500);
+            } catch (error) {
+                console.error('Error loading Shaka video:', error);
+            }
+        }
+
+        document.addEventListener('shaka-ui-loaded', initShaka);
+
     </script>
 
 </body>
