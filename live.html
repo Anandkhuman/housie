@@ -131,6 +131,8 @@
         <button class="nav-btn" onclick="switchServer('server4', this)">Server 4</button>
         <button class="nav-btn" onclick="switchServer('server5', this)">Server 5</button>
         <button class="nav-btn" onclick="switchServer('server6', this)">Server 6 (Shaka)</button>
+        <!-- Added Server 7 Menu -->
+        <button class="nav-btn" onclick="switchServer('server7', this)">Server 7</button>
     </nav>
 
     <!-- Main Content -->
@@ -179,6 +181,21 @@
             </div>
         </div>
 
+        <!-- Server 7: New Iframe Added -->
+        <div id="server7" class="server-tab">
+            <div class="video-box">
+                <iframe 
+                    allow="encrypted-media" 
+                    allowfullscreen="true" 
+                    sandbox="allow-forms allow-same-origin allow-scripts" 
+                    scrolling="no" 
+                    frameborder="0"
+                    src="" 
+                    data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew">
+                </iframe>
+            </div>
+        </div>
+
     </div>
 
     <!-- Scripts for Players and Logic -->
@@ -208,7 +225,7 @@
                 }
             } catch (e) {}
 
-            // Stop Iframes (Server 2, 3, 4, 5) by removing their src
+            // Stop All Iframes (Servers 2, 3, 4, 5, 7) by removing their src
             document.querySelectorAll('.server-tab iframe').forEach(iframe => {
                 iframe.src = ""; 
             });
