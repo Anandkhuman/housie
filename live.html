@@ -152,7 +152,7 @@
             color: #f1ff00;
         }
 
-        /* Custom HLS Player Styles (Server 8 & 9) */
+        /* Custom HLS Player Styles (Server 8-12) */
         .custom-player-wrap {
             width: 100%;
             height: 100%;
@@ -272,15 +272,18 @@
 
     <!-- Navigation Bar -->
     <nav>
-        <button class="nav-btn active" onclick="switchServer('server1', this)">Server 1 (JW)</button>
+        <button class="nav-btn active" onclick="switchServer('server1', this)">Server 1</button>
         <button class="nav-btn" onclick="switchServer('server2', this)">Server 2</button>
         <button class="nav-btn" onclick="switchServer('server3', this)">Server 3</button>
         <button class="nav-btn" onclick="switchServer('server4', this)">Server 4</button>
         <button class="nav-btn" onclick="switchServer('server5', this)">Server 5</button>
-        <button class="nav-btn" onclick="switchServer('server6', this)">Server 6 (Shaka)</button>
+        <button class="nav-btn" onclick="switchServer('server6', this)">Server 6</button>
         <button class="nav-btn" onclick="switchServer('server7', this)">Server 7</button>
         <button class="nav-btn" onclick="switchServer('server8', this)">Server 8</button>
         <button class="nav-btn" onclick="switchServer('server9', this)">Server 9</button>
+        <button class="nav-btn" onclick="switchServer('server10', this)">Server 10</button>
+        <button class="nav-btn" onclick="switchServer('server11', this)">Server 11</button>
+        <button class="nav-btn" onclick="switchServer('server12', this)">Server 12</button>
     </nav>
 
     <!-- Main Content -->
@@ -409,6 +412,75 @@
             </div>
         </div>
 
+        <!-- Server 10: Caze TV (Custom HLS Player) -->
+        <div id="server10" class="server-tab">
+            <div class="video-box">
+                <div class="loading-overlay" id="loading-server10">
+                    <div class="spinner"></div>
+                    <div>Loading Stream...</div>
+                </div>
+                <div class="custom-player-wrap">
+                    <div class="controls-top">
+                        <div class="quality-box">
+                            Quality:
+                            <div class="custom-select">
+                                <div class="select-selected">Auto</div>
+                                <div class="select-items"></div>
+                            </div>
+                        </div>
+                        <div class="settings-icon" title="Settings">&#9881;</div>
+                    </div>
+                    <video controls controlslist="nodownload" id="videoPlayer10" playsinline webkit-playsinline></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- Server 11: TRT Stream (Custom HLS Player) -->
+        <div id="server11" class="server-tab">
+            <div class="video-box">
+                <div class="loading-overlay" id="loading-server11">
+                    <div class="spinner"></div>
+                    <div>Loading Stream...</div>
+                </div>
+                <div class="custom-player-wrap">
+                    <div class="controls-top">
+                        <div class="quality-box">
+                            Quality:
+                            <div class="custom-select">
+                                <div class="select-selected">Auto</div>
+                                <div class="select-items"></div>
+                            </div>
+                        </div>
+                        <div class="settings-icon" title="Settings">&#9881;</div>
+                    </div>
+                    <video controls controlslist="nodownload" id="videoPlayer11" playsinline webkit-playsinline></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- Server 12: Match TV (Custom HLS Player) -->
+        <div id="server12" class="server-tab">
+            <div class="video-box">
+                <div class="loading-overlay" id="loading-server12">
+                    <div class="spinner"></div>
+                    <div>Loading Stream...</div>
+                </div>
+                <div class="custom-player-wrap">
+                    <div class="controls-top">
+                        <div class="quality-box">
+                            Quality:
+                            <div class="custom-select">
+                                <div class="select-selected">Auto</div>
+                                <div class="select-items"></div>
+                            </div>
+                        </div>
+                        <div class="settings-icon" title="Settings">&#9881;</div>
+                    </div>
+                    <video controls controlslist="nodownload" id="videoPlayer12" playsinline webkit-playsinline></video>
+                </div>
+            </div>
+        </div>
+
         <!-- Disclaimer Section -->
         <div class="disclaimer-section">
             <h3>Disclaimer</h3>
@@ -463,11 +535,21 @@
             } catch (e) {}
 
             try {
+                // Pause all Custom HLS videos (8 to 12)
                 const vid8 = document.getElementById('videoPlayer8');
                 if (vid8 && !vid8.paused) vid8.pause();
                 
                 const vid9 = document.getElementById('videoPlayer9');
                 if (vid9 && !vid9.paused) vid9.pause();
+
+                const vid10 = document.getElementById('videoPlayer10');
+                if (vid10 && !vid10.paused) vid10.pause();
+
+                const vid11 = document.getElementById('videoPlayer11');
+                if (vid11 && !vid11.paused) vid11.pause();
+
+                const vid12 = document.getElementById('videoPlayer12');
+                if (vid12 && !vid12.paused) vid12.pause();
             } catch (e) {}
 
             // Stop All Iframes by removing their src
@@ -494,6 +576,9 @@
             if (serverId === 'server6') { try { document.getElementById('youtube-theme').play(); } catch (e) {} }
             if (serverId === 'server8') { try { document.getElementById('videoPlayer8').play(); } catch (e) {} }
             if (serverId === 'server9') { try { document.getElementById('videoPlayer9').play(); } catch (e) {} }
+            if (serverId === 'server10') { try { document.getElementById('videoPlayer10').play(); } catch (e) {} }
+            if (serverId === 'server11') { try { document.getElementById('videoPlayer11').play(); } catch (e) {} }
+            if (serverId === 'server12') { try { document.getElementById('videoPlayer12').play(); } catch (e) {} }
         }
 
         // ------------------------------------
@@ -577,7 +662,7 @@
         document.addEventListener('shaka-ui-loaded', initShaka);
 
         // ----------------------------------------------------
-        // Setup Custom HLS Players (Server 8 & 9) Reusable Logic
+        // Setup Custom HLS Players (Server 8-12) Reusable Logic
         // ----------------------------------------------------
         function setupCustomHLS(streamUrl, serverId, videoId) {
             const serverContainer = document.getElementById(serverId);
@@ -681,9 +766,15 @@
             init();
         }
 
+        // Initialize All Custom HLS Servers once DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             setupCustomHLS("https://customer-rqx2ncfj15h2he6q.cloudflarestream.com/6bbb3f01ec11e5b10e4369978f011941/manifest/video.m3u8", "server8", "videoPlayer8");
             setupCustomHLS("https://live05.apusport.com/live/08552895.m3u8", "server9", "videoPlayer9");
+            
+            // New Players initialization (Server 10, 11, 12)
+            setupCustomHLS("https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8", "server10", "videoPlayer10");
+            setupCustomHLS("https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master.m3u8", "server11", "videoPlayer11");
+            setupCustomHLS("https://bl.video.matchtv.ru/media/playlist/free_d46d0cf1712c0542ec7fd4f0808f600a_hd/17_89756005/1080/e6bef86de8a133cd7b27deb040758a00/4796141934.m3u8", "server12", "videoPlayer12");
         });
 
     </script>
