@@ -55,10 +55,6 @@
         }
 
         nav button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             flex: 0 0 auto;
             background-color: #333;
             color: white;
@@ -66,9 +62,8 @@
             padding: 10px 20px;
             cursor: pointer;
             border-radius: 5px;
-            font-size: 15px;
+            font-size: 16px;
             transition: 0.3s;
-            min-width: 120px;
         }
         nav button:hover {
             background-color: #e50914;
@@ -78,16 +73,6 @@
             border-color: #e50914;
             font-weight: bold;
         }
-
-        /* Online/Offline Status Styling */
-        .status {
-            font-size: 11px;
-            margin-top: 5px;
-            font-weight: bold;
-        }
-        .status.online { color: #4ade80; } /* Light Green */
-        .status.offline { color: #f87171; } /* Light Red */
-        .status.checking { color: #9ca3af; } /* Gray */
 
         /* Main Container */
         .main-container {
@@ -287,42 +272,15 @@
 
     <!-- Navigation Bar -->
     <nav>
-        <button class="nav-btn active" onclick="switchServer('server1', this)">
-            Server 1 (JW)
-            <span class="status checking" id="status-server1">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server2', this)">
-            Server 2
-            <span class="status checking" id="status-server2">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server3', this)">
-            Server 3
-            <span class="status checking" id="status-server3">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server4', this)">
-            Server 4
-            <span class="status checking" id="status-server4">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server5', this)">
-            Server 5
-            <span class="status checking" id="status-server5">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server6', this)">
-            Server 6 (Shaka)
-            <span class="status checking" id="status-server6">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server7', this)">
-            Server 7
-            <span class="status checking" id="status-server7">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server8', this)">
-            Server 8
-            <span class="status checking" id="status-server8">● Checking</span>
-        </button>
-        <button class="nav-btn" onclick="switchServer('server9', this)">
-            Server 9
-            <span class="status checking" id="status-server9">● Checking</span>
-        </button>
+        <button class="nav-btn active" onclick="switchServer('server1', this)">Server 1 (JW)</button>
+        <button class="nav-btn" onclick="switchServer('server2', this)">Server 2</button>
+        <button class="nav-btn" onclick="switchServer('server3', this)">Server 3</button>
+        <button class="nav-btn" onclick="switchServer('server4', this)">Server 4</button>
+        <button class="nav-btn" onclick="switchServer('server5', this)">Server 5</button>
+        <button class="nav-btn" onclick="switchServer('server6', this)">Server 6 (Shaka)</button>
+        <button class="nav-btn" onclick="switchServer('server7', this)">Server 7</button>
+        <button class="nav-btn" onclick="switchServer('server8', this)">Server 8</button>
+        <button class="nav-btn" onclick="switchServer('server9', this)">Server 9</button>
     </nav>
 
     <!-- Main Content -->
@@ -464,45 +422,6 @@
 
     <!-- Scripts for Players and Logic -->
     <script>
-        // ------------------------------------
-        // Online / Offline Status Checker
-        // ------------------------------------
-        const serverUrls = {
-            server1: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
-            server2: "https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8",
-            server3: "https://hd.muesra.sbs/albaplayer/oooe/?serv=0",
-            server4: "https://6.kooralive360.com/albaplayer/bein-sports-hd-1/",
-            server5: "https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8",
-            server6: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
-            server7: "https://masszipp3.github.io/mpd2.html?ch=cazenew",
-            server8: "https://customer-rqx2ncfj15h2he6q.cloudflarestream.com/6bbb3f01ec11e5b10e4369978f011941/manifest/video.m3u8",
-            server9: "https://live05.apusport.com/live/08552895.m3u8"
-        };
-
-        async function checkServerStatus() {
-            for (const [serverId, url] of Object.entries(serverUrls)) {
-                const statusElement = document.getElementById(`status-${serverId}`);
-                try {
-                    // Try to fetch to see if network resolves (no-cors prevents CORS blocking from hiding network errors)
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 Sec timeout
-                    
-                    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    
-                    statusElement.textContent = "● Online";
-                    statusElement.className = "status online";
-                } catch (error) {
-                    // If network fails (like 404 domain or dead server)
-                    statusElement.textContent = "● Offline";
-                    statusElement.className = "status offline";
-                }
-            }
-        }
-        
-        // Start checking statuses on page load
-        window.addEventListener('load', checkServerStatus);
-
         // ------------------------------------
         // Loading Overlay Logic
         // ------------------------------------
