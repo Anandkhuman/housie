@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sintha Live - Streaming</title>
 
-    <!-- Player Libraries (JW Player & Shaka Player) -->
+    <!-- Player Libraries (JW Player, Shaka Player & HLS.js) -->
     <script src='https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mux.js/6.3.0/mux.min.js"></script>
@@ -38,33 +38,37 @@
             letter-spacing: 2px;
         }
 
-        /* Navigation Bar Styling - SINGLE LINE SCROLLABLE */
+        /* Navigation Bar Styling */
         nav {
             display: flex;
-            flex-wrap: nowrap; /* Ek line mein fix karne ke liye */
-            overflow-x: auto; /* Horizontal scroll enable karne ke liye */
+            flex-wrap: nowrap;
+            overflow-x: auto;
             background-color: #222;
             padding: 10px;
             gap: 10px;
-            -webkit-overflow-scrolling: touch; /* Mobile par smooth scroll */
-            scrollbar-width: none; /* Firefox mein scrollbar hide karega */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
         
-        /* Chrome/Safari mein scrollbar hide karne ke liye */
         nav::-webkit-scrollbar {
             display: none; 
         }
 
         nav button {
-            flex: 0 0 auto; /* Button ko chhota hone se rokne ke liye */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
             background-color: #333;
             color: white;
             border: 1px solid #444;
             padding: 10px 20px;
             cursor: pointer;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 15px;
             transition: 0.3s;
+            min-width: 120px;
         }
         nav button:hover {
             background-color: #e50914;
@@ -75,11 +79,22 @@
             font-weight: bold;
         }
 
+        /* Online/Offline Status Styling */
+        .status {
+            font-size: 11px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        .status.online { color: #4ade80; } /* Light Green */
+        .status.offline { color: #f87171; } /* Light Red */
+        .status.checking { color: #9ca3af; } /* Gray */
+
         /* Main Container */
         .main-container {
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             padding: 30px 10px;
         }
 
@@ -108,12 +123,159 @@
             height: 100%;
             border: none;
             outline: none;
+            position: relative;
+            z-index: 1;
         }
         
+        /* Loading Overlay Styling */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            color: white;
+            transition: opacity 0.3s;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #444;
+            border-top: 4px solid #e50914;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
         /* Shaka Player Tweak */
         .shaka-video-container .material-icons-round {
             color: #f1ff00;
         }
+
+        /* Custom HLS Player Styles (Server 8 & 9) */
+        .custom-player-wrap {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+        .custom-player-wrap video {
+            width: 100%;
+            flex-grow: 1;
+            background: #000;
+            border-radius: 0 0 8px 8px;
+            outline: none;
+            display: block;
+        }
+        .controls-top {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background: #111827;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+        }
+        .settings-icon {
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+            margin-left: 12px;
+            transition: transform 0.2s ease;
+        }
+        .settings-icon:hover {
+            transform: rotate(45deg);
+        }
+        .quality-box {
+            background: #facc15;
+            padding: 5px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            color: black;
+            font-size: 14px;
+        }
+        .custom-select {
+            position: relative;
+        }
+        .select-selected {
+            background-color: white;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .select-items {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            top: 100%;
+            right: 0;
+            z-index: 99;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 5px;
+        }
+        .select-items div {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+        .select-items div:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Disclaimer Section */
+        .disclaimer-section {
+            width: 100%;
+            max-width: 850px;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #1a1a1a;
+            border-top: 2px solid #e50914;
+            border-radius: 8px;
+            box-sizing: border-box;
+            color: #ccc;
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: justify;
+        }
+        .disclaimer-section h3 {
+            color: #fff;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
     </style>
 </head>
 <body>
@@ -123,16 +285,44 @@
         <h1>Sintha Live</h1>
     </header>
 
-    <!-- Navigation Bar (Scrollable) -->
+    <!-- Navigation Bar -->
     <nav>
-        <button class="nav-btn active" onclick="switchServer('server1', this)">Server 1 (JW)</button>
-        <button class="nav-btn" onclick="switchServer('server2', this)">Server 2</button>
-        <button class="nav-btn" onclick="switchServer('server3', this)">Server 3</button>
-        <button class="nav-btn" onclick="switchServer('server4', this)">Server 4</button>
-        <button class="nav-btn" onclick="switchServer('server5', this)">Server 5</button>
-        <button class="nav-btn" onclick="switchServer('server6', this)">Server 6 (Shaka)</button>
-        <!-- Added Server 7 Menu -->
-        <button class="nav-btn" onclick="switchServer('server7', this)">Server 7</button>
+        <button class="nav-btn active" onclick="switchServer('server1', this)">
+            Server 1 (JW)
+            <span class="status checking" id="status-server1">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server2', this)">
+            Server 2
+            <span class="status checking" id="status-server2">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server3', this)">
+            Server 3
+            <span class="status checking" id="status-server3">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server4', this)">
+            Server 4
+            <span class="status checking" id="status-server4">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server5', this)">
+            Server 5
+            <span class="status checking" id="status-server5">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server6', this)">
+            Server 6 (Shaka)
+            <span class="status checking" id="status-server6">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server7', this)">
+            Server 7
+            <span class="status checking" id="status-server7">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server8', this)">
+            Server 8
+            <span class="status checking" id="status-server8">● Checking</span>
+        </button>
+        <button class="nav-btn" onclick="switchServer('server9', this)">
+            Server 9
+            <span class="status checking" id="status-server9">● Checking</span>
+        </button>
     </nav>
 
     <!-- Main Content -->
@@ -141,6 +331,10 @@
         <!-- Server 1: JW Player -->
         <div id="server1" class="server-tab active">
             <div class="video-box">
+                <div class="loading-overlay" id="loading-server1">
+                    <div class="spinner"></div>
+                    <div>Loading Stream...</div>
+                </div>
                 <div id="jwplayer-container"></div>
             </div>
         </div>
@@ -148,7 +342,10 @@
         <!-- Server 2: Nusa Himen Iframe -->
         <div id="server2" class="server-tab">
             <div class="video-box">
-                <!-- Iframe ko pause karne ke liye data-src use kiya hai -->
+                <div class="loading-overlay" id="loading-server2">
+                    <div class="spinner"></div>
+                    <div>Loading Player...</div>
+                </div>
                 <iframe allowfullscreen="true" src="" data-src="https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8"></iframe>
             </div>
         </div>
@@ -156,6 +353,10 @@
         <!-- Server 3: HD Muesra Iframe -->
         <div id="server3" class="server-tab">
             <div class="video-box">
+                <div class="loading-overlay" id="loading-server3">
+                    <div class="spinner"></div>
+                    <div>Loading Player...</div>
+                </div>
                 <iframe allowfullscreen="true" src="" data-src="https://hd.muesra.sbs/albaplayer/oooe/?serv=0"></iframe>
             </div>
         </div>
@@ -163,6 +364,10 @@
         <!-- Server 4: Kooralive Bein Sports Iframe -->
         <div id="server4" class="server-tab">
             <div class="video-box">
+                <div class="loading-overlay" id="loading-server4">
+                    <div class="spinner"></div>
+                    <div>Loading Player...</div>
+                </div>
                 <iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe>
             </div>
         </div>
@@ -170,6 +375,10 @@
         <!-- Server 5: Veotest Iframe -->
         <div id="server5" class="server-tab">
             <div class="video-box">
+                <div class="loading-overlay" id="loading-server5">
+                    <div class="spinner"></div>
+                    <div>Loading Player...</div>
+                </div>
                 <iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe>
             </div>
         </div>
@@ -177,6 +386,10 @@
         <!-- Server 6: Shaka Player -->
         <div id="server6" class="server-tab">
             <div class="video-box" data-shaka-player-container>
+                <div class="loading-overlay" id="loading-server6">
+                    <div class="spinner"></div>
+                    <div>Loading Stream...</div>
+                </div>
                 <video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video>
             </div>
         </div>
@@ -184,22 +397,125 @@
         <!-- Server 7: New Iframe Added -->
         <div id="server7" class="server-tab">
             <div class="video-box">
-                <iframe 
-                    allow="encrypted-media" 
-                    allowfullscreen="true" 
-                    sandbox="allow-forms allow-same-origin allow-scripts" 
-                    scrolling="no" 
-                    frameborder="0"
-                    src="" 
-                    data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew">
-                </iframe>
+                <div class="loading-overlay" id="loading-server7">
+                    <div class="spinner"></div>
+                    <div>Loading Player...</div>
+                </div>
+                <iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" frameborder="0" src="" data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew"></iframe>
             </div>
+        </div>
+
+        <!-- Server 8: Cloudflare Stream (Custom HLS Player) -->
+        <div id="server8" class="server-tab">
+            <div class="video-box">
+                <div class="loading-overlay" id="loading-server8">
+                    <div class="spinner"></div>
+                    <div>Loading Stream...</div>
+                </div>
+                <div class="custom-player-wrap">
+                    <div class="controls-top">
+                        <div class="quality-box">
+                            Quality:
+                            <div class="custom-select">
+                                <div class="select-selected">Auto</div>
+                                <div class="select-items"></div>
+                            </div>
+                        </div>
+                        <div class="settings-icon" title="Settings">&#9881;</div>
+                    </div>
+                    <video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- Server 9: Apusport Stream (Custom HLS Player) -->
+        <div id="server9" class="server-tab">
+            <div class="video-box">
+                <div class="loading-overlay" id="loading-server9">
+                    <div class="spinner"></div>
+                    <div>Loading Stream...</div>
+                </div>
+                <div class="custom-player-wrap">
+                    <div class="controls-top">
+                        <div class="quality-box">
+                            Quality:
+                            <div class="custom-select">
+                                <div class="select-selected">Auto</div>
+                                <div class="select-items"></div>
+                            </div>
+                        </div>
+                        <div class="settings-icon" title="Settings">&#9881;</div>
+                    </div>
+                    <video controls controlslist="nodownload" id="videoPlayer9" playsinline webkit-playsinline></video>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer Section -->
+        <div class="disclaimer-section">
+            <h3>Disclaimer</h3>
+            <p>This website does not host, upload, store, or control any media content on its own servers. All media content available through this website is provided by third-party sources and may be embedded or linked from publicly accessible locations on the internet.</p>
+            <p>We respect the intellectual property rights of content owners. If you believe that any content displayed through this website infringes your copyright or other legal rights, please contact the appropriate content owner, hosting provider, or source responsible for the material.</p>
+            <p>All trademarks, logos, service marks, trade names, videos, images, and other copyrighted materials belong to their respective owners. This website acts solely as an indexing and embedding platform and is not responsible for the content, availability, accuracy, or practices of any third-party sources.</p>
+            <p>By using this website, you acknowledge that all content is provided by external sources and that this website assumes no responsibility or liability for such content.</p>
         </div>
 
     </div>
 
     <!-- Scripts for Players and Logic -->
     <script>
+        // ------------------------------------
+        // Online / Offline Status Checker
+        // ------------------------------------
+        const serverUrls = {
+            server1: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+            server2: "https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8",
+            server3: "https://hd.muesra.sbs/albaplayer/oooe/?serv=0",
+            server4: "https://6.kooralive360.com/albaplayer/bein-sports-hd-1/",
+            server5: "https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8",
+            server6: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+            server7: "https://masszipp3.github.io/mpd2.html?ch=cazenew",
+            server8: "https://customer-rqx2ncfj15h2he6q.cloudflarestream.com/6bbb3f01ec11e5b10e4369978f011941/manifest/video.m3u8",
+            server9: "https://live05.apusport.com/live/08552895.m3u8"
+        };
+
+        async function checkServerStatus() {
+            for (const [serverId, url] of Object.entries(serverUrls)) {
+                const statusElement = document.getElementById(`status-${serverId}`);
+                try {
+                    // Try to fetch to see if network resolves (no-cors prevents CORS blocking from hiding network errors)
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 Sec timeout
+                    
+                    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    
+                    statusElement.textContent = "● Online";
+                    statusElement.className = "status online";
+                } catch (error) {
+                    // If network fails (like 404 domain or dead server)
+                    statusElement.textContent = "● Offline";
+                    statusElement.className = "status offline";
+                }
+            }
+        }
+        
+        // Start checking statuses on page load
+        window.addEventListener('load', checkServerStatus);
+
+        // ------------------------------------
+        // Loading Overlay Logic
+        // ------------------------------------
+        function showLoading(serverId) {
+            const overlay = document.getElementById(`loading-${serverId}`);
+            if (overlay) overlay.classList.remove('hidden');
+        }
+
+        function hideLoading(serverId) {
+            const overlay = document.getElementById(`loading-${serverId}`);
+            if (overlay) overlay.classList.add('hidden');
+        }
+
         // ------------------------------------
         // Server Switching & Auto-Pause Logic
         // ------------------------------------
@@ -208,60 +524,64 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
-            // 2. PAUSE/STOP OLD VIDEOS
-            
-            // Pause JW Player (Server 1)
+            // 2. Show Loading overlay for newly selected server
+            showLoading(serverId);
+
+            // Failsafe: Hide loading overlay automatically after 8 seconds 
+            // In case a video fails to play or iframe takes too long
+            setTimeout(() => hideLoading(serverId), 8000);
+
+            // 3. PAUSE/STOP OLD VIDEOS
             try {
                 if (jwplayer("jwplayer-container").getState() === 'playing' || jwplayer("jwplayer-container").getState() === 'buffering') {
                     jwplayer("jwplayer-container").pause();
                 }
             } catch (e) {}
 
-            // Pause Shaka Player (Server 6)
             try {
                 const shakaVideo = document.getElementById('youtube-theme');
-                if (shakaVideo && !shakaVideo.paused) {
-                    shakaVideo.pause();
-                }
+                if (shakaVideo && !shakaVideo.paused) shakaVideo.pause();
             } catch (e) {}
 
-            // Stop All Iframes (Servers 2, 3, 4, 5, 7) by removing their src
+            try {
+                const vid8 = document.getElementById('videoPlayer8');
+                if (vid8 && !vid8.paused) vid8.pause();
+                
+                const vid9 = document.getElementById('videoPlayer9');
+                if (vid9 && !vid9.paused) vid9.pause();
+            } catch (e) {}
+
+            // Stop All Iframes by removing their src
             document.querySelectorAll('.server-tab iframe').forEach(iframe => {
                 iframe.src = ""; 
             });
 
-            // 3. Hide all server tabs
+            // 4. Hide all server tabs
             document.querySelectorAll('.server-tab').forEach(tab => tab.classList.remove('active'));
             
-            // 4. Show the newly selected server tab
+            // 5. Show the newly selected server tab
             const activeTab = document.getElementById(serverId);
             activeTab.classList.add('active');
 
-            // 5. PLAY NEW VIDEO
-            
-            // If the selected tab has an iframe, load its video
+            // 6. PLAY NEW VIDEO
             const activeIframe = activeTab.querySelector('iframe');
             if (activeIframe) {
+                // Remove existing onload to avoid duplicates, then attach fresh
+                activeIframe.onload = () => hideLoading(serverId);
                 activeIframe.src = activeIframe.getAttribute('data-src');
             }
 
-            // If selected tab is JW Player, play it
-            if (serverId === 'server1') {
-                try { jwplayer("jwplayer-container").play(); } catch (e) {}
-            }
-
-            // If selected tab is Shaka Player, play it
-            if (serverId === 'server6') {
-                try { document.getElementById('youtube-theme').play(); } catch (e) {}
-            }
+            if (serverId === 'server1') { try { jwplayer("jwplayer-container").play(); } catch (e) {} }
+            if (serverId === 'server6') { try { document.getElementById('youtube-theme').play(); } catch (e) {} }
+            if (serverId === 'server8') { try { document.getElementById('videoPlayer8').play(); } catch (e) {} }
+            if (serverId === 'server9') { try { document.getElementById('videoPlayer9').play(); } catch (e) {} }
         }
-
 
         // ------------------------------------
         // Setup JW Player (Server 1)
         // ------------------------------------
         jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
-        jwplayer("jwplayer-container").setup({
+        const playerInstance = jwplayer("jwplayer-container").setup({
             playlist: [{
                 sources: [{
                     file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
@@ -277,10 +597,13 @@
             width: "100%",
             height: "100%", 
             aspectratio: "16:9",
-            autostart: true, // Will play because it's the active tab on load
+            autostart: true, 
             mute: false
         });
 
+        // Hide loading when JW Player starts playing
+        playerInstance.on('play', () => hideLoading('server1'));
+        playerInstance.on('buffer', () => showLoading('server1'));
 
         // ------------------------------------
         // Setup Shaka Player (Server 6)
@@ -314,14 +637,16 @@
             window.player = player;
             window.ui = ui;
 
+            video.addEventListener('playing', () => hideLoading('server6'));
+            video.addEventListener('waiting', () => showLoading('server6'));
+
             try {
                 await player.load(manifestUri);
-                
-                // Important: Pause Shaka Player on load because it is hidden
                 if (!document.getElementById('server6').classList.contains('active')) {
                     video.pause();
+                } else {
+                    hideLoading('server6');
                 }
-
                 setTimeout(() => {
                     const menuBtn = document.querySelector('.shaka-overflow-menu-button');
                     if(menuBtn) menuBtn.innerHTML = 'settings';
@@ -330,10 +655,118 @@
                 console.error('Error loading Shaka video:', error);
             }
         }
-
         document.addEventListener('shaka-ui-loaded', initShaka);
 
-    </script>
+        // ----------------------------------------------------
+        // Setup Custom HLS Players (Server 8 & 9) Reusable Logic
+        // ----------------------------------------------------
+        function setupCustomHLS(streamUrl, serverId, videoId) {
+            const serverContainer = document.getElementById(serverId);
+            const videoElement = document.getElementById(videoId);
+            let hlsPlayer = null;
+            let videoQualities = [];
 
+            // Loading screen integration
+            videoElement.addEventListener('playing', () => hideLoading(serverId));
+            videoElement.addEventListener('waiting', () => showLoading(serverId));
+
+            async function init() {
+                videoQualities = [];
+                setupQualitySelect(['Auto']);
+
+                if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    hlsPlayer = new Hls({ enableWorker: true });
+                    hlsPlayer.attachMedia(videoElement);
+                    
+                    hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => {
+                        hlsPlayer.loadSource(streamUrl);
+                    });
+                    
+                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+                        populateQualities(data.levels);
+                    });
+                    
+                    hlsPlayer.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+                        updateQualityLabel(data.level);
+                    });
+                } 
+                else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    try { await fetchMasterPlaylist(streamUrl); } catch (err) { console.warn(err); }
+                    videoElement.src = streamUrl;
+                } 
+                else {
+                    videoElement.innerHTML = 'Browser does not support HLS.';
+                }
+            }
+
+            function populateQualities(levels) {
+                videoQualities = levels.map((lvl, idx) => ({ 
+                    label: (lvl.height ? lvl.height + 'p' : Math.round(lvl.bitrate / 1000) + 'kbps'), 
+                    index: idx 
+                }));
+                setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]);
+            }
+
+            function updateQualityLabel(level) {
+                const select = serverContainer.querySelector('.select-selected');
+                if (level === -1) select.textContent = 'Auto';
+                else select.textContent = videoQualities[level].label;
+            }
+
+            async function fetchMasterPlaylist(url) {
+                const res = await fetch(url, { mode: 'cors' });
+                const txt = await res.text();
+                const lines = txt.split(/\r?\n/);
+                const items = [];
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].startsWith('#EXT-X-STREAM-INF')) {
+                        const bw = (lines[i].match(/BANDWIDTH=(\d+)/) || [0, 0])[1];
+                        const reso = (lines[i].match(/RESOLUTION=(\d+x\d+)/) || [])[1] || '';
+                        items.push({ label: reso ? reso.split('x')[1] + 'p' : Math.round(bw / 1000) + 'kbps', url });
+                    }
+                }
+                videoQualities = items;
+                setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]);
+            }
+
+            function setupQualitySelect(options) {
+                const selected = serverContainer.querySelector('.select-selected');
+                const items = serverContainer.querySelector('.select-items');
+                items.innerHTML = '';
+                
+                options.forEach((opt, idx) => {
+                    const div = document.createElement('div');
+                    div.textContent = opt;
+                    div.addEventListener('click', () => {
+                        selected.textContent = opt;
+                        changeQuality(idx === 0 ? 'auto' : (idx - 1).toString());
+                        items.style.display = 'none';
+                    });
+                    items.appendChild(div);
+                });
+                
+                selected.onclick = () => { 
+                    items.style.display = items.style.display === 'block' ? 'none' : 'block'; 
+                };
+            }
+
+            function changeQuality(val) {
+                if (hlsPlayer) {
+                    if (val === 'auto') hlsPlayer.currentLevel = -1;
+                    else hlsPlayer.currentLevel = parseInt(val, 10);
+                } else if (val !== 'auto') {
+                    videoElement.src = streamUrl;
+                }
+            }
+
+            init();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCustomHLS("https://customer-rqx2ncfj15h2he6q.cloudflarestream.com/6bbb3f01ec11e5b10e4369978f011941/manifest/video.m3u8", "server8", "videoPlayer8");
+            setupCustomHLS("https://live05.apusport.com/live/08552895.m3u8", "server9", "videoPlayer9");
+        });
+
+    </script>
 </body>
 </html>
