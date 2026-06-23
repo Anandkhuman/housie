@@ -26,6 +26,7 @@
             background-color: #111111;
             font-family: Arial, sans-serif;
             color: white;
+            overflow-x: hidden;
         }
 
         /* Header Styling */
@@ -34,6 +35,9 @@
             padding: 20px;
             text-align: center;
             border-bottom: 2px solid #e50914;
+            cursor: pointer; /* Indicates it's interactive */
+            user-select: none;
+            -webkit-user-select: none;
         }
         header h1 {
             margin: 0;
@@ -105,44 +109,84 @@
         .dot-live { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
         .dot-offline { background-color: #ff4d4d; box-shadow: 0 0 5px #ff4d4d; }
 
-        /* Status Menu Modal (Admin Only) */
-        #admin-status-menu {
+        /* Marquee Display Styling */
+        .marquee-wrapper {
+            background-color: #1a1a1a;
+            border-bottom: 1px solid #444;
+            padding: 8px 0;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+        .marquee-wrapper.active {
+            display: block;
+        }
+        .marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            color: #facc15; /* Yellow warning/info color */
+            font-weight: bold;
+            font-size: 16px;
+            animation: scrollMarquee 15s linear infinite;
+        }
+        @keyframes scrollMarquee {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Modal Overlay Styling (Admin & Login) */
+        .modal-overlay {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .modal-overlay.hidden { display: none; }
+        
+        .modal-box {
             background: #111;
             padding: 20px;
             border: 2px solid #e50914;
             border-radius: 8px;
-            z-index: 9999;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.9);
-            min-width: 200px;
-        }
-        #admin-status-menu.hidden {
-            display: none;
-        }
-        #admin-status-menu h4 {
-            margin: 0 0 10px 0;
-            color: #fff;
-            text-align: center;
-            text-transform: uppercase;
-        }
-        #admin-status-menu button {
+            gap: 15px;
             color: white;
-            border: none;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
         }
-        .btn-live { background: #28a745; }
-        .btn-offline { background: #dc3545; }
-        .btn-cancel { background: #6c757d; }
+        .modal-box h3 {
+            margin: 0; text-align: center; color: #e50914; text-transform: uppercase;
+        }
+        .modal-box input {
+            width: 100%; padding: 10px; border: 1px solid #444; border-radius: 5px; 
+            background: #222; color: white; box-sizing: border-box; font-size: 14px;
+        }
+        .modal-box button {
+            padding: 12px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 16px; color: white;
+        }
+        .btn-green { background: #28a745; }
+        .btn-red { background: #e50914; }
+        .btn-gray { background: #6c757d; }
+        
+        .admin-dashboard-section {
+            border: 1px solid #333; padding: 15px; border-radius: 5px; background: #1a1a1a; display: flex; flex-direction: column; gap: 10px;
+        }
+        .admin-dashboard-section label { font-size: 12px; color: #ccc; text-transform: uppercase; font-weight: bold;}
+
+        /* Admin small preview image */
+        #admin-banner-preview {
+            max-width: 100%; 
+            height: auto; 
+            max-height: 120px; 
+            border-radius: 5px; 
+            margin: 5px auto; 
+            display: none; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
 
         /* Main Container */
         .main-container {
@@ -166,7 +210,7 @@
         /* Video Box Styling */
         .video-box {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 16 / 12;
             background-color: #000;
             border-radius: 8px;
             overflow: hidden;
@@ -322,6 +366,35 @@
             line-height: 1.6;
             text-align: justify;
         }
+        
+        /* Banner Image Wrapper & Animation (Now inside Disclaimer) */
+        .banner-display-container {
+            width: 100%;
+            overflow: hidden; /* Hide anything outside */
+            display: none;
+            position: relative;
+            margin-bottom: 20px; /* Spacing between banner and disclaimer text */
+        }
+        .banner-display-container.active {
+            display: block;
+        }
+        .animated-banner {
+            display: block;
+            margin: 0 auto;
+            max-width: 90%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            /* Slide: Right to Center (Pause) then Center to Left */
+            animation: slideRightToLeft 12s ease-in-out infinite; 
+        }
+        
+        @keyframes slideRightToLeft {
+            0% { transform: translateX(120vw); }
+            35% { transform: translateX(0); }  /* Reaches center */
+            65% { transform: translateX(0); }  /* Pauses at center */
+            100% { transform: translateX(-120vw); } /* Exits left */
+        }
+
         .disclaimer-section h3 {
             color: #fff;
             text-align: center;
@@ -336,9 +409,14 @@
 <body>
 
     <!-- Header -->
-    <header>
+    <header id="main-header">
         <h1>Sintha Live</h1>
     </header>
+
+    <!-- Nav-below Marquee -->
+    <div class="marquee-wrapper" id="display-marquee-wrapper">
+        <div class="marquee-text" id="display-marquee-text"></div>
+    </div>
 
     <!-- Navigation Bar -->
     <nav>
@@ -356,12 +434,54 @@
         <button class="nav-btn" data-server="server12" onclick="switchServer('server12', this)">Server 12 <span class="status-indicator" id="status-server12"></span></button>
     </nav>
 
-    <!-- Admin Status Menu -->
-    <div id="admin-status-menu" class="hidden">
-        <h4>Set Server Status</h4>
-        <button class="btn-live" onclick="updateServerStatus('live')">Set Live</button>
-        <button class="btn-offline" onclick="updateServerStatus('offline')">Set Offline</button>
-        <button class="btn-cancel" onclick="closeStatusMenu()">Cancel</button>
+    <!-- Admin Status Context Menu (For Nav Buttons) -->
+    <div id="admin-status-menu" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>Set Server Status</h3>
+            <button class="btn-green" onclick="updateServerStatus('live')">Set Live</button>
+            <button class="btn-red" onclick="updateServerStatus('offline')">Set Offline</button>
+            <button class="btn-gray" onclick="closeStatusMenu()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>Admin Login</h3>
+            <input type="email" id="admin-email" placeholder="Email ID">
+            <input type="password" id="admin-pass" placeholder="Password">
+            <button class="btn-green" onclick="adminLogin()">Login</button>
+            <button class="btn-gray" onclick="closeLoginModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div id="admin-dashboard-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>Admin Dashboard</h3>
+            
+            <!-- Marquee Settings -->
+            <div class="admin-dashboard-section">
+                <label>Set Marquee Text</label>
+                <input type="text" id="admin-marquee-input" placeholder="Type scrolling text here...">
+                <button class="btn-green" onclick="updateMarquee()">Save Text</button>
+            </div>
+
+            <!-- Image Settings -->
+            <div class="admin-dashboard-section">
+                <label>Upload Banner Image</label>
+                <input type="file" id="admin-banner-file" accept="image/*">
+                
+                <!-- Admin Banner Preview Added Here -->
+                <img id="admin-banner-preview" src="" alt="Banner Preview">
+
+                <button class="btn-green" onclick="uploadBannerImage()">Upload Image</button>
+                <button class="btn-red" onclick="removeBannerImage()">Remove Image</button>
+            </div>
+
+            <button class="btn-red" style="margin-top: 10px;" onclick="adminLogout()">Logout</button>
+            <button class="btn-gray" onclick="closeDashboardModal()">Close Panel</button>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -458,7 +578,7 @@
             </div>
         </div>
 
-        <!-- Server 6: Shaka Player (Remains unchanged) -->
+        <!-- Server 6: Shaka Player (Fixed Lazy Load) -->
         <div id="server6" class="server-tab">
             <div class="video-box" data-shaka-player-container>
                 <div class="loading-overlay" id="loading-server6">
@@ -480,7 +600,7 @@
             </div>
         </div>
 
-        <!-- Server 8: Cloudflare Stream (Remains unchanged) -->
+        <!-- Server 8: Cloudflare Stream -->
         <div id="server8" class="server-tab">
             <div class="video-box">
                 <div class="loading-overlay" id="loading-server8">
@@ -536,7 +656,7 @@
             </div>
         </div>
 
-        <!-- Server 12: Match TV (Remains unchanged) -->
+        <!-- Server 12: Match TV -->
         <div id="server12" class="server-tab">
             <div class="video-box">
                 <div class="loading-overlay" id="loading-server12">
@@ -561,6 +681,12 @@
 
         <!-- Disclaimer Section -->
         <div class="disclaimer-section">
+            
+            <!-- Banner Image Container is now moved INSIDE the Disclaimer Container -->
+            <div class="banner-display-container" id="display-banner-container">
+                <img class="animated-banner" id="display-banner-img" src="" alt="Live Stream Banner">
+            </div>
+
             <h3>Disclaimer</h3>
             <p>This website does not host, upload, store, or control any media content on its own servers. All media content available through this website is provided by third-party sources and may be embedded or linked from publicly accessible locations on the internet.</p>
             <p>We respect the intellectual property rights of content owners. If you believe that any content displayed through this website infringes your copyright or other legal rights, please contact the appropriate content owner, hosting provider, or source responsible for the material.</p>
@@ -577,15 +703,15 @@
         // ------------------------------------
         // REPLACE THIS CONFIG OBJECT WITH YOUR REAL FIREBASE DETAILS
         const firebaseConfig = {
-            apiKey: "AIzaSyDn_l1TL9tpLKG3_e1g2U8H_V1pamfvgiU",
-  authDomain: "sinthav4.firebaseapp.com",
-  databaseURL: "https://sinthav4-default-rtdb.firebaseio.com",
-  projectId: "sinthav4",
-  storageBucket: "sinthav4.firebasestorage.app",
-  messagingSenderId: "222906020524",
-  appId: "1:222906020524:web:a39f7e15ea59d958142509",
-  measurementId: "G-0C7N4VP7M0"
-};
+          apiKey: "AIzaSyDn_l1TL9tpLKG3_e1g2U8H_V1pamfvgiU",
+          authDomain: "sinthav4.firebaseapp.com",
+          databaseURL: "https://sinthav4-default-rtdb.firebaseio.com",
+          projectId: "sinthav4",
+          storageBucket: "sinthav4.firebasestorage.app",
+          messagingSenderId: "222906020524",
+          appId: "1:222906020524:web:a39f7e15ea59d958142509",
+          measurementId: "G-0C7N4VP7M0"
+        };
         
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
@@ -603,57 +729,153 @@
         });
 
         // ------------------------------------
-        // Click and Hold / Long Press Logic
+        // Authentication Functions
         // ------------------------------------
-        let pressTimer;
-        let isLongPress = false;
-        const holdDuration = 800; // 800 milliseconds wait for holding
-        let currentTargetServer = null;
+        function adminLogin() {
+            const email = document.getElementById('admin-email').value;
+            const pass = document.getElementById('admin-pass').value;
+            if(!email || !pass) return alert("Please enter email and password");
 
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('mousedown', (e) => startPress(e, btn));
-            btn.addEventListener('touchstart', (e) => startPress(e, btn), { passive: true });
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    closeLoginModal();
+                    document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+                    alert("Logged in successfully!");
+                })
+                .catch((error) => alert(error.message));
+        }
 
-            btn.addEventListener('mouseup', cancelPress);
-            btn.addEventListener('mouseleave', cancelPress);
-            btn.addEventListener('touchend', cancelPress);
+        function adminLogout() {
+            firebase.auth().signOut().then(() => {
+                closeDashboardModal();
+                alert("Logged out successfully");
+            });
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function closeDashboardModal() {
+            document.getElementById('admin-dashboard-modal').classList.add('hidden');
+        }
+
+        // ------------------------------------
+        // Header Tap and Hold Logic
+        // ------------------------------------
+        let headerPressTimer;
+        let isHeaderLongPress = false;
+        const mainHeader = document.getElementById('main-header');
+
+        mainHeader.addEventListener('mousedown', startHeaderPress);
+        mainHeader.addEventListener('touchstart', startHeaderPress, { passive: true });
+        mainHeader.addEventListener('mouseup', cancelHeaderPress);
+        mainHeader.addEventListener('mouseleave', cancelHeaderPress);
+        mainHeader.addEventListener('touchend', cancelHeaderPress);
+
+        function startHeaderPress() {
+            isHeaderLongPress = false;
+            headerPressTimer = setTimeout(() => {
+                isHeaderLongPress = true;
+                if(isAdmin) {
+                    document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+                } else {
+                    document.getElementById('login-modal').classList.remove('hidden');
+                }
+            }, 800);
+        }
+        function cancelHeaderPress() {
+            clearTimeout(headerPressTimer);
+        }
+
+        // ------------------------------------
+        // Admin Config Actions (Marquee & Image)
+        // ------------------------------------
+        function updateMarquee() {
+            const text = document.getElementById('admin-marquee-input').value;
+            firebase.database().ref('adminConfig/marqueeText').set(text).then(() => {
+                alert("Marquee Text Saved!");
+            });
+        }
+
+        function uploadBannerImage() {
+            const fileInput = document.getElementById('admin-banner-file');
+            const file = fileInput.files[0];
+            if (!file) return alert("Please select an image file first.");
+
+            // Use FileReader to convert image to Base64 String and save in RTDB directly
+            // This avoids complicated Firebase Storage Bucket Rules and CORS setup.
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                firebase.database().ref('adminConfig/bannerImage').set(base64String)
+                    .then(() => {
+                        alert("Image Uploaded and Saved!");
+                        fileInput.value = "";
+                    })
+                    .catch((err) => alert("Error: " + err.message));
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeBannerImage() {
+            firebase.database().ref('adminConfig/bannerImage').remove().then(() => {
+                alert("Image Removed!");
+            });
+        }
+
+        // ------------------------------------
+        // Real-Time Listeners (For UI Update)
+        // ------------------------------------
+        
+        // Listen to Admin Configuration Updates (Marquee and Banner)
+        firebase.database().ref('adminConfig').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            // Marquee Display Logic
+            const marqueeWrapper = document.getElementById('display-marquee-wrapper');
+            const marqueeText = document.getElementById('display-marquee-text');
+            const adminMarqueeInput = document.getElementById('admin-marquee-input');
+
+            if (data.marqueeText && data.marqueeText.trim() !== "") {
+                marqueeText.innerText = data.marqueeText;
+                marqueeWrapper.classList.add('active');
+                if(adminMarqueeInput) adminMarqueeInput.value = data.marqueeText;
+            } else {
+                marqueeWrapper.classList.remove('active');
+                marqueeText.innerText = "";
+                if(adminMarqueeInput) adminMarqueeInput.value = "";
+            }
+
+            // Banner Display Logic
+            const bannerContainer = document.getElementById('display-banner-container');
+            const bannerImg = document.getElementById('display-banner-img');
+            const adminBannerPreview = document.getElementById('admin-banner-preview');
+
+            if (data.bannerImage) {
+                // Public Banner Update
+                bannerImg.src = data.bannerImage;
+                bannerContainer.classList.add('active');
+                
+                // Admin Panel Preview Update
+                if (adminBannerPreview) {
+                    adminBannerPreview.src = data.bannerImage;
+                    adminBannerPreview.style.display = "block";
+                }
+            } else {
+                // Hide Public Banner
+                bannerImg.src = "";
+                bannerContainer.classList.remove('active');
+                
+                // Hide Admin Panel Preview
+                if (adminBannerPreview) {
+                    adminBannerPreview.src = "";
+                    adminBannerPreview.style.display = "none";
+                }
+            }
         });
 
-        function startPress(e, btn) {
-            if (!isAdmin) return; // Ignore if user is not logged-in admin
-            isLongPress = false;
-            const serverId = btn.getAttribute('data-server');
-            pressTimer = setTimeout(() => {
-                isLongPress = true;
-                openStatusMenu(serverId);
-            }, holdDuration);
-        }
-
-        function cancelPress() {
-            clearTimeout(pressTimer);
-        }
-
-        function openStatusMenu(serverId) {
-            currentTargetServer = serverId;
-            document.getElementById('admin-status-menu').classList.remove('hidden');
-        }
-
-        function closeStatusMenu() {
-            document.getElementById('admin-status-menu').classList.add('hidden');
-            setTimeout(() => {
-                isLongPress = false;
-            }, 100);
-        }
-
-        function updateServerStatus(status) {
-            if (currentTargetServer) {
-                // Update specific Server Status on Firebase Realtime DB
-                firebase.database().ref('serverStatus/' + currentTargetServer).set(status);
-            }
-            closeStatusMenu();
-        }
-
-        // Real-Time Listener to visually update Nav bar across all devices
+        // Listen to Server Live/Offline Status Updates
         firebase.database().ref('serverStatus').on('value', (snapshot) => {
             const data = snapshot.val() || {};
             document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -671,6 +893,52 @@
         });
 
         // ------------------------------------
+        // Nav Tap and Hold Logic (Server Status Menu)
+        // ------------------------------------
+        let navPressTimer;
+        let isNavLongPress = false;
+        let currentTargetServer = null;
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('mousedown', (e) => startNavPress(e, btn));
+            btn.addEventListener('touchstart', (e) => startNavPress(e, btn), { passive: true });
+            btn.addEventListener('mouseup', cancelNavPress);
+            btn.addEventListener('mouseleave', cancelNavPress);
+            btn.addEventListener('touchend', cancelNavPress);
+        });
+
+        function startNavPress(e, btn) {
+            if (!isAdmin) return; 
+            isNavLongPress = false;
+            const serverId = btn.getAttribute('data-server');
+            navPressTimer = setTimeout(() => {
+                isNavLongPress = true;
+                openStatusMenu(serverId);
+            }, 800);
+        }
+
+        function cancelNavPress() {
+            clearTimeout(navPressTimer);
+        }
+
+        function openStatusMenu(serverId) {
+            currentTargetServer = serverId;
+            document.getElementById('admin-status-menu').classList.remove('hidden');
+        }
+
+        function closeStatusMenu() {
+            document.getElementById('admin-status-menu').classList.add('hidden');
+            setTimeout(() => { isNavLongPress = false; }, 100);
+        }
+
+        function updateServerStatus(status) {
+            if (currentTargetServer) {
+                firebase.database().ref('serverStatus/' + currentTargetServer).set(status);
+            }
+            closeStatusMenu();
+        }
+
+        // ------------------------------------
         // Loading Overlay Logic
         // ------------------------------------
         function showLoading(serverId) {
@@ -683,14 +951,27 @@
             if (overlay) overlay.classList.add('hidden');
         }
 
+        // Helper function to safely play video and handle autoplay restrictions
+        function safePlay(videoId, serverId) {
+            try {
+                const vid = document.getElementById(videoId);
+                let playPromise = vid.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        // Autoplay was blocked by browser. We must still hide spinner.
+                        hideLoading(serverId);
+                    });
+                }
+            } catch (e) {
+                hideLoading(serverId);
+            }
+        }
+
         // ------------------------------------
         // Server Switching & Auto-Pause Logic
         // ------------------------------------
         function switchServer(serverId, btnElement) {
-            if (isLongPress) {
-                // Return immediately to prevent switching if it was a Long Press Action
-                return;
-            }
+            if (isNavLongPress) return;
 
             // 1. Update active class on Navigation Buttons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -744,16 +1025,38 @@
             }
 
             if (serverId === 'server9') { try { jwplayer("jwplayer-container").play(); } catch (e) {} }
-            if (serverId === 'server6') { try { document.getElementById('youtube-theme').play(); } catch (e) {} }
-            if (serverId === 'server1') { try { document.getElementById('videoPlayer1').play(); } catch (e) {} }
-            if (serverId === 'server2') { try { document.getElementById('videoPlayer2').play(); } catch (e) {} }
-            if (serverId === 'server3') { try { document.getElementById('videoPlayer3').play(); } catch (e) {} }
-            if (serverId === 'server8') { try { document.getElementById('videoPlayer8').play(); } catch (e) {} }
-            if (serverId === 'server12') { try { document.getElementById('videoPlayer12').play(); } catch (e) {} }
+            
+            // Lazy load Shaka Player execution
+            if (serverId === 'server6') { 
+                try { 
+                    const shakaVideo = document.getElementById('youtube-theme');
+                    if (window.player && !window.isShakaLoaded) {
+                        window.player.load(manifestUri).then(() => {
+                            let playPromise = shakaVideo.play();
+                            if(playPromise !== undefined) {
+                                playPromise.catch(e => hideLoading('server6'));
+                            }
+                            window.isShakaLoaded = true;
+                        }).catch(e => {
+                            console.error('Shaka Load Error:', e);
+                            hideLoading('server6');
+                        });
+                    } else if (window.isShakaLoaded) {
+                        let playPromise = shakaVideo.play();
+                        if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6'));
+                    }
+                } catch (e) { hideLoading('server6'); } 
+            }
+
+            if (serverId === 'server1') safePlay('videoPlayer1', 'server1');
+            if (serverId === 'server2') safePlay('videoPlayer2', 'server2');
+            if (serverId === 'server3') safePlay('videoPlayer3', 'server3');
+            if (serverId === 'server8') safePlay('videoPlayer8', 'server8');
+            if (serverId === 'server12') safePlay('videoPlayer12', 'server12');
         }
 
         // ------------------------------------
-        // Setup JW Player (Now Server 9)
+        // Setup JW Player (Server 9)
         // ------------------------------------
         jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
         const playerInstance = jwplayer("jwplayer-container").setup({
@@ -776,14 +1079,14 @@
             mute: false
         });
 
-        // Hide loading when JW Player starts playing
         playerInstance.on('play', () => hideLoading('server9'));
         playerInstance.on('buffer', () => showLoading('server9'));
 
         // ------------------------------------
-        // Setup Shaka Player (Server 6)
+        // Setup Shaka Player (Server 6) lazy setup
         // ------------------------------------
         const manifestUri = 'https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd';
+        window.isShakaLoaded = false;
 
         async function initShaka() {
             const video = document.getElementById('youtube-theme');
@@ -813,22 +1116,14 @@
             window.ui = ui;
 
             video.addEventListener('playing', () => hideLoading('server6'));
+            video.addEventListener('loadeddata', () => hideLoading('server6'));
+            video.addEventListener('canplay', () => hideLoading('server6'));
             video.addEventListener('waiting', () => showLoading('server6'));
 
-            try {
-                await player.load(manifestUri);
-                if (!document.getElementById('server6').classList.contains('active')) {
-                    video.pause();
-                } else {
-                    hideLoading('server6');
-                }
-                setTimeout(() => {
-                    const menuBtn = document.querySelector('.shaka-overflow-menu-button');
-                    if(menuBtn) menuBtn.innerHTML = 'settings';
-                }, 500);
-            } catch (error) {
-                console.error('Error loading Shaka video:', error);
-            }
+            setTimeout(() => {
+                const menuBtn = document.querySelector('.shaka-overflow-menu-button');
+                if(menuBtn) menuBtn.innerHTML = 'settings';
+            }, 500);
         }
         document.addEventListener('shaka-ui-loaded', initShaka);
 
@@ -841,8 +1136,11 @@
             let hlsPlayer = null;
             let videoQualities = [];
 
-            // Loading screen integration
+            // Adding extra events guarantees the spinner hides when the video is ready
+            // even if auto-play fails or needs user interaction first.
             videoElement.addEventListener('playing', () => hideLoading(serverId));
+            videoElement.addEventListener('loadeddata', () => hideLoading(serverId));
+            videoElement.addEventListener('canplay', () => hideLoading(serverId));
             videoElement.addEventListener('waiting', () => showLoading(serverId));
 
             async function init() {
@@ -937,21 +1235,12 @@
             init();
         }
 
-        // Initialize All Custom HLS Servers based on new locations
+        // Initialize Custom HLS Servers
         document.addEventListener('DOMContentLoaded', () => {
-            // New Server 1 (Was Apusport Old 9)
             setupCustomHLS("https://live05.apusport.com/live/08552895.m3u8", "server1", "videoPlayer1");
-            
-            // New Server 2 (Was Caze TV Old 10)
             setupCustomHLS("https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8", "server2", "videoPlayer2");
-            
-            // New Server 3 (Was TRT Stream Old 11)
             setupCustomHLS("https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master.m3u8", "server3", "videoPlayer3");
-            
-            // Server 8: Cloudflare Stream (Unchanged)
             setupCustomHLS("https://customer-rqx2ncfj15h2he6q.cloudflarestream.com/6bbb3f01ec11e5b10e4369978f011941/manifest/video.m3u8", "server8", "videoPlayer8");
-            
-            // Server 12: Match TV (Unchanged)
             setupCustomHLS("https://bl.video.matchtv.ru/media/playlist/free_d46d0cf1712c0542ec7fd4f0808f600a_hd/17_89756005/1080/e6bef86de8a133cd7b27deb040758a00/4796141934.m3u8", "server12", "videoPlayer12");
         });
 
