@@ -117,17 +117,26 @@
 
         /* Banner Flip Slider Styles */
         .banner-display-container {
-            flex: 1; overflow: hidden; position: relative; display: none; /* Hidden by default until images load */
-            align-items: center; justify-content: center; background: #111; border-radius: 8px; padding: 10px 0; border: 1px solid #333; min-height: 180px; box-sizing: border-box;
-        }
+    flex: 1; overflow: hidden; position: relative; display: none; 
+    align-items: center; justify-content: center; background: #111; 
+    border-radius: 8px; 
+    /* padding aur min-height yahan se hata di gayi hai */
+    border: 1px solid #333; box-sizing: border-box;
+}
         .banner-track { 
-            width: 100%; height: 160px; position: relative; display: flex; justify-content: center; align-items: center; perspective: 1000px;
-        }
+    width: 100%; 
+    aspect-ratio: 16 / 9; /* Yeh automatically proper height le lega */
+    position: relative; display: flex; justify-content: center; align-items: center; perspective: 1000px;
+}
         .animated-banner-img { 
-            position: absolute; height: 160px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-            backface-visibility: hidden; transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.8s ease-in-out;
-            opacity: 0; transform: rotateY(180deg);
-        }
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; /* Ab yeh bina margin ke perfectly fit hoga */
+    border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    backface-visibility: hidden; transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.8s ease-in-out;
+    opacity: 0; transform: rotateY(180deg);
+}
         .animated-banner-img.active {
             opacity: 1; transform: rotateY(0deg); z-index: 2;
         }
