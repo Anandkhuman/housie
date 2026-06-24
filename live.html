@@ -6,11 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sintha Live - Streaming</title>
 
-    <!-- Player Libraries (Shaka Player & HLS.js) -->
+    <!-- Player Libraries (HLS.js) -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mux.js/6.3.0/mux.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.10/shaka-player.ui.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.10/controls.min.css" rel="stylesheet" />
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -323,12 +320,12 @@
         <!-- Servers with Video Drag Handles injected -->
         <div id="server1" class="server-tab active"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server1"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer1" playsinline webkit-playsinline></video></div></div></div>
         <div id="server2" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server2"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer2" playsinline webkit-playsinline></video></div></div></div>
-        <div id="server3" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server3"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer3" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server3" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server3"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" frameborder="0" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" src="" data-src="https://live.bb6.dpdns.org/albaplayer/ch1/?serv=0" width="100%"></iframe></div></div>
         <div id="server4" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server4"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://hd.muesra.sbs/albaplayer/oooe/?serv=0"></iframe></div></div>
         <div id="server5" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server5"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" frameborder="0" src="" data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew"></iframe></div></div>
-        <div id="server6" class="server-tab"><div class="video-box" data-shaka-player-container><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server6"><div class="spinner"></div><div>Loading Stream...</div></div><video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video></div></div>
+        <div id="server6" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server6"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><button onclick="setupCustomHLS('https://sh.clouata.space/wooorle2_720/index.m3u8', 'server6', 'videoPlayer6')" style="background:#28a745; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; margin-right:10px; cursor:pointer;" title="If it didn't work, wait 5-20s or click here">&#8635; Refresh Stream</button><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer6" playsinline webkit-playsinline></video></div></div></div>
         <div id="server7" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server7"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe></div></div>
-        <div id="server8" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server8"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server8" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server8"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><button onclick="setupCustomHLS('https://play.666666.zip/live/4460943.m3u8', 'server8', 'videoPlayer8')" style="background:#28a745; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; margin-right:10px; cursor:pointer;" title="If it didn't work, wait 5-20s or click here">&#8635; Refresh Stream</button><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video></div></div></div>
         <div id="server9" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server9"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" frameborder="0" height="450px" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.666666.zip/stream/20233432.m3u8" width="100%"></iframe></div></div>
         <div id="server10" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server10"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><button onclick="setupCustomHLS('https://live05.meung.app/live/87547578.m3u8', 'server10', 'videoPlayer10')" style="background:#28a745; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; margin-right:10px; cursor:pointer;" title="If it didn't work, wait 5-20s or click here">&#8635; Refresh Stream</button><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer10" playsinline webkit-playsinline></video></div></div></div>
         <div id="server11" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server11"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe></div></div>
@@ -1370,8 +1367,7 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); btnElement.classList.add('active');
             showLoading(serverId); setTimeout(() => hideLoading(serverId), 8000);
             
-            try { const shakaVideo = document.getElementById('youtube-theme'); if (shakaVideo && !shakaVideo.paused) shakaVideo.pause(); } catch (e) {}
-            try { const customVideos = ['videoPlayer1', 'videoPlayer2', 'videoPlayer3', 'videoPlayer8', 'videoPlayer10', 'videoPlayer12']; customVideos.forEach(vid => { const el = document.getElementById(vid); if (el && !el.paused) el.pause(); }); } catch (e) {}
+            try { const customVideos = ['videoPlayer1', 'videoPlayer2', 'videoPlayer6', 'videoPlayer8', 'videoPlayer10', 'videoPlayer12']; customVideos.forEach(vid => { const el = document.getElementById(vid); if (el && !el.paused) el.pause(); }); } catch (e) {}
             
             document.querySelectorAll('.server-tab iframe').forEach(iframe => iframe.src = ""); 
             document.querySelectorAll('.server-tab').forEach(tab => tab.classList.remove('active'));
@@ -1382,47 +1378,13 @@
             const activeIframe = activeTab.querySelector('iframe'); 
             if (activeIframe) { activeIframe.onload = () => hideLoading(serverId); activeIframe.src = activeIframe.getAttribute('data-src'); }
             
-            if (serverId === 'server6') { 
-                try { 
-                    const shakaVideo = document.getElementById('youtube-theme'); 
-                    if (window.player && !window.isShakaLoaded) { 
-                        window.player.load(manifestUri).then(() => { let playPromise = shakaVideo.play(); if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6')); window.isShakaLoaded = true; }).catch(e => hideLoading('server6')); 
-                    } else if (window.isShakaLoaded) { 
-                        let playPromise = shakaVideo.play(); if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6')); 
-                    } 
-                } catch (e) { hideLoading('server6'); } 
-            }
-            
             if (serverId === 'server1') safePlay('videoPlayer1', 'server1'); 
             if (serverId === 'server2') safePlay('videoPlayer2', 'server2'); 
-            if (serverId === 'server3') safePlay('videoPlayer3', 'server3'); 
+            if (serverId === 'server6') safePlay('videoPlayer6', 'server6'); 
             if (serverId === 'server8') safePlay('videoPlayer8', 'server8'); 
             if (serverId === 'server10') safePlay('videoPlayer10', 'server10'); 
             if (serverId === 'server12') safePlay('videoPlayer12', 'server12');
         }
-
-        const manifestUri = 'https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd'; 
-        window.isShakaLoaded = false;
-        
-        async function initShaka() { 
-            const video = document.getElementById('youtube-theme'); 
-            const ui = video['ui']; 
-            ui.configure({'seekBarColors': { base: 'rgba(255,255,255,.2)', buffered: 'rgba(255,255,255,.4)', played: 'rgb(255,0,0)' }}); 
-            
-            const player = ui.getControls().getPlayer(); 
-            player.configure({ drm: { clearKeys: { "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3" } } }); 
-            
-            window.player = player; 
-            window.ui = ui; 
-            
-            video.addEventListener('playing', () => hideLoading('server6')); 
-            video.addEventListener('loadeddata', () => hideLoading('server6')); 
-            video.addEventListener('canplay', () => hideLoading('server6')); 
-            video.addEventListener('waiting', () => showLoading('server6')); 
-            
-            setTimeout(() => { const menuBtn = document.querySelector('.shaka-overflow-menu-button'); if(menuBtn) menuBtn.innerHTML = 'settings'; }, 500); 
-        }
-        document.addEventListener('shaka-ui-loaded', initShaka);
 
         function setupCustomHLS(streamUrl, serverId, videoId) {
             const serverContainer = document.getElementById(serverId); 
@@ -1504,8 +1466,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             setupCustomHLS("https://live05.apusport.com/live/08552895.m3u8", "server1", "videoPlayer1");
             setupCustomHLS("https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8", "server2", "videoPlayer2");
-            setupCustomHLS("https://rxne77juptdeyke3tytvgqwyh.medya.trt.com.tr/master.m3u8", "server3", "videoPlayer3");
-            setupCustomHLS("https://customer-rqx2ncfj15h2he6q.cloudflarestream.com/6bbb3f01ec11e5b10e4369978f011941/manifest/video.m3u8", "server8", "videoPlayer8");
+            setupCustomHLS("https://sh.clouata.space/wooorle2_720/index.m3u8", "server6", "videoPlayer6");
+            setupCustomHLS("https://play.666666.zip/live/4460943.m3u8", "server8", "videoPlayer8");
             setupCustomHLS("https://live05.meung.app/live/87547578.m3u8", "server10", "videoPlayer10");
             setupCustomHLS("https://bl.video.matchtv.ru/media/playlist/free_d46d0cf1712c0542ec7fd4f0808f600a_hd/17_89756005/1080/e6bef86de8a133cd7b27deb040758a00/4796141934.m3u8", "server12", "videoPlayer12");
         });
