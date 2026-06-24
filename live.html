@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sintha Live - Streaming</title>
 
-    <!-- Player Libraries (JW Player, Shaka Player & HLS.js) -->
-    <script src='https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js'></script>
+    <!-- Player Libraries (Shaka Player & HLS.js) -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mux.js/6.3.0/mux.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.10/shaka-player.ui.min.js"></script>
@@ -330,7 +329,7 @@
         <div id="server6" class="server-tab"><div class="video-box" data-shaka-player-container><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server6"><div class="spinner"></div><div>Loading Stream...</div></div><video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video></div></div>
         <div id="server7" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server7"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe></div></div>
         <div id="server8" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server8"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video></div></div></div>
-        <div id="server9" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server9"><div class="spinner"></div><div>Loading Stream...</div></div><div id="jwplayer-container"></div></div></div>
+        <div id="server9" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server9"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" frameborder="0" height="450px" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.666666.zip/stream/20233432.m3u8" width="100%"></iframe></div></div>
         <div id="server10" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server10"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8"></iframe></div></div>
         <div id="server11" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server11"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe></div></div>
         <div id="server12" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server12"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer12" playsinline webkit-playsinline></video></div></div></div>
@@ -1371,7 +1370,6 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); btnElement.classList.add('active');
             showLoading(serverId); setTimeout(() => hideLoading(serverId), 8000);
             
-            try { if (jwplayer("jwplayer-container").getState() === 'playing' || jwplayer("jwplayer-container").getState() === 'buffering') jwplayer("jwplayer-container").pause(); } catch (e) {}
             try { const shakaVideo = document.getElementById('youtube-theme'); if (shakaVideo && !shakaVideo.paused) shakaVideo.pause(); } catch (e) {}
             try { const customVideos = ['videoPlayer1', 'videoPlayer2', 'videoPlayer3', 'videoPlayer8', 'videoPlayer12']; customVideos.forEach(vid => { const el = document.getElementById(vid); if (el && !el.paused) el.pause(); }); } catch (e) {}
             
@@ -1384,7 +1382,6 @@
             const activeIframe = activeTab.querySelector('iframe'); 
             if (activeIframe) { activeIframe.onload = () => hideLoading(serverId); activeIframe.src = activeIframe.getAttribute('data-src'); }
             
-            if (serverId === 'server9') { try { jwplayer("jwplayer-container").play(); } catch (e) {} }
             if (serverId === 'server6') { 
                 try { 
                     const shakaVideo = document.getElementById('youtube-theme'); 
@@ -1402,11 +1399,6 @@
             if (serverId === 'server8') safePlay('videoPlayer8', 'server8'); 
             if (serverId === 'server12') safePlay('videoPlayer12', 'server12');
         }
-
-        jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
-        const playerInstance = jwplayer("jwplayer-container").setup({ playlist: [{ sources: [{ file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd", type: "dash", drm: { clearkey: { keyId: "433ffba670963e70857859a9dff4be04", key: "51ede3a821229fe81e71282c8eff80e3" } } }] }], width: "100%", height: "100%", aspectratio: "16:9", autostart: true, mute: false });
-        playerInstance.on('play', () => hideLoading('server9')); 
-        playerInstance.on('buffer', () => showLoading('server9'));
 
         const manifestUri = 'https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd'; 
         window.isShakaLoaded = false;
