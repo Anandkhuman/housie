@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sintha Live - Streaming</title>
 
     <!-- Player Libraries (JW Player, Shaka Player & HLS.js) -->
@@ -19,273 +19,196 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* General Page Styling */
-        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; color: white; overflow-x: hidden; }
+        /* General Page Styling (Mobile App Feel) */
+        body { margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: white; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
 
         /* General Helper Classes */
         .hidden { display: none !important; }
 
-        /* Header Styling */
-        header { background-color: #000; padding: 20px; text-align: center; border-bottom: 2px solid #e50914; cursor: pointer; user-select: none; -webkit-user-select: none; }
-        header h1 { margin: 0; color: #e50914; font-size: 32px; text-transform: uppercase; letter-spacing: 2px; }
+        /* Header Styling (Sticky, App-like) */
+        header { background-color: #111; padding: 12px 15px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.8); cursor: pointer; user-select: none; -webkit-user-select: none; }
+        header h1 { margin: 0; color: #e50914; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
 
-        /* Navigation Bar Styling */
-        nav { display: flex; flex-wrap: nowrap; overflow-x: auto; background-color: #222; padding: 10px; gap: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        /* Navigation Bar Styling (Pill chips) */
+        nav { display: flex; flex-wrap: nowrap; overflow-x: auto; background-color: #000; padding: 10px; gap: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-bottom: 1px solid #1a1a1a; }
         nav::-webkit-scrollbar { display: none; }
-        nav button { flex: 0 0 auto; background-color: #333; color: white; border: 1px solid #444; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-size: 16px; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; user-select: none; -webkit-user-select: none; }
-        nav button:hover { background-color: #e50914; }
-        nav button.active { background-color: #e50914; border-color: #e50914; font-weight: bold; }
+        nav button { flex: 0 0 auto; background-color: #222; color: #ddd; border: none; padding: 8px 16px; cursor: pointer; border-radius: 20px; font-size: 13px; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; user-select: none; -webkit-user-select: none; }
+        nav button:hover { background-color: #333; color: #fff; }
+        nav button.active { background-color: #e50914; color: white; box-shadow: 0 2px 8px rgba(229, 9, 20, 0.4); }
 
         /* Status Indicator Styling */
         .status-indicator { display: inline-flex; align-items: center; }
-        .status-text { font-size: 12px; margin-left: 3px; font-weight: bold; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
+        .status-text { font-size: 11px; margin-left: 3px; font-weight: bold; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-left: 4px; }
         .dot-live { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
         .dot-offline { background-color: #ff4d4d; box-shadow: 0 0 5px #ff4d4d; }
 
         /* Marquee Display Styling */
-        .marquee-wrapper { background-color: #1a1a1a; border-bottom: 1px solid #444; padding: 8px 0; overflow: hidden; display: none; }
+        .marquee-wrapper { background-color: #1a1a1a; border-bottom: 1px solid #333; padding: 6px 0; overflow: hidden; display: none; }
         .marquee-wrapper.active { display: block; }
-        .marquee-text { display: inline-block; white-space: nowrap; color: #facc15; font-weight: bold; font-size: 16px; animation: scrollMarquee linear infinite; }
+        .marquee-text { display: inline-block; white-space: nowrap; color: #facc15; font-weight: bold; font-size: 14px; animation: scrollMarquee linear infinite; }
         @keyframes scrollMarquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
         /* Modal Overlay Styling */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .modal-box { background: #111; padding: 20px; border: 2px solid #e50914; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 15px; color: white; max-height: 90vh; overflow-y: auto;}
-        .modal-box h3 { margin: 0; text-align: center; color: #e50914; text-transform: uppercase; }
-        .modal-box input { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 5px; background: #222; color: white; box-sizing: border-box; font-size: 14px; outline: none; transition: border-color 0.3s; }
-        .modal-box input:focus { border-color: #e50914; }
-        .modal-box button { padding: 12px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 16px; color: white; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); }
+        .modal-box { background: #111; padding: 20px; border: 1px solid #333; border-radius: 16px; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 12px; color: white; max-height: 90vh; overflow-y: auto;}
+        .modal-box h3 { margin: 0; text-align: center; color: #e50914; text-transform: uppercase; font-size: 18px;}
+        .modal-box input, .modal-box textarea { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 8px; background: #222; color: white; box-sizing: border-box; font-size: 14px; outline: none; transition: border-color 0.3s; }
+        .modal-box input:focus, .modal-box textarea:focus { border-color: #e50914; }
+        .modal-box button { padding: 12px; border: none; cursor: pointer; border-radius: 24px; font-weight: bold; font-size: 15px; color: white; }
         
-        .btn-green { background: #28a745; }
+        .btn-green { background: #00a884; }
         .btn-red { background: #e50914; }
-        .btn-gray { background: #6c757d; }
+        .btn-gray { background: #333; }
         .btn-blue { background: #4285F4; }
         
-        .auth-link { color: #aaa; text-align: center; font-size: 13px; cursor: pointer; text-decoration: underline; margin-top: -5px; }
+        .auth-link { color: #aaa; text-align: center; font-size: 13px; cursor: pointer; text-decoration: underline; margin-top: -2px; }
         .auth-link:hover { color: #fff; }
 
-        .admin-dashboard-section { border: 1px solid #333; padding: 15px; border-radius: 5px; background: #1a1a1a; display: flex; flex-direction: column; gap: 10px; }
-        .admin-dashboard-section label { font-size: 12px; color: #ccc; text-transform: uppercase; font-weight: bold;}
+        .admin-dashboard-section { border: 1px solid #333; padding: 12px; border-radius: 8px; background: #1a1a1a; display: flex; flex-direction: column; gap: 10px; }
+        .admin-dashboard-section label { font-size: 11px; color: #ccc; text-transform: uppercase; font-weight: bold;}
 
         /* Modern Toast Notification Styling */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: #222; color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.7); font-size: 14px; display: flex; align-items: center; gap: 12px; font-weight: bold; opacity: 0; transform: translateX(100%); transition: opacity 0.3s, transform 0.3s; border-left: 5px solid #e50914; min-width: 200px;}
+        .toast { background: #222; color: #fff; padding: 12px 18px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.7); font-size: 13px; display: flex; align-items: center; gap: 10px; font-weight: bold; opacity: 0; transform: translateX(100%); transition: opacity 0.3s, transform 0.3s; border-left: 4px solid #e50914; min-width: 180px;}
         .toast.show { opacity: 1; transform: translateX(0); }
-        .toast.success { border-left-color: #28a745; }
+        .toast.success { border-left-color: #00a884; }
         .toast.error { border-left-color: #e50914; }
 
-        /* Main Container */
-        .main-container { display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 30px 10px; }
-        .server-tab { display: none; width: 100%; max-width: 850px; }
+        /* Main Container (Edge-to-edge for mobile) */
+        .main-container { display: flex; align-items: center; flex-direction: column; padding: 0 0 20px 0; width: 100%; }
+        .server-tab { display: none; width: 100%; max-width: 100%; }
         .server-tab.active { display: block; }
 
-        /* Video Box Styling */
-        .video-box { width: 100%; aspect-ratio: 16 / 12; background-color: #000; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); position: relative; }
+        /* Video Box Styling (Edge-to-Edge) */
+        .video-box { width: 100%; aspect-ratio: 16 / 9; background-color: #000; overflow: hidden; position: relative; }
         .video-box iframe, .video-box video { width: 100%; height: 100%; border: none; outline: none; position: relative; z-index: 1; }
         
         /* Loading Overlay */
-        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: white; transition: opacity 0.3s; }
+        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: white; transition: opacity 0.3s; font-size: 14px; }
         .loading-overlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #444; border-top: 4px solid #e50914; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        .spinner { width: 36px; height: 36px; border: 3px solid #333; border-top: 3px solid #e50914; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 8px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Custom HLS Player Styles */
         .custom-player-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; position: relative; z-index: 1; }
-        .custom-player-wrap video { width: 100%; flex-grow: 1; background: #000; border-radius: 0 0 8px 8px; outline: none; display: block; }
-        .controls-top { display: flex; justify-content: flex-end; align-items: center; background: #111827; padding: 10px 15px; border-radius: 8px 8px 0 0; }
-        .settings-icon { cursor: pointer; font-size: 20px; color: white; margin-left: 12px; transition: transform 0.2s ease; }
+        .custom-player-wrap video { width: 100%; flex-grow: 1; background: #000; outline: none; display: block; }
+        .controls-top { display: flex; justify-content: flex-end; align-items: center; background: rgba(0, 0, 0, 0.8); padding: 8px 12px; position: absolute; top: 0; left: 0; right: 0; z-index: 5; }
+        .settings-icon { cursor: pointer; font-size: 18px; color: white; margin-left: 12px; transition: transform 0.2s ease; }
         .settings-icon:hover { transform: rotate(45deg); }
-        .quality-box { background: #facc15; padding: 5px 10px; border-radius: 6px; display: flex; align-items: center; gap: 8px; font-weight: bold; color: black; font-size: 14px; }
+        .quality-box { background: #facc15; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 6px; font-weight: bold; color: black; font-size: 12px; }
         .custom-select { position: relative; }
-        .select-selected { background-color: white; color: black; padding: 5px 10px; border-radius: 4px; cursor: pointer; min-width: 60px; display: flex; align-items: center; justify-content: space-between; }
-        .select-items { display: none; position: absolute; background-color: white; border: 1px solid #ccc; border-radius: 4px; top: 100%; right: 0; z-index: 99; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 5px; }
+        .select-selected { background-color: white; color: black; padding: 3px 6px; border-radius: 3px; cursor: pointer; min-width: 50px; display: flex; align-items: center; justify-content: space-between; font-size: 11px;}
+        .select-items { display: none; position: absolute; background-color: white; border: 1px solid #ccc; border-radius: 4px; top: 100%; right: 0; z-index: 99; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 5px; color: black; font-size: 12px;}
         .select-items div { padding: 8px 12px; cursor: pointer; font-weight: normal; white-space: nowrap; }
         .select-items div:hover { background-color: #f1f1f1; }
 
-        /* Layout Structure: Disclaimer alongside Banner */
-        .bottom-layout-container {
-            width: 100%; max-width: 850px; margin-top: 30px;
-            display: flex; flex-direction: row; align-items: stretch; gap: 20px;
-        }
+        /* Layout Structure (Compact) */
+        .bottom-layout-container { width: 100%; max-width: 850px; margin-top: 15px; padding: 0 10px; box-sizing: border-box; display: block; }
 
-        .disclaimer-section {
-            flex: 1; padding: 20px; background-color: #1a1a1a; border-top: 2px solid #e50914;
-            border-radius: 8px; box-sizing: border-box; color: #ccc; font-size: 13px; line-height: 1.6; text-align: justify;
-        }
-        .disclaimer-section h3 { color: #fff; text-align: center; margin-top: 0; margin-bottom: 15px; font-size: 18px; text-transform: uppercase; }
-
-        /* Banner Flip Slider Styles */
-        .banner-display-container {
-    flex: 1; overflow: hidden; position: relative; display: none; 
-    align-items: center; justify-content: center; background: #111; 
-    border-radius: 8px; 
-    /* padding aur min-height yahan se hata di gayi hai */
-    border: 1px solid #333; box-sizing: border-box;
-}
-        .banner-track { 
-    width: 100%; 
-    aspect-ratio: 16 / 9; /* Yeh automatically proper height le lega */
-    position: relative; display: flex; justify-content: center; align-items: center; perspective: 1000px;
-}
-        .animated-banner-img { 
-    position: absolute; 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; /* Ab yeh bina margin ke perfectly fit hoga */
-    border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-    backface-visibility: hidden; transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.8s ease-in-out;
-    opacity: 0; transform: rotateY(180deg);
-}
-        .animated-banner-img.active {
-            opacity: 1; transform: rotateY(0deg); z-index: 2;
-        }
-        .animated-banner-img.exit {
-            opacity: 0; transform: rotateY(-180deg); z-index: 1;
-        }
-        .animated-banner-img.static-single {
-            opacity: 1; transform: rotateY(0deg); transition: none;
-        }
-
-        @media (max-width: 768px) { .bottom-layout-container { flex-direction: column-reverse; } }
+        .banner-display-container { width: 100%; overflow: hidden; position: relative; display: none; align-items: center; justify-content: center; background: #111; border-radius: 12px; box-sizing: border-box; }
+        .banner-track { width: 100%; aspect-ratio: 16 / 9; position: relative; display: flex; justify-content: center; align-items: center; perspective: 1000px; }
+        .animated-banner-img { position: absolute; width: 100%; height: 100%; object-fit: cover; border-radius: 12px; backface-visibility: hidden; transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.8s ease-in-out; opacity: 0; transform: rotateY(180deg); }
+        .animated-banner-img.active { opacity: 1; transform: rotateY(0deg); z-index: 2; }
+        .animated-banner-img.exit { opacity: 0; transform: rotateY(-180deg); z-index: 1; }
+        .animated-banner-img.static-single { opacity: 1; transform: rotateY(0deg); transition: none; }
 
         /* --- Chat Features --- */
-        
-        /* Floating Chat Animation */
         @keyframes chat-pulse {
             0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); transform: scale(1); }
-            70% { box-shadow: 0 0 0 15px rgba(229, 9, 20, 0); transform: scale(1.05); }
+            70% { box-shadow: 0 0 0 12px rgba(229, 9, 20, 0); transform: scale(1.05); }
             100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); transform: scale(1); }
         }
 
         .chat-btn-float {
-            position: fixed; bottom: 25px; right: 25px; background: #e50914; color: white;
-            border: none; border-radius: 50%; width: 45px; height: 45px;
-            font-size: 28px; cursor: grab; z-index: 1000;
+            position: fixed; bottom: 20px; right: 20px; background: #e50914; color: white;
+            border: none; border-radius: 50%; width: 48px; height: 48px;
+            font-size: 24px; cursor: grab; z-index: 1000;
             display: flex; justify-content: center; align-items: center;
-            animation: chat-pulse 2s infinite; 
-            user-select: none; -webkit-user-select: none;
-            touch-action: none; /* Helps smooth drag on mobile */
+            animation: chat-pulse 2s infinite; touch-action: none; 
         }
         .chat-btn-float:active { cursor: grabbing; }
 
         .chat-wrapper {
-            width: 100%; max-width: 850px; margin: 20px auto; background: #0b141a; /* WhatsApp Dark Bg */
-            border-radius: 8px; overflow: hidden; display: none; flex-direction: column;
-            border: 1px solid #202c33; height: 500px;
+            width: 100%; max-width: 100%; margin: 15px auto 0; background: #0b141a; 
+            overflow: hidden; display: none; flex-direction: column;
+            border-top: 1px solid #202c33; height: calc(100vh - 350px); min-height: 400px;
         }
         .chat-wrapper.active { display: flex; }
         
         .chat-header { display: flex; background: #202c33; border-bottom: 2px solid #e50914; }
-        .chat-header button { flex: 1; padding: 15px; background: #202c33; border: none; color: #aebac1; cursor: pointer; font-weight: bold; font-size: 15px; transition: background 0.3s, color 0.3s; }
+        .chat-header button { flex: 1; padding: 12px; background: #202c33; border: none; color: #aebac1; cursor: pointer; font-weight: bold; font-size: 13px; transition: background 0.3s, color 0.3s; }
         .chat-header button:hover { background: #2a3942; color: white; }
         .chat-header button.active { background: #e50914; color: white; }
         
-        .chat-close-btn { flex: 0 0 50px !important; background: #202c33 !important; font-size: 24px !important; border-left: 1px solid #e50914 !important; padding: 0 !important; display: flex; align-items: center; justify-content: center;}
+        .chat-expand-btn { flex: 0 0 45px !important; background: #202c33 !important; font-size: 18px !important; border-left: 1px solid #111b21 !important; padding: 0 !important; display: flex; align-items: center; justify-content: center;}
+        .chat-expand-btn:hover { background: #2a3942 !important; }
+
+        .chat-close-btn { flex: 0 0 45px !important; background: #202c33 !important; font-size: 22px !important; border-left: 1px solid #111b21 !important; padding: 0 !important; display: flex; align-items: center; justify-content: center;}
         .chat-close-btn:hover { background: #e50914 !important; }
         
         .chat-tab-content { display: none; flex-direction: column; flex: 1; overflow: hidden; }
         .chat-tab-content.active { display: flex; }
         
-        /* WhatsApp-Style Chat UI */
-        .messages-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-color: #0b141a; }
+        .messages-area { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background-color: #0b141a; }
         
-        .input-area { display: flex; padding: 10px; background: #202c33; align-items: center; gap: 10px; flex-shrink: 0; }
-        .input-area input { flex: 1; padding: 12px 18px; border-radius: 24px; border: none; outline: none; background: #2a3942; color: #d1d7db; font-size: 15px; }
+        .input-area { display: flex; padding: 8px; background: #202c33; align-items: center; gap: 8px; flex-shrink: 0; }
+        .input-area input { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; outline: none; background: #2a3942; color: #d1d7db; font-size: 14px; }
         
-        /* WhatsApp Send Icon Button */
         .input-area button { 
-            width: 45px; height: 45px; border-radius: 50%; 
-            background: #00a884; border: none; color: white; 
-            display: flex; justify-content: center; align-items: center; 
-            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
-            padding: 0; margin-left: 5px;
+            width: 40px; height: 40px; border-radius: 50%; background: #00a884; border: none; color: white; 
+            display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background 0.3s; flex-shrink: 0; padding: 0; margin-left: 2px;
         }
         .input-area button:hover { background: #008f6f; }
-        .input-area button svg { width: 22px; height: 22px; fill: white; margin-left: 4px; /* Visually aligns the paper plane */ }
+        .input-area button svg { width: 20px; height: 20px; fill: white; margin-left: 3px; }
         
-        .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 8px; word-wrap: break-word; font-size: 14.5px; line-height: 1.4; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); position: relative; }
-        .msg-self { background: #005c4b; color: #e9edef; align-self: flex-end; border-top-right-radius: 0; }
-        .msg-other { background: #202c33; color: #e9edef; align-self: flex-start; border-top-left-radius: 0; }
-        .msg-sender { font-size: 12.5px; color: #53bdeb; margin-bottom: 3px; font-weight: bold; }
+        .msg-bubble { max-width: 80%; padding: 8px 12px; border-radius: 12px; word-wrap: break-word; font-size: 13.5px; line-height: 1.4; box-shadow: 0 1px 1px rgba(0,0,0,0.2); position: relative; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;}
+        .msg-self { background: #005c4b; color: #e9edef; align-self: flex-end; border-top-right-radius: 2px; }
+        .msg-other { background: #202c33; color: #e9edef; align-self: flex-start; border-top-left-radius: 2px; }
+        .msg-sender { font-size: 11.5px; color: #53bdeb; margin-bottom: 2px; font-weight: bold; }
+        .msg-deleted .msg-text { font-style: italic; opacity: 0.6; color: #aebac1; }
 
-        .user-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #111b21; border-radius: 5px; margin-bottom: 8px; cursor: pointer; border-bottom: 1px solid #202c33;}
+        .user-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #111b21; border-radius: 8px; margin-bottom: 6px; cursor: pointer; border: 1px solid #202c33;}
         .user-list-item:hover { background: #202c33; }
-        .user-status { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #aebac1;}
-        .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+        .user-status { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #aebac1;}
+        .dot { width: 8px; height: 8px; border-radius: 50%; display:inline-block; } 
+
+        .unread-badge { background: #00a884; color: white; border-radius: 50%; padding: 2px 5px; font-size: 10px; font-weight: bold; margin-left: 5px; vertical-align: middle; }
+        .typing-indicator { font-size: 11px; color: #00a884; font-style: italic; padding: 4px 12px; display: none; background: #0b141a; border-top: 1px solid #202c33; }
 
         /* ========================================================
-           CHAT ACTIVE MODE (FIXED SCREEN FOR VIDEO + CHAT ONLY) 
+           CHAT ACTIVE MODE 
            ======================================================== */
-        body.chat-active-mode {
-            height: 100vh; 
-            height: 100dvh; /* For mobile accuracy */
-            overflow: hidden; /* Prevents whole page scrolling */
-            display: flex;
-            flex-direction: column;
-            background-color: #111111;
-        }
-        body.chat-active-mode #main-header,
-        body.chat-active-mode #display-marquee-wrapper,
-        body.chat-active-mode nav {
-            flex-shrink: 0; /* Keeps nav visible and uncompressed */
-        }
-        body.chat-active-mode .main-container {
-            flex: 1;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        body.chat-active-mode .server-tab.active {
-            flex-shrink: 0;
-            width: 100%;
-            max-height: 40vh; /* Keeps video balanced with chat space */
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        body.chat-active-mode .video-box {
-            width: 100%;
-            height: 100%;
-            max-height: 100%;
-            aspect-ratio: auto;
-            border-radius: 0;
-            box-shadow: none;
-        }
-        body.chat-active-mode .chat-wrapper {
-            flex: 1;
-            margin: 15px 0 0 0; /* SPACE ADDED HERE BETWEEN VIDEO AND CHAT CONTAINER */
-            max-width: 100%;
-            height: auto;
-            border: none;
-            border-radius: 12px 12px 0 0; /* Smooth separated look */
-            border-top: 2px solid #e50914;
-            display: flex !important;
-        }
-        
-        /* HIDDEN ELEMENTS IN CHAT MODE */
-        body.chat-active-mode .bottom-layout-container,
-        body.chat-active-mode .chat-btn-float {
-            display: none !important;
-        }
+        body.chat-active-mode { height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; background-color: #0a0a0a; }
+        body.chat-active-mode #main-header, body.chat-active-mode #display-marquee-wrapper, body.chat-active-mode nav { flex-shrink: 0; }
+        body.chat-active-mode .main-container { flex: 1; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+        body.chat-active-mode .server-tab.active { flex-shrink: 0; width: 100%; max-height: 35vh; background: #000; display: flex; align-items: center; justify-content: center; border-bottom: 2px solid #e50914;}
+        body.chat-active-mode .video-box { width: 100%; height: 100%; max-height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+        body.chat-active-mode .chat-wrapper { flex: 1; margin: 0; max-width: 100%; height: auto; border: none; border-radius: 0; border-top: none; display: flex !important; }
+        body.chat-active-mode .bottom-layout-container, body.chat-active-mode .chat-btn-float { display: none !important; }
 
+        /* ========================================================
+           EXPANDED / FLOATING VIDEO MODE
+           ======================================================== */
+        body.chat-expanded-mode .chat-wrapper { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; max-width: none; z-index: 900; margin: 0; border-radius: 0; border: none; display: flex !important; }
+        body.chat-expanded-mode .server-tab.active { position: fixed; bottom: 20px; right: 20px; width: 280px; height: auto; max-height: none; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.9); border: 2px solid #e50914; border-radius: 8px; background: #000; display: flex; flex-direction: column; overflow: hidden;}
+        body.chat-expanded-mode .server-tab:not(.active) { display: none !important; }
+        body.chat-expanded-mode .video-box { border-radius: 0; aspect-ratio: 16 / 9; height: auto; }
+        
+        .video-drag-handle { display: none; background: rgba(229, 9, 20, 0.9); color: white; text-align: center; padding: 4px; font-size: 11px; cursor: grab; font-weight: bold; user-select: none; position: absolute; top: 0; left: 0; width: 100%; z-index: 1001; box-sizing: border-box; text-transform: uppercase;}
+        body.chat-expanded-mode .video-drag-handle { display: block; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <header id="main-header">
         <h1>Sintha Live</h1>
     </header>
 
-    <!-- Nav-below Marquee -->
     <div class="marquee-wrapper" id="display-marquee-wrapper">
         <div class="marquee-text" id="display-marquee-text"></div>
     </div>
 
-    <!-- Navigation Bar -->
     <nav>
         <button class="nav-btn active" data-server="server1" onclick="switchServer('server1', this)">Server 1 <span class="status-indicator" id="status-server1"></span></button>
         <button class="nav-btn" data-server="server2" onclick="switchServer('server2', this)">Server 2 <span class="status-indicator" id="status-server2"></span></button>
@@ -301,13 +224,10 @@
         <button class="nav-btn" data-server="server12" onclick="switchServer('server12', this)">Server 12 <span class="status-indicator" id="status-server12"></span></button>
     </nav>
 
-    <!-- Floating Draggable Chat Button -->
     <button id="floating-chat-btn" class="chat-btn-float">💬</button>
 
-    <!-- Toast Notification Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- Admin Status Context Menu -->
     <div id="admin-status-menu" class="modal-overlay hidden">
         <div class="modal-box">
             <h3>Set Server Status</h3>
@@ -318,9 +238,28 @@
         </div>
     </div>
 
-    <!-- Login/Auth Modal -->
+    <!-- Message Action Context Menu (Edit / Delete) -->
+    <div id="msg-action-modal" class="modal-overlay hidden">
+        <div class="modal-box" style="max-width: 280px;">
+            <h3>Message Options</h3>
+            <button id="btn-edit-msg" class="btn-blue hidden" onclick="editMessage()">Edit Message</button>
+            <button id="btn-delete-everyone" class="btn-red hidden" onclick="deleteMessageEveryone()">Delete for Everyone</button>
+            <button id="btn-delete-me" class="btn-gray" onclick="deleteMessageMe()">Delete for Me</button>
+            <button class="btn-gray" style="background:#444;" onclick="closeMsgActionModal()">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Edit Message Modal -->
+    <div id="msg-edit-modal" class="modal-overlay hidden">
+        <div class="modal-box" style="max-width: 320px;">
+            <h3>Edit Message</h3>
+            <textarea id="edit-msg-input" rows="3" placeholder="Edit your message..."></textarea>
+            <button class="btn-green" onclick="saveEditedMessage()">Save</button>
+            <button class="btn-gray" style="background:#444;" onclick="closeMsgEditModal()">Cancel</button>
+        </div>
+    </div>
+
     <div id="auth-modal" class="modal-overlay hidden">
-        <!-- Login Form -->
         <div class="modal-box" id="form-login">
             <h3>User Login</h3>
             <input type="email" id="login-email" placeholder="Email ID">
@@ -332,7 +271,6 @@
             <button class="btn-gray" onclick="closeAuthModal()">Close</button>
         </div>
 
-        <!-- Register Form -->
         <div class="modal-box hidden" id="form-register">
             <h3>Create Account</h3>
             <input type="text" id="reg-name" placeholder="Full Name">
@@ -344,7 +282,6 @@
             <button class="btn-gray" onclick="closeAuthModal()">Close</button>
         </div>
 
-        <!-- Forgot Password Form -->
         <div class="modal-box hidden" id="form-forgot">
             <h3>Reset Password</h3>
             <input type="email" id="forgot-email" placeholder="Enter your registered Email">
@@ -354,12 +291,9 @@
         </div>
     </div>
 
-    <!-- Admin Dashboard Modal -->
     <div id="admin-dashboard-modal" class="modal-overlay hidden">
         <div class="modal-box">
             <h3>Admin Dashboard</h3>
-            
-            <!-- Marquee Settings -->
             <div class="admin-dashboard-section">
                 <label>Set Marquee Text & Speed</label>
                 <input type="text" id="admin-marquee-input" placeholder="Type scrolling text...">
@@ -367,63 +301,58 @@
                 <button class="btn-green" onclick="updateMarquee()">Save Marquee</button>
                 <button class="btn-red" onclick="removeMarquee()">Remove Text</button>
             </div>
-
-            <!-- Image Settings -->
             <div class="admin-dashboard-section">
                 <label>Upload Banner Images</label>
                 <div id="admin-banner-preview-list" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px;"></div>
                 <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-                    <label for="admin-banner-file" class="btn-green" style="display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; font-size:24px; cursor:pointer;">+</label>
+                    <label for="admin-banner-file" class="btn-green" style="display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; font-size:22px; cursor:pointer;">+</label>
                     <input type="file" id="admin-banner-file" accept="image/*" style="display:none;" onchange="uploadBannerImage(event)">
-                    <span style="font-size:12px; color:#aaa;">Click + to upload more images</span>
+                    <span style="font-size:11px; color:#aaa;">Click + to upload more</span>
                 </div>
             </div>
-
-            <!-- Manage Menus -->
             <div class="admin-dashboard-section">
-                <label>Manage Server Menus Visibility</label>
-                <div id="admin-nav-toggles" style="display:flex; flex-wrap:wrap; gap:10px; font-size:13px; color:white;">
-                    <!-- Checkboxes auto-generated via JS -->
-                </div>
+                <label>Manage Server Visibility</label>
+                <div id="admin-nav-toggles" style="display:flex; flex-wrap:wrap; gap:8px; font-size:12px; color:white;"></div>
             </div>
-
-            <button class="btn-red" style="margin-top: 10px;" onclick="userLogout()">Logout</button>
+            <button class="btn-red" style="margin-top: 5px;" onclick="userLogout()">Logout</button>
             <button class="btn-gray" onclick="closeDashboardModal()">Close Panel</button>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-container">
+        <!-- Servers with Video Drag Handles injected -->
+        <div id="server1" class="server-tab active"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server1"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer1" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server2" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server2"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer2" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server3" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server3"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer3" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server4" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server4"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://hd.muesra.sbs/albaplayer/oooe/?serv=0"></iframe></div></div>
+        <div id="server5" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server5"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" frameborder="0" src="" data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew"></iframe></div></div>
+        <div id="server6" class="server-tab"><div class="video-box" data-shaka-player-container><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server6"><div class="spinner"></div><div>Loading Stream...</div></div><video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video></div></div>
+        <div id="server7" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server7"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe></div></div>
+        <div id="server8" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server8"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server9" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server9"><div class="spinner"></div><div>Loading Stream...</div></div><div id="jwplayer-container"></div></div></div>
+        <div id="server10" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server10"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8"></iframe></div></div>
+        <div id="server11" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server11"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe></div></div>
+        <div id="server12" class="server-tab"><div class="video-box"><div class="video-drag-handle">☰ Drag</div><div class="loading-overlay" id="loading-server12"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer12" playsinline webkit-playsinline></video></div></div></div>
 
-        <!-- Servers 1-12 Code preserved strictly -->
-        <div id="server1" class="server-tab active"><div class="video-box"><div class="loading-overlay" id="loading-server1"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer1" playsinline webkit-playsinline></video></div></div></div>
-        <div id="server2" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server2"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer2" playsinline webkit-playsinline></video></div></div></div>
-        <div id="server3" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server3"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer3" playsinline webkit-playsinline></video></div></div></div>
-        <div id="server4" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server4"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://hd.muesra.sbs/albaplayer/oooe/?serv=0"></iframe></div></div>
-        <div id="server5" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server5"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" frameborder="0" src="" data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew"></iframe></div></div>
-        <div id="server6" class="server-tab"><div class="video-box" data-shaka-player-container><div class="loading-overlay" id="loading-server6"><div class="spinner"></div><div>Loading Stream...</div></div><video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video></div></div>
-        <div id="server7" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server7"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe></div></div>
-        <div id="server8" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server8"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video></div></div></div>
-        <div id="server9" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server9"><div class="spinner"></div><div>Loading Stream...</div></div><div id="jwplayer-container"></div></div></div>
-        <div id="server10" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server10"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8"></iframe></div></div>
-        <div id="server11" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server11"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe></div></div>
-        <div id="server12" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server12"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer12" playsinline webkit-playsinline></video></div></div></div>
-
-        <!-- Chat Container Under Video (Fixed in Chat Mode) -->
+        <!-- Chat Container -->
         <div class="chat-wrapper" id="chat-container">
             <div class="chat-header">
-                <button id="tab-btn-global" class="active" onclick="switchChatTab('global')">Public Chat</button>
-                <button id="tab-btn-users" onclick="switchChatTab('users')">Active Users</button>
-                <!-- Add Close Button to return to normal mode -->
+                <button id="tab-btn-global" class="active" onclick="switchChatTab('global')">Public Chat <span id="unread-global" class="unread-badge" style="display:none;">0</span></button>
+                <button id="tab-btn-users" onclick="switchChatTab('users')">Active Users <span id="unread-users" class="unread-badge" style="display:none;">0</span></button>
+                
+                <button class="chat-expand-btn" onclick="toggleChatExpand()" title="Expand/Minimize">
+                    <span id="expand-icon">⤢</span>
+                </button>
                 <button class="chat-close-btn" onclick="closeChatWindow()" title="Close Chat">&times;</button>
             </div>
             
             <!-- Global Chat -->
             <div id="chat-tab-global" class="chat-tab-content active">
                 <div class="messages-area" id="global-messages-box"></div>
+                <div class="typing-indicator" id="global-typing-indicator"></div>
                 <div class="input-area">
                     <input type="text" id="global-msg-input" placeholder="Message" onkeypress="if(event.key === 'Enter') sendGlobalMessage()">
-                    <!-- WhatsApp Style Send Icon -->
                     <button onclick="sendGlobalMessage()" title="Send">
                         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                     </button>
@@ -432,16 +361,15 @@
 
             <!-- Users List -->
             <div id="chat-tab-users" class="chat-tab-content">
-                <!-- User Counters Display Banner -->
-                <div style="background:#202c33; padding:12px; display:flex; justify-content:space-around; align-items:center; border-bottom: 1px solid #111b21; flex-shrink:0;">
+                <div style="background:#202c33; padding:10px; display:flex; justify-content:space-around; align-items:center; border-bottom: 1px solid #111b21; flex-shrink:0;">
                     <div style="text-align:center;">
-                        <div style="color:#00a884; font-size:15px; font-weight:bold;" id="registered-online-count">0</div>
-                        <div style="color:#aebac1; font-size:12px; margin-top:2px;">Registered Online</div>
+                        <div style="color:#00a884; font-size:14px; font-weight:bold;" id="registered-online-count">0</div>
+                        <div style="color:#aebac1; font-size:11px; margin-top:2px;">Registered Online</div>
                     </div>
-                    <div style="width:2px; background:#111b21; height:35px;"></div>
+                    <div style="width:1px; background:#111b21; height:30px;"></div>
                     <div style="text-align:center;">
-                        <div style="color:#00a884; font-size:15px; font-weight:bold;" id="anonymous-online-count">70</div>
-                        <div style="color:#aebac1; font-size:12px; margin-top:2px;">Anonymous Users</div>
+                        <div style="color:#00a884; font-size:14px; font-weight:bold;" id="anonymous-online-count">70</div>
+                        <div style="color:#aebac1; font-size:11px; margin-top:2px;">Anonymous Users</div>
                     </div>
                 </div>
                 <div class="messages-area" id="users-list-box" style="gap:5px;"></div>
@@ -449,14 +377,14 @@
 
             <!-- Private Chat -->
             <div id="chat-tab-private" class="chat-tab-content">
-                <div style="background:#202c33; padding:10px; display:flex; align-items:center; gap:10px; border-bottom: 1px solid #111b21;">
-                    <button onclick="switchChatTab('users')" style="background:#2a3942; border:none; padding:5px 10px; color:#d1d7db; border-radius:3px; cursor:pointer;">&larr; Back</button>
-                    <strong id="private-chat-title" style="color:#e9edef;">Chatting with...</strong>
+                <div style="background:#202c33; padding:8px 10px; display:flex; align-items:center; gap:8px; border-bottom: 1px solid #111b21;">
+                    <button onclick="switchChatTab('users')" style="background:#2a3942; border:none; padding:4px 8px; color:#d1d7db; border-radius:12px; cursor:pointer; font-size: 12px;">&larr; Back</button>
+                    <strong id="private-chat-title" style="color:#e9edef; font-size: 13px;">Chatting with...</strong>
                 </div>
                 <div class="messages-area" id="private-messages-box"></div>
+                <div class="typing-indicator" id="private-typing-indicator"></div>
                 <div class="input-area">
                     <input type="text" id="private-msg-input" placeholder="Message" onkeypress="if(event.key === 'Enter') sendPrivateMessage()">
-                    <!-- WhatsApp Style Send Icon -->
                     <button onclick="sendPrivateMessage()" title="Send">
                         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                     </button>
@@ -464,32 +392,17 @@
             </div>
         </div>
 
-        <!-- Bottom Flex Layout (Disclaimer + Sliding Image) -->
+        <!-- Bottom Layout (Just Banner Display now) -->
         <div class="bottom-layout-container">
-            <!-- Disclaimer (Left Side) -->
-            <div class="disclaimer-section">
-                <h3>Disclaimer</h3>
-                <p>This website does not host, upload, store, or control any media content on its own servers. All media content available through this website is provided by third-party sources and may be embedded or linked from publicly accessible locations on the internet.</p>
-                <p>We respect the intellectual property rights of content owners. If you believe that any content displayed through this website infringes your copyright or other legal rights, please contact the appropriate content owner, hosting provider, or source responsible for the material.</p>
-                <p>All trademarks, logos, service marks, trade names, videos, images, and other copyrighted materials belong to their respective owners. This website acts solely as an indexing and embedding platform and is not responsible for the content, availability, accuracy, or practices of any third-party sources.</p>
-                <p>By using this website, you acknowledge that all content is provided by external sources and that this website assumes no responsibility or liability for such content.</p>
-            </div>
-            
-            <!-- Image Banners Array Slide (Right Side) -->
             <div class="banner-display-container" id="banner-container-main">
-                <div class="banner-track" id="display-banner-track">
-                    <!-- Javascript will dynamically feed images here -->
-                </div>
+                <div class="banner-track" id="display-banner-track"></div>
             </div>
         </div>
-
     </div>
 
     <!-- Scripts -->
     <script>
-        // ------------------------------------
-        // Modern Toast Notification System
-        // ------------------------------------
+        // Utilities
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -498,94 +411,86 @@
             toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
             
             container.appendChild(toast);
-            
             setTimeout(() => toast.classList.add('show'), 10);
             
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
+            setTimeout(() => { 
+                toast.classList.remove('show'); 
+                setTimeout(() => toast.remove(), 300); 
             }, 3000);
         }
 
-        // ------------------------------------
-        // Draggable Floating Chat Logic
-        // ------------------------------------
+        // Draggable Floating Chat logic
         const chatBtnDrag = document.getElementById('floating-chat-btn');
         let isDraggingChat = false;
         let chatMoved = false;
         let chatOffsetX, chatOffsetY;
 
-        chatBtnDrag.addEventListener('mousedown', dragChatStart);
+        chatBtnDrag.addEventListener('mousedown', dragChatStart); 
         chatBtnDrag.addEventListener('touchstart', dragChatStart, { passive: false });
         
-        document.addEventListener('mousemove', dragChat);
+        document.addEventListener('mousemove', dragChat); 
         document.addEventListener('touchmove', dragChat, { passive: false });
         
-        document.addEventListener('mouseup', dragChatEnd);
+        document.addEventListener('mouseup', dragChatEnd); 
         document.addEventListener('touchend', dragChatEnd);
 
         function dragChatStart(e) {
-            if (e.type === 'mousedown' && e.button !== 0) return; // Only accept left click
+            if (e.type === 'mousedown' && e.button !== 0) return;
             
             const rect = chatBtnDrag.getBoundingClientRect();
             let clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
             let clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-
-            chatOffsetX = clientX - rect.left;
+            
+            chatOffsetX = clientX - rect.left; 
             chatOffsetY = clientY - rect.top;
             
-            // Allow drag to override fixed positioning dynamically
-            chatBtnDrag.style.bottom = 'auto';
+            chatBtnDrag.style.bottom = 'auto'; 
             chatBtnDrag.style.right = 'auto';
-            chatBtnDrag.style.left = rect.left + 'px';
+            chatBtnDrag.style.left = rect.left + 'px'; 
             chatBtnDrag.style.top = rect.top + 'px';
-
-            isDraggingChat = true;
+            
+            isDraggingChat = true; 
             chatMoved = false;
         }
 
         function dragChat(e) {
-            if (!isDraggingChat) return;
-            e.preventDefault(); // Prevents screen scrolling while dragging icon on mobile
+            if (!isDraggingChat) return; 
+            e.preventDefault(); 
             chatMoved = true;
             
-            let clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            let clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX; 
             let clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-
-            let x = clientX - chatOffsetX;
+            
+            let x = clientX - chatOffsetX; 
             let y = clientY - chatOffsetY;
             
-            // Keep button strictly inside window bounds
-            const maxX = window.innerWidth - chatBtnDrag.offsetWidth;
+            const maxX = window.innerWidth - chatBtnDrag.offsetWidth; 
             const maxY = window.innerHeight - chatBtnDrag.offsetHeight;
-
-            if(x < 0) x = 0;
-            if(y < 0) y = 0;
-            if(x > maxX) x = maxX;
+            
+            if(x < 0) x = 0; 
+            if(y < 0) y = 0; 
+            if(x > maxX) x = maxX; 
             if(y > maxY) y = maxY;
-
-            chatBtnDrag.style.left = x + 'px';
+            
+            chatBtnDrag.style.left = x + 'px'; 
             chatBtnDrag.style.top = y + 'px';
         }
 
-        function dragChatEnd() {
-            isDraggingChat = false;
-            setTimeout(() => { chatMoved = false; }, 50); // Little delay to prevent accidental click firing
+        function dragChatEnd() { 
+            isDraggingChat = false; 
+            setTimeout(() => { chatMoved = false; }, 50); 
         }
 
-        chatBtnDrag.addEventListener('click', (e) => {
-            if (chatMoved) {
-                e.preventDefault();
-                e.stopPropagation();
+        chatBtnDrag.addEventListener('click', (e) => { 
+            if (chatMoved) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
             } else {
-                openChatWindow(); // Opens only if it was just clicked (not dragged)
+                openChatWindow(); 
             }
         });
 
-
-        // ------------------------------------
-        // Firebase Setup & Advanced Auth Logic
-        // ------------------------------------
+        // Firebase & Advanced Auth System
         const firebaseConfig = {
           apiKey: "AIzaSyDn_l1TL9tpLKG3_e1g2U8H_V1pamfvgiU",
           authDomain: "sinthav4.firebaseapp.com",
@@ -602,96 +507,144 @@
         let currentUser = null;
         let currentUserData = null;
         let currentPrivateUserId = null;
+        let currentPrivateOtherUid = null;
+        let unreadInboxRef;
 
-        // Anonymous Users Tracking Logic
         let myAnonSessionId = "anon_" + Math.random().toString(36).substring(2, 15);
         let anonRef = firebase.database().ref(`anonymousUsers/${myAnonSessionId}`);
         let isCurrentlyLoggedIn = false;
 
         firebase.database().ref('.info/connected').on('value', snap => {
-            if(snap.val() === true) {
-                // If the user connects and is NOT logged in, add to anonymous tracking list
-                if(!isCurrentlyLoggedIn) {
-                    anonRef.onDisconnect().remove();
-                    anonRef.set(true);
-                }
+            if(snap.val() === true && !isCurrentlyLoggedIn) {
+                anonRef.onDisconnect().remove(); 
+                anonRef.set(true);
             }
         });
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                isCurrentlyLoggedIn = true;
-                // If user successfully authenticates, remove them from the anonymous users count
-                anonRef.remove();
+                isCurrentlyLoggedIn = true; 
+                anonRef.remove(); 
                 anonRef.onDisconnect().cancel();
-
                 currentUser = user;
                 
-                // Fetch User Details and verify Role
                 firebase.database().ref(`users/${user.uid}`).on('value', snap => {
-                    if(snap.exists()) {
-                        currentUserData = snap.val();
-                        isAdmin = (currentUserData.role === 'admin'); // Ensure Normal users are locked out
-                    } else {
-                        // Grandfathering: If user isn't in Realtime DB, assume it's the classic Admin
+                    if(snap.exists()) { 
+                        currentUserData = snap.val(); 
+                        isAdmin = (currentUserData.role === 'admin'); 
+                    } else { 
                         isAdmin = true; 
-                        currentUserData = { name: "Admin", role: "admin" };
+                        currentUserData = { name: "Admin", role: "admin" }; 
                     }
                 });
-
                 setupPresence(user.uid);
+                
+                // Unread Private Messages Listener
+                if(unreadInboxRef) unreadInboxRef.off();
+                unreadInboxRef = firebase.database().ref(`userInbox/${user.uid}`);
+                unreadInboxRef.on('value', snap => {
+                    const inbox = snap.val() || {}; 
+                    let totalPrivateUnread = 0;
+                    
+                    document.querySelectorAll('[id^="unread-private-"]').forEach(el => { 
+                        el.style.display = 'none'; 
+                        el.innerText = '0'; 
+                    });
+
+                    Object.keys(inbox).forEach(otherUid => {
+                        const count = inbox[otherUid].unreadCount || 0;
+                        if (count > 0) {
+                            totalPrivateUnread += count;
+                            const badge = document.getElementById(`unread-private-${otherUid}`);
+                            if (badge) { 
+                                badge.innerText = count; 
+                                badge.style.display = 'inline-block'; 
+                            }
+                        }
+                    });
+
+                    const usersBadge = document.getElementById('unread-users');
+                    if (usersBadge) { 
+                        usersBadge.innerText = totalPrivateUnread; 
+                        usersBadge.style.display = totalPrivateUnread > 0 ? 'inline-block' : 'none'; 
+                    }
+                });
+                
+                // Typing Indicator Listeners (Global)
+                firebase.database().ref('typing/global').on('value', snap => {
+                    const typists = snap.val() || {}; 
+                    delete typists[user.uid]; // Don't show myself typing
+                    
+                    const names = Object.values(typists); 
+                    const indicator = document.getElementById('global-typing-indicator');
+                    
+                    if (names.length > 0) { 
+                        indicator.innerText = names.join(', ') + (names.length > 1 ? ' are typing...' : ' is typing...'); 
+                        indicator.style.display = 'block'; 
+                    } else { 
+                        indicator.style.display = 'none'; 
+                    }
+                });
 
             } else {
                 isCurrentlyLoggedIn = false;
-                
-                // If user logs out, re-add them to anonymous users tracking list
-                firebase.database().ref('.info/connected').once('value', snap => {
-                    if(snap.val() === true) {
-                        anonRef.onDisconnect().remove();
-                        anonRef.set(true);
-                    }
+                firebase.database().ref('.info/connected').once('value', snap => { 
+                    if(snap.val() === true) { 
+                        anonRef.onDisconnect().remove(); 
+                        anonRef.set(true); 
+                    } 
                 });
-
-                isAdmin = false;
-                currentUser = null;
+                
+                isAdmin = false; 
+                currentUser = null; 
                 currentUserData = null;
+                if(unreadInboxRef) unreadInboxRef.off();
             }
         });
 
-        // ------------------------------------
-        // User & Admin Authentication
-        // ------------------------------------
-        function switchAuthView(id) {
-            document.querySelectorAll('#auth-modal .modal-box').forEach(el => el.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+        // Modals & Navigation logic
+        function switchAuthView(id) { 
+            document.querySelectorAll('#auth-modal .modal-box').forEach(el => el.classList.add('hidden')); 
+            document.getElementById(id).classList.remove('hidden'); 
         }
-
-        function closeAuthModal() {
-            document.getElementById('auth-modal').classList.add('hidden');
+        
+        function closeAuthModal() { 
+            document.getElementById('auth-modal').classList.add('hidden'); 
         }
 
         function userLogin() {
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-pass').value;
+            
             if(!email || !pass) return showToast("Please enter email and password", "error");
-
+            
             firebase.auth().signInWithEmailAndPassword(email, pass)
-                .then(() => { closeAuthModal(); openChatWindow(); showToast("Logged in successfully", "success"); })
-                .catch((error) => showToast(error.message, "error"));
+                .then(() => { 
+                    closeAuthModal(); 
+                    openChatWindow(); 
+                    showToast("Logged in successfully", "success"); 
+                })
+                .catch((e) => showToast(e.message, "error"));
         }
 
         function googleLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider).then(result => {
-                const user = result.user;
-                firebase.database().ref(`users/${user.uid}`).once('value', snap => {
-                    if(!snap.exists()) {
-                        firebase.database().ref(`users/${user.uid}`).set({
-                            uid: user.uid, name: user.displayName, email: user.email, mobile: '', isOnline: true, role: 'user'
-                        });
-                    }
-                }).then(() => { closeAuthModal(); openChatWindow(); showToast("Logged in successfully", "success");});
-            }).catch(e => showToast(e.message, "error"));
+            firebase.auth().signInWithPopup(provider)
+                .then(result => {
+                    const user = result.user;
+                    firebase.database().ref(`users/${user.uid}`).once('value', snap => {
+                        if(!snap.exists()) {
+                            firebase.database().ref(`users/${user.uid}`).set({ 
+                                uid: user.uid, name: user.displayName, email: user.email, mobile: '', isOnline: true, role: 'user' 
+                            });
+                        }
+                    }).then(() => { 
+                        closeAuthModal(); 
+                        openChatWindow(); 
+                        showToast("Logged in successfully", "success");
+                    });
+                })
+                .catch(e => showToast(e.message, "error"));
         }
 
         function userRegister() {
@@ -701,609 +654,857 @@
             const pass = document.getElementById('reg-pass').value;
             
             if(!name || !email || !pass) return showToast("Fill in required fields", "error");
-
+            
             firebase.auth().createUserWithEmailAndPassword(email, pass)
                 .then(cred => {
-                    return firebase.database().ref(`users/${cred.user.uid}`).set({
-                        uid: cred.user.uid, name: name, email: email, mobile: mobile, isOnline: true, role: 'user'
+                    return firebase.database().ref(`users/${cred.user.uid}`).set({ 
+                        uid: cred.user.uid, name: name, email: email, mobile: mobile, isOnline: true, role: 'user' 
                     });
-                }).then(() => { closeAuthModal(); openChatWindow(); showToast("Account created successfully", "success");})
+                })
+                .then(() => { 
+                    closeAuthModal(); 
+                    openChatWindow(); 
+                    showToast("Account created successfully", "success");
+                })
                 .catch(e => showToast(e.message, "error"));
         }
 
         function resetPassword() {
             const email = document.getElementById('forgot-email').value;
             if(!email) return showToast("Enter email", "error");
-            firebase.auth().sendPasswordResetEmail(email).then(() => showToast("Reset link sent!", "success")).catch(e => showToast(e.message, "error"));
+            
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(() => showToast("Reset link sent!", "success"))
+                .catch(e => showToast(e.message, "error"));
         }
 
-        function userLogout() {
+        function userLogout() { 
             firebase.auth().signOut().then(() => { 
                 closeDashboardModal(); 
-                closeChatWindow();
+                closeChatWindow(); 
                 showToast("Logged out.", "success"); 
-            });
+            }); 
         }
 
-        // Header Tap and Hold Logic -> opens Admin Panel OR Login
         let headerPressTimer;
-        let isHeaderLongPress = false;
+        let isHeaderLongPress = false; 
         const mainHeader = document.getElementById('main-header');
-
-        mainHeader.addEventListener('mousedown', startHeaderPress);
+        
+        mainHeader.addEventListener('mousedown', startHeaderPress); 
         mainHeader.addEventListener('touchstart', startHeaderPress, { passive: true });
-        mainHeader.addEventListener('mouseup', cancelHeaderPress);
-        mainHeader.addEventListener('mouseleave', cancelHeaderPress);
+        mainHeader.addEventListener('mouseup', cancelHeaderPress); 
+        mainHeader.addEventListener('mouseleave', cancelHeaderPress); 
         mainHeader.addEventListener('touchend', cancelHeaderPress);
-
-        function startHeaderPress() {
-            isHeaderLongPress = false;
-            headerPressTimer = setTimeout(() => {
-                isHeaderLongPress = true;
-                if(isAdmin) document.getElementById('admin-dashboard-modal').classList.remove('hidden');
-                else document.getElementById('auth-modal').classList.remove('hidden');
-            }, 800);
+        
+        function startHeaderPress() { 
+            isHeaderLongPress = false; 
+            headerPressTimer = setTimeout(() => { 
+                isHeaderLongPress = true; 
+                if(isAdmin) document.getElementById('admin-dashboard-modal').classList.remove('hidden'); 
+                else document.getElementById('auth-modal').classList.remove('hidden'); 
+            }, 800); 
         }
         function cancelHeaderPress() { clearTimeout(headerPressTimer); }
         function closeDashboardModal() { document.getElementById('admin-dashboard-modal').classList.add('hidden'); }
 
-        // ------------------------------------
-        // Realtime Presence System
-        // ------------------------------------
         function setupPresence(uid) {
             const userStatusRef = firebase.database().ref(`users/${uid}/isOnline`);
-            firebase.database().ref('.info/connected').on('value', snap => {
-                if(snap.val() === true) {
-                    userStatusRef.onDisconnect().set(false);
-                    userStatusRef.set(true);
-                }
+            firebase.database().ref('.info/connected').on('value', snap => { 
+                if(snap.val() === true) { 
+                    userStatusRef.onDisconnect().set(false); 
+                    userStatusRef.set(true); 
+                } 
             });
         }
 
-        // ------------------------------------
-        // Chat Section & Fixed Layout Logic
-        // ------------------------------------
+        // ==========================================
+        // Chat Section & Expanded Floating Logic
+        // ==========================================
+        let isChatExpanded = false;
+
         function openChatWindow() {
-            if (!currentUser) {
-                switchAuthView('form-login');
-                document.getElementById('auth-modal').classList.remove('hidden');
-                return;
+            if (!currentUser) { 
+                switchAuthView('form-login'); 
+                document.getElementById('auth-modal').classList.remove('hidden'); 
+                return; 
             }
-            // Add Fixed Layout Classes
             document.body.classList.add('chat-active-mode');
             document.getElementById('chat-container').classList.add('active');
             
-            switchChatTab('global');
-            initGlobalChatListener();
+            switchChatTab('global'); 
+            initGlobalChatListener(); 
             initUserListListener();
         }
 
         function closeChatWindow() {
-            // Remove Fixed Layout Classes
-            document.body.classList.remove('chat-active-mode');
+            document.body.classList.remove('chat-active-mode'); 
             document.getElementById('chat-container').classList.remove('active');
             
-            // Scroll back to top just in case
+            if(isChatExpanded) toggleChatExpand();
             window.scrollTo(0, 0);
+        }
+
+        function toggleChatExpand() {
+            isChatExpanded = !isChatExpanded;
+            const expandIcon = document.getElementById('expand-icon');
+            
+            if (isChatExpanded) {
+                document.body.classList.add('chat-expanded-mode');
+                expandIcon.innerHTML = '⤡'; // Minimize icon
+                
+                const activeTab = document.querySelector('.server-tab.active');
+                if (activeTab) {
+                    activeTab.style.left = (window.innerWidth - 300) + 'px';
+                    activeTab.style.top = (window.innerHeight - 200) + 'px';
+                    activeTab.style.bottom = 'auto'; 
+                    activeTab.style.right = 'auto';
+                }
+            } else {
+                document.body.classList.remove('chat-expanded-mode');
+                expandIcon.innerHTML = '⤢'; // Expand icon
+                
+                document.querySelectorAll('.server-tab').forEach(tab => { 
+                    tab.style.left = ''; 
+                    tab.style.top = ''; 
+                    tab.style.bottom = ''; 
+                    tab.style.right = ''; 
+                });
+            }
+        }
+
+        // Video Expand Floating Drag Logic
+        let isVideoExpandedDragging = false;
+        let videoExpandedOffsetX, videoExpandedOffsetY;
+        
+        document.addEventListener('mousedown', startVideoExpandedDrag); 
+        document.addEventListener('touchstart', startVideoExpandedDrag, { passive: false });
+        document.addEventListener('mousemove', doVideoExpandedDrag); 
+        document.addEventListener('touchmove', doVideoExpandedDrag, { passive: false });
+        document.addEventListener('mouseup', endVideoExpandedDrag); 
+        document.addEventListener('touchend', endVideoExpandedDrag);
+
+        function startVideoExpandedDrag(e) {
+            if (!document.body.classList.contains('chat-expanded-mode')) return;
+            const handle = e.target.closest('.video-drag-handle'); 
+            if (!handle) return;
+            
+            isVideoExpandedDragging = true;
+            const activeTab = document.querySelector('.server-tab.active'); 
+            const rect = activeTab.getBoundingClientRect();
+            
+            let clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX; 
+            let clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            
+            videoExpandedOffsetX = clientX - rect.left; 
+            videoExpandedOffsetY = clientY - rect.top;
+            
+            activeTab.style.bottom = 'auto'; 
+            activeTab.style.right = 'auto'; 
+            activeTab.style.left = rect.left + 'px'; 
+            activeTab.style.top = rect.top + 'px';
+        }
+
+        function doVideoExpandedDrag(e) {
+            if (!isVideoExpandedDragging) return; 
+            e.preventDefault();
+            
+            let clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX; 
+            let clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+            
+            let x = clientX - videoExpandedOffsetX; 
+            let y = clientY - videoExpandedOffsetY;
+            
+            const activeTab = document.querySelector('.server-tab.active');
+            const maxX = window.innerWidth - activeTab.offsetWidth; 
+            const maxY = window.innerHeight - activeTab.offsetHeight;
+            
+            if(x < 0) x = 0; 
+            if(y < 0) y = 0; 
+            if(x > maxX) x = maxX; 
+            if(y > maxY) y = maxY;
+            
+            activeTab.style.left = x + 'px'; 
+            activeTab.style.top = y + 'px';
+        }
+        
+        function endVideoExpandedDrag() { 
+            isVideoExpandedDragging = false; 
+        }
+
+        // Window resize boundary fix for floating video
+        window.addEventListener('resize', () => {
+            if (isChatExpanded) {
+                const activeTab = document.querySelector('.server-tab.active');
+                if (activeTab && activeTab.style.left) {
+                    let left = parseInt(activeTab.style.left); 
+                    let top = parseInt(activeTab.style.top);
+                    if (left > window.innerWidth) activeTab.style.left = (window.innerWidth - activeTab.offsetWidth) + 'px';
+                    if (top > window.innerHeight) activeTab.style.top = (window.innerHeight - activeTab.offsetHeight) + 'px';
+                }
+            }
+        });
+
+        // Unread Count Logic Global
+        let highestSeenGlobal = parseInt(localStorage.getItem('highestSeenGlobal') || "0");
+        let isInitialGlobalLoad = true;
+        let globalUnreadCount = 0;
+
+        function updateGlobalBadge() {
+            const b = document.getElementById('unread-global');
+            if (b) { 
+                b.innerText = globalUnreadCount; 
+                b.style.display = globalUnreadCount > 0 ? 'inline-block' : 'none'; 
+            }
         }
 
         function switchChatTab(tab) {
             document.querySelectorAll('.chat-tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`chat-tab-${tab}`).classList.add('active');
             
-            document.querySelectorAll('.chat-header button:not(.chat-close-btn)').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.chat-header button:not(.chat-close-btn):not(.chat-expand-btn)').forEach(b => b.classList.remove('active'));
             if(tab === 'global' || tab === 'users') document.getElementById(`tab-btn-${tab}`).classList.add('active');
+            
+            if (tab === 'global') {
+                globalUnreadCount = 0;
+                localStorage.setItem('highestSeenGlobal', highestSeenGlobal);
+                updateGlobalBadge();
+                const box = document.getElementById('global-messages-box'); 
+                box.scrollTop = box.scrollHeight;
+            }
         }
+
+        // Context Menu Variables & Logic
+        let targetMsgKey = null;
+        let targetMsgGlobal = true;
+        let targetMsgText = "";
+        window.msgPressTimer = null;
+        
+        window.startMsgPress = function(e, key, isGlobal, isSelf, currentText, isDeleted) {
+            if (e.type === 'mousedown' && e.button !== 0) return;
+            window.msgPressTimer = setTimeout(() => { 
+                showMsgContextMenu(key, isGlobal, isSelf, currentText, isDeleted); 
+            }, 600);
+        };
+        
+        window.cancelMsgPress = function() { 
+            clearTimeout(window.msgPressTimer); 
+        };
+
+        function showMsgContextMenu(key, isGlobal, isSelf, currentText, isDeleted) {
+            if (isDeleted) return; 
+            
+            targetMsgKey = key; 
+            targetMsgGlobal = isGlobal; 
+            targetMsgText = currentText;
+            
+            document.getElementById('btn-edit-msg').classList.toggle('hidden', !isSelf);
+            document.getElementById('btn-delete-everyone').classList.toggle('hidden', !isSelf);
+            
+            document.getElementById('msg-action-modal').classList.remove('hidden');
+        }
+
+        function closeMsgActionModal() { 
+            document.getElementById('msg-action-modal').classList.add('hidden'); 
+        }
+
+        function getMsgRef() { 
+            return targetMsgGlobal 
+                ? firebase.database().ref(`globalChat/${targetMsgKey}`) 
+                : firebase.database().ref(`privateChats/${currentPrivateUserId}/${targetMsgKey}`); 
+        }
+        
+        function deleteMessageEveryone() { 
+            getMsgRef().update({ isDeleted: true, text: "This message was deleted" }); 
+            closeMsgActionModal(); 
+        }
+
+        function deleteMessageMe() {
+            let deleted = JSON.parse(localStorage.getItem('deletedMsgs') || "[]"); 
+            deleted.push(targetMsgKey); 
+            localStorage.setItem('deletedMsgs', JSON.stringify(deleted));
+            
+            closeMsgActionModal();
+            
+            if (targetMsgGlobal) {
+                initGlobalChatListener(); // force refetch from cache
+            } else {
+                openPrivateChat(currentPrivateOtherUid, document.getElementById('private-chat-title').innerText.replace('Chat with ', ''));
+            }
+        }
+
+        function isDeletedForMe(key) { 
+            let deleted = JSON.parse(localStorage.getItem('deletedMsgs') || "[]"); 
+            return deleted.includes(key); 
+        }
+        
+        function editMessage() { 
+            closeMsgActionModal(); 
+            document.getElementById('edit-msg-input').value = targetMsgText; 
+            document.getElementById('msg-edit-modal').classList.remove('hidden'); 
+        }
+
+        function closeMsgEditModal() { 
+            document.getElementById('msg-edit-modal').classList.add('hidden'); 
+        }
+
+        function saveEditedMessage() {
+            const newText = document.getElementById('edit-msg-input').value.trim();
+            if (newText) {
+                getMsgRef().update({ text: newText, isEdited: true });
+            }
+            closeMsgEditModal();
+        }
+
+        // Listeners for typing
+        const globalInput = document.getElementById('global-msg-input'); 
+        let globalTypingTimer;
+        
+        globalInput.addEventListener('input', () => {
+            if (!currentUser) return;
+            firebase.database().ref(`typing/global/${currentUser.uid}`).set(currentUserData ? currentUserData.name : 'User');
+            
+            clearTimeout(globalTypingTimer); 
+            globalTypingTimer = setTimeout(() => { 
+                firebase.database().ref(`typing/global/${currentUser.uid}`).remove(); 
+            }, 2000);
+        });
 
         function initGlobalChatListener() {
             firebase.database().ref('globalChat').limitToLast(100).on('value', snap => {
-                const msgs = snap.val() || {};
-                const box = document.getElementById('global-messages-box');
+                const msgs = snap.val() || {}; 
+                const box = document.getElementById('global-messages-box'); 
                 box.innerHTML = '';
-                Object.values(msgs).forEach(m => {
+                
+                let newUnread = 0; 
+                const currentTab = document.querySelector('.chat-tab-content.active');
+                const isGlobalActive = currentTab && currentTab.id === 'chat-tab-global' && document.getElementById('chat-container').classList.contains('active');
+                
+                let highestMsgTime = 0;
+                Object.entries(msgs).forEach(([key, m]) => { 
+                    if (m.timestamp > highestMsgTime) highestMsgTime = m.timestamp; 
+                });
+                
+                if (isInitialGlobalLoad) { 
+                    highestSeenGlobal = Math.max(highestSeenGlobal, highestMsgTime); 
+                    isInitialGlobalLoad = false; 
+                }
+
+                Object.entries(msgs).forEach(([key, m]) => {
+                    if (isDeletedForMe(key)) return;
+                    
+                    if (m.timestamp > highestSeenGlobal && m.uid !== currentUser.uid) { 
+                        if (!isGlobalActive) newUnread++; 
+                    }
+                    
                     const isSelf = m.uid === currentUser.uid;
+                    const textEscaped = (m.text||'').replace(/[\r\n]+/g, " ").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    
+                    const startEvt = `window.startMsgPress(event, '${key}', true, ${isSelf}, '${textEscaped}', ${m.isDeleted || false})`; 
+                    const endEvt = `window.cancelMsgPress()`;
+
                     box.innerHTML += `
-                        <div class="msg-bubble ${isSelf ? 'msg-self' : 'msg-other'}">
-                            ${!isSelf ? `<div class="msg-sender">${m.name}</div>` : ''}
-                            <div>${m.text}</div>
+                        <div class="msg-bubble ${isSelf ? 'msg-self' : 'msg-other'} ${m.isDeleted ? 'msg-deleted' : ''}" 
+                             onmousedown="${startEvt}" ontouchstart="${startEvt}" onmouseup="${endEvt}" onmouseleave="${endEvt}" ontouchend="${endEvt}" oncontextmenu="event.preventDefault();">
+                            ${!isSelf ? `<div class="msg-sender">${m.name || 'User'}</div>` : ''}
+                            <div class="msg-text">${m.isDeleted ? '<i>This message was deleted</i>' : m.text} ${m.isEdited && !m.isDeleted ? '<span style="font-size:10px; opacity:0.7;">(edited)</span>' : ''}</div>
+                            <div class="msg-meta" style="font-size:9.5px; opacity:0.7; text-align:right; margin-top:4px;">
+                                ${m.timestamp ? new Date(m.timestamp).toLocaleString('en-IN', { hour: 'numeric', minute: 'numeric', day: '2-digit', month: 'short' }) : ''}
+                            </div>
                         </div>
                     `;
                 });
+                
+                if (isGlobalActive) { 
+                    highestSeenGlobal = Math.max(highestSeenGlobal, highestMsgTime); 
+                    localStorage.setItem('highestSeenGlobal', highestSeenGlobal); 
+                    globalUnreadCount = 0; 
+                } else { 
+                    globalUnreadCount = newUnread; 
+                }
+                
+                updateGlobalBadge(); 
                 box.scrollTop = box.scrollHeight;
             });
         }
 
         function sendGlobalMessage() {
-            const input = document.getElementById('global-msg-input');
+            const input = document.getElementById('global-msg-input'); 
             if(!input.value.trim()) return;
-            firebase.database().ref('globalChat').push({
-                uid: currentUser.uid, name: currentUserData.name || 'User', text: input.value.trim(), timestamp: firebase.database.ServerValue.TIMESTAMP
+            
+            firebase.database().ref('globalChat').push({ 
+                uid: currentUser.uid, 
+                name: currentUserData ? currentUserData.name : 'User', 
+                text: input.value.trim(), 
+                timestamp: firebase.database.ServerValue.TIMESTAMP 
             });
-            input.value = '';
+            
+            input.value = ''; 
+            firebase.database().ref(`typing/global/${currentUser.uid}`).remove(); 
+            clearTimeout(globalTypingTimer);
         }
 
-        // ------------------------------------
-        // Anonymous User Count Dynamic Logic
-        // ------------------------------------
+        // Anon Tracking
         let actualAnonConnections = 0;
         let baseAnonCount = 0;
         let anonIntervalSet = false;
 
-        function updateAnonDisplay() {
-            const displayAnonCount = baseAnonCount + actualAnonConnections;
-            const anonCountEl = document.getElementById('anonymous-online-count');
-            if (anonCountEl) {
-                anonCountEl.innerText = displayAnonCount;
-            }
+        function updateAnonDisplay() { 
+            const el = document.getElementById('anonymous-online-count'); 
+            if (el) el.innerText = baseAnonCount + actualAnonConnections; 
         }
 
         function refreshBaseAnonCount() {
-            const now = new Date();
-            const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-            const hour = istTime.getHours();
-
-            let targetMin = 5;
-            let targetMax = 100;
-
-            // Determine targets based on current time (10 PM to 3 AM gets higher limits)
-            if (hour >= 22 || hour < 3) {
-                targetMin = 200;
-                targetMax = 400;
-            } else {
-                targetMin = 5;
-                targetMax = 100;
-            }
-
-            // Initialize randomly on first load within the proper limits
+            const hour = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})).getHours();
+            let targetMin = (hour >= 22 || hour < 3) ? 200 : 5; 
+            let targetMax = (hour >= 22 || hour < 3) ? 400 : 100;
+            
             if (baseAnonCount === 0) {
                 baseAnonCount = Math.floor(Math.random() * (targetMax - targetMin + 1)) + targetMin;
             } else {
-                // Determine step (realistic fluctuation: increase or decrease slowly by 0 to 3)
-                let step = Math.floor(Math.random() * 7) - 3; // Generates: -3, -2, -1, 0, 1, 2, 3
-
-                // Force a smooth larger step towards the boundaries if out of bounds (due to time passing)
-                if (baseAnonCount < targetMin) {
-                    step = Math.floor(Math.random() * 6) + 3; // +3 to +8 for a smoother quick climb
-                } else if (baseAnonCount > targetMax) {
-                    step = -(Math.floor(Math.random() * 6) + 3); // -3 to -8 for a smoother quick drop
-                }
-
+                let step = Math.floor(Math.random() * 7) - 3;
+                if (baseAnonCount < targetMin) step = Math.floor(Math.random() * 6) + 3;
+                else if (baseAnonCount > targetMax) step = -(Math.floor(Math.random() * 6) + 3);
+                
                 baseAnonCount += step;
-
-                // Clamp strictly if normal fluctuation steps over bounds
+                
                 if (baseAnonCount < targetMin && step <= 3 && step >= -3) baseAnonCount = targetMin;
                 if (baseAnonCount > targetMax && step <= 3 && step >= -3) baseAnonCount = targetMax;
             }
-
             updateAnonDisplay();
         }
 
         function initUserListListener() {
-            // Listen to logged-in/registered Users Count & Generate Users list
             firebase.database().ref('users').on('value', snap => {
-                const users = snap.val() || {};
-                const box = document.getElementById('users-list-box');
+                const users = snap.val() || {}; 
+                const box = document.getElementById('users-list-box'); 
                 box.innerHTML = '';
                 
-                // Track online registered users
-                let onlineRegisteredCount = 0;
-                Object.values(users).forEach(u => {
-                    if (u.isOnline) onlineRegisteredCount++;
-                });
-
-                const regCountEl = document.getElementById('registered-online-count');
+                let onlineRegisteredCount = 0; 
+                Object.values(users).forEach(u => { if (u.isOnline) onlineRegisteredCount++; });
+                
+                const regCountEl = document.getElementById('registered-online-count'); 
                 if(regCountEl) regCountEl.innerText = onlineRegisteredCount;
 
-                // Sort Online first for listing
                 const usersArray = Object.values(users).filter(u => u.uid !== currentUser.uid);
                 usersArray.sort((a, b) => (b.isOnline ? 1 : 0) - (a.isOnline ? 1 : 0));
                 
                 usersArray.forEach(u => {
                     box.innerHTML += `
                         <div class="user-list-item" onclick="openPrivateChat('${u.uid}', '${u.name}')">
-                            <span style="font-weight:bold;">${u.name}</span>
-                            <div class="user-status">
-                                ${u.isOnline ? 'Online' : 'Offline'}
-                                <div class="dot ${u.isOnline ? 'dot-live' : 'dot-offline'}"></div>
+                            <div>
+                                <span style="font-weight:bold; font-size:13px;">${u.name}</span>
+                                <span class="unread-badge" id="unread-private-${u.uid}" style="display:none;">0</span>
                             </div>
+                            <div class="user-status">${u.isOnline ? 'Online' : 'Offline'}<div class="dot ${u.isOnline ? 'dot-live' : 'dot-offline'}"></div></div>
                         </div>
                     `;
                 });
             });
-
-            // Listen to Anonymous Users Tracking Count
+            
             firebase.database().ref('anonymousUsers').on('value', snap => {
-                const anonUsers = snap.val() || {};
-                actualAnonConnections = Object.keys(anonUsers).length;
-                
-                if (baseAnonCount === 0) {
-                    refreshBaseAnonCount();
-                } else {
-                    updateAnonDisplay();
-                }
+                actualAnonConnections = Object.keys(snap.val() || {}).length;
+                if (baseAnonCount === 0) refreshBaseAnonCount(); else updateAnonDisplay();
             });
-
-            // Start the realistic interval changing numbers every 2 seconds gradually
-            if (!anonIntervalSet) {
-                anonIntervalSet = true;
+            
+            if (!anonIntervalSet) { 
+                anonIntervalSet = true; 
                 setInterval(refreshBaseAnonCount, 2000); 
             }
         }
 
-        let privateChatRef;
+        let privateChatRef, privateTypingRef;
+        const privateInput = document.getElementById('private-msg-input'); 
+        let privateTypingTimer;
+        
+        privateInput.addEventListener('input', () => {
+            if(!currentPrivateOtherUid || !currentUser) return;
+            
+            firebase.database().ref(`typing/private/${currentPrivateOtherUid}/${currentUser.uid}`).set(true);
+            
+            clearTimeout(privateTypingTimer); 
+            privateTypingTimer = setTimeout(() => { 
+                firebase.database().ref(`typing/private/${currentPrivateOtherUid}/${currentUser.uid}`).remove(); 
+            }, 2000);
+        });
+
         function openPrivateChat(otherUid, otherName) {
+            currentPrivateOtherUid = otherUid; 
             currentPrivateUserId = currentUser.uid < otherUid ? `${currentUser.uid}_${otherUid}` : `${otherUid}_${currentUser.uid}`;
-            document.getElementById('private-chat-title').innerText = `Chat with ${otherName}`;
+            
+            document.getElementById('private-chat-title').innerText = `Chat with ${otherName}`; 
             switchChatTab('private');
+            
+            firebase.database().ref(`userInbox/${currentUser.uid}/${otherUid}/unreadCount`).set(0);
             
             if(privateChatRef) privateChatRef.off();
             privateChatRef = firebase.database().ref(`privateChats/${currentPrivateUserId}`).limitToLast(100);
             
             privateChatRef.on('value', snap => {
-                const msgs = snap.val() || {};
-                const box = document.getElementById('private-messages-box');
+                const msgs = snap.val() || {}; 
+                const box = document.getElementById('private-messages-box'); 
                 box.innerHTML = '';
-                Object.values(msgs).forEach(m => {
+                
+                Object.entries(msgs).forEach(([key, m]) => {
+                    if (isDeletedForMe(key)) return;
+                    
                     const isSelf = m.uid === currentUser.uid;
+                    const textEscaped = (m.text||'').replace(/[\r\n]+/g, " ").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    
+                    const startEvt = `window.startMsgPress(event, '${key}', false, ${isSelf}, '${textEscaped}', ${m.isDeleted || false})`; 
+                    const endEvt = `window.cancelMsgPress()`;
+
                     box.innerHTML += `
-                        <div class="msg-bubble ${isSelf ? 'msg-self' : 'msg-other'}">
-                            <div>${m.text}</div>
+                        <div class="msg-bubble ${isSelf ? 'msg-self' : 'msg-other'} ${m.isDeleted ? 'msg-deleted' : ''}" 
+                             onmousedown="${startEvt}" ontouchstart="${startEvt}" onmouseup="${endEvt}" onmouseleave="${endEvt}" ontouchend="${endEvt}" oncontextmenu="event.preventDefault();">
+                            <div class="msg-text">${m.isDeleted ? '<i>This message was deleted</i>' : m.text} ${m.isEdited && !m.isDeleted ? '<span style="font-size:10px; opacity:0.7;">(edited)</span>' : ''}</div>
+                            <div class="msg-meta" style="font-size:9.5px; opacity:0.7; text-align:right; margin-top:4px;">
+                                ${m.timestamp ? new Date(m.timestamp).toLocaleString('en-IN', { hour: 'numeric', minute: 'numeric', day: '2-digit', month: 'short' }) : ''}
+                            </div>
                         </div>
                     `;
                 });
+                
                 box.scrollTop = box.scrollHeight;
+                
+                if (document.getElementById('chat-tab-private').classList.contains('active') && document.getElementById('chat-container').classList.contains('active')) {
+                    firebase.database().ref(`userInbox/${currentUser.uid}/${currentPrivateOtherUid}/unreadCount`).set(0);
+                }
+            });
+            
+            if(privateTypingRef) privateTypingRef.off();
+            privateTypingRef = firebase.database().ref(`typing/private/${currentUser.uid}/${otherUid}`);
+            
+            privateTypingRef.on('value', snap => {
+                const indicator = document.getElementById('private-typing-indicator');
+                if (snap.val()) { 
+                    indicator.innerText = `${otherName} is typing...`; 
+                    indicator.style.display = 'block'; 
+                } else { 
+                    indicator.style.display = 'none'; 
+                }
             });
         }
 
         function sendPrivateMessage() {
-            const input = document.getElementById('private-msg-input');
+            const input = document.getElementById('private-msg-input'); 
             if(!input.value.trim() || !currentPrivateUserId) return;
-            firebase.database().ref(`privateChats/${currentPrivateUserId}`).push({
-                uid: currentUser.uid, text: input.value.trim(), timestamp: firebase.database.ServerValue.TIMESTAMP
+            
+            firebase.database().ref(`privateChats/${currentPrivateUserId}`).push({ 
+                uid: currentUser.uid, 
+                text: input.value.trim(), 
+                timestamp: firebase.database.ServerValue.TIMESTAMP 
             });
-            input.value = '';
+            
+            firebase.database().ref(`userInbox/${currentPrivateOtherUid}/${currentUser.uid}/unreadCount`).set(firebase.database.ServerValue.increment(1));
+            
+            input.value = ''; 
+            firebase.database().ref(`typing/private/${currentPrivateOtherUid}/${currentUser.uid}`).remove(); 
+            clearTimeout(privateTypingTimer);
         }
 
-
-        // ------------------------------------
-        // Admin Config Actions (Marquee, Images, Menus)
-        // ------------------------------------
-        function updateMarquee() {
-            const text = document.getElementById('admin-marquee-input').value;
-            const speed = document.getElementById('admin-marquee-speed').value || 15;
-            firebase.database().ref('adminConfig/marquee').set({ text: text, speed: speed }).then(() => showToast("Saved!", "success"));
+        // Admin Config Operations
+        function updateMarquee() { 
+            const text = document.getElementById('admin-marquee-input').value; 
+            const speed = document.getElementById('admin-marquee-speed').value || 15; 
+            firebase.database().ref('adminConfig/marquee').set({ text: text, speed: speed }).then(() => showToast("Saved!", "success")); 
         }
 
-        function removeMarquee() {
-            firebase.database().ref('adminConfig/marquee').remove().then(() => { document.getElementById('admin-marquee-input').value = ""; showToast("Removed!", "success"); });
+        function removeMarquee() { 
+            firebase.database().ref('adminConfig/marquee').remove().then(() => { 
+                document.getElementById('admin-marquee-input').value = ""; showToast("Removed!", "success"); 
+            }); 
         }
 
-        function uploadBannerImage(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                firebase.database().ref('adminConfig/bannerImages').push(ev.target.result)
-                    .then(() => showToast("Image Uploaded!", "success"));
-            };
-            reader.readAsDataURL(file);
+        function uploadBannerImage(e) { 
+            const file = e.target.files[0]; 
+            if (!file) return; 
+            const reader = new FileReader(); 
+            reader.onload = function(ev) { 
+                firebase.database().ref('adminConfig/bannerImages').push(ev.target.result).then(() => showToast("Image Uploaded!", "success")); 
+            }; 
+            reader.readAsDataURL(file); 
         }
 
-        function removeBannerImage(key) {
-            firebase.database().ref(`adminConfig/bannerImages/${key}`).remove();
+        function removeBannerImage(key) { 
+            firebase.database().ref(`adminConfig/bannerImages/${key}`).remove(); 
         }
 
-        function toggleNavVisibility(serverId, checked) {
-            // true = hidden
-            firebase.database().ref(`adminConfig/hiddenServers/${serverId}`).set(!checked);
+        function toggleNavVisibility(serverId, checked) { 
+            firebase.database().ref(`adminConfig/hiddenServers/${serverId}`).set(!checked); 
         }
 
-        function renderNavToggles(hiddenData) {
-            const container = document.getElementById('admin-nav-toggles');
-            container.innerHTML = '';
-            for(let i=1; i<=12; i++) {
-                const isHidden = hiddenData[`server${i}`];
-                container.innerHTML += `
-                    <label style="display:flex; align-items:center; gap:5px; background:#222; padding:5px 10px; border-radius:4px; cursor:pointer;">
-                        <input type="checkbox" onchange="toggleNavVisibility('server${i}', this.checked)" ${isHidden ? '' : 'checked'}> Server ${i}
-                    </label>
-                `;
-            }
+        function renderNavToggles(hiddenData) { 
+            const container = document.getElementById('admin-nav-toggles'); 
+            container.innerHTML = ''; 
+            for(let i=1; i<=12; i++) { 
+                const isHidden = hiddenData[`server${i}`]; 
+                container.innerHTML += `<label style="display:flex; align-items:center; gap:5px; background:#222; padding:5px 10px; border-radius:4px; cursor:pointer;"><input type="checkbox" onchange="toggleNavVisibility('server${i}', this.checked)" ${isHidden ? '' : 'checked'}> Server ${i}</label>`; 
+            } 
         }
 
-        // Live Config Listeners
         firebase.database().ref('adminConfig').on('value', (snapshot) => {
             const data = snapshot.val() || {};
             
-            // 1. Marquee Logic
-            const mData = data.marquee || {};
-            const mWrapper = document.getElementById('display-marquee-wrapper');
+            // Marquee
+            const mData = data.marquee || {}; 
+            const mWrapper = document.getElementById('display-marquee-wrapper'); 
             const mText = document.getElementById('display-marquee-text');
-            if (mData.text && mData.text.trim() !== "") {
-                mText.innerText = mData.text;
-                mText.style.animationDuration = (mData.speed || 15) + 's';
-                mWrapper.classList.add('active');
-                if(document.getElementById('admin-marquee-input')) {
-                    document.getElementById('admin-marquee-input').value = mData.text;
-                    document.getElementById('admin-marquee-speed').value = mData.speed || 15;
-                }
-            } else {
-                mWrapper.classList.remove('active');
+            if (mData.text && mData.text.trim() !== "") { 
+                mText.innerText = mData.text; 
+                mText.style.animationDuration = (mData.speed || 15) + 's'; 
+                mWrapper.classList.add('active'); 
+                if(document.getElementById('admin-marquee-input')) { 
+                    document.getElementById('admin-marquee-input').value = mData.text; 
+                    document.getElementById('admin-marquee-speed').value = mData.speed || 15; 
+                } 
+            } else { 
+                mWrapper.classList.remove('active'); 
             }
 
-            // 2. Banner Images Array Logic (Flip Slider)
-            const images = data.bannerImages || {};
-            const displayTrack = document.getElementById('display-banner-track');
-            const adminList = document.getElementById('admin-banner-preview-list');
+            // Banner
+            const images = data.bannerImages || {}; 
+            const displayTrack = document.getElementById('display-banner-track'); 
+            const adminList = document.getElementById('admin-banner-preview-list'); 
             const bannerContainerMain = document.getElementById('banner-container-main');
-            
-            let adminHtml = '';
-            let pubHtml = '';
+            let adminHtml = ''; 
+            let pubHtml = ''; 
             const imgKeys = Object.keys(images);
-
-            // Clear previous interval if active
-            if (window.bannerSlideInterval) {
-                clearInterval(window.bannerSlideInterval);
-            }
-
-            if(imgKeys.length > 0) {
-                imgKeys.forEach((k, idx) => {
-                    adminHtml += `
-                        <div style="position:relative; flex-shrink:0;">
-                            <img src="${images[k]}" style="height:60px; border-radius:4px;">
-                            <span onclick="removeBannerImage('${k}')" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; cursor:pointer; width:20px; height:20px; text-align:center; font-size:14px; line-height:18px;">&times;</span>
-                        </div>
-                    `;
-                    
-                    // Single image logic (static) vs Multi image logic (flip classes)
-                    if (imgKeys.length === 1) {
-                        pubHtml += `<img src="${images[k]}" class="animated-banner-img static-single">`;
-                    } else {
-                        const activeClass = idx === 0 ? 'active' : '';
-                        pubHtml += `<img src="${images[k]}" class="animated-banner-img ${activeClass}">`;
-                    }
-                });
-                
-                if (bannerContainerMain) bannerContainerMain.style.display = 'flex';
-            } else {
-                if (bannerContainerMain) bannerContainerMain.style.display = 'none';
-            }
             
-            if(adminList) adminList.innerHTML = adminHtml;
+            if (window.bannerSlideInterval) clearInterval(window.bannerSlideInterval);
+            
+            if(imgKeys.length > 0) {
+                imgKeys.forEach((k, idx) => { 
+                    adminHtml += `<div style="position:relative; flex-shrink:0;"><img src="${images[k]}" style="height:60px; border-radius:4px;"><span onclick="removeBannerImage('${k}')" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; cursor:pointer; width:20px; height:20px; text-align:center; font-size:14px; line-height:18px;">&times;</span></div>`; 
+                    if (imgKeys.length === 1) { 
+                        pubHtml += `<img src="${images[k]}" class="animated-banner-img static-single">`; 
+                    } else { 
+                        pubHtml += `<img src="${images[k]}" class="animated-banner-img ${idx === 0 ? 'active' : ''}">`; 
+                    } 
+                });
+                if (bannerContainerMain) bannerContainerMain.style.display = 'flex';
+            } else { 
+                if (bannerContainerMain) bannerContainerMain.style.display = 'none'; 
+            }
+            if(adminList) adminList.innerHTML = adminHtml; 
             if(displayTrack) displayTrack.innerHTML = pubHtml;
 
-            // Start Flip Slider Interval if more than 1 image
-            if(imgKeys.length > 1) {
-                let currentIndex = 0;
-                window.bannerSlideInterval = setInterval(() => {
-                    const slides = document.querySelectorAll('#display-banner-track .animated-banner-img');
-                    if(slides.length <= 1) return;
-                    
-                    const prevIndex = currentIndex;
-                    currentIndex = (currentIndex + 1) % slides.length;
-                    
-                    slides.forEach((slide, idx) => {
-                        slide.classList.remove('active', 'exit');
-                        if (idx === currentIndex) {
-                            slide.classList.add('active');
-                        } else if (idx === prevIndex) {
-                            slide.classList.add('exit');
-                        }
-                    });
-                }, 3500); // Flips every 3.5 seconds
+            if(imgKeys.length > 1) { 
+                let currentIndex = 0; 
+                window.bannerSlideInterval = setInterval(() => { 
+                    const slides = document.querySelectorAll('#display-banner-track .animated-banner-img'); 
+                    if(slides.length <= 1) return; 
+                    const prevIndex = currentIndex; 
+                    currentIndex = (currentIndex + 1) % slides.length; 
+                    slides.forEach((slide, idx) => { 
+                        slide.classList.remove('active', 'exit'); 
+                        if (idx === currentIndex) { slide.classList.add('active'); } 
+                        else if (idx === prevIndex) { slide.classList.add('exit'); } 
+                    }); 
+                }, 3500); 
             }
 
-            // 3. Menus Visibility Logic
+            // Server Navigation
             const hiddenServers = data.hiddenServers || {};
-            for(let i=1; i<=12; i++) {
-                const btn = document.querySelector(`button[data-server="server${i}"]`);
-                if(btn) btn.style.display = hiddenServers[`server${i}`] ? 'none' : 'inline-flex';
+            for(let i=1; i<=12; i++) { 
+                const btn = document.querySelector(`button[data-server="server${i}"]`); 
+                if(btn) btn.style.display = hiddenServers[`server${i}`] ? 'none' : 'inline-flex'; 
             }
             if(isAdmin) renderNavToggles(hiddenServers);
         });
 
-        // Live Server Status
         firebase.database().ref('serverStatus').on('value', (snapshot) => {
             const data = snapshot.val() || {};
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                const sId = btn.getAttribute('data-server');
-                const statusSpan = btn.querySelector('.status-indicator');
-                
-                if (data[sId] === 'offline') {
-                    statusSpan.innerHTML = `<span class="status-text" style="color:#ff4d4d;">Offline</span><span class="status-dot dot-offline"></span>`;
-                } else if (data[sId] === 'live') {
-                    statusSpan.innerHTML = `<span class="status-text" style="color:#00ff00;">Live</span><span class="status-dot dot-live"></span>`;
-                } else {
-                    statusSpan.innerHTML = '';
-                }
+            document.querySelectorAll('.nav-btn').forEach(btn => { 
+                const sId = btn.getAttribute('data-server'); 
+                const statusSpan = btn.querySelector('.status-indicator'); 
+                if (data[sId] === 'offline') { 
+                    statusSpan.innerHTML = `<span class="status-text" style="color:#ff4d4d;">Offline</span><span class="status-dot dot-offline"></span>`; 
+                } else if (data[sId] === 'live') { 
+                    statusSpan.innerHTML = `<span class="status-text" style="color:#00ff00;">Live</span><span class="status-dot dot-live"></span>`; 
+                } else { 
+                    statusSpan.innerHTML = ''; 
+                } 
             });
         });
 
-        // ------------------------------------
-        // Nav Tap and Hold Logic (Admin Menu)
-        // ------------------------------------
-        let navPressTimer; let isNavLongPress = false; let currentTargetServer = null;
-
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('mousedown', (e) => startNavPress(e, btn));
-            btn.addEventListener('touchstart', (e) => startNavPress(e, btn), { passive: true });
-            btn.addEventListener('mouseup', cancelNavPress);
-            btn.addEventListener('mouseleave', cancelNavPress);
-            btn.addEventListener('touchend', cancelNavPress);
+        let navPressTimer; 
+        let isNavLongPress = false; 
+        let currentTargetServer = null;
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => { 
+            btn.addEventListener('mousedown', (e) => startNavPress(e, btn)); 
+            btn.addEventListener('touchstart', (e) => startNavPress(e, btn), { passive: true }); 
+            btn.addEventListener('mouseup', cancelNavPress); 
+            btn.addEventListener('mouseleave', cancelNavPress); 
+            btn.addEventListener('touchend', cancelNavPress); 
         });
-
-        function startNavPress(e, btn) {
+        
+        function startNavPress(e, btn) { 
             if (!isAdmin) return; 
-            isNavLongPress = false;
-            const serverId = btn.getAttribute('data-server');
-            navPressTimer = setTimeout(() => {
-                isNavLongPress = true;
-                currentTargetServer = serverId;
-                document.getElementById('admin-status-menu').classList.remove('hidden');
-            }, 800);
+            isNavLongPress = false; 
+            const serverId = btn.getAttribute('data-server'); 
+            navPressTimer = setTimeout(() => { 
+                isNavLongPress = true; 
+                currentTargetServer = serverId; 
+                document.getElementById('admin-status-menu').classList.remove('hidden'); 
+            }, 800); 
         }
-
+        
         function cancelNavPress() { clearTimeout(navPressTimer); }
         function closeStatusMenu() { document.getElementById('admin-status-menu').classList.add('hidden'); setTimeout(() => { isNavLongPress = false; }, 100); }
-
-        function updateServerStatus(status) {
-            if (currentTargetServer) {
-                if(status === 'clear') firebase.database().ref('serverStatus/' + currentTargetServer).remove();
-                else firebase.database().ref('serverStatus/' + currentTargetServer).set(status);
-            }
-            closeStatusMenu();
+        
+        function updateServerStatus(status) { 
+            if (currentTargetServer) { 
+                if(status === 'clear') firebase.database().ref('serverStatus/' + currentTargetServer).remove(); 
+                else firebase.database().ref('serverStatus/' + currentTargetServer).set(status); 
+            } 
+            closeStatusMenu(); 
         }
 
-        // ------------------------------------
-        // Stream Switching & Load Logic
-        // ------------------------------------
+        // Players Logic
         function showLoading(serverId) { const overlay = document.getElementById(`loading-${serverId}`); if (overlay) overlay.classList.remove('hidden'); }
         function hideLoading(serverId) { const overlay = document.getElementById(`loading-${serverId}`); if (overlay) overlay.classList.add('hidden'); }
-        function safePlay(videoId, serverId) {
-            try {
-                const vid = document.getElementById(videoId); let playPromise = vid.play();
-                if (playPromise !== undefined) playPromise.catch(error => { hideLoading(serverId); });
-            } catch (e) { hideLoading(serverId); }
-        }
+        function safePlay(videoId, serverId) { try { const vid = document.getElementById(videoId); let playPromise = vid.play(); if (playPromise !== undefined) playPromise.catch(error => { hideLoading(serverId); }); } catch (e) { hideLoading(serverId); } }
 
         function switchServer(serverId, btnElement) {
             if (isNavLongPress) return;
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            showLoading(serverId);
-            setTimeout(() => hideLoading(serverId), 8000);
-
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); btnElement.classList.add('active');
+            showLoading(serverId); setTimeout(() => hideLoading(serverId), 8000);
+            
             try { if (jwplayer("jwplayer-container").getState() === 'playing' || jwplayer("jwplayer-container").getState() === 'buffering') jwplayer("jwplayer-container").pause(); } catch (e) {}
             try { const shakaVideo = document.getElementById('youtube-theme'); if (shakaVideo && !shakaVideo.paused) shakaVideo.pause(); } catch (e) {}
-            try {
-                const customVideos = ['videoPlayer1', 'videoPlayer2', 'videoPlayer3', 'videoPlayer8', 'videoPlayer12'];
-                customVideos.forEach(vid => { const el = document.getElementById(vid); if (el && !el.paused) el.pause(); });
-            } catch (e) {}
-
-            document.querySelectorAll('.server-tab iframe').forEach(iframe => iframe.src = "");
+            try { const customVideos = ['videoPlayer1', 'videoPlayer2', 'videoPlayer3', 'videoPlayer8', 'videoPlayer12']; customVideos.forEach(vid => { const el = document.getElementById(vid); if (el && !el.paused) el.pause(); }); } catch (e) {}
+            
+            document.querySelectorAll('.server-tab iframe').forEach(iframe => iframe.src = ""); 
             document.querySelectorAll('.server-tab').forEach(tab => tab.classList.remove('active'));
             
-            const activeTab = document.getElementById(serverId);
+            const activeTab = document.getElementById(serverId); 
             activeTab.classList.add('active');
-
-            const activeIframe = activeTab.querySelector('iframe');
+            
+            const activeIframe = activeTab.querySelector('iframe'); 
             if (activeIframe) { activeIframe.onload = () => hideLoading(serverId); activeIframe.src = activeIframe.getAttribute('data-src'); }
-
+            
             if (serverId === 'server9') { try { jwplayer("jwplayer-container").play(); } catch (e) {} }
             if (serverId === 'server6') { 
                 try { 
-                    const shakaVideo = document.getElementById('youtube-theme');
-                    if (window.player && !window.isShakaLoaded) {
-                        window.player.load(manifestUri).then(() => {
-                            let playPromise = shakaVideo.play();
-                            if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6'));
-                            window.isShakaLoaded = true;
-                        }).catch(e => hideLoading('server6'));
-                    } else if (window.isShakaLoaded) {
-                        let playPromise = shakaVideo.play();
-                        if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6'));
-                    }
+                    const shakaVideo = document.getElementById('youtube-theme'); 
+                    if (window.player && !window.isShakaLoaded) { 
+                        window.player.load(manifestUri).then(() => { let playPromise = shakaVideo.play(); if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6')); window.isShakaLoaded = true; }).catch(e => hideLoading('server6')); 
+                    } else if (window.isShakaLoaded) { 
+                        let playPromise = shakaVideo.play(); if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6')); 
+                    } 
                 } catch (e) { hideLoading('server6'); } 
             }
-
-            if (serverId === 'server1') safePlay('videoPlayer1', 'server1');
-            if (serverId === 'server2') safePlay('videoPlayer2', 'server2');
-            if (serverId === 'server3') safePlay('videoPlayer3', 'server3');
-            if (serverId === 'server8') safePlay('videoPlayer8', 'server8');
+            
+            if (serverId === 'server1') safePlay('videoPlayer1', 'server1'); 
+            if (serverId === 'server2') safePlay('videoPlayer2', 'server2'); 
+            if (serverId === 'server3') safePlay('videoPlayer3', 'server3'); 
+            if (serverId === 'server8') safePlay('videoPlayer8', 'server8'); 
             if (serverId === 'server12') safePlay('videoPlayer12', 'server12');
         }
 
-        // ------------------------------------
-        // Setup Players (JW, Shaka, Custom HLS)
-        // ------------------------------------
         jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
-        const playerInstance = jwplayer("jwplayer-container").setup({
-            playlist: [{ sources: [{ file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd", type: "dash", drm: { clearkey: { keyId: "433ffba670963e70857859a9dff4be04", key: "51ede3a821229fe81e71282c8eff80e3" } } }] }],
-            width: "100%", height: "100%", aspectratio: "16:9", autostart: true, mute: false
-        });
-        playerInstance.on('play', () => hideLoading('server9'));
+        const playerInstance = jwplayer("jwplayer-container").setup({ playlist: [{ sources: [{ file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd", type: "dash", drm: { clearkey: { keyId: "433ffba670963e70857859a9dff4be04", key: "51ede3a821229fe81e71282c8eff80e3" } } }] }], width: "100%", height: "100%", aspectratio: "16:9", autostart: true, mute: false });
+        playerInstance.on('play', () => hideLoading('server9')); 
         playerInstance.on('buffer', () => showLoading('server9'));
 
-        const manifestUri = 'https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd';
+        const manifestUri = 'https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd'; 
         window.isShakaLoaded = false;
-        async function initShaka() {
-            const video = document.getElementById('youtube-theme');
-            const ui = video['ui'];
-            ui.configure({'seekBarColors': { base: 'rgba(255,255,255,.2)', buffered: 'rgba(255,255,255,.4)', played: 'rgb(255,0,0)' }});
-            const player = ui.getControls().getPlayer();
-            player.configure({ drm: { clearKeys: { "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3" } } });
-            window.player = player; window.ui = ui;
-            video.addEventListener('playing', () => hideLoading('server6'));
-            video.addEventListener('loadeddata', () => hideLoading('server6'));
-            video.addEventListener('canplay', () => hideLoading('server6'));
-            video.addEventListener('waiting', () => showLoading('server6'));
-            setTimeout(() => { const menuBtn = document.querySelector('.shaka-overflow-menu-button'); if(menuBtn) menuBtn.innerHTML = 'settings'; }, 500);
+        
+        async function initShaka() { 
+            const video = document.getElementById('youtube-theme'); 
+            const ui = video['ui']; 
+            ui.configure({'seekBarColors': { base: 'rgba(255,255,255,.2)', buffered: 'rgba(255,255,255,.4)', played: 'rgb(255,0,0)' }}); 
+            
+            const player = ui.getControls().getPlayer(); 
+            player.configure({ drm: { clearKeys: { "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3" } } }); 
+            
+            window.player = player; 
+            window.ui = ui; 
+            
+            video.addEventListener('playing', () => hideLoading('server6')); 
+            video.addEventListener('loadeddata', () => hideLoading('server6')); 
+            video.addEventListener('canplay', () => hideLoading('server6')); 
+            video.addEventListener('waiting', () => showLoading('server6')); 
+            
+            setTimeout(() => { const menuBtn = document.querySelector('.shaka-overflow-menu-button'); if(menuBtn) menuBtn.innerHTML = 'settings'; }, 500); 
         }
         document.addEventListener('shaka-ui-loaded', initShaka);
 
         function setupCustomHLS(streamUrl, serverId, videoId) {
-            const serverContainer = document.getElementById(serverId);
-            const videoElement = document.getElementById(videoId);
-            let hlsPlayer = null; let videoQualities = [];
-
-            videoElement.addEventListener('playing', () => hideLoading(serverId));
-            videoElement.addEventListener('loadeddata', () => hideLoading(serverId));
-            videoElement.addEventListener('canplay', () => hideLoading(serverId));
+            const serverContainer = document.getElementById(serverId); 
+            const videoElement = document.getElementById(videoId); 
+            let hlsPlayer = null; 
+            let videoQualities = [];
+            
+            videoElement.addEventListener('playing', () => hideLoading(serverId)); 
+            videoElement.addEventListener('loadeddata', () => hideLoading(serverId)); 
+            videoElement.addEventListener('canplay', () => hideLoading(serverId)); 
             videoElement.addEventListener('waiting', () => showLoading(serverId));
-
+            
             async function init() {
                 videoQualities = []; setupQualitySelect(['Auto']);
-                if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-                    hlsPlayer = new Hls({ enableWorker: true }); hlsPlayer.attachMedia(videoElement);
-                    hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => hlsPlayer.loadSource(streamUrl));
-                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, (e, d) => populateQualities(d.levels));
-                    hlsPlayer.on(Hls.Events.LEVEL_SWITCHED, (e, d) => updateQualityLabel(d.level));
-                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                    try { await fetchMasterPlaylist(streamUrl); } catch (err) {}
-                    videoElement.src = streamUrl;
-                } else videoElement.innerHTML = 'Browser does not support HLS.';
-            }
-
-            function populateQualities(levels) {
-                videoQualities = levels.map((lvl, idx) => ({ label: (lvl.height ? lvl.height + 'p' : Math.round(lvl.bitrate / 1000) + 'kbps'), index: idx }));
-                setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]);
-            }
-
-            function updateQualityLabel(level) {
-                const select = serverContainer.querySelector('.select-selected');
-                if (level === -1) select.textContent = 'Auto'; else select.textContent = videoQualities[level].label;
-            }
-
-            async function fetchMasterPlaylist(url) {
-                const res = await fetch(url, { mode: 'cors' }); const txt = await res.text(); const lines = txt.split(/\r?\n/); const items = [];
-                for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].startsWith('#EXT-X-STREAM-INF')) {
-                        const bw = (lines[i].match(/BANDWIDTH=(\d+)/) || [0, 0])[1];
-                        const reso = (lines[i].match(/RESOLUTION=(\d+x\d+)/) || [])[1] || '';
-                        items.push({ label: reso ? reso.split('x')[1] + 'p' : Math.round(bw / 1000) + 'kbps', url });
-                    }
+                if (typeof Hls !== 'undefined' && Hls.isSupported()) { 
+                    hlsPlayer = new Hls({ enableWorker: true }); 
+                    hlsPlayer.attachMedia(videoElement); 
+                    hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => hlsPlayer.loadSource(streamUrl)); 
+                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, (e, d) => populateQualities(d.levels)); 
+                    hlsPlayer.on(Hls.Events.LEVEL_SWITCHED, (e, d) => updateQualityLabel(d.level)); 
                 }
-                videoQualities = items; setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]);
+                else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) { 
+                    try { await fetchMasterPlaylist(streamUrl); } catch (err) {} 
+                    videoElement.src = streamUrl; 
+                }
             }
-
-            function setupQualitySelect(options) {
-                const selected = serverContainer.querySelector('.select-selected');
-                const items = serverContainer.querySelector('.select-items');
-                items.innerHTML = '';
-                options.forEach((opt, idx) => {
-                    const div = document.createElement('div'); div.textContent = opt;
-                    div.addEventListener('click', () => {
-                        selected.textContent = opt; changeQuality(idx === 0 ? 'auto' : (idx - 1).toString()); items.style.display = 'none';
-                    });
-                    items.appendChild(div);
-                });
-                selected.onclick = () => { items.style.display = items.style.display === 'block' ? 'none' : 'block'; };
+            
+            function populateQualities(levels) { 
+                videoQualities = levels.map((lvl, idx) => ({ label: (lvl.height ? lvl.height + 'p' : Math.round(lvl.bitrate / 1000) + 'kbps'), index: idx })); 
+                setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]); 
             }
-
-            function changeQuality(val) {
-                if (hlsPlayer) { if (val === 'auto') hlsPlayer.currentLevel = -1; else hlsPlayer.currentLevel = parseInt(val, 10); }
-                else if (val !== 'auto') { videoElement.src = streamUrl; }
+            
+            function updateQualityLabel(level) { 
+                const select = serverContainer.querySelector('.select-selected'); 
+                if (level === -1) select.textContent = 'Auto'; else select.textContent = videoQualities[level].label; 
             }
+            
+            async function fetchMasterPlaylist(url) { 
+                const res = await fetch(url, { mode: 'cors' }); 
+                const txt = await res.text(); 
+                const lines = txt.split(/\r?\n/); 
+                const items = []; 
+                for (let i = 0; i < lines.length; i++) { 
+                    if (lines[i].startsWith('#EXT-X-STREAM-INF')) { 
+                        const bw = (lines[i].match(/BANDWIDTH=(\d+)/) || [0, 0])[1]; 
+                        const reso = (lines[i].match(/RESOLUTION=(\d+x\d+)/) || [])[1] || ''; 
+                        items.push({ label: reso ? reso.split('x')[1] + 'p' : Math.round(bw / 1000) + 'kbps', url }); 
+                    } 
+                } 
+                videoQualities = items; 
+                setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]); 
+            }
+            
+            function setupQualitySelect(options) { 
+                const selected = serverContainer.querySelector('.select-selected'); 
+                const items = serverContainer.querySelector('.select-items'); 
+                items.innerHTML = ''; 
+                options.forEach((opt, idx) => { 
+                    const div = document.createElement('div'); 
+                    div.textContent = opt; 
+                    div.addEventListener('click', () => { 
+                        selected.textContent = opt; 
+                        changeQuality(idx === 0 ? 'auto' : (idx - 1).toString()); 
+                        items.style.display = 'none'; 
+                    }); 
+                    items.appendChild(div); 
+                }); 
+                selected.onclick = () => { items.style.display = items.style.display === 'block' ? 'none' : 'block'; }; 
+            }
+            
+            function changeQuality(val) { 
+                if (hlsPlayer) { if (val === 'auto') hlsPlayer.currentLevel = -1; else hlsPlayer.currentLevel = parseInt(val, 10); } 
+                else if (val !== 'auto') { videoElement.src = streamUrl; } 
+            }
+            
             init();
         }
 
@@ -1314,7 +1515,6 @@
             setupCustomHLS("https://customer-rqx2ncfj15h2he6q.cloudflarestream.com/6bbb3f01ec11e5b10e4369978f011941/manifest/video.m3u8", "server8", "videoPlayer8");
             setupCustomHLS("https://bl.video.matchtv.ru/media/playlist/free_d46d0cf1712c0542ec7fd4f0808f600a_hd/17_89756005/1080/e6bef86de8a133cd7b27deb040758a00/4796141934.m3u8", "server12", "videoPlayer12");
         });
-
     </script>
 </body>
 </html>
