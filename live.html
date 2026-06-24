@@ -20,388 +20,232 @@
 
     <style>
         /* General Page Styling */
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #111111;
-            font-family: Arial, sans-serif;
-            color: white;
-            overflow-x: hidden;
-        }
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; color: white; overflow-x: hidden; }
+
+        /* General Helper Classes */
+        .hidden { display: none !important; }
 
         /* Header Styling */
-        header {
-            background-color: #000;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 2px solid #e50914;
-            cursor: pointer; /* Indicates it's interactive */
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        header h1 {
-            margin: 0;
-            color: #e50914; /* Netflix Red theme */
-            font-size: 32px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        header { background-color: #000; padding: 20px; text-align: center; border-bottom: 2px solid #e50914; cursor: pointer; user-select: none; -webkit-user-select: none; }
+        header h1 { margin: 0; color: #e50914; font-size: 32px; text-transform: uppercase; letter-spacing: 2px; }
 
         /* Navigation Bar Styling */
-        nav {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            background-color: #222;
-            padding: 10px;
-            gap: 10px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-        
-        nav::-webkit-scrollbar {
-            display: none; 
-        }
-
-        nav button {
-            flex: 0 0 auto;
-            background-color: #333;
-            color: white;
-            border: 1px solid #444;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        nav button:hover {
-            background-color: #e50914;
-        }
-        nav button.active {
-            background-color: #e50914;
-            border-color: #e50914;
-            font-weight: bold;
-        }
+        nav { display: flex; flex-wrap: nowrap; overflow-x: auto; background-color: #222; padding: 10px; gap: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        nav::-webkit-scrollbar { display: none; }
+        nav button { flex: 0 0 auto; background-color: #333; color: white; border: 1px solid #444; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-size: 16px; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; user-select: none; -webkit-user-select: none; }
+        nav button:hover { background-color: #e50914; }
+        nav button.active { background-color: #e50914; border-color: #e50914; font-weight: bold; }
 
         /* Status Indicator Styling */
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-        }
-        .status-text {
-            font-size: 12px;
-            margin-left: 3px;
-            font-weight: bold;
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-left: 4px;
-        }
+        .status-indicator { display: inline-flex; align-items: center; }
+        .status-text { font-size: 12px; margin-left: 3px; font-weight: bold; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 4px; }
         .dot-live { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
         .dot-offline { background-color: #ff4d4d; box-shadow: 0 0 5px #ff4d4d; }
 
         /* Marquee Display Styling */
-        .marquee-wrapper {
-            background-color: #1a1a1a;
-            border-bottom: 1px solid #444;
-            padding: 8px 0;
-            overflow: hidden;
-            display: none; /* Hidden by default */
-        }
-        .marquee-wrapper.active {
-            display: block;
-        }
-        .marquee-text {
-            display: inline-block;
-            white-space: nowrap;
-            color: #facc15; /* Yellow warning/info color */
-            font-weight: bold;
-            font-size: 16px;
-            animation: scrollMarquee 15s linear infinite;
-        }
-        @keyframes scrollMarquee {
-            0% { transform: translateX(100vw); }
-            100% { transform: translateX(-100%); }
-        }
+        .marquee-wrapper { background-color: #1a1a1a; border-bottom: 1px solid #444; padding: 8px 0; overflow: hidden; display: none; }
+        .marquee-wrapper.active { display: block; }
+        .marquee-text { display: inline-block; white-space: nowrap; color: #facc15; font-weight: bold; font-size: 16px; animation: scrollMarquee linear infinite; }
+        @keyframes scrollMarquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
-        /* Modal Overlay Styling (Admin & Login) */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .modal-overlay.hidden { display: none; }
+        /* Modal Overlay Styling */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-box { background: #111; padding: 20px; border: 2px solid #e50914; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 15px; color: white; max-height: 90vh; overflow-y: auto;}
+        .modal-box h3 { margin: 0; text-align: center; color: #e50914; text-transform: uppercase; }
+        .modal-box input { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 5px; background: #222; color: white; box-sizing: border-box; font-size: 14px; outline: none; transition: border-color 0.3s; }
+        .modal-box input:focus { border-color: #e50914; }
+        .modal-box button { padding: 12px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 16px; color: white; }
         
-        .modal-box {
-            background: #111;
-            padding: 20px;
-            border: 2px solid #e50914;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.9);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            color: white;
-        }
-        .modal-box h3 {
-            margin: 0; text-align: center; color: #e50914; text-transform: uppercase;
-        }
-        .modal-box input {
-            width: 100%; padding: 10px; border: 1px solid #444; border-radius: 5px; 
-            background: #222; color: white; box-sizing: border-box; font-size: 14px;
-        }
-        .modal-box button {
-            padding: 12px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 16px; color: white;
-        }
         .btn-green { background: #28a745; }
         .btn-red { background: #e50914; }
         .btn-gray { background: #6c757d; }
+        .btn-blue { background: #4285F4; }
         
-        .admin-dashboard-section {
-            border: 1px solid #333; padding: 15px; border-radius: 5px; background: #1a1a1a; display: flex; flex-direction: column; gap: 10px;
-        }
+        .auth-link { color: #aaa; text-align: center; font-size: 13px; cursor: pointer; text-decoration: underline; margin-top: -5px; }
+        .auth-link:hover { color: #fff; }
+
+        .admin-dashboard-section { border: 1px solid #333; padding: 15px; border-radius: 5px; background: #1a1a1a; display: flex; flex-direction: column; gap: 10px; }
         .admin-dashboard-section label { font-size: 12px; color: #ccc; text-transform: uppercase; font-weight: bold;}
 
-        /* Admin small preview image */
-        #admin-banner-preview {
-            max-width: 100%; 
-            height: auto; 
-            max-height: 120px; 
-            border-radius: 5px; 
-            margin: 5px auto; 
-            display: none; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
+        /* Modern Toast Notification Styling */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: #222; color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.7); font-size: 14px; display: flex; align-items: center; gap: 12px; font-weight: bold; opacity: 0; transform: translateX(100%); transition: opacity 0.3s, transform 0.3s; border-left: 5px solid #e50914; min-width: 200px;}
+        .toast.show { opacity: 1; transform: translateX(0); }
+        .toast.success { border-left-color: #28a745; }
+        .toast.error { border-left-color: #e50914; }
 
         /* Main Container */
-        .main-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 30px 10px;
-        }
-
-        /* Video Container Wrapper */
-        .server-tab {
-            display: none; /* Hide all by default */
-            width: 100%;
-            max-width: 850px;
-        }
-        .server-tab.active {
-            display: block; /* Show active */
-        }
+        .main-container { display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 30px 10px; }
+        .server-tab { display: none; width: 100%; max-width: 850px; }
+        .server-tab.active { display: block; }
 
         /* Video Box Styling */
-        .video-box {
-            width: 100%;
-            aspect-ratio: 16 / 12;
-            background-color: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-            position: relative;
-        }
-        .video-box iframe, .video-box video {
-            width: 100%;
-            height: 100%;
-            border: none;
-            outline: none;
-            position: relative;
-            z-index: 1;
-        }
+        .video-box { width: 100%; aspect-ratio: 16 / 12; background-color: #000; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); position: relative; }
+        .video-box iframe, .video-box video { width: 100%; height: 100%; border: none; outline: none; position: relative; z-index: 1; }
         
-        /* Loading Overlay Styling */
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            color: white;
-            transition: opacity 0.3s;
-        }
-        .loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-            visibility: hidden;
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #444;
-            border-top: 4px solid #e50914;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 10px;
-        }
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
-
-        /* Shaka Player Tweak */
-        .shaka-video-container .material-icons-round {
-            color: #f1ff00;
-        }
+        /* Loading Overlay */
+        .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: white; transition: opacity 0.3s; }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #444; border-top: 4px solid #e50914; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Custom HLS Player Styles */
-        .custom-player-wrap {
-            width: 100%;
-            height: 100%;
+        .custom-player-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; position: relative; z-index: 1; }
+        .custom-player-wrap video { width: 100%; flex-grow: 1; background: #000; border-radius: 0 0 8px 8px; outline: none; display: block; }
+        .controls-top { display: flex; justify-content: flex-end; align-items: center; background: #111827; padding: 10px 15px; border-radius: 8px 8px 0 0; }
+        .settings-icon { cursor: pointer; font-size: 20px; color: white; margin-left: 12px; transition: transform 0.2s ease; }
+        .settings-icon:hover { transform: rotate(45deg); }
+        .quality-box { background: #facc15; padding: 5px 10px; border-radius: 6px; display: flex; align-items: center; gap: 8px; font-weight: bold; color: black; font-size: 14px; }
+        .custom-select { position: relative; }
+        .select-selected { background-color: white; color: black; padding: 5px 10px; border-radius: 4px; cursor: pointer; min-width: 60px; display: flex; align-items: center; justify-content: space-between; }
+        .select-items { display: none; position: absolute; background-color: white; border: 1px solid #ccc; border-radius: 4px; top: 100%; right: 0; z-index: 99; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 5px; }
+        .select-items div { padding: 8px 12px; cursor: pointer; font-weight: normal; white-space: nowrap; }
+        .select-items div:hover { background-color: #f1f1f1; }
+
+        /* Layout Structure: Disclaimer alongside Banner */
+        .bottom-layout-container {
+            width: 100%; max-width: 850px; margin-top: 30px;
+            display: flex; flex-direction: row; align-items: stretch; gap: 20px;
+        }
+
+        .disclaimer-section {
+            flex: 1; padding: 20px; background-color: #1a1a1a; border-top: 2px solid #e50914;
+            border-radius: 8px; box-sizing: border-box; color: #ccc; font-size: 13px; line-height: 1.6; text-align: justify;
+        }
+        .disclaimer-section h3 { color: #fff; text-align: center; margin-top: 0; margin-bottom: 15px; font-size: 18px; text-transform: uppercase; }
+
+        /* Banner Marquee Styles */
+        .banner-display-container {
+            flex: 1; overflow: hidden; position: relative; display: none; /* Hidden by default until images load */
+            align-items: center; background: #111; border-radius: 8px; padding: 10px 0; border: 1px solid #333;
+        }
+        .banner-track { display: inline-flex; animation: bannerMarquee 25s linear infinite; }
+        .animated-banner-img { height: 160px; margin-right: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.6); }
+        @keyframes bannerMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        @media (max-width: 768px) { .bottom-layout-container { flex-direction: column-reverse; } }
+
+        /* --- Chat Features --- */
+        
+        /* Floating Chat Animation */
+        @keyframes chat-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); transform: scale(1); }
+            70% { box-shadow: 0 0 0 15px rgba(229, 9, 20, 0); transform: scale(1.05); }
+            100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); transform: scale(1); }
+        }
+
+        .chat-btn-float {
+            position: fixed; bottom: 25px; right: 25px; background: #e50914; color: white;
+            border: none; border-radius: 50%; width: 45px; height: 45px;
+            font-size: 28px; cursor: grab; z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+            animation: chat-pulse 2s infinite; 
+            user-select: none; -webkit-user-select: none;
+            touch-action: none; /* Helps smooth drag on mobile */
+        }
+        .chat-btn-float:active { cursor: grabbing; }
+
+        .chat-wrapper {
+            width: 100%; max-width: 850px; margin: 20px auto; background: #0b141a; /* WhatsApp Dark Bg */
+            border-radius: 8px; overflow: hidden; display: none; flex-direction: column;
+            border: 1px solid #202c33; height: 500px;
+        }
+        .chat-wrapper.active { display: flex; }
+        
+        .chat-header { display: flex; background: #202c33; border-bottom: 2px solid #e50914; }
+        .chat-header button { flex: 1; padding: 15px; background: #202c33; border: none; color: #aebac1; cursor: pointer; font-weight: bold; font-size: 15px; transition: background 0.3s, color 0.3s; }
+        .chat-header button:hover { background: #2a3942; color: white; }
+        .chat-header button.active { background: #e50914; color: white; }
+        
+        .chat-close-btn { flex: 0 0 50px !important; background: #202c33 !important; font-size: 24px !important; border-left: 1px solid #e50914 !important; padding: 0 !important; display: flex; align-items: center; justify-content: center;}
+        .chat-close-btn:hover { background: #e50914 !important; }
+        
+        .chat-tab-content { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+        .chat-tab-content.active { display: flex; }
+        
+        /* WhatsApp-Style Chat UI */
+        .messages-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-color: #0b141a; }
+        
+        .input-area { display: flex; padding: 10px; background: #202c33; align-items: center; gap: 10px; flex-shrink: 0; }
+        .input-area input { flex: 1; padding: 12px 18px; border-radius: 24px; border: none; outline: none; background: #2a3942; color: #d1d7db; font-size: 15px; }
+        
+        /* WhatsApp Send Icon Button */
+        .input-area button { 
+            width: 45px; height: 45px; border-radius: 50%; 
+            background: #00a884; border: none; color: white; 
+            display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+            padding: 0; margin-left: 5px;
+        }
+        .input-area button:hover { background: #008f6f; }
+        .input-area button svg { width: 22px; height: 22px; fill: white; margin-left: 4px; /* Visually aligns the paper plane */ }
+        
+        .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 8px; word-wrap: break-word; font-size: 14.5px; line-height: 1.4; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); position: relative; }
+        .msg-self { background: #005c4b; color: #e9edef; align-self: flex-end; border-top-right-radius: 0; }
+        .msg-other { background: #202c33; color: #e9edef; align-self: flex-start; border-top-left-radius: 0; }
+        .msg-sender { font-size: 12.5px; color: #53bdeb; margin-bottom: 3px; font-weight: bold; }
+
+        .user-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #111b21; border-radius: 5px; margin-bottom: 8px; cursor: pointer; border-bottom: 1px solid #202c33;}
+        .user-list-item:hover { background: #202c33; }
+        .user-status { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #aebac1;}
+        .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+
+        /* ========================================================
+           CHAT ACTIVE MODE (FIXED SCREEN FOR VIDEO + CHAT ONLY) 
+           ======================================================== */
+        body.chat-active-mode {
+            height: 100vh; 
+            height: 100dvh; /* For mobile accuracy */
+            overflow: hidden; /* Prevents whole page scrolling */
             display: flex;
             flex-direction: column;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 1;
+            background-color: #111111;
         }
-        .custom-player-wrap video {
+        body.chat-active-mode #main-header,
+        body.chat-active-mode #display-marquee-wrapper,
+        body.chat-active-mode nav {
+            flex-shrink: 0; /* Keeps nav visible and uncompressed */
+        }
+        body.chat-active-mode .main-container {
+            flex: 1;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        body.chat-active-mode .server-tab.active {
+            flex-shrink: 0;
             width: 100%;
-            flex-grow: 1;
+            max-height: 40vh; /* Keeps video balanced with chat space */
             background: #000;
-            border-radius: 0 0 8px 8px;
-            outline: none;
-            display: block;
-        }
-        .controls-top {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            background: #111827;
-            padding: 10px 15px;
-            border-radius: 8px 8px 0 0;
-        }
-        .settings-icon {
-            cursor: pointer;
-            font-size: 20px;
-            color: white;
-            margin-left: 12px;
-            transition: transform 0.2s ease;
-        }
-        .settings-icon:hover {
-            transform: rotate(45deg);
-        }
-        .quality-box {
-            background: #facc15;
-            padding: 5px 10px;
-            border-radius: 6px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            color: black;
-            font-size: 14px;
+            justify-content: center;
         }
-        .custom-select {
-            position: relative;
-        }
-        .select-selected {
-            background-color: white;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            min-width: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .select-items {
-            display: none;
-            position: absolute;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            top: 100%;
-            right: 0;
-            z-index: 99;
-            max-height: 200px;
-            overflow-y: auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-top: 5px;
-        }
-        .select-items div {
-            padding: 8px 12px;
-            cursor: pointer;
-            font-weight: normal;
-            white-space: nowrap;
-        }
-        .select-items div:hover {
-            background-color: #f1f1f1;
-        }
-
-        /* Disclaimer Section */
-        .disclaimer-section {
+        body.chat-active-mode .video-box {
             width: 100%;
-            max-width: 850px;
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #1a1a1a;
+            height: 100%;
+            max-height: 100%;
+            aspect-ratio: auto;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        body.chat-active-mode .chat-wrapper {
+            flex: 1;
+            margin: 15px 0 0 0; /* SPACE ADDED HERE BETWEEN VIDEO AND CHAT CONTAINER */
+            max-width: 100%;
+            height: auto;
+            border: none;
+            border-radius: 12px 12px 0 0; /* Smooth separated look */
             border-top: 2px solid #e50914;
-            border-radius: 8px;
-            box-sizing: border-box;
-            color: #ccc;
-            font-size: 13px;
-            line-height: 1.6;
-            text-align: justify;
+            display: flex !important;
         }
         
-        /* Banner Image Wrapper & Animation (Now inside Disclaimer) */
-        .banner-display-container {
-            width: 100%;
-            overflow: hidden; /* Hide anything outside */
-            display: none;
-            position: relative;
-            margin-bottom: 20px; /* Spacing between banner and disclaimer text */
-        }
-        .banner-display-container.active {
-            display: block;
-        }
-        .animated-banner {
-            display: block;
-            margin: 0 auto;
-            max-width: 90%;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-            /* Slide: Right to Center (Pause) then Center to Left */
-            animation: slideRightToLeft 12s ease-in-out infinite; 
-        }
-        
-        @keyframes slideRightToLeft {
-            0% { transform: translateX(120vw); }
-            35% { transform: translateX(0); }  /* Reaches center */
-            65% { transform: translateX(0); }  /* Pauses at center */
-            100% { transform: translateX(-120vw); } /* Exits left */
-        }
-
-        .disclaimer-section h3 {
-            color: #fff;
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 18px;
-            text-transform: uppercase;
+        /* HIDDEN ELEMENTS IN CHAT MODE */
+        body.chat-active-mode .bottom-layout-container,
+        body.chat-active-mode .chat-btn-float {
+            display: none !important;
         }
 
     </style>
@@ -434,24 +278,56 @@
         <button class="nav-btn" data-server="server12" onclick="switchServer('server12', this)">Server 12 <span class="status-indicator" id="status-server12"></span></button>
     </nav>
 
-    <!-- Admin Status Context Menu (For Nav Buttons) -->
+    <!-- Floating Draggable Chat Button -->
+    <button id="floating-chat-btn" class="chat-btn-float">💬</button>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Admin Status Context Menu -->
     <div id="admin-status-menu" class="modal-overlay hidden">
         <div class="modal-box">
             <h3>Set Server Status</h3>
             <button class="btn-green" onclick="updateServerStatus('live')">Set Live</button>
             <button class="btn-red" onclick="updateServerStatus('offline')">Set Offline</button>
-            <button class="btn-gray" onclick="closeStatusMenu()">Cancel</button>
+            <button class="btn-gray" onclick="updateServerStatus('clear')">Clear Selected</button>
+            <button class="btn-gray" style="background:#444;" onclick="closeStatusMenu()">Cancel</button>
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div id="login-modal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <h3>Admin Login</h3>
-            <input type="email" id="admin-email" placeholder="Email ID">
-            <input type="password" id="admin-pass" placeholder="Password">
-            <button class="btn-green" onclick="adminLogin()">Login</button>
-            <button class="btn-gray" onclick="closeLoginModal()">Cancel</button>
+    <!-- Login/Auth Modal -->
+    <div id="auth-modal" class="modal-overlay hidden">
+        <!-- Login Form -->
+        <div class="modal-box" id="form-login">
+            <h3>User Login</h3>
+            <input type="email" id="login-email" placeholder="Email ID">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button class="btn-green" onclick="userLogin()">Login</button>
+            <button class="btn-blue" onclick="googleLogin()">Login with Google</button>
+            <div class="auth-link" onclick="switchAuthView('form-register')">Create an Account</div>
+            <div class="auth-link" onclick="switchAuthView('form-forgot')">Forgot Password?</div>
+            <button class="btn-gray" onclick="closeAuthModal()">Close</button>
+        </div>
+
+        <!-- Register Form -->
+        <div class="modal-box hidden" id="form-register">
+            <h3>Create Account</h3>
+            <input type="text" id="reg-name" placeholder="Full Name">
+            <input type="email" id="reg-email" placeholder="Email ID">
+            <input type="number" id="reg-mobile" placeholder="Mobile Number">
+            <input type="password" id="reg-pass" placeholder="Password">
+            <button class="btn-green" onclick="userRegister()">Sign Up</button>
+            <div class="auth-link" onclick="switchAuthView('form-login')">Back to Login</div>
+            <button class="btn-gray" onclick="closeAuthModal()">Close</button>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div class="modal-box hidden" id="form-forgot">
+            <h3>Reset Password</h3>
+            <input type="email" id="forgot-email" placeholder="Enter your registered Email">
+            <button class="btn-green" onclick="resetPassword()">Send Reset Link</button>
+            <div class="auth-link" onclick="switchAuthView('form-login')">Back to Login</div>
+            <button class="btn-gray" onclick="closeAuthModal()">Close</button>
         </div>
     </div>
 
@@ -462,24 +338,33 @@
             
             <!-- Marquee Settings -->
             <div class="admin-dashboard-section">
-                <label>Set Marquee Text</label>
-                <input type="text" id="admin-marquee-input" placeholder="Type scrolling text here...">
-                <button class="btn-green" onclick="updateMarquee()">Save Text</button>
+                <label>Set Marquee Text & Speed</label>
+                <input type="text" id="admin-marquee-input" placeholder="Type scrolling text...">
+                <input type="number" id="admin-marquee-speed" placeholder="Speed (seconds, e.g. 15)">
+                <button class="btn-green" onclick="updateMarquee()">Save Marquee</button>
+                <button class="btn-red" onclick="removeMarquee()">Remove Text</button>
             </div>
 
             <!-- Image Settings -->
             <div class="admin-dashboard-section">
-                <label>Upload Banner Image</label>
-                <input type="file" id="admin-banner-file" accept="image/*">
-                
-                <!-- Admin Banner Preview Added Here -->
-                <img id="admin-banner-preview" src="" alt="Banner Preview">
-
-                <button class="btn-green" onclick="uploadBannerImage()">Upload Image</button>
-                <button class="btn-red" onclick="removeBannerImage()">Remove Image</button>
+                <label>Upload Banner Images</label>
+                <div id="admin-banner-preview-list" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px;"></div>
+                <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                    <label for="admin-banner-file" class="btn-green" style="display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; font-size:24px; cursor:pointer;">+</label>
+                    <input type="file" id="admin-banner-file" accept="image/*" style="display:none;" onchange="uploadBannerImage(event)">
+                    <span style="font-size:12px; color:#aaa;">Click + to upload more images</span>
+                </div>
             </div>
 
-            <button class="btn-red" style="margin-top: 10px;" onclick="adminLogout()">Logout</button>
+            <!-- Manage Menus -->
+            <div class="admin-dashboard-section">
+                <label>Manage Server Menus Visibility</label>
+                <div id="admin-nav-toggles" style="display:flex; flex-wrap:wrap; gap:10px; font-size:13px; color:white;">
+                    <!-- Checkboxes auto-generated via JS -->
+                </div>
+            </div>
+
+            <button class="btn-red" style="margin-top: 10px;" onclick="userLogout()">Logout</button>
             <button class="btn-gray" onclick="closeDashboardModal()">Close Panel</button>
         </div>
     </div>
@@ -487,221 +372,197 @@
     <!-- Main Content -->
     <div class="main-container">
 
-        <!-- Server 1: Apusport Stream (Was Old 9) -->
-        <div id="server1" class="server-tab active">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server1">
-                    <div class="spinner"></div>
-                    <div>Loading Stream...</div>
-                </div>
-                <div class="custom-player-wrap">
-                    <div class="controls-top">
-                        <div class="quality-box">
-                            Quality:
-                            <div class="custom-select">
-                                <div class="select-selected">Auto</div>
-                                <div class="select-items"></div>
-                            </div>
-                        </div>
-                        <div class="settings-icon" title="Settings">&#9881;</div>
-                    </div>
-                    <video controls controlslist="nodownload" id="videoPlayer1" playsinline webkit-playsinline></video>
-                </div>
-            </div>
-        </div>
+        <!-- Servers 1-12 Code preserved strictly -->
+        <div id="server1" class="server-tab active"><div class="video-box"><div class="loading-overlay" id="loading-server1"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer1" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server2" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server2"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer2" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server3" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server3"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer3" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server4" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server4"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://hd.muesra.sbs/albaplayer/oooe/?serv=0"></iframe></div></div>
+        <div id="server5" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server5"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" frameborder="0" src="" data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew"></iframe></div></div>
+        <div id="server6" class="server-tab"><div class="video-box" data-shaka-player-container><div class="loading-overlay" id="loading-server6"><div class="spinner"></div><div>Loading Stream...</div></div><video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video></div></div>
+        <div id="server7" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server7"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe></div></div>
+        <div id="server8" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server8"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video></div></div></div>
+        <div id="server9" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server9"><div class="spinner"></div><div>Loading Stream...</div></div><div id="jwplayer-container"></div></div></div>
+        <div id="server10" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server10"><div class="spinner"></div><div>Loading Player...</div></div><iframe allowfullscreen="true" src="" data-src="https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8"></iframe></div></div>
+        <div id="server11" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server11"><div class="spinner"></div><div>Loading Player...</div></div><iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe></div></div>
+        <div id="server12" class="server-tab"><div class="video-box"><div class="loading-overlay" id="loading-server12"><div class="spinner"></div><div>Loading Stream...</div></div><div class="custom-player-wrap"><div class="controls-top"><div class="quality-box">Quality:<div class="custom-select"><div class="select-selected">Auto</div><div class="select-items"></div></div></div><div class="settings-icon" title="Settings">&#9881;</div></div><video controls controlslist="nodownload" id="videoPlayer12" playsinline webkit-playsinline></video></div></div></div>
 
-        <!-- Server 2: Caze TV (Was Old 10) -->
-        <div id="server2" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server2">
-                    <div class="spinner"></div>
-                    <div>Loading Stream...</div>
-                </div>
-                <div class="custom-player-wrap">
-                    <div class="controls-top">
-                        <div class="quality-box">
-                            Quality:
-                            <div class="custom-select">
-                                <div class="select-selected">Auto</div>
-                                <div class="select-items"></div>
-                            </div>
-                        </div>
-                        <div class="settings-icon" title="Settings">&#9881;</div>
-                    </div>
-                    <video controls controlslist="nodownload" id="videoPlayer2" playsinline webkit-playsinline></video>
-                </div>
+        <!-- Chat Container Under Video (Fixed in Chat Mode) -->
+        <div class="chat-wrapper" id="chat-container">
+            <div class="chat-header">
+                <button id="tab-btn-global" class="active" onclick="switchChatTab('global')">Public Chat</button>
+                <button id="tab-btn-users" onclick="switchChatTab('users')">Active Users</button>
+                <!-- Add Close Button to return to normal mode -->
+                <button class="chat-close-btn" onclick="closeChatWindow()" title="Close Chat">&times;</button>
             </div>
-        </div>
-
-        <!-- Server 3: TRT Stream (Was Old 11) -->
-        <div id="server3" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server3">
-                    <div class="spinner"></div>
-                    <div>Loading Stream...</div>
-                </div>
-                <div class="custom-player-wrap">
-                    <div class="controls-top">
-                        <div class="quality-box">
-                            Quality:
-                            <div class="custom-select">
-                                <div class="select-selected">Auto</div>
-                                <div class="select-items"></div>
-                            </div>
-                        </div>
-                        <div class="settings-icon" title="Settings">&#9881;</div>
-                    </div>
-                    <video controls controlslist="nodownload" id="videoPlayer3" playsinline webkit-playsinline></video>
-                </div>
-            </div>
-        </div>
-
-        <!-- Server 4: HD Muesra Iframe (Was Old 3) -->
-        <div id="server4" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server4">
-                    <div class="spinner"></div>
-                    <div>Loading Player...</div>
-                </div>
-                <iframe allowfullscreen="true" src="" data-src="https://hd.muesra.sbs/albaplayer/oooe/?serv=0"></iframe>
-            </div>
-        </div>
-
-        <!-- Server 5: Masszipp3 Iframe (Was Old 7) -->
-        <div id="server5" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server5">
-                    <div class="spinner"></div>
-                    <div>Loading Player...</div>
-                </div>
-                <iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" scrolling="no" frameborder="0" src="" data-src="https://masszipp3.github.io/mpd2.html?ch=cazenew"></iframe>
-            </div>
-        </div>
-
-        <!-- Server 6: Shaka Player (Fixed Lazy Load) -->
-        <div id="server6" class="server-tab">
-            <div class="video-box" data-shaka-player-container>
-                <div class="loading-overlay" id="loading-server6">
-                    <div class="spinner"></div>
-                    <div>Loading Stream...</div>
-                </div>
-                <video data-shaka-player id="youtube-theme" poster="/img/tv-static.gif"></video>
-            </div>
-        </div>
-
-        <!-- Server 7: Veotest Iframe (Was Old 5) -->
-        <div id="server7" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server7">
-                    <div class="spinner"></div>
-                    <div>Loading Player...</div>
-                </div>
-                <iframe allow="encrypted-media" allowfullscreen="true" src="" data-src="https://veotest.bbvplayline1a.com/video.html?url=https://live.wxinxi.com/live/86597104_okehlpipbdoz2lujaxkrvv9eylmlbduv.m3u8"></iframe>
-            </div>
-        </div>
-
-        <!-- Server 8: Cloudflare Stream -->
-        <div id="server8" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server8">
-                    <div class="spinner"></div>
-                    <div>Loading Stream...</div>
-                </div>
-                <div class="custom-player-wrap">
-                    <div class="controls-top">
-                        <div class="quality-box">
-                            Quality:
-                            <div class="custom-select">
-                                <div class="select-selected">Auto</div>
-                                <div class="select-items"></div>
-                            </div>
-                        </div>
-                        <div class="settings-icon" title="Settings">&#9881;</div>
-                    </div>
-                    <video controls controlslist="nodownload" id="videoPlayer8" playsinline webkit-playsinline></video>
-                </div>
-            </div>
-        </div>
-
-        <!-- Server 9: JW Player (Was Old 1) -->
-        <div id="server9" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server9">
-                    <div class="spinner"></div>
-                    <div>Loading Stream...</div>
-                </div>
-                <div id="jwplayer-container"></div>
-            </div>
-        </div>
-
-        <!-- Server 10: Nusa Himen Iframe (Was Old 2) -->
-        <div id="server10" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server10">
-                    <div class="spinner"></div>
-                    <div>Loading Player...</div>
-                </div>
-                <iframe allowfullscreen="true" src="" data-src="https://nusa-himen.github.io/m3/?url=https://live05.msdht.app/live/24561735.m3u8"></iframe>
-            </div>
-        </div>
-
-        <!-- Server 11: Kooralive Bein Sports Iframe (Was Old 4) -->
-        <div id="server11" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server11">
-                    <div class="spinner"></div>
-                    <div>Loading Player...</div>
-                </div>
-                <iframe allow="encrypted-media" allowfullscreen="true" sandbox="allow-forms allow-same-origin allow-scripts" src="" data-src="https://6.kooralive360.com/albaplayer/bein-sports-hd-1/"></iframe>
-            </div>
-        </div>
-
-        <!-- Server 12: Match TV -->
-        <div id="server12" class="server-tab">
-            <div class="video-box">
-                <div class="loading-overlay" id="loading-server12">
-                    <div class="spinner"></div>
-                    <div>Loading Stream...</div>
-                </div>
-                <div class="custom-player-wrap">
-                    <div class="controls-top">
-                        <div class="quality-box">
-                            Quality:
-                            <div class="custom-select">
-                                <div class="select-selected">Auto</div>
-                                <div class="select-items"></div>
-                            </div>
-                        </div>
-                        <div class="settings-icon" title="Settings">&#9881;</div>
-                    </div>
-                    <video controls controlslist="nodownload" id="videoPlayer12" playsinline webkit-playsinline></video>
-                </div>
-            </div>
-        </div>
-
-        <!-- Disclaimer Section -->
-        <div class="disclaimer-section">
             
-            <!-- Banner Image Container is now moved INSIDE the Disclaimer Container -->
-            <div class="banner-display-container" id="display-banner-container">
-                <img class="animated-banner" id="display-banner-img" src="" alt="Live Stream Banner">
+            <!-- Global Chat -->
+            <div id="chat-tab-global" class="chat-tab-content active">
+                <div class="messages-area" id="global-messages-box"></div>
+                <div class="input-area">
+                    <input type="text" id="global-msg-input" placeholder="Message" onkeypress="if(event.key === 'Enter') sendGlobalMessage()">
+                    <!-- WhatsApp Style Send Icon -->
+                    <button onclick="sendGlobalMessage()" title="Send">
+                        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                    </button>
+                </div>
             </div>
 
-            <h3>Disclaimer</h3>
-            <p>This website does not host, upload, store, or control any media content on its own servers. All media content available through this website is provided by third-party sources and may be embedded or linked from publicly accessible locations on the internet.</p>
-            <p>We respect the intellectual property rights of content owners. If you believe that any content displayed through this website infringes your copyright or other legal rights, please contact the appropriate content owner, hosting provider, or source responsible for the material.</p>
-            <p>All trademarks, logos, service marks, trade names, videos, images, and other copyrighted materials belong to their respective owners. This website acts solely as an indexing and embedding platform and is not responsible for the content, availability, accuracy, or practices of any third-party sources.</p>
-            <p>By using this website, you acknowledge that all content is provided by external sources and that this website assumes no responsibility or liability for such content.</p>
+            <!-- Users List -->
+            <div id="chat-tab-users" class="chat-tab-content">
+                <!-- User Counters Display Banner -->
+                <div style="background:#202c33; padding:12px; display:flex; justify-content:space-around; align-items:center; border-bottom: 1px solid #111b21; flex-shrink:0;">
+                    <div style="text-align:center;">
+                        <div style="color:#00a884; font-size:15px; font-weight:bold;" id="registered-online-count">0</div>
+                        <div style="color:#aebac1; font-size:12px; margin-top:2px;">Registered Online</div>
+                    </div>
+                    <div style="width:2px; background:#111b21; height:35px;"></div>
+                    <div style="text-align:center;">
+                        <div style="color:#00a884; font-size:15px; font-weight:bold;" id="anonymous-online-count">70</div>
+                        <div style="color:#aebac1; font-size:12px; margin-top:2px;">Anonymous Users</div>
+                    </div>
+                </div>
+                <div class="messages-area" id="users-list-box" style="gap:5px;"></div>
+            </div>
+
+            <!-- Private Chat -->
+            <div id="chat-tab-private" class="chat-tab-content">
+                <div style="background:#202c33; padding:10px; display:flex; align-items:center; gap:10px; border-bottom: 1px solid #111b21;">
+                    <button onclick="switchChatTab('users')" style="background:#2a3942; border:none; padding:5px 10px; color:#d1d7db; border-radius:3px; cursor:pointer;">&larr; Back</button>
+                    <strong id="private-chat-title" style="color:#e9edef;">Chatting with...</strong>
+                </div>
+                <div class="messages-area" id="private-messages-box"></div>
+                <div class="input-area">
+                    <input type="text" id="private-msg-input" placeholder="Message" onkeypress="if(event.key === 'Enter') sendPrivateMessage()">
+                    <!-- WhatsApp Style Send Icon -->
+                    <button onclick="sendPrivateMessage()" title="Send">
+                        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Flex Layout (Disclaimer + Sliding Image) -->
+        <div class="bottom-layout-container">
+            <!-- Disclaimer (Left Side) -->
+            <div class="disclaimer-section">
+                <h3>Disclaimer</h3>
+                <p>This website does not host, upload, store, or control any media content on its own servers. All media content available through this website is provided by third-party sources and may be embedded or linked from publicly accessible locations on the internet.</p>
+                <p>We respect the intellectual property rights of content owners. If you believe that any content displayed through this website infringes your copyright or other legal rights, please contact the appropriate content owner, hosting provider, or source responsible for the material.</p>
+                <p>All trademarks, logos, service marks, trade names, videos, images, and other copyrighted materials belong to their respective owners. This website acts solely as an indexing and embedding platform and is not responsible for the content, availability, accuracy, or practices of any third-party sources.</p>
+                <p>By using this website, you acknowledge that all content is provided by external sources and that this website assumes no responsibility or liability for such content.</p>
+            </div>
+            
+            <!-- Image Banners Array Slide (Right Side) -->
+            <div class="banner-display-container" id="banner-container-main">
+                <div class="banner-track" id="display-banner-track">
+                    <!-- Javascript will dynamically feed images here -->
+                </div>
+            </div>
         </div>
 
     </div>
 
-    <!-- Scripts for Players, Firebase, and Logic -->
+    <!-- Scripts -->
     <script>
         // ------------------------------------
-        // Firebase Setup & Admin Logic
+        // Modern Toast Notification System
         // ------------------------------------
-        // REPLACE THIS CONFIG OBJECT WITH YOUR REAL FIREBASE DETAILS
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : '⚠️';
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ------------------------------------
+        // Draggable Floating Chat Logic
+        // ------------------------------------
+        const chatBtnDrag = document.getElementById('floating-chat-btn');
+        let isDraggingChat = false;
+        let chatMoved = false;
+        let chatOffsetX, chatOffsetY;
+
+        chatBtnDrag.addEventListener('mousedown', dragChatStart);
+        chatBtnDrag.addEventListener('touchstart', dragChatStart, { passive: false });
+        
+        document.addEventListener('mousemove', dragChat);
+        document.addEventListener('touchmove', dragChat, { passive: false });
+        
+        document.addEventListener('mouseup', dragChatEnd);
+        document.addEventListener('touchend', dragChatEnd);
+
+        function dragChatStart(e) {
+            if (e.type === 'mousedown' && e.button !== 0) return; // Only accept left click
+            
+            const rect = chatBtnDrag.getBoundingClientRect();
+            let clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            let clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+            chatOffsetX = clientX - rect.left;
+            chatOffsetY = clientY - rect.top;
+            
+            // Allow drag to override fixed positioning dynamically
+            chatBtnDrag.style.bottom = 'auto';
+            chatBtnDrag.style.right = 'auto';
+            chatBtnDrag.style.left = rect.left + 'px';
+            chatBtnDrag.style.top = rect.top + 'px';
+
+            isDraggingChat = true;
+            chatMoved = false;
+        }
+
+        function dragChat(e) {
+            if (!isDraggingChat) return;
+            e.preventDefault(); // Prevents screen scrolling while dragging icon on mobile
+            chatMoved = true;
+            
+            let clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            let clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+            let x = clientX - chatOffsetX;
+            let y = clientY - chatOffsetY;
+            
+            // Keep button strictly inside window bounds
+            const maxX = window.innerWidth - chatBtnDrag.offsetWidth;
+            const maxY = window.innerHeight - chatBtnDrag.offsetHeight;
+
+            if(x < 0) x = 0;
+            if(y < 0) y = 0;
+            if(x > maxX) x = maxX;
+            if(y > maxY) y = maxY;
+
+            chatBtnDrag.style.left = x + 'px';
+            chatBtnDrag.style.top = y + 'px';
+        }
+
+        function dragChatEnd() {
+            isDraggingChat = false;
+            setTimeout(() => { chatMoved = false; }, 50); // Little delay to prevent accidental click firing
+        }
+
+        chatBtnDrag.addEventListener('click', (e) => {
+            if (chatMoved) {
+                e.preventDefault();
+                e.stopPropagation();
+            } else {
+                openChatWindow(); // Opens only if it was just clicked (not dragged)
+            }
+        });
+
+
+        // ------------------------------------
+        // Firebase Setup & Advanced Auth Logic
+        // ------------------------------------
         const firebaseConfig = {
           apiKey: "AIzaSyDn_l1TL9tpLKG3_e1g2U8H_V1pamfvgiU",
           authDomain: "sinthav4.firebaseapp.com",
@@ -709,60 +570,139 @@
           projectId: "sinthav4",
           storageBucket: "sinthav4.firebasestorage.app",
           messagingSenderId: "222906020524",
-          appId: "1:222906020524:web:a39f7e15ea59d958142509",
-          measurementId: "G-0C7N4VP7M0"
+          appId: "1:222906020524:web:a39f7e15ea59d958142509"
         };
         
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
         let isAdmin = false;
-        
-        // Check Authentication System internally
+        let currentUser = null;
+        let currentUserData = null;
+        let currentPrivateUserId = null;
+
+        // Anonymous Users Tracking Logic
+        let myAnonSessionId = "anon_" + Math.random().toString(36).substring(2, 15);
+        let anonRef = firebase.database().ref(`anonymousUsers/${myAnonSessionId}`);
+        let isCurrentlyLoggedIn = false;
+
+        firebase.database().ref('.info/connected').on('value', snap => {
+            if(snap.val() === true) {
+                // If the user connects and is NOT logged in, add to anonymous tracking list
+                if(!isCurrentlyLoggedIn) {
+                    anonRef.onDisconnect().remove();
+                    anonRef.set(true);
+                }
+            }
+        });
+
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                isAdmin = true; // Admin Session found
+                isCurrentlyLoggedIn = true;
+                // If user successfully authenticates, remove them from the anonymous users count
+                anonRef.remove();
+                anonRef.onDisconnect().cancel();
+
+                currentUser = user;
+                
+                // Fetch User Details and verify Role
+                firebase.database().ref(`users/${user.uid}`).on('value', snap => {
+                    if(snap.exists()) {
+                        currentUserData = snap.val();
+                        isAdmin = (currentUserData.role === 'admin'); // Ensure Normal users are locked out
+                    } else {
+                        // Grandfathering: If user isn't in Realtime DB, assume it's the classic Admin
+                        isAdmin = true; 
+                        currentUserData = { name: "Admin", role: "admin" };
+                    }
+                });
+
+                setupPresence(user.uid);
+
             } else {
+                isCurrentlyLoggedIn = false;
+                
+                // If user logs out, re-add them to anonymous users tracking list
+                firebase.database().ref('.info/connected').once('value', snap => {
+                    if(snap.val() === true) {
+                        anonRef.onDisconnect().remove();
+                        anonRef.set(true);
+                    }
+                });
+
                 isAdmin = false;
+                currentUser = null;
+                currentUserData = null;
             }
         });
 
         // ------------------------------------
-        // Authentication Functions
+        // User & Admin Authentication
         // ------------------------------------
-        function adminLogin() {
-            const email = document.getElementById('admin-email').value;
-            const pass = document.getElementById('admin-pass').value;
-            if(!email || !pass) return alert("Please enter email and password");
-
-            firebase.auth().signInWithEmailAndPassword(email, pass)
-                .then(() => {
-                    closeLoginModal();
-                    document.getElementById('admin-dashboard-modal').classList.remove('hidden');
-                    alert("Logged in successfully!");
-                })
-                .catch((error) => alert(error.message));
+        function switchAuthView(id) {
+            document.querySelectorAll('#auth-modal .modal-box').forEach(el => el.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
         }
 
-        function adminLogout() {
-            firebase.auth().signOut().then(() => {
-                closeDashboardModal();
-                alert("Logged out successfully");
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function userLogin() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            if(!email || !pass) return showToast("Please enter email and password", "error");
+
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then(() => { closeAuthModal(); openChatWindow(); showToast("Logged in successfully", "success"); })
+                .catch((error) => showToast(error.message, "error"));
+        }
+
+        function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider).then(result => {
+                const user = result.user;
+                firebase.database().ref(`users/${user.uid}`).once('value', snap => {
+                    if(!snap.exists()) {
+                        firebase.database().ref(`users/${user.uid}`).set({
+                            uid: user.uid, name: user.displayName, email: user.email, mobile: '', isOnline: true, role: 'user'
+                        });
+                    }
+                }).then(() => { closeAuthModal(); openChatWindow(); showToast("Logged in successfully", "success");});
+            }).catch(e => showToast(e.message, "error"));
+        }
+
+        function userRegister() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const mobile = document.getElementById('reg-mobile').value;
+            const pass = document.getElementById('reg-pass').value;
+            
+            if(!name || !email || !pass) return showToast("Fill in required fields", "error");
+
+            firebase.auth().createUserWithEmailAndPassword(email, pass)
+                .then(cred => {
+                    return firebase.database().ref(`users/${cred.user.uid}`).set({
+                        uid: cred.user.uid, name: name, email: email, mobile: mobile, isOnline: true, role: 'user'
+                    });
+                }).then(() => { closeAuthModal(); openChatWindow(); showToast("Account created successfully", "success");})
+                .catch(e => showToast(e.message, "error"));
+        }
+
+        function resetPassword() {
+            const email = document.getElementById('forgot-email').value;
+            if(!email) return showToast("Enter email", "error");
+            firebase.auth().sendPasswordResetEmail(email).then(() => showToast("Reset link sent!", "success")).catch(e => showToast(e.message, "error"));
+        }
+
+        function userLogout() {
+            firebase.auth().signOut().then(() => { 
+                closeDashboardModal(); 
+                closeChatWindow();
+                showToast("Logged out.", "success"); 
             });
         }
 
-        function closeLoginModal() {
-            document.getElementById('login-modal').classList.add('hidden');
-        }
-
-        function closeDashboardModal() {
-            document.getElementById('admin-dashboard-modal').classList.add('hidden');
-        }
-
-        // ------------------------------------
-        // Header Tap and Hold Logic
-        // ------------------------------------
+        // Header Tap and Hold Logic -> opens Admin Panel OR Login
         let headerPressTimer;
         let isHeaderLongPress = false;
         const mainHeader = document.getElementById('main-header');
@@ -777,105 +717,339 @@
             isHeaderLongPress = false;
             headerPressTimer = setTimeout(() => {
                 isHeaderLongPress = true;
-                if(isAdmin) {
-                    document.getElementById('admin-dashboard-modal').classList.remove('hidden');
-                } else {
-                    document.getElementById('login-modal').classList.remove('hidden');
-                }
+                if(isAdmin) document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+                else document.getElementById('auth-modal').classList.remove('hidden');
             }, 800);
         }
-        function cancelHeaderPress() {
-            clearTimeout(headerPressTimer);
-        }
+        function cancelHeaderPress() { clearTimeout(headerPressTimer); }
+        function closeDashboardModal() { document.getElementById('admin-dashboard-modal').classList.add('hidden'); }
 
         // ------------------------------------
-        // Admin Config Actions (Marquee & Image)
+        // Realtime Presence System
         // ------------------------------------
-        function updateMarquee() {
-            const text = document.getElementById('admin-marquee-input').value;
-            firebase.database().ref('adminConfig/marqueeText').set(text).then(() => {
-                alert("Marquee Text Saved!");
+        function setupPresence(uid) {
+            const userStatusRef = firebase.database().ref(`users/${uid}/isOnline`);
+            firebase.database().ref('.info/connected').on('value', snap => {
+                if(snap.val() === true) {
+                    userStatusRef.onDisconnect().set(false);
+                    userStatusRef.set(true);
+                }
             });
         }
 
-        function uploadBannerImage() {
-            const fileInput = document.getElementById('admin-banner-file');
-            const file = fileInput.files[0];
-            if (!file) return alert("Please select an image file first.");
+        // ------------------------------------
+        // Chat Section & Fixed Layout Logic
+        // ------------------------------------
+        function openChatWindow() {
+            if (!currentUser) {
+                switchAuthView('form-login');
+                document.getElementById('auth-modal').classList.remove('hidden');
+                return;
+            }
+            // Add Fixed Layout Classes
+            document.body.classList.add('chat-active-mode');
+            document.getElementById('chat-container').classList.add('active');
+            
+            switchChatTab('global');
+            initGlobalChatListener();
+            initUserListListener();
+        }
 
-            // Use FileReader to convert image to Base64 String and save in RTDB directly
-            // This avoids complicated Firebase Storage Bucket Rules and CORS setup.
+        function closeChatWindow() {
+            // Remove Fixed Layout Classes
+            document.body.classList.remove('chat-active-mode');
+            document.getElementById('chat-container').classList.remove('active');
+            
+            // Scroll back to top just in case
+            window.scrollTo(0, 0);
+        }
+
+        function switchChatTab(tab) {
+            document.querySelectorAll('.chat-tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`chat-tab-${tab}`).classList.add('active');
+            
+            document.querySelectorAll('.chat-header button:not(.chat-close-btn)').forEach(b => b.classList.remove('active'));
+            if(tab === 'global' || tab === 'users') document.getElementById(`tab-btn-${tab}`).classList.add('active');
+        }
+
+        function initGlobalChatListener() {
+            firebase.database().ref('globalChat').limitToLast(100).on('value', snap => {
+                const msgs = snap.val() || {};
+                const box = document.getElementById('global-messages-box');
+                box.innerHTML = '';
+                Object.values(msgs).forEach(m => {
+                    const isSelf = m.uid === currentUser.uid;
+                    box.innerHTML += `
+                        <div class="msg-bubble ${isSelf ? 'msg-self' : 'msg-other'}">
+                            ${!isSelf ? `<div class="msg-sender">${m.name}</div>` : ''}
+                            <div>${m.text}</div>
+                        </div>
+                    `;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function sendGlobalMessage() {
+            const input = document.getElementById('global-msg-input');
+            if(!input.value.trim()) return;
+            firebase.database().ref('globalChat').push({
+                uid: currentUser.uid, name: currentUserData.name || 'User', text: input.value.trim(), timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            input.value = '';
+        }
+
+        // ------------------------------------
+        // Anonymous User Count Dynamic Logic
+        // ------------------------------------
+        let actualAnonConnections = 0;
+        let baseAnonCount = 0;
+        let anonIntervalSet = false;
+
+        function updateAnonDisplay() {
+            const displayAnonCount = baseAnonCount + actualAnonConnections;
+            const anonCountEl = document.getElementById('anonymous-online-count');
+            if (anonCountEl) {
+                anonCountEl.innerText = displayAnonCount;
+            }
+        }
+
+        function refreshBaseAnonCount() {
+            const now = new Date();
+            const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+            const hour = istTime.getHours();
+
+            let targetMin = 5;
+            let targetMax = 100;
+
+            // Determine targets based on current time (10 PM to 3 AM gets higher limits)
+            if (hour >= 22 || hour < 3) {
+                targetMin = 200;
+                targetMax = 400;
+            } else {
+                targetMin = 5;
+                targetMax = 100;
+            }
+
+            // Initialize randomly on first load within the proper limits
+            if (baseAnonCount === 0) {
+                baseAnonCount = Math.floor(Math.random() * (targetMax - targetMin + 1)) + targetMin;
+            } else {
+                // Determine step (realistic fluctuation: increase or decrease slowly by 0 to 3)
+                let step = Math.floor(Math.random() * 7) - 3; // Generates: -3, -2, -1, 0, 1, 2, 3
+
+                // Force a smooth larger step towards the boundaries if out of bounds (due to time passing)
+                if (baseAnonCount < targetMin) {
+                    step = Math.floor(Math.random() * 6) + 3; // +3 to +8 for a smoother quick climb
+                } else if (baseAnonCount > targetMax) {
+                    step = -(Math.floor(Math.random() * 6) + 3); // -3 to -8 for a smoother quick drop
+                }
+
+                baseAnonCount += step;
+
+                // Clamp strictly if normal fluctuation steps over bounds
+                if (baseAnonCount < targetMin && step <= 3 && step >= -3) baseAnonCount = targetMin;
+                if (baseAnonCount > targetMax && step <= 3 && step >= -3) baseAnonCount = targetMax;
+            }
+
+            updateAnonDisplay();
+        }
+
+        function initUserListListener() {
+            // Listen to logged-in/registered Users Count & Generate Users list
+            firebase.database().ref('users').on('value', snap => {
+                const users = snap.val() || {};
+                const box = document.getElementById('users-list-box');
+                box.innerHTML = '';
+                
+                // Track online registered users
+                let onlineRegisteredCount = 0;
+                Object.values(users).forEach(u => {
+                    if (u.isOnline) onlineRegisteredCount++;
+                });
+
+                const regCountEl = document.getElementById('registered-online-count');
+                if(regCountEl) regCountEl.innerText = onlineRegisteredCount;
+
+                // Sort Online first for listing
+                const usersArray = Object.values(users).filter(u => u.uid !== currentUser.uid);
+                usersArray.sort((a, b) => (b.isOnline ? 1 : 0) - (a.isOnline ? 1 : 0));
+                
+                usersArray.forEach(u => {
+                    box.innerHTML += `
+                        <div class="user-list-item" onclick="openPrivateChat('${u.uid}', '${u.name}')">
+                            <span style="font-weight:bold;">${u.name}</span>
+                            <div class="user-status">
+                                ${u.isOnline ? 'Online' : 'Offline'}
+                                <div class="dot ${u.isOnline ? 'dot-live' : 'dot-offline'}"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            // Listen to Anonymous Users Tracking Count
+            firebase.database().ref('anonymousUsers').on('value', snap => {
+                const anonUsers = snap.val() || {};
+                actualAnonConnections = Object.keys(anonUsers).length;
+                
+                if (baseAnonCount === 0) {
+                    refreshBaseAnonCount();
+                } else {
+                    updateAnonDisplay();
+                }
+            });
+
+            // Start the realistic interval changing numbers every 2 seconds gradually
+            if (!anonIntervalSet) {
+                anonIntervalSet = true;
+                setInterval(refreshBaseAnonCount, 2000); 
+            }
+        }
+
+        let privateChatRef;
+        function openPrivateChat(otherUid, otherName) {
+            currentPrivateUserId = currentUser.uid < otherUid ? `${currentUser.uid}_${otherUid}` : `${otherUid}_${currentUser.uid}`;
+            document.getElementById('private-chat-title').innerText = `Chat with ${otherName}`;
+            switchChatTab('private');
+            
+            if(privateChatRef) privateChatRef.off();
+            privateChatRef = firebase.database().ref(`privateChats/${currentPrivateUserId}`).limitToLast(100);
+            
+            privateChatRef.on('value', snap => {
+                const msgs = snap.val() || {};
+                const box = document.getElementById('private-messages-box');
+                box.innerHTML = '';
+                Object.values(msgs).forEach(m => {
+                    const isSelf = m.uid === currentUser.uid;
+                    box.innerHTML += `
+                        <div class="msg-bubble ${isSelf ? 'msg-self' : 'msg-other'}">
+                            <div>${m.text}</div>
+                        </div>
+                    `;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function sendPrivateMessage() {
+            const input = document.getElementById('private-msg-input');
+            if(!input.value.trim() || !currentPrivateUserId) return;
+            firebase.database().ref(`privateChats/${currentPrivateUserId}`).push({
+                uid: currentUser.uid, text: input.value.trim(), timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            input.value = '';
+        }
+
+
+        // ------------------------------------
+        // Admin Config Actions (Marquee, Images, Menus)
+        // ------------------------------------
+        function updateMarquee() {
+            const text = document.getElementById('admin-marquee-input').value;
+            const speed = document.getElementById('admin-marquee-speed').value || 15;
+            firebase.database().ref('adminConfig/marquee').set({ text: text, speed: speed }).then(() => showToast("Saved!", "success"));
+        }
+
+        function removeMarquee() {
+            firebase.database().ref('adminConfig/marquee').remove().then(() => { document.getElementById('admin-marquee-input').value = ""; showToast("Removed!", "success"); });
+        }
+
+        function uploadBannerImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64String = e.target.result;
-                firebase.database().ref('adminConfig/bannerImage').set(base64String)
-                    .then(() => {
-                        alert("Image Uploaded and Saved!");
-                        fileInput.value = "";
-                    })
-                    .catch((err) => alert("Error: " + err.message));
+            reader.onload = function(ev) {
+                firebase.database().ref('adminConfig/bannerImages').push(ev.target.result)
+                    .then(() => showToast("Image Uploaded!", "success"));
             };
             reader.readAsDataURL(file);
         }
 
-        function removeBannerImage() {
-            firebase.database().ref('adminConfig/bannerImage').remove().then(() => {
-                alert("Image Removed!");
-            });
+        function removeBannerImage(key) {
+            firebase.database().ref(`adminConfig/bannerImages/${key}`).remove();
         }
 
-        // ------------------------------------
-        // Real-Time Listeners (For UI Update)
-        // ------------------------------------
-        
-        // Listen to Admin Configuration Updates (Marquee and Banner)
+        function toggleNavVisibility(serverId, checked) {
+            // true = hidden
+            firebase.database().ref(`adminConfig/hiddenServers/${serverId}`).set(!checked);
+        }
+
+        function renderNavToggles(hiddenData) {
+            const container = document.getElementById('admin-nav-toggles');
+            container.innerHTML = '';
+            for(let i=1; i<=12; i++) {
+                const isHidden = hiddenData[`server${i}`];
+                container.innerHTML += `
+                    <label style="display:flex; align-items:center; gap:5px; background:#222; padding:5px 10px; border-radius:4px; cursor:pointer;">
+                        <input type="checkbox" onchange="toggleNavVisibility('server${i}', this.checked)" ${isHidden ? '' : 'checked'}> Server ${i}
+                    </label>
+                `;
+            }
+        }
+
+        // Live Config Listeners
         firebase.database().ref('adminConfig').on('value', (snapshot) => {
             const data = snapshot.val() || {};
             
-            // Marquee Display Logic
-            const marqueeWrapper = document.getElementById('display-marquee-wrapper');
-            const marqueeText = document.getElementById('display-marquee-text');
-            const adminMarqueeInput = document.getElementById('admin-marquee-input');
-
-            if (data.marqueeText && data.marqueeText.trim() !== "") {
-                marqueeText.innerText = data.marqueeText;
-                marqueeWrapper.classList.add('active');
-                if(adminMarqueeInput) adminMarqueeInput.value = data.marqueeText;
-            } else {
-                marqueeWrapper.classList.remove('active');
-                marqueeText.innerText = "";
-                if(adminMarqueeInput) adminMarqueeInput.value = "";
-            }
-
-            // Banner Display Logic
-            const bannerContainer = document.getElementById('display-banner-container');
-            const bannerImg = document.getElementById('display-banner-img');
-            const adminBannerPreview = document.getElementById('admin-banner-preview');
-
-            if (data.bannerImage) {
-                // Public Banner Update
-                bannerImg.src = data.bannerImage;
-                bannerContainer.classList.add('active');
-                
-                // Admin Panel Preview Update
-                if (adminBannerPreview) {
-                    adminBannerPreview.src = data.bannerImage;
-                    adminBannerPreview.style.display = "block";
+            // 1. Marquee Logic
+            const mData = data.marquee || {};
+            const mWrapper = document.getElementById('display-marquee-wrapper');
+            const mText = document.getElementById('display-marquee-text');
+            if (mData.text && mData.text.trim() !== "") {
+                mText.innerText = mData.text;
+                mText.style.animationDuration = (mData.speed || 15) + 's';
+                mWrapper.classList.add('active');
+                if(document.getElementById('admin-marquee-input')) {
+                    document.getElementById('admin-marquee-input').value = mData.text;
+                    document.getElementById('admin-marquee-speed').value = mData.speed || 15;
                 }
             } else {
-                // Hide Public Banner
-                bannerImg.src = "";
-                bannerContainer.classList.remove('active');
-                
-                // Hide Admin Panel Preview
-                if (adminBannerPreview) {
-                    adminBannerPreview.src = "";
-                    adminBannerPreview.style.display = "none";
-                }
+                mWrapper.classList.remove('active');
             }
+
+            // 2. Banner Images Array Logic
+            const images = data.bannerImages || {};
+            const displayTrack = document.getElementById('display-banner-track');
+            const adminList = document.getElementById('admin-banner-preview-list');
+            const bannerContainerMain = document.getElementById('banner-container-main');
+            
+            let adminHtml = '';
+            let pubHtml = '';
+            const imgKeys = Object.keys(images);
+
+            if(imgKeys.length > 0) {
+                imgKeys.forEach(k => {
+                    adminHtml += `
+                        <div style="position:relative; flex-shrink:0;">
+                            <img src="${images[k]}" style="height:60px; border-radius:4px;">
+                            <span onclick="removeBannerImage('${k}')" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; cursor:pointer; width:20px; height:20px; text-align:center; font-size:14px; line-height:18px;">&times;</span>
+                        </div>
+                    `;
+                    pubHtml += `<img src="${images[k]}" class="animated-banner-img">`;
+                });
+                
+                // Duplicate for seamless marquee effect
+                imgKeys.forEach(k => { pubHtml += `<img src="${images[k]}" class="animated-banner-img">`; });
+                
+                if (bannerContainerMain) bannerContainerMain.style.display = 'flex';
+            } else {
+                if (bannerContainerMain) bannerContainerMain.style.display = 'none';
+            }
+            
+            if(adminList) adminList.innerHTML = adminHtml;
+            if(displayTrack) displayTrack.innerHTML = pubHtml;
+
+            // 3. Menus Visibility Logic
+            const hiddenServers = data.hiddenServers || {};
+            for(let i=1; i<=12; i++) {
+                const btn = document.querySelector(`button[data-server="server${i}"]`);
+                if(btn) btn.style.display = hiddenServers[`server${i}`] ? 'none' : 'inline-flex';
+            }
+            if(isAdmin) renderNavToggles(hiddenServers);
         });
 
-        // Listen to Server Live/Offline Status Updates
+        // Live Server Status
         firebase.database().ref('serverStatus').on('value', (snapshot) => {
             const data = snapshot.val() || {};
             document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -893,11 +1067,9 @@
         });
 
         // ------------------------------------
-        // Nav Tap and Hold Logic (Server Status Menu)
+        // Nav Tap and Hold Logic (Admin Menu)
         // ------------------------------------
-        let navPressTimer;
-        let isNavLongPress = false;
-        let currentTargetServer = null;
+        let navPressTimer; let isNavLongPress = false; let currentTargetServer = null;
 
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('mousedown', (e) => startNavPress(e, btn));
@@ -913,134 +1085,67 @@
             const serverId = btn.getAttribute('data-server');
             navPressTimer = setTimeout(() => {
                 isNavLongPress = true;
-                openStatusMenu(serverId);
+                currentTargetServer = serverId;
+                document.getElementById('admin-status-menu').classList.remove('hidden');
             }, 800);
         }
 
-        function cancelNavPress() {
-            clearTimeout(navPressTimer);
-        }
-
-        function openStatusMenu(serverId) {
-            currentTargetServer = serverId;
-            document.getElementById('admin-status-menu').classList.remove('hidden');
-        }
-
-        function closeStatusMenu() {
-            document.getElementById('admin-status-menu').classList.add('hidden');
-            setTimeout(() => { isNavLongPress = false; }, 100);
-        }
+        function cancelNavPress() { clearTimeout(navPressTimer); }
+        function closeStatusMenu() { document.getElementById('admin-status-menu').classList.add('hidden'); setTimeout(() => { isNavLongPress = false; }, 100); }
 
         function updateServerStatus(status) {
             if (currentTargetServer) {
-                firebase.database().ref('serverStatus/' + currentTargetServer).set(status);
+                if(status === 'clear') firebase.database().ref('serverStatus/' + currentTargetServer).remove();
+                else firebase.database().ref('serverStatus/' + currentTargetServer).set(status);
             }
             closeStatusMenu();
         }
 
         // ------------------------------------
-        // Loading Overlay Logic
+        // Stream Switching & Load Logic
         // ------------------------------------
-        function showLoading(serverId) {
-            const overlay = document.getElementById(`loading-${serverId}`);
-            if (overlay) overlay.classList.remove('hidden');
-        }
-
-        function hideLoading(serverId) {
-            const overlay = document.getElementById(`loading-${serverId}`);
-            if (overlay) overlay.classList.add('hidden');
-        }
-
-        // Helper function to safely play video and handle autoplay restrictions
+        function showLoading(serverId) { const overlay = document.getElementById(`loading-${serverId}`); if (overlay) overlay.classList.remove('hidden'); }
+        function hideLoading(serverId) { const overlay = document.getElementById(`loading-${serverId}`); if (overlay) overlay.classList.add('hidden'); }
         function safePlay(videoId, serverId) {
             try {
-                const vid = document.getElementById(videoId);
-                let playPromise = vid.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        // Autoplay was blocked by browser. We must still hide spinner.
-                        hideLoading(serverId);
-                    });
-                }
-            } catch (e) {
-                hideLoading(serverId);
-            }
+                const vid = document.getElementById(videoId); let playPromise = vid.play();
+                if (playPromise !== undefined) playPromise.catch(error => { hideLoading(serverId); });
+            } catch (e) { hideLoading(serverId); }
         }
 
-        // ------------------------------------
-        // Server Switching & Auto-Pause Logic
-        // ------------------------------------
         function switchServer(serverId, btnElement) {
             if (isNavLongPress) return;
-
-            // 1. Update active class on Navigation Buttons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
-
-            // 2. Show Loading overlay for newly selected server
             showLoading(serverId);
-
-            // Failsafe: Hide loading overlay automatically after 8 seconds 
             setTimeout(() => hideLoading(serverId), 8000);
 
-            // 3. PAUSE/STOP OLD VIDEOS
+            try { if (jwplayer("jwplayer-container").getState() === 'playing' || jwplayer("jwplayer-container").getState() === 'buffering') jwplayer("jwplayer-container").pause(); } catch (e) {}
+            try { const shakaVideo = document.getElementById('youtube-theme'); if (shakaVideo && !shakaVideo.paused) shakaVideo.pause(); } catch (e) {}
             try {
-                if (jwplayer("jwplayer-container").getState() === 'playing' || jwplayer("jwplayer-container").getState() === 'buffering') {
-                    jwplayer("jwplayer-container").pause();
-                }
-            } catch (e) {}
-
-            try {
-                const shakaVideo = document.getElementById('youtube-theme');
-                if (shakaVideo && !shakaVideo.paused) shakaVideo.pause();
-            } catch (e) {}
-
-            try {
-                // Pause all Custom HLS videos (1, 2, 3, 8, 12)
                 const customVideos = ['videoPlayer1', 'videoPlayer2', 'videoPlayer3', 'videoPlayer8', 'videoPlayer12'];
-                customVideos.forEach(vid => {
-                    const el = document.getElementById(vid);
-                    if (el && !el.paused) el.pause();
-                });
+                customVideos.forEach(vid => { const el = document.getElementById(vid); if (el && !el.paused) el.pause(); });
             } catch (e) {}
 
-            // Stop All Iframes by removing their src
-            document.querySelectorAll('.server-tab iframe').forEach(iframe => {
-                iframe.src = ""; 
-            });
-
-            // 4. Hide all server tabs
+            document.querySelectorAll('.server-tab iframe').forEach(iframe => iframe.src = "");
             document.querySelectorAll('.server-tab').forEach(tab => tab.classList.remove('active'));
             
-            // 5. Show the newly selected server tab
             const activeTab = document.getElementById(serverId);
             activeTab.classList.add('active');
 
-            // 6. PLAY NEW VIDEO
             const activeIframe = activeTab.querySelector('iframe');
-            if (activeIframe) {
-                // Remove existing onload to avoid duplicates, then attach fresh
-                activeIframe.onload = () => hideLoading(serverId);
-                activeIframe.src = activeIframe.getAttribute('data-src');
-            }
+            if (activeIframe) { activeIframe.onload = () => hideLoading(serverId); activeIframe.src = activeIframe.getAttribute('data-src'); }
 
             if (serverId === 'server9') { try { jwplayer("jwplayer-container").play(); } catch (e) {} }
-            
-            // Lazy load Shaka Player execution
             if (serverId === 'server6') { 
                 try { 
                     const shakaVideo = document.getElementById('youtube-theme');
                     if (window.player && !window.isShakaLoaded) {
                         window.player.load(manifestUri).then(() => {
                             let playPromise = shakaVideo.play();
-                            if(playPromise !== undefined) {
-                                playPromise.catch(e => hideLoading('server6'));
-                            }
+                            if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6'));
                             window.isShakaLoaded = true;
-                        }).catch(e => {
-                            console.error('Shaka Load Error:', e);
-                            hideLoading('server6');
-                        });
+                        }).catch(e => hideLoading('server6'));
                     } else if (window.isShakaLoaded) {
                         let playPromise = shakaVideo.play();
                         if(playPromise !== undefined) playPromise.catch(e => hideLoading('server6'));
@@ -1056,141 +1161,68 @@
         }
 
         // ------------------------------------
-        // Setup JW Player (Server 9)
+        // Setup Players (JW, Shaka, Custom HLS)
         // ------------------------------------
         jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
         const playerInstance = jwplayer("jwplayer-container").setup({
-            playlist: [{
-                sources: [{
-                    file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
-                    type: "dash",
-                    drm: {
-                        clearkey: {
-                            keyId: "433ffba670963e70857859a9dff4be04",
-                            key: "51ede3a821229fe81e71282c8eff80e3"
-                        }
-                    }
-                }]
-            }],
-            width: "100%",
-            height: "100%", 
-            aspectratio: "16:9",
-            autostart: true, 
-            mute: false
+            playlist: [{ sources: [{ file: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd", type: "dash", drm: { clearkey: { keyId: "433ffba670963e70857859a9dff4be04", key: "51ede3a821229fe81e71282c8eff80e3" } } }] }],
+            width: "100%", height: "100%", aspectratio: "16:9", autostart: true, mute: false
         });
-
         playerInstance.on('play', () => hideLoading('server9'));
         playerInstance.on('buffer', () => showLoading('server9'));
 
-        // ------------------------------------
-        // Setup Shaka Player (Server 6) lazy setup
-        // ------------------------------------
         const manifestUri = 'https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd';
         window.isShakaLoaded = false;
-
         async function initShaka() {
             const video = document.getElementById('youtube-theme');
             const ui = video['ui'];
-            
-            const config = {
-                'seekBarColors': {
-                    base: 'rgba(255,255,255,.2)',
-                    buffered: 'rgba(255,255,255,.4)',
-                    played: 'rgb(255,0,0)',
-                }
-            };
-            ui.configure(config);
-
-            const controls = ui.getControls();
-            const player = controls.getPlayer();
-            
-            player.configure({
-                drm: {
-                    clearKeys: {
-                        "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3"
-                    }
-                }
-            });
-
-            window.player = player;
-            window.ui = ui;
-
+            ui.configure({'seekBarColors': { base: 'rgba(255,255,255,.2)', buffered: 'rgba(255,255,255,.4)', played: 'rgb(255,0,0)' }});
+            const player = ui.getControls().getPlayer();
+            player.configure({ drm: { clearKeys: { "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3" } } });
+            window.player = player; window.ui = ui;
             video.addEventListener('playing', () => hideLoading('server6'));
             video.addEventListener('loadeddata', () => hideLoading('server6'));
             video.addEventListener('canplay', () => hideLoading('server6'));
             video.addEventListener('waiting', () => showLoading('server6'));
-
-            setTimeout(() => {
-                const menuBtn = document.querySelector('.shaka-overflow-menu-button');
-                if(menuBtn) menuBtn.innerHTML = 'settings';
-            }, 500);
+            setTimeout(() => { const menuBtn = document.querySelector('.shaka-overflow-menu-button'); if(menuBtn) menuBtn.innerHTML = 'settings'; }, 500);
         }
         document.addEventListener('shaka-ui-loaded', initShaka);
 
-        // ----------------------------------------------------
-        // Setup Custom HLS Players Reusable Logic
-        // ----------------------------------------------------
         function setupCustomHLS(streamUrl, serverId, videoId) {
             const serverContainer = document.getElementById(serverId);
             const videoElement = document.getElementById(videoId);
-            let hlsPlayer = null;
-            let videoQualities = [];
+            let hlsPlayer = null; let videoQualities = [];
 
-            // Adding extra events guarantees the spinner hides when the video is ready
-            // even if auto-play fails or needs user interaction first.
             videoElement.addEventListener('playing', () => hideLoading(serverId));
             videoElement.addEventListener('loadeddata', () => hideLoading(serverId));
             videoElement.addEventListener('canplay', () => hideLoading(serverId));
             videoElement.addEventListener('waiting', () => showLoading(serverId));
 
             async function init() {
-                videoQualities = [];
-                setupQualitySelect(['Auto']);
-
+                videoQualities = []; setupQualitySelect(['Auto']);
                 if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-                    hlsPlayer = new Hls({ enableWorker: true });
-                    hlsPlayer.attachMedia(videoElement);
-                    
-                    hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => {
-                        hlsPlayer.loadSource(streamUrl);
-                    });
-                    
-                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-                        populateQualities(data.levels);
-                    });
-                    
-                    hlsPlayer.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
-                        updateQualityLabel(data.level);
-                    });
-                } 
-                else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                    try { await fetchMasterPlaylist(streamUrl); } catch (err) { console.warn(err); }
+                    hlsPlayer = new Hls({ enableWorker: true }); hlsPlayer.attachMedia(videoElement);
+                    hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => hlsPlayer.loadSource(streamUrl));
+                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, (e, d) => populateQualities(d.levels));
+                    hlsPlayer.on(Hls.Events.LEVEL_SWITCHED, (e, d) => updateQualityLabel(d.level));
+                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    try { await fetchMasterPlaylist(streamUrl); } catch (err) {}
                     videoElement.src = streamUrl;
-                } 
-                else {
-                    videoElement.innerHTML = 'Browser does not support HLS.';
-                }
+                } else videoElement.innerHTML = 'Browser does not support HLS.';
             }
 
             function populateQualities(levels) {
-                videoQualities = levels.map((lvl, idx) => ({ 
-                    label: (lvl.height ? lvl.height + 'p' : Math.round(lvl.bitrate / 1000) + 'kbps'), 
-                    index: idx 
-                }));
+                videoQualities = levels.map((lvl, idx) => ({ label: (lvl.height ? lvl.height + 'p' : Math.round(lvl.bitrate / 1000) + 'kbps'), index: idx }));
                 setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]);
             }
 
             function updateQualityLabel(level) {
                 const select = serverContainer.querySelector('.select-selected');
-                if (level === -1) select.textContent = 'Auto';
-                else select.textContent = videoQualities[level].label;
+                if (level === -1) select.textContent = 'Auto'; else select.textContent = videoQualities[level].label;
             }
 
             async function fetchMasterPlaylist(url) {
-                const res = await fetch(url, { mode: 'cors' });
-                const txt = await res.text();
-                const lines = txt.split(/\r?\n/);
-                const items = [];
+                const res = await fetch(url, { mode: 'cors' }); const txt = await res.text(); const lines = txt.split(/\r?\n/); const items = [];
                 for (let i = 0; i < lines.length; i++) {
                     if (lines[i].startsWith('#EXT-X-STREAM-INF')) {
                         const bw = (lines[i].match(/BANDWIDTH=(\d+)/) || [0, 0])[1];
@@ -1198,44 +1230,30 @@
                         items.push({ label: reso ? reso.split('x')[1] + 'p' : Math.round(bw / 1000) + 'kbps', url });
                     }
                 }
-                videoQualities = items;
-                setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]);
+                videoQualities = items; setupQualitySelect(['Auto', ...videoQualities.map(q => q.label)]);
             }
 
             function setupQualitySelect(options) {
                 const selected = serverContainer.querySelector('.select-selected');
                 const items = serverContainer.querySelector('.select-items');
                 items.innerHTML = '';
-                
                 options.forEach((opt, idx) => {
-                    const div = document.createElement('div');
-                    div.textContent = opt;
+                    const div = document.createElement('div'); div.textContent = opt;
                     div.addEventListener('click', () => {
-                        selected.textContent = opt;
-                        changeQuality(idx === 0 ? 'auto' : (idx - 1).toString());
-                        items.style.display = 'none';
+                        selected.textContent = opt; changeQuality(idx === 0 ? 'auto' : (idx - 1).toString()); items.style.display = 'none';
                     });
                     items.appendChild(div);
                 });
-                
-                selected.onclick = () => { 
-                    items.style.display = items.style.display === 'block' ? 'none' : 'block'; 
-                };
+                selected.onclick = () => { items.style.display = items.style.display === 'block' ? 'none' : 'block'; };
             }
 
             function changeQuality(val) {
-                if (hlsPlayer) {
-                    if (val === 'auto') hlsPlayer.currentLevel = -1;
-                    else hlsPlayer.currentLevel = parseInt(val, 10);
-                } else if (val !== 'auto') {
-                    videoElement.src = streamUrl;
-                }
+                if (hlsPlayer) { if (val === 'auto') hlsPlayer.currentLevel = -1; else hlsPlayer.currentLevel = parseInt(val, 10); }
+                else if (val !== 'auto') { videoElement.src = streamUrl; }
             }
-
             init();
         }
 
-        // Initialize Custom HLS Servers
         document.addEventListener('DOMContentLoaded', () => {
             setupCustomHLS("https://live05.apusport.com/live/08552895.m3u8", "server1", "videoPlayer1");
             setupCustomHLS("https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8", "server2", "videoPlayer2");
