@@ -12,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@400;700&family=Lobster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Loaded jsPDF script to fix PDF download operations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -21,6 +20,8 @@
 
 <style>
     :root {
+        --bg-url: url("https://i.ibb.co/gb2q30kV/bg.jpg");
+        --header-bg: url("https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png");
         --bg-color: linear-gradient(135deg, green, gold);
         --primary-surface: #19153a;
         --secondary-surface: #2c2850;
@@ -62,7 +63,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url("https://i.ibb.co/gb2q30kV/bg.jpg");
+        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), var(--bg-url);
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -208,20 +209,19 @@ backdrop-filter: blur(8px);
     }
     
     #agentListPopup .popup-content {
-    background: rgba(10, 10, 12, 0.85) !important; /* Dark transparent background */
-    backdrop-filter: blur(15px) !important;        /* Background blur effect */
+    background: rgba(10, 10, 12, 0.85) !important;
+    backdrop-filter: blur(15px) !important;
     -webkit-backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important; /* Subtle border */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;  /* Dark shadow */
-    padding: 1.5rem !important;                    /* Spacing aur padding */
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+    padding: 1.5rem !important;
 }
 
 #agentListPopup .agent-list a {
-    background: rgba(255, 255, 255, 0.05) !important; /* Transparent dark cards */
+    background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
 }
-
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
@@ -389,7 +389,7 @@ backdrop-filter: blur(8px);
     padding: 2.1rem 1rem;
     border-radius: 15px;
     
-    background-image: url("https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png");
+    background-image: var(--header-bg);
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -662,7 +662,7 @@ backdrop-filter: blur(8px);
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
     .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; 
-       font-family: "Times New Roman", Times, Georgia, serif !important; /* Isse font force hoga */
+       font-family: "Times New Roman", Times, Georgia, serif !important; 
     font-weight: bold !important; 
     font-size: clamp(1.2rem, 2.5vw, 1.4rem) !important; 
         padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
@@ -1923,7 +1923,7 @@ body.dashboard-view-active #universalBookFloatBtn {
 
 <!-- Floating Draggable Ticket Booking GIF Button -->
 <div class="universal-float-btn" id="universalBookFloatBtn" title="Hold & drag anywhere. Tap to Book.">
-    <img src="https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif" alt="Booking Ticket GIF">
+    <img id="universalFloatImg" src="https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif" alt="Booking Ticket GIF">
 </div>
 
 <div id="publicView" class="view neon-view active">
@@ -2273,7 +2273,6 @@ body.dashboard-view-active #universalBookFloatBtn {
     </div>
 </div>
 
-<!-- editAgentDetailsPopup added for Admin to edit Agent from Agent List -->
 <div class="overlay-popup" id="editAgentDetailsPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -2475,7 +2474,7 @@ body.dashboard-view-active #universalBookFloatBtn {
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="notification-body">
             <div class="notification-logo">
-                <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
+                <img id="notificationLogoImg" src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
             </div>
             <div class="notification-text-content">
                 <h3 class="popup-title">Welcome to Sintha Team!</h3>
@@ -2534,6 +2533,102 @@ body.dashboard-view-active #universalBookFloatBtn {
 <audio id="liveAudioPlayer"></audio>
 
 <script>
+// --- CACHE & FAST LOAD SYSTEM START ---
+const CACHE_NAME = 'housie-assets-v2';
+
+async function cacheAndSetCSSVar(url, cssVarName) {
+    if ('caches' in window) {
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            let response = await cache.match(url);
+            if (!response) {
+                const fetchReq = new Request(url, { mode: 'cors' });
+                response = await fetch(fetchReq);
+                if (response.ok) {
+                    await cache.put(fetchReq, response.clone());
+                }
+            }
+            if (response && response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                document.documentElement.style.setProperty(cssVarName, `url("${blobUrl}")`);
+                return;
+            }
+        } catch (e) { console.warn('Cache API error:', e); }
+    }
+    document.documentElement.style.setProperty(cssVarName, `url("${url}")`);
+}
+
+async function cacheAndSetImageSrc(url, elementId) {
+    if ('caches' in window) {
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            let response = await cache.match(url);
+            if (!response) {
+                const fetchReq = new Request(url, { mode: 'cors' });
+                response = await fetch(fetchReq);
+                if (response.ok) {
+                    await cache.put(fetchReq, response.clone());
+                }
+            }
+            if (response && response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const el = document.getElementById(elementId);
+                if (el) el.src = blobUrl;
+                return;
+            }
+        } catch (e) { console.warn('Cache API error:', e); }
+    }
+    const el = document.getElementById(elementId);
+    if (el) el.src = url;
+}
+
+async function backgroundCacheAudio() {
+    if (!('caches' in window)) return;
+    try {
+        const cache = await caches.open(CACHE_NAME);
+        const keys = await cache.keys();
+        const cachedUrls = new Set(keys.map(r => r.url));
+        
+        const audioToCache = [];
+        for (let i = 1; i <= 90; i++) {
+            audioToCache.push(`https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/${i}.mp3`);
+        }
+        const dividendSounds = [
+            "FirstFullHouse.mp3", "SecondFullHouse.mp3", "ThirdFullHouse.mp3",
+            "TopLine.mp3", "MiddleLine.mp3", "BottomLine.mp3",
+            "Corner.mp3", "Quick7.mp3", "FullSheetBonus.mp3",
+            "HalfSheetBonus.mp3", "Star.mp3", "Early5.mp3", "gamehasstarted.mp3", "GAMEISLIVE.mp3"
+        ];
+        dividendSounds.forEach(snd => audioToCache.push(`https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/${snd}`));
+
+        // Batch download to avoid blocking the network suddenly
+        for (let i = 0; i < audioToCache.length; i += 5) {
+            const chunk = audioToCache.slice(i, i + 5);
+            await Promise.all(chunk.map(async url => {
+                if (!cachedUrls.has(url)) {
+                    try {
+                        const req = new Request(url, { mode: 'cors' });
+                        const res = await fetch(req);
+                        if (res.ok) await cache.put(req, res);
+                    } catch (e) {}
+                }
+            }));
+        }
+    } catch (e) {}
+}
+
+function initCachedAssets() {
+    cacheAndSetCSSVar('https://i.ibb.co/gb2q30kV/bg.jpg', '--bg-url');
+    cacheAndSetCSSVar('https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png', '--header-bg');
+    cacheAndSetImageSrc('https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif', 'universalFloatImg');
+    cacheAndSetImageSrc('https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png', 'notificationLogoImg');
+    
+    setTimeout(backgroundCacheAudio, 2000); // Wait 2s before fetching all 104+ audios behind scenes
+}
+// --- CACHE SYSTEM END ---
+
 const firebaseConfig = {
   apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
   authDomain: "sinthahousiev2.firebaseapp.com",
@@ -2551,7 +2646,7 @@ const db = firebase.database();
 
 let serverTimeOffset = 0;
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
-    serverTimeOffset = snap.val();
+    serverTimeOffset = snap.val() || 0;
 });
 
 function getEstimatedServerTime() {
@@ -2573,7 +2668,14 @@ let countdownInterval = null;
 let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
 let knownWinners = {}; 
-let isInitialWinnerLoad = true; 
+
+let isInitialLoadForNumbers = true;
+let isInitialWinnerLoad = true;
+let isFirstLiveText = true;
+let isFirstLiveImage = true;
+let isFirstLiveVideo = true;
+let isFirstNotificationRead = true;
+
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
@@ -2630,7 +2732,20 @@ const allPossibleDividends = [
     "Early 5", "Quick 7", "Corners (4)", "Star"
 ];
 
-function playSound(src) {
+async function playSound(src) {
+    if ('caches' in window) {
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            const response = await cache.match(src);
+            if (response && response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const sound = new Audio(blobUrl);
+                sound.play().catch(e => {});
+                return;
+            }
+        } catch (e) { }
+    }
     const sound = new Audio(src);
     sound.play().catch(error => {});
 }
@@ -2937,14 +3052,16 @@ function setupRealtimeListeners() {
     listeners.gameState = db.ref('gameState/currentState');
     listeners.gameState.on('value', snapshot => {
         const data = snapshot.val() || {};
+        
         const newNumbers = data.calledNumbers || [];
-        if (newNumbers.length > currentCalledNumbers.length) {
+        if (!isInitialLoadForNumbers && newNumbers.length > currentCalledNumbers.length) {
             const newNum = newNumbers[newNumbers.length - 1];
             if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
                 announceNumber(newNum);
             }
         }
         currentCalledNumbers = newNumbers;
+        isInitialLoadForNumbers = false; 
         
         const newWinners = data.winners || {};
         if (!isInitialWinnerLoad) {
@@ -2957,7 +3074,7 @@ function setupRealtimeListeners() {
                 if (justAnnouncedWinners.length > 0) {
                     const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
                     const msg = `${winnerNames} has won ${dividendName}!`;
-                    triggerGlobalNotification(msg, 'success');
+                    showNotification(msg, 'success'); 
                     if (dividendSoundMap[dividendName]) playSound(audioBaseUrl + dividendSoundMap[dividendName]);
                 }
             }
@@ -2983,12 +3100,12 @@ function setupRealtimeListeners() {
         renderDashboards();
     }, err => { console.error("Users listener error:", err); });
 
-    let isFirstNotificationRead = true;
     listeners.globalNotifications = db.ref('gameState/lastAction');
     listeners.globalNotifications.on('value', snapshot => {
-        if (isFirstNotificationRead || !snapshot.exists()) { isFirstNotificationRead = false; return; }
+        if (isFirstNotificationRead) { isFirstNotificationRead = false; return; }
+        if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if ((Date.now() - data.timestamp) < 15000) showNotification(data.message, data.type);
+        if ((getEstimatedServerTime() - data.timestamp) < 15000) showNotification(data.message, data.type);
     }, err => console.error("Global notification listener error:", err));
 
     listeners.audio = db.ref('settings/audio');
@@ -3007,18 +3124,20 @@ function setupRealtimeListeners() {
 
     listeners.liveText = db.ref('announcements/liveText');
     listeners.liveText.on('value', snapshot => {
+        if (isFirstLiveText) { isFirstLiveText = false; return; }
         if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if (data && (Date.now() - data.timestamp) < 20000) {
+        if (data && (getEstimatedServerTime() - data.timestamp) < 20000) {
             showNotification(`📢 Admin: ${data.text}`, 'info', 10000);
         }
     });
 
     listeners.liveImage = db.ref('announcements/liveImage');
     listeners.liveImage.on('value', snapshot => {
+        if (isFirstLiveImage) { isFirstLiveImage = false; return; }
         if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if (data && data.image && (Date.now() - data.timestamp) < 30000) {
+        if (data && data.image && (getEstimatedServerTime() - data.timestamp) < 30000) {
             document.getElementById('liveImageDisplay').src = data.image;
             showPopup('liveImagePopup');
         }
@@ -3026,9 +3145,10 @@ function setupRealtimeListeners() {
     
     listeners.liveVideo = db.ref('announcements/liveVideo');
     listeners.liveVideo.on('value', snapshot => {
+        if (isFirstLiveVideo) { isFirstLiveVideo = false; return; }
         if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if (data && data.video && (Date.now() - data.timestamp) < 60000) {
+        if (data && data.video && (getEstimatedServerTime() - data.timestamp) < 60000) {
             const videoEl = document.getElementById('liveVideoDisplay');
             videoEl.src = data.video;
             showPopup('liveVideoPopup');
@@ -6291,6 +6411,8 @@ function playNextInPlaylist() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initCachedAssets(); // Call cache trigger exactly when DOM is ready
+
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
     
