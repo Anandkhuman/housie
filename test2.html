@@ -539,6 +539,7 @@ backdrop-filter: blur(8px);
         font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
         color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
+        will-change: transform, background-color, color, text-shadow;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
     .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
@@ -665,7 +666,7 @@ backdrop-filter: blur(8px);
        font-family: "Times New Roman", Times, Georgia, serif !important; 
     font-weight: bold !important; 
     font-size: clamp(1.2rem, 2.5vw, 1.4rem) !important; 
-        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; will-change: transform, background-color, color, text-shadow;}
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -2675,6 +2676,7 @@ let isFirstLiveText = true;
 let isFirstLiveImage = true;
 let isFirstLiveVideo = true;
 let isFirstNotificationRead = true;
+let isProcessingBooking = false;
 
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
@@ -2856,6 +2858,12 @@ async function loginUser(expectedRole) {
         if (userData && userData.role === expectedRole) {
             showNotification(`Login successful as ${expectedRole}!`, 'success');
             closePopups();
+            
+            // Fixes link execution block when logging in via URL trigger
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('book')) {
+                setTimeout(processBookingLink, 500);
+            }
         } else {
             await auth.signOut();
             showNotification(`Login failed: This is not a valid ${expectedRole} account.`, 'error');
@@ -3088,7 +3096,11 @@ function setupRealtimeListeners() {
     listeners.tickets = db.ref('tickets');
     listeners.tickets.on('value', snapshot => {
         const ticketsObject = snapshot.val();
-        allTicketsData = ticketsObject ? Object.values(ticketsObject) : [];
+        if (ticketsObject) {
+            allTicketsData = Object.values(ticketsObject).filter(t => t !== null && t !== undefined);
+        } else {
+            allTicketsData = [];
+        }
         debouncedUpdatePublicTicketUIs();
         renderDashboards();
     }, err => { console.error("Tickets listener error:", err); });
@@ -3593,11 +3605,13 @@ async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
     }
 }
 
+// ** MAJOR PERFORMANCE FIX FOR BOOKING LINKS ** //
 async function processBookingLink() {
     const urlParams = new URLSearchParams(window.location.search);
     const bookingCode = urlParams.get('book');
-    if (!bookingCode) return;
+    if (!bookingCode || isProcessingBooking) return;
 
+    isProcessingBooking = true;
     const popup = document.getElementById('bookingSuccessPopup');
     const titleEl = document.getElementById('bookingSuccessTitle');
     const messageEl = document.getElementById('bookingSuccessMessage');
@@ -3608,13 +3622,14 @@ async function processBookingLink() {
     titleEl.style.textShadow = '0 0 8px var(--accent-primary)';
     messageEl.textContent = 'Please wait while we verify ticket availability...';
     showPopup('bookingSuccessPopup');
-    window.history.replaceState({}, document.title, window.location.pathname);
 
     const bookingLogic = async () => {
         const startTime = Date.now();
-        while (!authInitialized && Date.now() - startTime < 8000) {
+        // Wait up to 8s for auth initialization and user role setup
+        while ((!authInitialized || (currentUser && !currentUserRole)) && Date.now() - startTime < 8000) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
+        
         if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
             throw new Error('You must be logged in as an Admin or Agent to confirm a booking.');
         }
@@ -3633,38 +3648,40 @@ async function processBookingLink() {
             throw new Error('Invalid data found in the booking link.');
         }
 
+        // Fetching standard tickets node strictly for visual check 
         const ticketsRef = db.ref('tickets');
-        const transactionResult = await ticketsRef.transaction(currentTickets => {
-            if (currentTickets === null) return currentTickets; 
-            for (const id of ticketIdsToBook) {
-                if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
-                    return;
-                }
-            }
-            const timestamp = firebase.database.ServerValue.TIMESTAMP;
-            ticketIdsToBook.forEach(id => {
-                currentTickets[id].is_sold = true;
-                currentTickets[id].owner_name = name;
-                currentTickets[id].owner_name_lower = name.toLowerCase();
-                currentTickets[id].owner_phone = phone;
-                currentTickets[id].agent_uid = currentUser.uid;
-                currentTickets[id].sold_at = timestamp;
-            });
-            return currentTickets;
-        });
+        const ticketsSnap = await ticketsRef.once('value');
+        const currentTickets = ticketsSnap.val();
 
-        await requestRef.remove();
+        if (!currentTickets) {
+            throw new Error('Tickets not found in the database.');
+        }
 
-        if (!transactionResult.committed) {
-            const freshSnapshot = await ticketsRef.once('value');
-            const freshTickets = freshSnapshot.val();
-            const soldTickets = ticketIdsToBook.filter(id => freshTickets[id] && freshTickets[id].is_sold);
-            if (soldTickets.length > 0) {
-                throw new Error(`Booking failed. Ticket(s) ${soldTickets.join(', ')} were already sold.`);
-            } else {
-                throw new Error('Booking failed due to a data conflict. Please refresh and try again.');
+        const alreadySold = [];
+        for (const id of ticketIdsToBook) {
+            if (!currentTickets[id] || currentTickets[id].is_sold) {
+                alreadySold.push(id);
             }
         }
+
+        if (alreadySold.length > 0) {
+            throw new Error(`Booking failed. Ticket(s) ${alreadySold.join(', ')} were already sold.`);
+        }
+
+        // Extremely fast multi-path execution bypasses 5+ seconds load times on large grids
+        const updates = {};
+        const timestamp = firebase.database.ServerValue.TIMESTAMP;
+        ticketIdsToBook.forEach(id => {
+            updates[`/tickets/${id}/is_sold`] = true;
+            updates[`/tickets/${id}/owner_name`] = name;
+            updates[`/tickets/${id}/owner_name_lower`] = name.toLowerCase();
+            updates[`/tickets/${id}/owner_phone`] = phone;
+            updates[`/tickets/${id}/agent_uid`] = currentUser.uid;
+            updates[`/tickets/${id}/sold_at`] = timestamp;
+        });
+
+        await db.ref().update(updates);
+        await requestRef.remove();
 
         triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
         return `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting...`;
@@ -3676,6 +3693,8 @@ async function processBookingLink() {
             new Promise(resolve => setTimeout(resolve, 1500))
         ]);
 
+        window.history.replaceState({}, document.title, window.location.pathname); 
+        
         popup.classList.remove('processing');
         titleEl.textContent = 'Booking Successful!';
         titleEl.style.color = '#2ecc71';
@@ -3706,11 +3725,15 @@ async function processBookingLink() {
         popup.classList.remove('processing');
         closePopups();
         showNotification(e.message, 'error');
+        
         if (e.message.includes('must be logged in')) {
             showPopup('loginPopup');
         } else {
+            window.history.replaceState({}, document.title, window.location.pathname);
             handleRouting();
         }
+    } finally {
+        isProcessingBooking = false;
     }
 }
 
@@ -4538,6 +4561,9 @@ async function resetCallNum() {
             isGameRunning: false,
             gameStartedAt: null 
         });
+        
+        await db.ref('bookingRequests').remove(); // Clears booking data post game ending/resetting
+        
         showNotification('Game state has been reset.', 'success');
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
 }
@@ -4564,6 +4590,7 @@ async function resetTicket() {
         if (Object.keys(updates).length > 0) {
            await db.ref().update(updates);
         }
+        await db.ref('bookingRequests').remove();
         showNotification('All sold tickets have been reset.', 'success');
     } catch (e) { showNotification('Error resetting tickets: ' + e.message, 'error'); }
 }
@@ -5415,8 +5442,10 @@ function callNextNumber() {
                 const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
 
                 if (allClaimed) {
+                    db.ref('bookingRequests').remove(); // Auto purge bookings when all dividends won
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
                 } else if (finalState.calledNumbers?.length >= 90) {
+                    db.ref('bookingRequests').remove(); // Auto purge bookings when all numbers called
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
                 }
             }
@@ -5632,6 +5661,7 @@ async function generateHousieTickets(bypassConfirm = false) {
         }
 
         await db.ref('/tickets').set(null); 
+        await db.ref('bookingRequests').remove(); // Auto purge bookings when generating fresh tickets
         setTimeout(async () => {
             const newTicketsObject = {};
             const numSets = Math.ceil(totalTickets / 6);
