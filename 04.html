@@ -12,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@400;700&family=Lobster&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Loaded jsPDF script to fix PDF download operations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -21,6 +20,8 @@
 
 <style>
     :root {
+        --bg-url: url("https://i.ibb.co/gb2q30kV/bg.jpg");
+        --header-bg: url("https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png");
         --bg-color: linear-gradient(135deg, green, gold);
         --primary-surface: #19153a;
         --secondary-surface: #2c2850;
@@ -62,7 +63,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url("https://i.ibb.co/gb2q30kV/bg.jpg");
+        background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), var(--bg-url);
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -208,20 +209,19 @@ backdrop-filter: blur(8px);
     }
     
     #agentListPopup .popup-content {
-    background: rgba(10, 10, 12, 0.85) !important; /* Dark transparent background */
-    backdrop-filter: blur(15px) !important;        /* Background blur effect */
+    background: rgba(10, 10, 12, 0.85) !important;
+    backdrop-filter: blur(15px) !important;
     -webkit-backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important; /* Subtle border */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;  /* Dark shadow */
-    padding: 1.5rem !important;                    /* Spacing aur padding */
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+    padding: 1.5rem !important;
 }
 
 #agentListPopup .agent-list a {
-    background: rgba(255, 255, 255, 0.05) !important; /* Transparent dark cards */
+    background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
 }
-
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
@@ -347,6 +347,7 @@ backdrop-filter: blur(8px);
         padding-top: 75px;
         padding-bottom: 120px;
     }
+    
     .panel {
         background: rgba(15, 23, 42, 0.6);
         backdrop-filter: blur(5px);
@@ -358,20 +359,6 @@ backdrop-filter: blur(8px);
         transform: translateY(10px);
         padding: 0.8rem;
         transition: all 0.3s ease;
-    }
-
-    .panel1 {
-        background: rgba(15, 23, 42, 0.3);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(0, 246, 255, 0.2);
-        border-radius: 12px;
-        margin-bottom: 0.1rem;
-        box-shadow: 0 0 20px rgba(0, 246, 255, 0.15), inset 0 0 10px rgba(0, 246, 255, 0.05);
-        opacity: 0;
-        transform: translateY(20px);
-        padding: 0.1rem;
-        transition: all 0.3s ease;
-        margin: -1rem;
     }
 
     .top-header {
@@ -389,7 +376,7 @@ backdrop-filter: blur(8px);
     padding: 2.1rem 1rem;
     border-radius: 15px;
     
-    background-image: url("https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png");
+    background-image: var(--header-bg);
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -445,22 +432,23 @@ backdrop-filter: blur(8px);
     }
 
     .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        z-index: 999;
-        background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-top: 1px solid rgba(0, 246, 255, 0.5);
-        box-shadow: 0 -5px 20px rgba(0, 246, 255, 0.25), inset 0 0 8px rgba(0, 246, 255, 0.1);
-        padding: 0.3rem 0;
-        opacity: 0; 
-        transform: translateY(100%);
-        transition: all 0.3s ease;
-    }
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 999;
+    background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(0, 246, 255, 0.5);
+    box-shadow: 0 -5px 20px rgba(0, 246, 255, 0.25), inset 0 0 8px rgba(0, 246, 255, 0.1);
+    padding: 0.4rem 0 max(14px, env(safe-area-inset-bottom)) 0;
+    
+    opacity: 0;
+    transform: translateY(100%);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
 
     .bottom-nav.active {
         opacity: 1;
@@ -522,6 +510,12 @@ backdrop-filter: blur(8px);
         color: var(--text-primary);
         transform: translateY(-2px);
     }
+    .icon-btn span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
     
     .icon-btn i {
         font-size: 1rem;
@@ -538,14 +532,15 @@ backdrop-filter: blur(8px);
         font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
         color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
+        will-change: transform, background-color, color, text-shadow;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
     .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
     
     .called-numbers-list {
-        display: flex;
-        gap: 0.4rem;
-        flex-wrap: wrap;
+        display: grid;grid-template-columns: repeat(10, 1fr); gap: 0.2rem;
+        gap: 0.2rem;
+        
         justify-content: center;
         max-height: 120px;
         overflow-y: auto;
@@ -556,7 +551,19 @@ backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(4px);
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
+   .called-num-chip {
+    background: linear-gradient(135deg, red, #000000);
+    color: #ffffff;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    width: 100%;
+    padding: 0;
+}
     
     .search-container { display: flex; margin-bottom: 1rem; gap: 4px; }
     .searchInp {
@@ -605,9 +612,6 @@ backdrop-filter: blur(8px);
         margin-bottom: 0;
     }
 
-    .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
-    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: white; text-shadow: none; }
-    
     body {
         margin: 0;
         font-family: Arial, sans-serif;
@@ -621,7 +625,7 @@ backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         padding: 0.8rem;
-        margin: -1rem;
+        margin: -0.80rem;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
@@ -649,10 +653,10 @@ backdrop-filter: blur(8px);
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
     .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; 
-       font-family: "Times New Roman", Times, Georgia, serif !important; /* Isse font force hoga */
+       font-family: "Times New Roman", Times, Georgia, serif !important; 
     font-weight: bold !important; 
     font-size: clamp(1.2rem, 2.5vw, 1.4rem) !important; 
-        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; }
+        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; will-change: transform, background-color, color, text-shadow;}
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -760,6 +764,7 @@ backdrop-filter: blur(8px);
         pointer-events: none;
         opacity: 0;
         visibility: hidden;
+        padding-top: 65px; 
     }
 
     #number-announcement-overlay::before {
@@ -772,41 +777,66 @@ backdrop-filter: blur(8px);
         height: 40px;
     }
     
-    #announced-number-display {
-        position: relative;
-        width: 60px;
-        height: 60px;
-        background-color: var(--called-color);
-        background-image: radial-gradient(circle at 30% 30%, #ffffff, var(--called-color) 80%);
-        color: var(--text-dark);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 700;
-        font-size: 3rem;
-        line-height: 1;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 -3px 5px rgba(0,0,0,0.2);
-        border: 3px solid #b3a500;
-        pointer-events: auto;
-        padding: 0;
-        text-shadow: none;
-    }
+   #announced-number-display {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    
+    /* 3D Red & Black Ball */
+    background:
+        radial-gradient(circle at 28% 25%, #ff6b6b 0%, #ff2a2a 18%, #b30000 38%, #2b0000 70%, #000000 100%);
+    
+    color: #ffffff;
+    
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 2.2rem;
+    line-height: 1;
+    
+    /* 3D Depth */
+    box-shadow:
+        inset -6px -8px 12px rgba(0, 0, 0, 0.7),
+        inset 4px 4px 10px rgba(255, 120, 120, 0.4),
+        0 6px 15px rgba(0, 0, 0, 0.5),
+        0 0 12px rgba(255, 0, 0, 0.35);
+    
+    
+    
+    pointer-events: auto;
+    padding: 0;
+    
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.8),
+        0 0 6px rgba(255, 255, 255, 0.3);
+    
+    overflow: hidden;
+}
+
+/* Glossy Shine Effect */
+#announced-number-display::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    width: 22px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    filter: blur(1px);
+    transform: rotate(-15deg);
+}
     
     #bookingGridContainer {
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        padding: 8px;
         max-height: 75vh;
         overflow-y: auto;
-        border-radius: 10px;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
     #bookingGridContainer .ticket-view.sold {
@@ -893,16 +923,9 @@ backdrop-filter: blur(8px);
     #bookedTicketsDisplay {
         max-height: 90vh;
         overflow-y: auto;
-        padding: 8px;
-        border-radius: 10px;
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
@@ -1417,10 +1440,6 @@ backdrop-filter: blur(8px);
         transition: transform 0.4s var(--transition-ease);
     }
 
-    #publicBookingActionFooter.visible {
-        transform: translateY(0);
-    }
-
     .booking-form-row {
         display: grid;
         grid-template-columns: 1fr 1fr auto;
@@ -1877,7 +1896,7 @@ body.dashboard-view-active #universalBookFloatBtn {
 
 <!-- Floating Draggable Ticket Booking GIF Button -->
 <div class="universal-float-btn" id="universalBookFloatBtn" title="Hold & drag anywhere. Tap to Book.">
-    <img src="https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif" alt="Booking Ticket GIF">
+    <img id="universalFloatImg" src="https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif" alt="Booking Ticket GIF">
 </div>
 
 <div id="publicView" class="view neon-view active">
@@ -1910,8 +1929,8 @@ body.dashboard-view-active #universalBookFloatBtn {
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
                 </section>
 		
-                <!-- Redesigned dividends and winners layout (using class panel1 to match the reference image) -->
-                <section class="panel1">
+                <!-- Redesigned dividends and winners layout (Unified panel matching) -->
+                <section class="panel">
                     <h2 class="panel-title" style="color: #ffffff; font-weight: bold; margin-top: 0.4rem; text-align: center; font-size: 1.1rem;">DIVIDENT LIST</h2>
                     <div class="dividend-cards-list" id="dividendListContainer"></div>
                 </section>
@@ -1923,7 +1942,7 @@ body.dashboard-view-active #universalBookFloatBtn {
         <div class="icon-bar" id="public-icon-bar">
             <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
             <a href="#book" id="navigateToBooking" class="icon-btn"><i class="fas fa-ticket-alt"></i><span>Tickets</span></a>
-            <button class="icon-btn" id="showAgentsBtn"><i class="fas fa-users"></i><span>Agents</span></button>
+			<button class="icon-btn" id="showAgentsBtn"><i class="fas fa-users"></i><span>Agents</span></button>
             <button class="icon-btn" id="publicLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
             <button class="icon-btn" id="publicLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
         </div>
@@ -1941,7 +1960,7 @@ body.dashboard-view-active #universalBookFloatBtn {
         </div>
 
         <section class="panel">
-            <h2 class="panel-title">SELECT TICKETS</h2>
+            <h2 class="panel-title">AVAILABLE TICKETS</h2>
             <div id="bookingGridContainer"></div>
         </section>
     </div>
@@ -1958,7 +1977,7 @@ body.dashboard-view-active #universalBookFloatBtn {
     <nav class="bottom-nav">
          <div class="icon-bar" id="booking-icon-bar">
             <a href="#game" id="navigateToGame" class="icon-btn"><i class="fas fa-gamepad"></i><span>Game</span></a>
-            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Check Available</span></button>
+            <button class="icon-btn" id="checkAvailabilityBtn"><i class="fas fa-bolt"></i><span>Available</span></button>
             <button class="icon-btn" id="showAgentListBtn-booking"><i class="fas fa-users"></i><span>Agents</span></button>
             <button class="icon-btn" id="bookingLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
             <button class="icon-btn" id="bookingLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
@@ -2198,10 +2217,6 @@ body.dashboard-view-active #universalBookFloatBtn {
     </div>
 </div>
 
-<div id="number-announcement-overlay">
-    <div id="announced-number-display">--</div>
-</div>
-
 <div class="overlay-popup" id="agentSelectionPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -2223,7 +2238,6 @@ body.dashboard-view-active #universalBookFloatBtn {
     </div>
 </div>
 
-<!-- editAgentDetailsPopup added for Admin to edit Agent from Agent List -->
 <div class="overlay-popup" id="editAgentDetailsPopup">
     <div class="popup-content">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
@@ -2323,7 +2337,7 @@ body.dashboard-view-active #universalBookFloatBtn {
     <div class="gameDiv" style="overflow-y: auto;">
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="panel" style="background: transparent; border: none; box-shadow: none; padding: 0; width: 95%; margin: 0.5rem auto;">
-            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0rem; margin-bottom: 0.5rem;"></div>
+            <div class="timer-status-bar" id="runGame-timer-bar" style="border-top: none; padding-top: 0.2rem; margin-bottom: 0rem;"></div>
         </div>
         <table class="runGameTable gameSettingTable">
             <tbody>
@@ -2425,7 +2439,7 @@ body.dashboard-view-active #universalBookFloatBtn {
         <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
         <div class="notification-body">
             <div class="notification-logo">
-                <img src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
+                <img id="notificationLogoImg" src="https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png" alt="Sintha Team Logo">
             </div>
             <div class="notification-text-content">
                 <h3 class="popup-title">Welcome to Sintha Team!</h3>
@@ -2484,16 +2498,112 @@ body.dashboard-view-active #universalBookFloatBtn {
 <audio id="liveAudioPlayer"></audio>
 
 <script>
+// --- CACHE & FAST LOAD SYSTEM START ---
+const CACHE_NAME = 'housie-assets-v2';
+
+async function cacheAndSetCSSVar(url, cssVarName) {
+    if ('caches' in window) {
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            let response = await cache.match(url);
+            if (!response) {
+                const fetchReq = new Request(url, { mode: 'cors' });
+                response = await fetch(fetchReq);
+                if (response.ok) {
+                    await cache.put(fetchReq, response.clone());
+                }
+            }
+            if (response && response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                document.documentElement.style.setProperty(cssVarName, `url("${blobUrl}")`);
+                return;
+            }
+        } catch (e) { console.warn('Cache API error:', e); }
+    }
+    document.documentElement.style.setProperty(cssVarName, `url("${url}")`);
+}
+
+async function cacheAndSetImageSrc(url, elementId) {
+    if ('caches' in window) {
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            let response = await cache.match(url);
+            if (!response) {
+                const fetchReq = new Request(url, { mode: 'cors' });
+                response = await fetch(fetchReq);
+                if (response.ok) {
+                    await cache.put(fetchReq, response.clone());
+                }
+            }
+            if (response && response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const el = document.getElementById(elementId);
+                if (el) el.src = blobUrl;
+                return;
+            }
+        } catch (e) { console.warn('Cache API error:', e); }
+    }
+    const el = document.getElementById(elementId);
+    if (el) el.src = url;
+}
+
+async function backgroundCacheAudio() {
+    if (!('caches' in window)) return;
+    try {
+        const cache = await caches.open(CACHE_NAME);
+        const keys = await cache.keys();
+        const cachedUrls = new Set(keys.map(r => r.url));
+        
+        const audioToCache = [];
+        for (let i = 1; i <= 90; i++) {
+            audioToCache.push(`https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/${i}.mp3`);
+        }
+        const dividendSounds = [
+            "FirstFullHouse.mp3", "SecondFullHouse.mp3", "ThirdFullHouse.mp3",
+            "TopLine.mp3", "MiddleLine.mp3", "BottomLine.mp3",
+            "Corner.mp3", "Quick7.mp3", "FullSheetBonus.mp3",
+            "HalfSheetBonus.mp3", "Star.mp3", "Early5.mp3", "gamehasstarted.mp3", "GAMEISLIVE.mp3"
+        ];
+        dividendSounds.forEach(snd => audioToCache.push(`https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/${snd}`));
+
+        // Batch download to avoid blocking the network suddenly
+        for (let i = 0; i < audioToCache.length; i += 5) {
+            const chunk = audioToCache.slice(i, i + 5);
+            await Promise.all(chunk.map(async url => {
+                if (!cachedUrls.has(url)) {
+                    try {
+                        const req = new Request(url, { mode: 'cors' });
+                        const res = await fetch(req);
+                        if (res.ok) await cache.put(req, res);
+                    } catch (e) {}
+                }
+            }));
+        }
+    } catch (e) {}
+}
+
+function initCachedAssets() {
+    cacheAndSetCSSVar('https://i.ibb.co/gb2q30kV/bg.jpg', '--bg-url');
+    cacheAndSetCSSVar('https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png', '--header-bg');
+    cacheAndSetImageSrc('https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif', 'universalFloatImg');
+    cacheAndSetImageSrc('https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png', 'notificationLogoImg');
+    
+    setTimeout(backgroundCacheAudio, 2000); // Wait 2s before fetching all 104+ audios behind scenes
+}
+// --- CACHE SYSTEM END ---
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCg_eRbP3B9Y8g8U308sD23MgPP8HnqT6w",
-  authDomain: "sinthahousiev2.firebaseapp.com",
-  databaseURL: "https://sinthahousiev2-default-rtdb.firebaseio.com",
-  projectId: "sinthahousiev2",
-  storageBucket: "sinthahousiev2.firebasestorage.app",
-  messagingSenderId: "208652536969",
-  appId: "1:208652536969:web:08e153afe2794fb6610a58",
-  measurementId: "G-5WH1X6308S"
-};
+    apiKey: "AIzaSyBxtWgmOPaFY1tq1mHHYOC5IRtV_gIIFuQ",
+    authDomain: "sinthahousiev5.firebaseapp.com",
+    databaseURL: "https://sinthahousiev5-default-rtdb.firebaseio.com",
+    projectId: "sinthahousiev5",
+    storageBucket: "sinthahousiev5.firebasestorage.app",
+    messagingSenderId: "847328700536",
+    appId: "1:847328700536:web:180eba328bcd5e6485258d",
+    measurementId: "G-L6CPQFGSRH"
+  };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -2501,7 +2611,7 @@ const db = firebase.database();
 
 let serverTimeOffset = 0;
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
-    serverTimeOffset = snap.val();
+    serverTimeOffset = snap.val() || 0;
 });
 
 function getEstimatedServerTime() {
@@ -2523,7 +2633,15 @@ let countdownInterval = null;
 let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
 let knownWinners = {}; 
-let isInitialWinnerLoad = true; 
+
+let isInitialLoadForNumbers = true;
+let isInitialWinnerLoad = true;
+let isFirstLiveText = true;
+let isFirstLiveImage = true;
+let isFirstLiveVideo = true;
+let isFirstNotificationRead = true;
+let isProcessingBooking = false;
+
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
@@ -2580,7 +2698,20 @@ const allPossibleDividends = [
     "Early 5", "Quick 7", "Corners (4)", "Star"
 ];
 
-function playSound(src) {
+async function playSound(src) {
+    if ('caches' in window) {
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            const response = await cache.match(src);
+            if (response && response.ok) {
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const sound = new Audio(blobUrl);
+                sound.play().catch(e => {});
+                return;
+            }
+        } catch (e) { }
+    }
     const sound = new Audio(src);
     sound.play().catch(error => {});
 }
@@ -2691,6 +2822,12 @@ async function loginUser(expectedRole) {
         if (userData && userData.role === expectedRole) {
             showNotification(`Login successful as ${expectedRole}!`, 'success');
             closePopups();
+            
+            // Fixes link execution block when logging in via URL trigger
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('book')) {
+                setTimeout(processBookingLink, 500);
+            }
         } else {
             await auth.signOut();
             showNotification(`Login failed: This is not a valid ${expectedRole} account.`, 'error');
@@ -2887,14 +3024,16 @@ function setupRealtimeListeners() {
     listeners.gameState = db.ref('gameState/currentState');
     listeners.gameState.on('value', snapshot => {
         const data = snapshot.val() || {};
+        
         const newNumbers = data.calledNumbers || [];
-        if (newNumbers.length > currentCalledNumbers.length) {
+        if (!isInitialLoadForNumbers && newNumbers.length > currentCalledNumbers.length) {
             const newNum = newNumbers[newNumbers.length - 1];
             if (newNum !== lastAnnouncedNumber && !isAnnouncing) {
                 announceNumber(newNum);
             }
         }
         currentCalledNumbers = newNumbers;
+        isInitialLoadForNumbers = false; 
         
         const newWinners = data.winners || {};
         if (!isInitialWinnerLoad) {
@@ -2907,7 +3046,7 @@ function setupRealtimeListeners() {
                 if (justAnnouncedWinners.length > 0) {
                     const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
                     const msg = `${winnerNames} has won ${dividendName}!`;
-                    triggerGlobalNotification(msg, 'success');
+                    showNotification(msg, 'success'); 
                     if (dividendSoundMap[dividendName]) playSound(audioBaseUrl + dividendSoundMap[dividendName]);
                 }
             }
@@ -2921,7 +3060,11 @@ function setupRealtimeListeners() {
     listeners.tickets = db.ref('tickets');
     listeners.tickets.on('value', snapshot => {
         const ticketsObject = snapshot.val();
-        allTicketsData = ticketsObject ? Object.values(ticketsObject) : [];
+        if (ticketsObject) {
+            allTicketsData = Object.values(ticketsObject).filter(t => t !== null && t !== undefined);
+        } else {
+            allTicketsData = [];
+        }
         debouncedUpdatePublicTicketUIs();
         renderDashboards();
     }, err => { console.error("Tickets listener error:", err); });
@@ -2933,12 +3076,12 @@ function setupRealtimeListeners() {
         renderDashboards();
     }, err => { console.error("Users listener error:", err); });
 
-    let isFirstNotificationRead = true;
     listeners.globalNotifications = db.ref('gameState/lastAction');
     listeners.globalNotifications.on('value', snapshot => {
-        if (isFirstNotificationRead || !snapshot.exists()) { isFirstNotificationRead = false; return; }
+        if (isFirstNotificationRead) { isFirstNotificationRead = false; return; }
+        if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if ((Date.now() - data.timestamp) < 15000) showNotification(data.message, data.type);
+        if ((getEstimatedServerTime() - data.timestamp) < 15000) showNotification(data.message, data.type);
     }, err => console.error("Global notification listener error:", err));
 
     listeners.audio = db.ref('settings/audio');
@@ -2957,18 +3100,20 @@ function setupRealtimeListeners() {
 
     listeners.liveText = db.ref('announcements/liveText');
     listeners.liveText.on('value', snapshot => {
+        if (isFirstLiveText) { isFirstLiveText = false; return; }
         if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if (data && (Date.now() - data.timestamp) < 20000) {
+        if (data && (getEstimatedServerTime() - data.timestamp) < 20000) {
             showNotification(`📢 Admin: ${data.text}`, 'info', 10000);
         }
     });
 
     listeners.liveImage = db.ref('announcements/liveImage');
     listeners.liveImage.on('value', snapshot => {
+        if (isFirstLiveImage) { isFirstLiveImage = false; return; }
         if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if (data && data.image && (Date.now() - data.timestamp) < 30000) {
+        if (data && data.image && (getEstimatedServerTime() - data.timestamp) < 30000) {
             document.getElementById('liveImageDisplay').src = data.image;
             showPopup('liveImagePopup');
         }
@@ -2976,9 +3121,10 @@ function setupRealtimeListeners() {
     
     listeners.liveVideo = db.ref('announcements/liveVideo');
     listeners.liveVideo.on('value', snapshot => {
+        if (isFirstLiveVideo) { isFirstLiveVideo = false; return; }
         if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if (data && data.video && (Date.now() - data.timestamp) < 60000) {
+        if (data && data.video && (getEstimatedServerTime() - data.timestamp) < 60000) {
             const videoEl = document.getElementById('liveVideoDisplay');
             videoEl.src = data.video;
             showPopup('liveVideoPopup');
@@ -3423,11 +3569,13 @@ async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
     }
 }
 
+// ** MAJOR PERFORMANCE FIX FOR BOOKING LINKS ** //
 async function processBookingLink() {
     const urlParams = new URLSearchParams(window.location.search);
     const bookingCode = urlParams.get('book');
-    if (!bookingCode) return;
+    if (!bookingCode || isProcessingBooking) return;
 
+    isProcessingBooking = true;
     const popup = document.getElementById('bookingSuccessPopup');
     const titleEl = document.getElementById('bookingSuccessTitle');
     const messageEl = document.getElementById('bookingSuccessMessage');
@@ -3438,13 +3586,14 @@ async function processBookingLink() {
     titleEl.style.textShadow = '0 0 8px var(--accent-primary)';
     messageEl.textContent = 'Please wait while we verify ticket availability...';
     showPopup('bookingSuccessPopup');
-    window.history.replaceState({}, document.title, window.location.pathname);
 
     const bookingLogic = async () => {
         const startTime = Date.now();
-        while (!authInitialized && Date.now() - startTime < 8000) {
+        // Wait up to 8s for auth initialization and user role setup
+        while ((!authInitialized || (currentUser && !currentUserRole)) && Date.now() - startTime < 8000) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
+        
         if (!currentUserRole || (currentUserRole !== 'admin' && currentUserRole !== 'agent')) {
             throw new Error('You must be logged in as an Admin or Agent to confirm a booking.');
         }
@@ -3463,38 +3612,40 @@ async function processBookingLink() {
             throw new Error('Invalid data found in the booking link.');
         }
 
+        // Fetching standard tickets node strictly for visual check 
         const ticketsRef = db.ref('tickets');
-        const transactionResult = await ticketsRef.transaction(currentTickets => {
-            if (currentTickets === null) return currentTickets; 
-            for (const id of ticketIdsToBook) {
-                if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
-                    return;
-                }
-            }
-            const timestamp = firebase.database.ServerValue.TIMESTAMP;
-            ticketIdsToBook.forEach(id => {
-                currentTickets[id].is_sold = true;
-                currentTickets[id].owner_name = name;
-                currentTickets[id].owner_name_lower = name.toLowerCase();
-                currentTickets[id].owner_phone = phone;
-                currentTickets[id].agent_uid = currentUser.uid;
-                currentTickets[id].sold_at = timestamp;
-            });
-            return currentTickets;
-        });
+        const ticketsSnap = await ticketsRef.once('value');
+        const currentTickets = ticketsSnap.val();
 
-        await requestRef.remove();
+        if (!currentTickets) {
+            throw new Error('Tickets not found in the database.');
+        }
 
-        if (!transactionResult.committed) {
-            const freshSnapshot = await ticketsRef.once('value');
-            const freshTickets = freshSnapshot.val();
-            const soldTickets = ticketIdsToBook.filter(id => freshTickets[id] && freshTickets[id].is_sold);
-            if (soldTickets.length > 0) {
-                throw new Error(`Booking failed. Ticket(s) ${soldTickets.join(', ')} were already sold.`);
-            } else {
-                throw new Error('Booking failed due to a data conflict. Please refresh and try again.');
+        const alreadySold = [];
+        for (const id of ticketIdsToBook) {
+            if (!currentTickets[id] || currentTickets[id].is_sold) {
+                alreadySold.push(id);
             }
         }
+
+        if (alreadySold.length > 0) {
+            throw new Error(`Booking failed. Ticket(s) ${alreadySold.join(', ')} were already sold.`);
+        }
+
+        // Extremely fast multi-path execution bypasses 5+ seconds load times on large grids
+        const updates = {};
+        const timestamp = firebase.database.ServerValue.TIMESTAMP;
+        ticketIdsToBook.forEach(id => {
+            updates[`/tickets/${id}/is_sold`] = true;
+            updates[`/tickets/${id}/owner_name`] = name;
+            updates[`/tickets/${id}/owner_name_lower`] = name.toLowerCase();
+            updates[`/tickets/${id}/owner_phone`] = phone;
+            updates[`/tickets/${id}/agent_uid`] = currentUser.uid;
+            updates[`/tickets/${id}/sold_at`] = timestamp;
+        });
+
+        await db.ref().update(updates);
+        await requestRef.remove();
 
         triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
         return `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting...`;
@@ -3506,6 +3657,8 @@ async function processBookingLink() {
             new Promise(resolve => setTimeout(resolve, 1500))
         ]);
 
+        window.history.replaceState({}, document.title, window.location.pathname); 
+        
         popup.classList.remove('processing');
         titleEl.textContent = 'Booking Successful!';
         titleEl.style.color = '#2ecc71';
@@ -3536,11 +3689,15 @@ async function processBookingLink() {
         popup.classList.remove('processing');
         closePopups();
         showNotification(e.message, 'error');
+        
         if (e.message.includes('must be logged in')) {
             showPopup('loginPopup');
         } else {
+            window.history.replaceState({}, document.title, window.location.pathname);
             handleRouting();
         }
+    } finally {
+        isProcessingBooking = false;
     }
 }
 
@@ -4368,6 +4525,9 @@ async function resetCallNum() {
             isGameRunning: false,
             gameStartedAt: null 
         });
+        
+        await db.ref('bookingRequests').remove(); // Clears booking data post game ending/resetting
+        
         showNotification('Game state has been reset.', 'success');
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
 }
@@ -4394,6 +4554,7 @@ async function resetTicket() {
         if (Object.keys(updates).length > 0) {
            await db.ref().update(updates);
         }
+        await db.ref('bookingRequests').remove();
         showNotification('All sold tickets have been reset.', 'success');
     } catch (e) { showNotification('Error resetting tickets: ' + e.message, 'error'); }
 }
@@ -5245,8 +5406,10 @@ function callNextNumber() {
                 const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
 
                 if (allClaimed) {
+                    db.ref('bookingRequests').remove(); // Auto purge bookings when all dividends won
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
                 } else if (finalState.calledNumbers?.length >= 90) {
+                    db.ref('bookingRequests').remove(); // Auto purge bookings when all numbers called
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
                 }
             }
@@ -5462,6 +5625,7 @@ async function generateHousieTickets(bypassConfirm = false) {
         }
 
         await db.ref('/tickets').set(null); 
+        await db.ref('bookingRequests').remove(); // Auto purge bookings when generating fresh tickets
         setTimeout(async () => {
             const newTicketsObject = {};
             const numSets = Math.ceil(totalTickets / 6);
@@ -6241,6 +6405,8 @@ function playNextInPlaylist() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initCachedAssets(); // Call cache trigger exactly when DOM is ready
+
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
     liveAudioPlayer = document.getElementById('liveAudioPlayer');
     
