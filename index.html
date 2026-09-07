@@ -90,7 +90,7 @@
         position: fixed; z-index: 1000; width: 100%; height: 100%; top: 0; left: 0;
         display: none; align-items: center; justify-content: center; padding: 0.5rem;
         background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
         opacity: 0; visibility: hidden;
         transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
         overflow-y: auto;
@@ -209,19 +209,19 @@ backdrop-filter: blur(8px);
     }
     
     #agentListPopup .popup-content {
-    background: rgba(10, 10, 12, 0.85) !important;
-    backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
-    padding: 1.5rem !important;
-}
+        background: rgba(10, 10, 12, 0.85) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+        padding: 1.5rem !important;
+    }
 
-#agentListPopup .agent-list a {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    color: #ffffff !important;
-}
+    #agentListPopup .agent-list a {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+    }
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
@@ -348,12 +348,13 @@ backdrop-filter: blur(8px);
         padding-bottom: 120px;
     }
     
+    /* Common container for both Home and Ticket Pages */
     .panel {
         background: rgba(15, 23, 42, 0.6);
         backdrop-filter: blur(5px);
         border: 1px solid rgba(0, 246, 255, 0.4);
         border-radius: 12px;
-        margin-bottom: 0.1rem;
+        margin-bottom: 1rem;
         box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 10px rgba(0, 246, 255, 0.1);
         opacity: 0;
         transform: translateY(10px);
@@ -362,33 +363,27 @@ backdrop-filter: blur(8px);
     }
 
     .top-header {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 96%;
-    z-index: 998;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    padding: 2.1rem 1rem;
-    border-radius: 15px;
-    
-    background-image: var(--header-bg);
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(10px);
-    
-    overflow: hidden;
-    
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 96%;
+        z-index: 998;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2.1rem 1rem;
+        border-radius: 15px;
+        background-image: var(--header-bg);
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(10px);
+        overflow: hidden;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
 
     .top-header::after {
         content: "";
@@ -406,7 +401,6 @@ backdrop-filter: blur(8px);
         font-size: 1.3rem;
         font-weight: 700;
         letter-spacing: 2px;
-        
         position: relative;
         background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff);
         background-size: 300%;
@@ -432,23 +426,22 @@ backdrop-filter: blur(8px);
     }
 
     .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    z-index: 999;
-    background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(0, 246, 255, 0.5);
-    box-shadow: 0 -5px 20px rgba(0, 246, 255, 0.25), inset 0 0 8px rgba(0, 246, 255, 0.1);
-    padding: 0.4rem 0 max(14px, env(safe-area-inset-bottom)) 0;
-    
-    opacity: 0;
-    transform: translateY(100%);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+        background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(0, 246, 255, 0.5);
+        box-shadow: 0 -5px 20px rgba(0, 246, 255, 0.25), inset 0 0 8px rgba(0, 246, 255, 0.1);
+        padding: 0.4rem 0 max(14px, env(safe-area-inset-bottom)) 0;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
 
     .bottom-nav.active {
         opacity: 1;
@@ -540,7 +533,6 @@ backdrop-filter: blur(8px);
     .called-numbers-list {
         display: grid;grid-template-columns: repeat(10, 1fr); gap: 0.2rem;
         gap: 0.2rem;
-        
         justify-content: center;
         max-height: 120px;
         overflow-y: auto;
@@ -552,18 +544,18 @@ backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
    .called-num-chip {
-    background: linear-gradient(135deg, red, #000000);
-    color: #ffffff;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.85rem;
-    width: 100%;
-    padding: 0;
-}
+        background: linear-gradient(135deg, red, #000000);
+        color: #ffffff;
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        width: 100%;
+        padding: 0;
+    }
     
     .search-container { display: flex; margin-bottom: 1rem; gap: 4px; }
     .searchInp {
@@ -778,58 +770,38 @@ backdrop-filter: blur(8px);
     }
     
    #announced-number-display {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    
-    /* 3D Red & Black Ball */
-    background:
-        radial-gradient(circle at 28% 25%, #ff6b6b 0%, #ff2a2a 18%, #b30000 38%, #2b0000 70%, #000000 100%);
-    
-    color: #ffffff;
-    
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 2.2rem;
-    line-height: 1;
-    
-    /* 3D Depth */
-    box-shadow:
-        inset -6px -8px 12px rgba(0, 0, 0, 0.7),
-        inset 4px 4px 10px rgba(255, 120, 120, 0.4),
-        0 6px 15px rgba(0, 0, 0, 0.5),
-        0 0 12px rgba(255, 0, 0, 0.35);
-    
-    
-    
-    pointer-events: auto;
-    padding: 0;
-    
-    text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.8),
-        0 0 6px rgba(255, 255, 255, 0.3);
-    
-    overflow: hidden;
-}
+        position: relative;
+        width: 60px;
+        height: 60px;
+        background: radial-gradient(circle at 28% 25%, #ff6b6b 0%, #ff2a2a 18%, #b30000 38%, #2b0000 70%, #000000 100%);
+        color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 2.2rem;
+        line-height: 1;
+        box-shadow: inset -6px -8px 12px rgba(0, 0, 0, 0.7), inset 4px 4px 10px rgba(255, 120, 120, 0.4), 0 6px 15px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 0, 0, 0.35);
+        pointer-events: auto;
+        padding: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 6px rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+    }
 
-/* Glossy Shine Effect */
-#announced-number-display::before {
-    content: '';
-    position: absolute;
-    top: 6px;
-    left: 10px;
-    width: 22px;
-    height: 12px;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-    filter: blur(1px);
-    transform: rotate(-15deg);
-}
+    #announced-number-display::before {
+        content: '';
+        position: absolute;
+        top: 6px;
+        left: 10px;
+        width: 22px;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        filter: blur(1px);
+        transform: rotate(-15deg);
+    }
     
     #bookingGridContainer {
         display: flex;
@@ -1660,18 +1632,6 @@ backdrop-filter: blur(8px);
         font-size: 1.2rem;
     }
 
-    @keyframes mic-live-glow {
-        0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-        50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
-        100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-    }
-
-    #micToggleBtn.live {
-        background-color: #e74c3c;
-        color: white;
-        animation: mic-live-glow 1.5s infinite;
-    }
-
     .music-control-wrapper {
         display: flex;
         gap: 5px;
@@ -1770,11 +1730,11 @@ backdrop-filter: blur(8px);
         animation: pulse-icon 1.5s infinite ease-in-out;
     }
 
-    #liveImagePopup .popup-content, #liveVideoPopup .popup-content {
+    #liveImagePopup .popup-content {
         padding: 0.5rem;
         background: var(--primary-surface);
     }
-    #liveImagePopup img, #liveVideoPopup video {
+    #liveImagePopup img {
         max-width: 100%;
         max-height: 85vh;
         height: auto;
@@ -2067,14 +2027,6 @@ body.dashboard-view-active #universalBookFloatBtn {
                     </td>
                 </tr>
                 <tr>
-                    <td>Live Announcement</td>
-                    <td>
-                        <button class="actionBtn" id="micToggleBtn" style="width:100%; font-size: 1rem;">
-                            <i class="fas fa-microphone-slash"></i> Toggle Mic
-                        </button>
-                    </td>
-                </tr>
-                <tr>
                     <td>Manage Playlist</td>
                     <td>
                         <button class="actionBtn" id="viewPlaylistBtn" style="width:100%; font-size: 1rem;">
@@ -2096,12 +2048,6 @@ body.dashboard-view-active #universalBookFloatBtn {
             <div class="music-control-wrapper">
                 <input class="tableInp" type="file" id="liveImageAnnounceInp" accept="image/*" style="text-align: left; padding: 0.7rem 0.5rem;">
                 <button class="actionBtn" id="sendLiveImageBtn">Send Image</button>
-            </div>
-            
-            <label for="liveVideoAnnounceInp" style="margin-top: 1rem; border-top: 1px solid var(--secondary-bg-dash); padding-top: 1rem;">Video Upload</label>
-            <div class="music-control-wrapper">
-                <input class="tableInp" type="file" id="liveVideoAnnounceInp" accept="video/mp4,video/webm" style="text-align: left; padding: 0.7rem 0.5rem;">
-                <button class="actionBtn" id="sendLiveVideoBtn">Send Video</button>
             </div>
         </div>
     </div>
@@ -2487,18 +2433,10 @@ body.dashboard-view-active #universalBookFloatBtn {
     </div>
 </div>
 
-<div class="overlay-popup" id="liveVideoPopup">
-    <div class="popup-content">
-         <button class="x-button" onclick="closeVideoPopup()"><i class="fas fa-times"></i></button>
-         <video id="liveVideoDisplay" controls autoplay muted playsinline style="max-width: 100%; max-height: 85vh; border-radius: 4px;"></video>
-    </div>
-</div>
-
 <audio id="backgroundMusicPlayer" loop></audio>
-<audio id="liveAudioPlayer"></audio>
 
 <script>
-// --- CACHE & FAST LOAD SYSTEM START ---
+// --- FAST LOAD SYSTEM START ---
 const CACHE_NAME = 'housie-assets-v2';
 
 async function cacheAndSetCSSVar(url, cssVarName) {
@@ -2549,50 +2487,13 @@ async function cacheAndSetImageSrc(url, elementId) {
     if (el) el.src = url;
 }
 
-async function backgroundCacheAudio() {
-    if (!('caches' in window)) return;
-    try {
-        const cache = await caches.open(CACHE_NAME);
-        const keys = await cache.keys();
-        const cachedUrls = new Set(keys.map(r => r.url));
-        
-        const audioToCache = [];
-        for (let i = 1; i <= 90; i++) {
-            audioToCache.push(`https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/${i}.mp3`);
-        }
-        const dividendSounds = [
-            "FirstFullHouse.mp3", "SecondFullHouse.mp3", "ThirdFullHouse.mp3",
-            "TopLine.mp3", "MiddleLine.mp3", "BottomLine.mp3",
-            "Corner.mp3", "Quick7.mp3", "FullSheetBonus.mp3",
-            "HalfSheetBonus.mp3", "Star.mp3", "Early5.mp3", "gamehasstarted.mp3", "GAMEISLIVE.mp3"
-        ];
-        dividendSounds.forEach(snd => audioToCache.push(`https://raw.githubusercontent.com/Anandkhuman/housie/main/audio/${snd}`));
-
-        // Batch download to avoid blocking the network suddenly
-        for (let i = 0; i < audioToCache.length; i += 5) {
-            const chunk = audioToCache.slice(i, i + 5);
-            await Promise.all(chunk.map(async url => {
-                if (!cachedUrls.has(url)) {
-                    try {
-                        const req = new Request(url, { mode: 'cors' });
-                        const res = await fetch(req);
-                        if (res.ok) await cache.put(req, res);
-                    } catch (e) {}
-                }
-            }));
-        }
-    } catch (e) {}
-}
-
 function initCachedAssets() {
     cacheAndSetCSSVar('https://i.ibb.co/gb2q30kV/bg.jpg', '--bg-url');
     cacheAndSetCSSVar('https://i.ibb.co/prft7dQm/Chat-GPT-Image-Jun-7-2026-08-33-44-PM.png', '--header-bg');
     cacheAndSetImageSrc('https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif', 'universalFloatImg');
     cacheAndSetImageSrc('https://raw.githubusercontent.com/Anandkhuman/Photo/main/logo1.png', 'notificationLogoImg');
-    
-    setTimeout(backgroundCacheAudio, 2000); // Wait 2s before fetching all 104+ audios behind scenes
 }
-// --- CACHE SYSTEM END ---
+// --- FAST LOAD SYSTEM END ---
 
 const firebaseConfig = {
     apiKey: "AIzaSyBxtWgmOPaFY1tq1mHHYOC5IRtV_gIIFuQ",
@@ -2638,7 +2539,6 @@ let isInitialLoadForNumbers = true;
 let isInitialWinnerLoad = true;
 let isFirstLiveText = true;
 let isFirstLiveImage = true;
-let isFirstLiveVideo = true;
 let isFirstNotificationRead = true;
 let isProcessingBooking = false;
 
@@ -2675,17 +2575,10 @@ function debounce(func, wait) {
     };
 }
 
-let backgroundMusicPlayer, liveAudioPlayer;
-let mediaSource, sourceBuffer;
-let audioQueue = [];
-let isAppending = false;
-let isMediaSourceOpen = false;
-let lastProcessedTimestamp = 0;
-let localStream, mediaRecorder;
-let isMicOn = false;
+let backgroundMusicPlayer;
 let audioLibrary = {};
 let currentTrackId = null;
-let agentUidToEdit = null; // tracking which user role/phone/name is being edited
+let agentUidToEdit = null; 
 
 const dividendSoundMap = {
     "First Full House": "FirstFullHouse.mp3", "Second Full House": "SecondFullHouse.mp3", "Third Full House": "ThirdFullHouse.mp3",
@@ -2698,27 +2591,14 @@ const allPossibleDividends = [
     "Early 5", "Quick 7", "Corners (4)", "Star"
 ];
 
-async function playSound(src) {
-    if ('caches' in window) {
-        try {
-            const cache = await caches.open(CACHE_NAME);
-            const response = await cache.match(src);
-            if (response && response.ok) {
-                const blob = await response.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                const sound = new Audio(blobUrl);
-                sound.play().catch(e => {});
-                return;
-            }
-        } catch (e) { }
-    }
+function playSound(src) {
     const sound = new Audio(src);
     sound.play().catch(error => {});
 }
 
 function showView(viewId) {
     if (currentView === viewId && document.getElementById(viewId).classList.contains('active')) {
-        return; // Navigation Redundancy Check (Prevents freezing when tapping current active tab)
+        return; 
     }
 
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -2738,7 +2618,6 @@ function showView(viewId) {
     document.body.classList.toggle('dashboard-view-active', isDashboard);
     renderDashboards();
     
-    // Efficient view rendering: Only run heavy DOM construction for the active view
     if (viewId === 'ticketBookingView') {
         renderVisualTicketBookingPage();
     } else if (viewId === 'publicView') {
@@ -2823,7 +2702,6 @@ async function loginUser(expectedRole) {
             showNotification(`Login successful as ${expectedRole}!`, 'success');
             closePopups();
             
-            // Fixes link execution block when logging in via URL trigger
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('book')) {
                 setTimeout(processBookingLink, 500);
@@ -2906,7 +2784,6 @@ function bindEventListeners() {
     
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
-    document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
 
     // Dynamic Visual Click Event Delegation for Performance Boost
     const bookingGrid = document.getElementById('bookingGridContainer');
@@ -3011,6 +2888,73 @@ function showAgentListPopup() {
     showPopup('agentListPopup');
 }
 
+// Single ticket targeted UI update (Resolves Lag & Hang Issue from Ticket Data reload)
+function updateSingleTicketUI(ticket) {
+    // 1. Update Visual Grid (Ticket Booking View)
+    const bookingTicketView = document.getElementById(`booking-ticket-${ticket.id}`);
+    if (bookingTicketView) {
+        if (ticket.is_sold) {
+            bookingTicketView.classList.add('sold');
+            const header = bookingTicketView.querySelector('.ticket-header');
+            if(header) header.innerHTML = `<span>Ticket ${ticket.id}</span><span class="ticket-status sold">SOLD</span>`;
+            
+            // Remove from selected public pool if it was being clicked while someone else booked
+            const index = publicSelectedTickets.indexOf(ticket.id);
+            if (index > -1) {
+                publicSelectedTickets.splice(index, 1);
+                bookingTicketView.classList.remove('selected');
+                updatePublicSelectionIndicator();
+            }
+        } else {
+            bookingTicketView.classList.remove('sold');
+            const header = bookingTicketView.querySelector('.ticket-header');
+            if(header) header.innerHTML = `<span>Ticket ${ticket.id}</span><span class="ticket-status available">AVAILABLE</span>`;
+        }
+    }
+
+    // 2. Update Public Booked View (Sheet-wise booked list)
+    const publicBookedView = document.querySelector(`#bookedTicketsDisplay .ticket-view[data-ticket-id="${ticket.id}"]`);
+    if (publicBookedView) {
+        const header = publicBookedView.querySelector('.ticket-header');
+        if (header) {
+            if (ticket.is_sold) {
+                header.style.position = 'relative';
+                header.style.paddingRight = '35px';
+                header.innerHTML = `<div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${ticket.id}</span>`;
+                if (!publicBookedView.querySelector('.download-pdf-btn')) {
+                    const btnHTML = `<div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>`;
+                    header.insertAdjacentHTML('afterend', btnHTML);
+                }
+            } else {
+                header.style = '';
+                header.innerHTML = `<span>Ticket ${ticket.id}</span><button class="book-now-btn-small" onclick="goToBooking(${ticket.id})">Book Now</button>`;
+                const pdfBtn = publicBookedView.querySelector('.download-pdf-btn');
+                if(pdfBtn) pdfBtn.remove();
+            }
+        }
+    }
+
+    // 3. Update Dashboard Popups Selection States
+    const dashBtn = document.getElementById(`dash-ticket-btn-${ticket.id}`);
+    if (dashBtn) {
+        dashBtn.disabled = ticket.is_sold;
+        if (ticket.is_sold) dashBtn.classList.remove('selected');
+    }
+
+    const pubBtn = document.getElementById(`public-ticket-btn-${ticket.id}`);
+    if (pubBtn) {
+        pubBtn.disabled = ticket.is_sold;
+        if (ticket.is_sold && publicPopupSelectedTickets.includes(ticket.id)) {
+            const pIndex = publicPopupSelectedTickets.indexOf(ticket.id);
+            if(pIndex > -1) publicPopupSelectedTickets.splice(pIndex, 1);
+            pubBtn.classList.remove('selected');
+        }
+    }
+    
+    updateDashboardSelectionIndicator();
+    updatePublicBookingIndicator();
+}
+
 function setupRealtimeListeners() {
     Object.values(listeners).forEach(ref => ref.off());
 
@@ -3057,8 +3001,9 @@ function setupRealtimeListeners() {
         debouncedUpdateGameRelatedUIs(data);
     }, err => { console.error("GameState listener error:", err); });
 
+    // Super Optimized Child Listeners (Eliminates Firebase Overload Lag)
     listeners.tickets = db.ref('tickets');
-    listeners.tickets.on('value', snapshot => {
+    listeners.tickets.once('value', snapshot => {
         const ticketsObject = snapshot.val();
         if (ticketsObject) {
             allTicketsData = Object.values(ticketsObject).filter(t => t !== null && t !== undefined);
@@ -3067,6 +3012,44 @@ function setupRealtimeListeners() {
         }
         debouncedUpdatePublicTicketUIs();
         renderDashboards();
+
+        // Listen only for single targeted changes
+        listeners.tickets.on('child_changed', childSnapshot => {
+            const updatedTicket = childSnapshot.val();
+            if(!updatedTicket) return;
+            const index = allTicketsData.findIndex(t => t.id === updatedTicket.id);
+            if (index !== -1) {
+                allTicketsData[index] = updatedTicket;
+            }
+            updateSingleTicketUI(updatedTicket);
+            
+            if (currentView === 'adminDashboardView') {
+                updateBusinessInfo();
+                if(adminListState === 'tickets') updateAdminList();
+            }
+            if (currentView === 'agentDashboardView') {
+                showAgentSoldTickets();
+            }
+        });
+
+        // Listen for massive adjustments
+        listeners.tickets.on('child_added', childSnapshot => {
+            const newTicket = childSnapshot.val();
+            if(newTicket && !allTicketsData.some(t => t.id === newTicket.id)) {
+                allTicketsData.push(newTicket);
+                debouncedUpdatePublicTicketUIs();
+                renderDashboards();
+            }
+        });
+
+        listeners.tickets.on('child_removed', childSnapshot => {
+            const removedTicket = childSnapshot.val();
+            if(removedTicket) {
+                allTicketsData = allTicketsData.filter(t => t.id !== removedTicket.id);
+                debouncedUpdatePublicTicketUIs();
+                renderDashboards();
+            }
+        });
     }, err => { console.error("Tickets listener error:", err); });
 
     listeners.users = db.ref('users');
@@ -3091,9 +3074,7 @@ function setupRealtimeListeners() {
         currentTrackId = audioData.currentTrackId || null;
         
         handleBackgroundMusicState(audioData);
-        if (currentUserRole !== 'admin') {
-            handleLiveAudioStream(audioData);
-        } else {
+        if (currentUserRole === 'admin') {
              renderMusicPlaylist();
         }
     }, err => console.error("Audio listener error:", err));
@@ -3116,19 +3097,6 @@ function setupRealtimeListeners() {
         if (data && data.image && (getEstimatedServerTime() - data.timestamp) < 30000) {
             document.getElementById('liveImageDisplay').src = data.image;
             showPopup('liveImagePopup');
-        }
-    });
-    
-    listeners.liveVideo = db.ref('announcements/liveVideo');
-    listeners.liveVideo.on('value', snapshot => {
-        if (isFirstLiveVideo) { isFirstLiveVideo = false; return; }
-        if (!snapshot.exists()) return;
-        const data = snapshot.val();
-        if (data && data.video && (getEstimatedServerTime() - data.timestamp) < 60000) {
-            const videoEl = document.getElementById('liveVideoDisplay');
-            videoEl.src = data.video;
-            showPopup('liveVideoPopup');
-            videoEl.play().catch(e => console.warn("Video autoplay blocked", e));
         }
     });
 }
@@ -4225,7 +4193,6 @@ function updateAdminSettingsUI(data) {
 
     const table = document.getElementById('dividendSettingsTable');
     table.innerHTML = `
-        
         <tbody>
             ${allPossibleDividends.map(name => {
                 const dividendData = (data.dividends || []).find(d => d.name === name);
@@ -5121,7 +5088,6 @@ function showAgentSoldTickets() {
         myTickets.sort((a,b) => a.id - b.id).map(t => `<tr><td data-label="ID">${t.id}</td><td data-label="Name">${t.owner_name}</td><td data-label="Phone">${t.owner_phone}</td></tr>`).join('') + `</tbody>`;
 }
 
-// Optimization: Single HTML string generation to eliminate list delay inside popups
 function updateDashboardBookingPopup() {
     const container = document.getElementById('dashTicketBlockDiv');
     if (!container) return;
@@ -5216,7 +5182,6 @@ async function handleDashboardBooking() {
     } catch(e) { showNotification('Error booking tickets: ' + e.message, 'error'); }
 }
 
-// Optimization: Single HTML string generation for public booking grid inside the popup
 function renderPublicBookingGrid() {
     const container = document.getElementById('publicBookingGrid');
     if (!container) return;
@@ -5339,7 +5304,8 @@ async function toggleGameRunner() {
             }
             gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
             callNextNumber(); 
-        } else {
+        }
+else {
             await gameStateRef.child('isGameRunning').set(false);
         }
         showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
@@ -5417,7 +5383,6 @@ function callNextNumber() {
     });
 }
 
-// Computational optimization: converted lookups to a Set to ensure 0ms processing delay
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
     const activeDividends = gameSettingsData.dividends || [];
@@ -6052,39 +6017,6 @@ async function sendLiveImage() {
     reader.readAsDataURL(file);
 }
 
-async function sendLiveVideo() {
-    const input = document.getElementById('liveVideoAnnounceInp');
-    const file = input.files[0];
-    if (!file) return showNotification('Please select a video file.', 'error');
-    if (file.size > 20 * 1024 * 1024) {
-        return showNotification('Video file is too large. Please keep it under 20MB.', 'error');
-    }
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        const base64String = event.target.result;
-        try {
-            await db.ref('announcements/liveVideo').set({
-                video: base64String,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            showNotification('Video announcement sent!', 'success');
-            input.value = '';
-        } catch (e) {
-            showNotification('Error sending video. It might be too large for the database. ' + e.message, 'error');
-        }
-    };
-    reader.onerror = () => showNotification('Error reading video file.', 'error');
-    reader.readAsDataURL(file);
-}
-
-function closeVideoPopup() {
-    const videoEl = document.getElementById('liveVideoDisplay');
-    videoEl.pause();
-    videoEl.src = "";
-    closePopups();
-}
-
 async function handleMusicUpload() {
     const fileInput = document.getElementById('bgMusicUpload');
     const file = fileInput.files[0];
@@ -6219,48 +6151,6 @@ function togglePlaylistMode() {
         .catch(e => showNotification('Error updating playlist mode: ' + e.message, 'error'));
 }
 
-async function toggleMic() {
-    if (isMicOn) {
-        if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
-        if (localStream) localStream.getTracks().forEach(track => track.stop());
-        document.getElementById('micToggleBtn').classList.remove('live');
-        document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone-slash"></i> Toggle Mic';
-        isMicOn = false;
-        await db.ref('settings/audio/liveAnnouncement').set({ isLive: false });
-        showNotification('Live announcement stopped.', 'info');
-    } else {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const options = { mimeType: 'audio/webm;codecs=opus' };
-            mediaRecorder = new MediaRecorder(localStream, options);
-
-            mediaRecorder.ondataavailable = event => {
-                if (event.data.size > 0) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        db.ref('settings/audio/liveAnnouncement').update({
-                           audioChunk: reader.result,
-                           timestamp: firebase.database.ServerValue.TIMESTAMP 
-                        });
-                    };
-                    reader.readAsDataURL(event.data);
-                }
-            };
-            
-            mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            mediaRecorder.start(1500);
-
-            document.getElementById('micToggleBtn').classList.add('live');
-            document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
-            isMicOn = true;
-            showNotification('Live announcement started!', 'success');
-        } catch (err) {
-            showNotification('Could not access microphone: ' + err.message, 'error');
-            console.error(err);
-        }
-    }
-}
-
 function handleBackgroundMusicState(audioData) {
     const musicState = audioData.musicState || 'off';
     const playlistMode = audioData.playlistMode || 'off';
@@ -6307,90 +6197,6 @@ function handleBackgroundMusicState(audioData) {
     }
 }
 
-function handleLiveAudioStream(audioData) {
-    const liveInfo = audioData.liveAnnouncement;
-    if (liveInfo && liveInfo.isLive && liveInfo.audioChunk && liveInfo.timestamp > lastProcessedTimestamp) {
-        if (liveInfo.isNewStream && mediaSource && mediaSource.readyState === 'open') {
-             audioQueue = [];
-             if (sourceBuffer && !sourceBuffer.updating) {
-                try {
-                    sourceBuffer.remove(0, sourceBuffer.buffered.length > 0 ? sourceBuffer.buffered.end(0) : 0);
-                } catch(e) { console.warn("Buffer clear failed", e); }
-             }
-             db.ref('settings/audio/liveAnnouncement/isNewStream').set(null);
-        }
-
-        lastProcessedTimestamp = liveInfo.timestamp;
-        
-        if (liveAudioPlayer.paused) {
-            liveAudioPlayer.play().catch(e => {});
-        }
-        
-        audioQueue.push(liveInfo.audioChunk);
-        processAudioQueue();
-    } else if (liveInfo && !liveInfo.isLive) {
-        let vol = liveAudioPlayer.volume;
-        if (vol > 0) {
-            const fadeOutInterval = setInterval(() => {
-                vol -= 0.1;
-                if (vol <= 0) {
-                    liveAudioPlayer.volume = 0;
-                    liveAudioPlayer.pause();
-                    liveAudioPlayer.volume = 1;
-                    clearInterval(fadeOutInterval);
-                } else {
-                    liveAudioPlayer.volume = vol;
-                }
-            }, 50);
-        }
-    }
-}
-
-async function processAudioQueue() {
-    if (isAppending || audioQueue.length === 0 || !sourceBuffer || sourceBuffer.updating) {
-        return;
-    }
-    isAppending = true;
-    
-    const dataUrl = audioQueue.shift();
-    try {
-        const response = await fetch(dataUrl);
-        const arrayBuffer = await response.arrayBuffer();
-        sourceBuffer.appendBuffer(arrayBuffer);
-    } catch (error) {
-        console.error('Error processing audio chunk:', error);
-        isAppending = false; 
-    }
-}
-
-function initializeMediaSource() {
-    if ('MediaSource' in window) {
-        mediaSource = new MediaSource();
-        liveAudioPlayer.src = URL.createObjectURL(mediaSource);
-
-        mediaSource.addEventListener('sourceopen', () => {
-            try {
-                const mimeCodec = 'audio/webm; codecs="opus"';
-                if (MediaSource.isTypeSupported(mimeCodec)) {
-                    sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-                    sourceBuffer.addEventListener('updateend', () => {
-                        isAppending = false;
-                        processAudioQueue(); 
-                    });
-                    isMediaSourceOpen = true;
-                } else {
-                    console.error('Unsupported MIME type:', mimeCodec);
-                }
-            } catch (e) {
-                console.error('Exception while creating SourceBuffer:', e);
-            }
-        });
-    } else {
-        console.error('MediaSource API not supported.');
-        showNotification('Live audio streaming may not work on this browser.', 'error');
-    }
-}
-
 function playNextInPlaylist() {
     if (!currentTrackId || Object.keys(audioLibrary).length < 2) return;
     
@@ -6405,14 +6211,10 @@ function playNextInPlaylist() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    initCachedAssets(); // Call cache trigger exactly when DOM is ready
+    initCachedAssets(); 
 
     backgroundMusicPlayer = document.getElementById('backgroundMusicPlayer');
-    liveAudioPlayer = document.getElementById('liveAudioPlayer');
-    
-    initializeMediaSource();
 
-    document.getElementById('micToggleBtn').addEventListener('click', toggleMic);
     document.getElementById('musicUploadBtn').addEventListener('click', handleMusicUpload);
     document.getElementById('setStreamingUrlBtn').addEventListener('click', handleStreamingUrl);
 
@@ -6425,7 +6227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateNumberBoard();
     bindEventListeners();
-    gsap.to('.top-header, .bottom-nav, .panel, .panel1', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
+    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
 
     makeElementDraggable(document.getElementById('universalBookFloatBtn'));
 
