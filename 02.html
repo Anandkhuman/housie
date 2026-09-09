@@ -18,7 +18,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<?xml version='1.0' encoding='utf-8'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img' aria-label='Tambola'><title>Tambola</title><defs><linearGradient id='cardGrad' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fff7e6'/><stop offset='1' stop-color='%23ffd88a'/></linearGradient><linearGradient id='edgeGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23ff9f80'/><stop offset='1' stop-color='%23ff6b6b'/></radialGradient><radialGradient id='ballA' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%236fcf97'/></radialGradient><radialGradient id='ballB' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%2360a5fa'/></radialGradient><radialGradient id='ballC' cx='30%' cy='30%' r='80%'><stop offset='0' stop-color='%23fff'/><stop offset='1' stop-color='%23ffb86b'/></radialGradient><linearGradient id='numGrad' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23462f9b'/><stop offset='1' stop-color='%232d0f6a'/></linearGradient><filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.15'/></filter></defs><rect x='4' y='8' width='40' height='48' rx='4' ry='4' fill='url(%23cardGrad)' stroke='%23f0c27b' stroke-width='1' filter='url(%23shadow)'/><path d='M30 8 H44 V18 L36 18 L30 12 Z' fill='url(%23edgeGrad)' opacity='0.95'/><g transform='translate(8,14)' stroke='%23e2b66a' stroke-width='0.8' fill='none'><rect width='28' height='28' rx='2' fill='none'/><line x1='0' y1='9.333' x2='28' y2='9.333'/><line x1='0' y1='18.666' x2='28' y2='18.666'/><line x1='9.333' y1='0' x2='9.333' y2='28'/><line x1='18.666' y1='0' x2='18.666' y2='28'/></g><g transform='translate(36,28)'><circle cx='0' cy='-6' r='9' fill='url(%23ballA)' stroke='%233fa86b' stroke-width='0.8'/><text x='0' y='-3.2' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>7</text></g><g transform='translate(46,36)'><circle cx='0' cy='0' r='10' fill='url(%23ballB)' stroke='%231f6fd6' stroke-width='0.9'/><text x='0' y='3.6' font-family='sans-serif' font-weight='700' font-size='9' text-anchor='middle' fill='url(%23numGrad)'>25</text></g><g transform='translate(30,42)'><circle cx='0' cy='0' r='7.5' fill='url(%23ballC)' stroke='%23e5922d' stroke-width='0.9'/><text x='0' y='3' font-family='sans-serif' font-weight='700' font-size='7.5' text-anchor='middle' fill='url(%23numGrad)'>48</text></g><text x='12' y='50' font-family='sans-serif' font-weight='700' font-size='7' fill='%23bb6a1c'>T</text></svg>">
 
-
 <style>
     :root {
         --bg-color: linear-gradient(135deg, green, gold);
@@ -75,7 +74,6 @@
 }
 
     body.dashboard-view-active {
-      
         background-color: #1d2b40;
         font-family: sans-serif;
         color: var(--light-text-dash);
@@ -110,29 +108,16 @@
  .popup-content {
     width: 100%;
     max-width: 500px;
-
-    /* Glass + Gradient */
-    background: linear-gradient(
-        135deg,
-        rgba(29, 43, 64, 0.6),
-        rgba(15, 25, 40, 0.6)
-    );
-
+    background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px); /* Safari support */
-
+    -webkit-backdrop-filter: blur(12px); 
     border: 1px solid rgba(0, 246, 255, 0.4);
     border-radius: 12px;
-
     padding: 0;
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
-
-    box-shadow: 
-        0 0 25px rgba(0, 246, 255, 0.35),
-        inset 0 0 10px rgba(0, 246, 255, 0.15);
-
+    box-shadow: 0 0 25px rgba(0, 246, 255, 0.35), inset 0 0 10px rgba(0, 246, 255, 0.15);
     transform: scale(0.95);
     transition: transform var(--transition-speed) var(--transition-ease);
 }
@@ -210,24 +195,19 @@
     width: auto;
 }
 
-/* Mobile View ke liye Specific Centering Layout */
 @media (max-width: 768px) {
     .top-down-notification-popup .notification-body {
-        justify-content: center; /* Sabhi items ko center karega */
+        justify-content: center; 
     }
-
     .top-down-notification-popup .notification-text-content p {
-        text-align: center; /* Text ko center karega */
+        text-align: center; 
     }
-    
     .top-down-notification-popup .notification-actions {
         width: 100%;
         margin-top: 0.3rem;
-        justify-content: center; /* Buttons ko center karega */
+        justify-content: center; 
     }
 }
-
-
 
     .x-button {
         background: transparent; position: absolute; top: 0.5rem; right: 0.5rem;
@@ -261,33 +241,24 @@ textarea.tableInp,
   border-radius: 8px;
   text-align: center;
   font-family: var(--font-family-neon);
-
-  /* Glass effect */
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-
   border: 1px solid rgba(255, 255, 255, 0.25);
   color: #ffffff;
   transition: all 0.2s ease;
 }
 
-/* ================= FOCUS STATE ================= */
-input:focus,
-select:focus,
-textarea:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
   border: 1px solid rgba(255, 255, 255, 0.6);
   background: rgba(255, 255, 255, 0.18);
 }
 
-/* ================= PLACEHOLDER ================= */
-input::placeholder,
-textarea::placeholder {
+input::placeholder, textarea::placeholder {
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* ================= DASHBOARD LIGHT MODE FIX ================= */
 .dashboard-view .tableInp {
   background: rgba(255, 255, 255, 0.85);
   color: var(--text-dark);
@@ -295,11 +266,7 @@ textarea::placeholder {
   backdrop-filter: blur(2px);
 }
 
-
-    .login-form input {
-        margin-bottom: 0.8rem;
-    }
-
+    .login-form input { margin-bottom: 0.8rem; }
     .login-btn {
         width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem;
         border-radius: 4px; margin-bottom: 0.8rem; text-align: center;
@@ -314,18 +281,10 @@ textarea::placeholder {
     .login-btn.agent { background: #3498db; }
 
     .forgot-password-link {
-        display: block;
-        text-align: center;
-        color: var(--accent-primary);
-        margin: 1rem 0 0.5rem 0;
-        font-size: 0.85rem;
-        text-decoration: none;
-        transition: color 0.3s;
+        display: block; text-align: center; color: var(--accent-primary);
+        margin: 1rem 0 0.5rem 0; font-size: 0.85rem; text-decoration: none; transition: color 0.3s;
     }
-    .forgot-password-link:hover {
-        color: var(--text-primary);
-        text-decoration: underline;
-    }
+    .forgot-password-link:hover { color: var(--text-primary); text-decoration: underline; }
 
     .agent-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .agent-list a {
@@ -352,8 +311,7 @@ textarea::placeholder {
     .notification.error { background-color: #e74c3c; }
     .notification.info { background-color: #3498db; }
 
-    .neon-view {
-    }
+    .neon-view { }
     
     .page-wrapper {
         max-width: 1400px;
@@ -362,188 +320,72 @@ textarea::placeholder {
         z-index: 1;
         width: 95%;
         padding-top: 60px;
-        padding-bottom: 120px; /* Increased padding to avoid overlap with new footer */
+        padding-bottom: 120px; 
     }
     .panel {
-    background: rgba(25, 43, 64, 0.5); /* transparent glass feel */
-    backdrop-filter: blur(1px);       /* blur effect */
+        background: rgba(25, 43, 64, 0.5); 
+        backdrop-filter: blur(1px);       
+        border: 1px solid rgba(0, 246, 255, 0.4);
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 0 20px rgba(0, 246, 255, 0.25), inset 0 0 10px rgba(0, 246, 255, 0.1);
+        opacity: 0;
+        transform: translateY(20px);
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
 
-    border: 1px solid rgba(0, 246, 255, 0.4);
-    border-radius: 12px;
-    margin-bottom: 0.5rem;
-
-    box-shadow: 
-        0 0 20px rgba(0, 246, 255, 0.25),
-        inset 0 0 10px rgba(0, 246, 255, 0.1);
-
-    opacity: 0;
-    transform: translateY(20px);
-    padding: 1rem;
-
-    transition: all 0.3s ease;
-}
 /* ================= TOP HEADER (FINAL PREMIUM VERSION) ================= */
 .top-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 998;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
+    position: fixed; top: 0; left: 0; width: 100%; z-index: 998;
+    display: flex; justify-content: center; align-items: center;
     padding: 0.9rem 1rem;
-
-    /* 🔥 Background + Overlay */
-    background:
-        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-        url("https://images.unsplash.com/photo-1611078489935-0cb964de46d6");
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-
-    position: fixed;
-    overflow: hidden;
-
-    /* Animation entry */
-    opacity: 0;
-    transform: translateY(-100%);
-    transition: all 0.4s ease;
+    background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url("https://images.unsplash.com/photo-1611078489935-0cb964de46d6");
+    background-size: cover; background-position: center; background-repeat: no-repeat;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    overflow: hidden; opacity: 0; transform: translateY(-100%); transition: all 0.4s ease;
 }
 
-/* ================= ANIMATED BORDER ================= */
 .top-header::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 3px;
-    width: 100%;
-
-    background: linear-gradient(
-        90deg,
-        #00f6ff,
-        #00ff88,
-        #00f6ff,
-        #0088ff,
-        #00f6ff
-    );
-
-    background-size: 300% 100%;
-    animation: borderFlow 4s linear infinite;
+    content: ""; position: absolute; bottom: 0; left: 0; height: 3px; width: 100%;
+    background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff, #0088ff, #00f6ff);
+    background-size: 300% 100%; animation: borderFlow 4s linear infinite;
 }
 
-/* ================= TEXT STYLE ================= */
 .top-header h1 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-align: center;
-    position: relative;
-
-    /* 🔥 Gradient Animated Text */
-    background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff);
-    background-size: 300%;
-
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-    animation: textFlow 4s linear infinite;
-
-    /* Glow */
-    text-shadow: 0 0 10px rgba(0,246,255,0.4);
+    font-size: 1.3rem; font-weight: 700; letter-spacing: 2px; text-align: center; position: relative;
+    background: linear-gradient(90deg, #00f6ff, #00ff88, #00f6ff); background-size: 300%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: textFlow 4s linear infinite; text-shadow: 0 0 10px rgba(0,246,255,0.4);
 }
 
-/* ================= ANIMATIONS ================= */
-@keyframes borderFlow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 300% 50%; }
-}
+@keyframes borderFlow { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+@keyframes textFlow { 0% { background-position: 0%; } 100% { background-position: 300%; } }
 
-@keyframes textFlow {
-    0% { background-position: 0%; }
-    100% { background-position: 300%; }
-}
-
-/* ================= ACTIVE STATE ================= */
-.top-header.active {
-    opacity: 1;
-    transform: translateY(0);
-}
+.top-header.active { opacity: 1; transform: translateY(0); }
 
 /* ================= BOTTOM NAV (GLASSMORPHISM) ================= */
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    z-index: 999;
-
-    /* Glass Effect */
-    background: linear-gradient(
-        135deg,
-        rgba(29, 43, 64, 0.6),
-        rgba(15, 25, 40, 0.6)
-    );
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
+    position: fixed; bottom: 0; left: 0; right: 0; width: 100%; z-index: 999;
+    background: linear-gradient(135deg, rgba(29, 43, 64, 0.6), rgba(15, 25, 40, 0.6));
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid rgba(0, 246, 255, 0.5);
-
-    box-shadow: 
-        0 -5px 20px rgba(0, 246, 255, 0.25),
-        inset 0 0 8px rgba(0, 246, 255, 0.1);
-
-    padding: 0.3rem 0;
-
-    opacity: 0; 
-    transform: translateY(100%);
-    transition: all 0.3s ease;
+    box-shadow: 0 -5px 20px rgba(0, 246, 255, 0.25), inset 0 0 8px rgba(0, 246, 255, 0.1);
+    padding: 0.3rem 0; opacity: 0; transform: translateY(100%); transition: all 0.3s ease;
 }
 
-
-/* ================= ACTIVE STATES ================= */
-.top-header.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.bottom-nav.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-
-/* ================= OPTIONAL HOVER ================= */
-.top-header:hover {
-    box-shadow: 0 5px 25px rgba(0, 246, 255, 0.5);
-}
-
-.bottom-nav:hover {
-    box-shadow: 
-        0 -5px 25px rgba(0, 246, 255, 0.5),
-        inset 0 0 10px rgba(0, 246, 255, 0.2);
-}
+.bottom-nav.active { opacity: 1; transform: translateY(0); }
+.top-header:hover { box-shadow: 0 5px 25px rgba(0, 246, 255, 0.5); }
+.bottom-nav:hover { box-shadow: 0 -5px 25px rgba(0, 246, 255, 0.5), inset 0 0 10px rgba(0, 246, 255, 0.2); }
 
     .game-layout { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
-
     @media (min-width: 992px) {
-        .game-layout {
-            grid-template-columns: 2fr 1fr;
-        }
+        .game-layout { grid-template-columns: 2fr 1fr; }
+        .game-layout.full-width-booking { grid-template-columns: 1fr; }
     }
 
     .panel-title {
-        font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem;
-        color: #ffffff; text-align: center;
+        font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: #ffffff; text-align: center;
         text-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
     }
     .title-container { display: flex; align-items: center; gap: 0.8rem; justify-content: center; }
@@ -551,43 +393,17 @@ textarea::placeholder {
     @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     .webTitle { font-size: 1.5rem; font-weight: 700; }
     
-    .icon-bar { 
-        display: flex; 
-        gap: 0.2rem;
-        justify-content: space-around; 
-        flex-wrap: nowrap; 
-        width: 100%;
-    }
+    .icon-bar { display: flex; gap: 0.2rem; justify-content: space-around; flex-wrap: nowrap; width: 100%; }
     
     .icon-btn {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.2rem;
-        background: transparent;
-        border: none;
-        color: var(--accent-primary);
-        border-radius: 4px;
-        padding: 0.4rem 0.2rem;
-        font-size: 0.50rem;
-        font-weight: 500;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background-color var(--transition-speed) ease, color 0.3s, transform 0.3s;
-        flex-grow: 1;
-        flex-basis: 0;
-        text-align: center;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 0.2rem; background: transparent; border: none; color: var(--accent-primary);
+        border-radius: 4px; padding: 0.4rem 0.2rem; font-size: 0.50rem; font-weight: 500;
+        cursor: pointer; text-decoration: none; transition: background-color var(--transition-speed) ease, color 0.3s, transform 0.3s;
+        flex-grow: 1; flex-basis: 0; text-align: center;
     }
-    .icon-btn:hover {
-        background: rgba(0, 246, 255, 0.1);
-        color: var(--text-primary);
-        transform: translateY(-2px);
-    }
-    
-    .icon-btn i {
-        font-size: 1rem;
-    }
+    .icon-btn:hover { background: rgba(0, 246, 255, 0.1); color: var(--text-primary); transform: translateY(-2px); }
+    .icon-btn i { font-size: 1rem; }
     
     .timer-status-bar { width: 100%; padding: 0.2rem; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.5rem; }
     .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.70rem; font-weight: 600; color: var(--text-secondary); }
@@ -596,123 +412,45 @@ textarea::placeholder {
     .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
-        background: #e1efd6; border-radius: 4px;
-        font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+        background: #e1efd6; border-radius: 4px; font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
         color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
     .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
-  .called-numbers-list {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-height: 120px;
-  overflow-y: auto;
-  padding: 0.4rem;
-  border-radius: 8px;
-
-  /* Glass effect */
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+    .called-numbers-list {
+        display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; max-height: 120px;
+        overflow-y: auto; padding: 0.4rem; border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2);
+    }
     .called-num-chip { background: var(--text-primary); color: var(--text-dark); padding: 0.2rem 0.6rem; border-radius: 15px; font-weight: 700; font-size: 0.85rem; }
     
     .search-container { display: flex; margin-bottom: 1rem; gap: 4px; }
-    .searchInp {
-        flex-grow: 1;
-        border-radius: 4px;
-        margin: 0;
-    }
+    .searchInp { flex-grow: 1; border-radius: 4px; margin: 0; }
     .searchInp:focus { box-shadow: 0 0 10px var(--accent-primary); }
     .search-btn { padding: 0 1rem; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: var(--text-dark); cursor: pointer; border-radius: 4px; font-size: 1rem; font-weight: 700; transition: filter var(--transition-speed) ease; }
     .search-btn:hover { filter: brightness(1.2); }
     
     .ticketDisplayArea { display: flex; flex-direction: column; gap: 1rem; }
-    .search-result-group {
-        border: 1px solid var(--accent-secondary);
-        border-radius: 6px;
-        padding: 0.8rem;
-        background-color: rgba(255, 0, 160, 0.05);
-        position: relative;
-    }
+    .search-result-group { border: 1px solid var(--accent-secondary); border-radius: 6px; padding: 0.8rem; background-color: rgba(255, 0, 160, 0.05); position: relative; }
     .clear-search-btn {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: var(--accent-secondary);
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        font-size: 0.8rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid white;
-        transition: transform 0.2s, background-color 0.2s;
-        z-index: 5;
+        position: absolute; top: 5px; right: 5px; background: var(--accent-secondary); color: white;
+        border-radius: 50%; width: 24px; height: 24px; font-size: 0.8rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; border: 1px solid white; transition: transform 0.2s, background-color 0.2s; z-index: 5;
     }
-    .clear-search-btn:hover {
-        transform: scale(1.1);
-        background-color: red;
-    }
-    .search-result-group .ticket-view {
-        margin-bottom: 0.5rem;
-    }
-    .search-result-group .ticket-view:last-child {
-        margin-bottom: 0;
-    }
-
+    .clear-search-btn:hover { transform: scale(1.1); background-color: red; }
+    .search-result-group .ticket-view { margin-bottom: 0.5rem; }
+    .search-result-group .ticket-view:last-child { margin-bottom: 0; }
 
     .panel:has(#bookedTicketsDisplay), .panel:has(#bookingGridContainer) { background: transparent; border: none; box-shadow: none; padding: 0; }
-    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title,  { color: white ; text-shadow: none; }
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-}
-
-.sheet-view {
-  background: rgba(0, 0, 0, 0.25); /* dark glass */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-
-  padding: 0.8rem;
-  margin: 1rem;
-
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.sheet-header {
-  color: white;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-
-  font-size: 1rem;
-  margin-bottom: 0.8rem;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  font-weight: 700;
-  padding-bottom: 0.5rem;
-}
-
-.sheet-content {
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: 1fr !important;
-  color: #e3f2fd;
-}    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
+    .panel:has(#bookedTicketsDisplay) .panel-title, .panel:has(#bookingGridContainer) .panel-title { color: white ; text-shadow: none; }
+    
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .sheet-view { background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 0.8rem; margin: 1rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
+    .sheet-header { color: white; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 1rem; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; font-weight: 700; padding-bottom: 0.5rem; }
+    .sheet-content { display: grid; gap: 0.8rem; grid-template-columns: 1fr !important; color: #e3f2fd; }
+    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
@@ -720,37 +458,9 @@ body {
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
-    .ticket-num.winning-strike {
-        background-color: var(--called-color) !important;
-        color: var(--text-dark) !important;
-        transform: scale(1.2) rotate(3deg);
-        box-shadow: 0 0 15px 3px var(--called-color);
-        border: 2px solid black;
-        z-index: 2;
-        position: relative;
-    }
-
-    .download-pdf-btn {
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        background-color: var(--accent-color-dash);
-        color: white;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 10;
-        border: 2px solid white;
-        transition: transform 0.2s;
-    }
-    .download-pdf-btn:hover {
-        transform: scale(1.1);
-    }
-
+    .ticket-num.winning-strike { background-color: var(--called-color) !important; color: var(--text-dark) !important; transform: scale(1.2) rotate(3deg); box-shadow: 0 0 15px 3px var(--called-color); border: 2px solid black; z-index: 2; position: relative; }
+    .download-pdf-btn { position: absolute; top: 2px; right: 2px; background-color: var(--accent-color-dash); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; border: 2px solid white; transition: transform 0.2s; }
+    .download-pdf-btn:hover { transform: scale(1.1); }
     .dividend-table { width: 100%; border-collapse: collapse; }
     .dividend-table th, .dividend-table td { padding: 0.8rem; text-align: left; border-top: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; }
     .dividend-table th { font-weight: 700; color: var(--accent-seconda); font-size: 0.95rem; }
@@ -764,188 +474,28 @@ body {
     .dividend-table .prize-share { font-size: 0.8em; color: var(--text-secondary); font-style: italic; display: block; margin-top: 2px;}
     .dividend-table .winner-info .fa-eye { flex-shrink: 0; margin-left: 10px; cursor: pointer; color: var(--accent-primary); font-size: 1.1rem; transition: transform 0.2s; padding-top: 4px; }
     .dividend-table .winner-info .fa-eye:hover { transform: scale(1.2); }
-    .dividend-table th,
-.dividend-table td {
-    padding: 0.9rem;
-    text-align: left;
-    border-top: 1px solid rgba(255, 0, 160, 0.4);
-    font-size: 0.9rem;
-    vertical-align: top;
-    color: #ffffff;
-}
-    /* --- Professional Announcement Styles --- */
-    #number-announcement-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 10000;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        pointer-events: none;
-        
-        /* Initial state: Hidden and transparent */
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    #number-announcement-overlay::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 120px;
-        height: 40px;
-        
-        
-    }
+    .dividend-table th, .dividend-table td { padding: 0.9rem; text-align: left; border-top: 1px solid rgba(255, 0, 160, 0.4); font-size: 0.9rem; vertical-align: top; color: #ffffff; }
     
-    #announced-number-display {
-        /* This is the ball */
-        position: relative;
-        width: 60px;
-        height: 60px;
-        background-color: var(--called-color);
-        background-image: radial-gradient(circle at 30% 30%, #ffffff, var(--called-color) 80%);
-        color: var(--text-dark);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 700;
-        font-size: 3rem;
-        line-height: 1;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 -3px 5px rgba(0,0,0,0.2);
-        border: 3px solid #b3a500;
-        pointer-events: auto;
-        
-        /* Reset any old properties */
-        padding: 0;
-        text-shadow: none;
-    }
-
+    #number-announcement-overlay { position: fixed; top: 0; left: 0; width: 100%; z-index: 10000; display: flex; justify-content: center; align-items: flex-start; pointer-events: none; opacity: 0; visibility: hidden; }
+    #number-announcement-overlay::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 40px; }
+    #announced-number-display { position: relative; width: 60px; height: 60px; background-color: var(--called-color); background-image: radial-gradient(circle at 30% 30%, #ffffff, var(--called-color) 80%); color: var(--text-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 3rem; line-height: 1; box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 -3px 5px rgba(0,0,0,0.2); border: 3px solid #b3a500; pointer-events: auto; padding: 0; text-shadow: none; }
     
-    #bookingGridContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 8px;
-  max-height: 75vh;
-  overflow-y: auto;
-  border-radius: 10px;
-
-  /* Glass effect */
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-    
-    #bookingGridContainer .ticket-view.sold {
-        cursor: not-allowed;
-        opacity: 1;
-        background-color: #ffebee;
-        border-color: #ef9a9a;
-    }
-    #bookingGridContainer .ticket-view.sold .ticket-header {
-        background-color: #ffcdd2;
-        color: #c62828;
-    }
-        #bookingGridContainer .ticket-view.sold .ticket-header span:not(.ticket-status),
-    #bookingGridContainer .ticket-view.sold .ticket-header div {
-        color: #c62828 !important;
-    }
-    .ticket-header span.ticket-status.sold {
-        background-color: #c62828;
-        color: white !important; /* Force white color */
-    }
-    #bookingGridContainer .ticket-view.sold .ticket-num.empty {
-        background-color: #ffebee;
-    }
-
-    #bookingGridContainer .ticket-view:not(.sold) {
-        background-color: #e3f2fd;
-        border-color: #90caf9;
-    }
-   #bookingGridContainer .ticket-view:not(.sold) .ticket-header span:not(.ticket-status),
-     #bookingGridContainer .ticket-view:not(.sold) .ticket-header div {
-        color: #1565c0 !important;
-     }
-    .ticket-header span.ticket-status.available {
-        background-color: #2e7d32;
-        color: white !important; /* Force white color */
-    }
-    }
-     #bookingGridContainer .ticket-view:not(.sold) .ticket-header span:not(.ticket-status),
- #bookingGridContainer .ticket-view:not(.sold) .ticket-header div {
-    color: #1565c0 !important;
- }
-    #bookingGridContainer .ticket-view:not(.sold) .ticket-num.empty {
-        background-color: #e3f2fd;
-    }
-
-    /* NEW TICKET STATUS STYLES */
-    .ticket-header span.ticket-status {
-        font-weight: bold;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-size: 0.7rem;
-        float: right;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        line-height: 1.5;
-    }
-    .ticket-header span.ticket-status.sold {
-        background-color: #c62828;
-        color: white;
-    }
-    .ticket-header span.ticket-status.available {
-        background-color: #2e7d32;
-        color: white;
-    }
-    .ticket-header span.ticket-status.missing {
-        background-color: #7f8c8d;
-        color: white;
-    }
-
-    .selection-indicator {
-        text-align: center;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--called-color);
-        padding: 0.5rem 0.8rem;
-        margin-top: 1rem;
-        border-radius: 4px;
-        background: rgba(255, 242, 0, 0.1);
-        border: 2px dashed var(--called-color);
-        min-height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: border-color 0.3s ease;
-    }
-   #bookedTicketsDisplay {
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 8px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  /* Glass effect */
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+    #bookingGridContainer, #bookedTicketsDisplay { display: flex; flex-direction: column; gap: 1rem; padding: 8px; max-height: 80vh; overflow-y: auto; border-radius: 10px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+    #bookingGridContainer .ticket-view.sold { cursor: not-allowed; opacity: 1; background-color: #ffebee; border-color: #ef9a9a; }
+    #bookingGridContainer .ticket-view.sold .ticket-header { background-color: #ffcdd2; color: #c62828; }
+    #bookingGridContainer .ticket-view.sold .ticket-header span:not(.ticket-status), #bookingGridContainer .ticket-view.sold .ticket-header div { color: #c62828 !important; }
+    .ticket-header span.ticket-status.sold { background-color: #c62828; color: white !important; }
+    #bookingGridContainer .ticket-view.sold .ticket-num.empty { background-color: #ffebee; }
+    #bookingGridContainer .ticket-view:not(.sold) { background-color: #e3f2fd; border-color: #90caf9; }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-header span:not(.ticket-status), #bookingGridContainer .ticket-view:not(.sold) .ticket-header div { color: #1565c0 !important; }
+    .ticket-header span.ticket-status.available { background-color: #2e7d32; color: white !important; }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-header span:not(.ticket-status), #bookingGridContainer .ticket-view:not(.sold) .ticket-header div { color: #1565c0 !important; }
+    #bookingGridContainer .ticket-view:not(.sold) .ticket-num.empty { background-color: #e3f2fd; }
+    .ticket-header span.ticket-status { font-weight: bold; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; float: right; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.5; }
+    .ticket-header span.ticket-status.sold { background-color: #c62828; color: white; }
+    .ticket-header span.ticket-status.available { background-color: #2e7d32; color: white; }
+    .ticket-header span.ticket-status.missing { background-color: #7f8c8d; color: white; }
+    .selection-indicator { text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--called-color); padding: 0.5rem 0.8rem; margin-top: 1rem; border-radius: 4px; background: rgba(255, 242, 0, 0.1); border: 2px dashed var(--called-color); min-height: 36px; display: flex; align-items: center; justify-content: center; transition: border-color 0.3s ease; }
     .full-sheet-selector { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
     .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
@@ -963,20 +513,12 @@ body {
     .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
     .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 2fr 1fr; gap: 0px; align-items: center;}
     .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
-
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
     .dashboard-view .gameSettingTable td:first-child { font-weight: bold; color: white; }
     .dashboard-view .gameSettingTable td::before { content: '' !important; }
-    .dashboard-view .tableInp {
-        margin: 0;
-        box-sizing: border-box;
-    }
+    .dashboard-view .tableInp { margin: 0; box-sizing: border-box; }
     .dashboard-view .tableCheckbox { width: 20px; height: 20px; vertical-align: middle; accent-color: var(--accent-color-dash); cursor: pointer;}
-    #adminDashboardView .searchInp, #agentDashboardView .searchInp {
-        margin: 15px auto 0 auto;
-        display: block;
-        width: 90%;
-    }
+    #adminDashboardView .searchInp, #agentDashboardView .searchInp { margin: 15px auto 0 auto; display: block; width: 90%; }
     .dashboard-view .toggleDiv { display: grid; grid-template-columns: 1fr 1fr; width: 90%; margin: 0 auto; }
     .dashboard-view #showTicketBtn { background: var(--accent-color-dash); }
     .dashboard-view #showAgentBtn { background: var(--secondary-bg-dash); }
@@ -985,881 +527,154 @@ body {
     .dashboard-view .numBlockDiv .num-cell { font-size: 1rem; color: var(--text-dark); background: #fff;}
     .dashboard-view .numBlockDiv .num-cell.called { background: var(--accent-color-dash); color: white; }
     
-    .ticketBlockBtn {
-        font-size: 0.9rem; padding: 4px;
-        background: white;
-        font-weight: bold;
-        border: 2px solid silver;
-        color: #000;
-        cursor: pointer; aspect-ratio: 1/1;
-        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .ticketBlockBtn:disabled {
-        background: #fff200;
-        color: #333;
-        cursor: not-allowed;
-        text-decoration: line-through;
-        border-color: #fbc02d;
-    }
-    .ticketBlockBtn.selected {
-        background: var(--accent-color-dash) !important;
-        color: var(--light-text-dash) !important;
-        border-color: var(--light-text-dash) !important;
-    }
-
-    .dashboard-view .bookBtn, .bookBtn { 
-        width: 100%; font-size: 1rem; padding: 0.8rem; border: 0; font-weight: bold; 
-        display: block; background: var(--accent-color-dash); color: var(--light-text-dash); 
-        border-radius: 6px; cursor: pointer;
-        transition: filter 0.2s;
-    }
-    .dashboard-view .bookBtn:hover, .bookBtn:hover {
-        filter: brightness(1.1);
-    }
-
+    .ticketBlockBtn { font-size: 0.9rem; padding: 4px; background: white; font-weight: bold; border: 2px solid silver; color: #000; cursor: pointer; aspect-ratio: 1/1; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+    .ticketBlockBtn:disabled { background: #fff200; color: #333; cursor: not-allowed; text-decoration: line-through; border-color: #fbc02d; }
+    .ticketBlockBtn.selected { background: var(--accent-color-dash) !important; color: var(--light-text-dash) !important; border-color: var(--light-text-dash) !important; }
+    .dashboard-view .bookBtn, .bookBtn { width: 100%; font-size: 1rem; padding: 0.8rem; border: 0; font-weight: bold; display: block; background: var(--accent-color-dash); color: var(--light-text-dash); border-radius: 6px; cursor: pointer; transition: filter 0.2s; }
+    .dashboard-view .bookBtn:hover, .bookBtn:hover { filter: brightness(1.1); }
     .dashboard-view .runGameTable, .dashboard-view .dividentConDiv { width: 95%; margin: 1rem auto; }
     .dashboard-view .dividentConDiv table { width: 100%; color: var(--light-text-dash); border-collapse: collapse; }
     .dashboard-view .dividentConDiv th, .dashboard-view .dividentConDiv td { padding: 6px; border: 1px solid var(--muted-color-dash); font-size: 0.85rem;}
     
-   /* Background overlay (glass dark) */
-.gamePopDiv {
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-/* Main game container (glass card) */
-.gameDiv {
-  position: relative;
-  height: 95vh;
-  width: 95%;
-  margin: 2.5% auto;
-
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 12px;
-
-  /* Glass effect */
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
+    .gamePopDiv { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .gameDiv { position: relative; height: 95vh; width: 95%; margin: 2.5% auto; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); }
     .gamePopDiv .x-button { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; color: white; }
     #agentDashboardView .runBtn { font-size: 1.5rem; }
     #adminGameSettingTable td, #agentSoldTicketsTable td { padding-left: 8px; text-align: left; }
     #adminGameSettingTable td::before, #agentSoldTicketsTable td::before { content: '' !important; }
+    .booking-popup-header { flex-shrink: 0; z-index: 5; padding: 0.8rem; position: relative; border-bottom: 1px solid var(--secondary-bg-dash); }
+    .gamePopDiv .ticketBlockDiv { flex-grow: 1; overflow-y: auto; margin: 0; width: 100%; max-height: none; padding: 8px; }
+    .bookInpDiv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    #adminGameSettingTable .booked-ticket-line-1 { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1rem; }
+    #adminGameSettingTable .booked-ticket-line-1 .fa-edit, #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt { color: var(--accent-color-dash); cursor: pointer; transition: transform 0.2s; }
+    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt { color: #e74c3c; margin-left: 10px; }
+    #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover, #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt:hover { transform: scale(1.2); }
+    #adminGameSettingTable .booked-ticket-line-2 { font-size: 0.8rem; color: var(--muted-color-dash); margin-top: 4px; }
+    #adminGameSettingTable .admin-ticket-row td { display: block; width: 100%; padding: 10px; }
+    #adminGameSettingTable .admin-ticket-row.available-ticket td { display: table-cell; }
+    #dividendSettingsTable tr { grid-template-columns: 1fr; }
+    #dividendSettingsTable td { display: flex; align-items: center; gap: 10px; }
+    .dividend-name-text { flex-grow: 1; font-weight: 500; color: var(--light-text-dash); }
+    .dividend-amount { width: 90px !important; flex-shrink: 0; text-align: right !important; }
+    #genericInfoPopupContent ul { list-style-type: none; padding-left: 0; }
+    #genericInfoPopupContent li { padding: 8px; border-bottom: 1px solid var(--secondary-surface); }
+    #genericInfoPopupContent li:last-child { border-bottom: none; }
+    #genericInfoPopupContent .winner-dividend { font-weight: 700; color: var(--accent-primary); }
+    #genericInfoPopupContent .winner-details { font-size: 0.9em; color: var(--text-primary); }
 
-    .booking-popup-header {
-        flex-shrink: 0;
-        z-index: 5;
-        padding: 0.8rem;
-        position: relative;
-        border-bottom: 1px solid var(--secondary-bg-dash);
-    }
+    #posterContent { font-family: 'Oswald', sans-serif; color: #ffffff; padding: 2rem; background-size: cover; background-position: center; text-align: center; border-radius: 8px; position: relative; overflow: hidden; transition: background-image 0.5s ease-in-out; }
+    #posterContent [contenteditable="true"]:hover { outline: 2px dashed var(--accent-primary); background-color: rgba(0, 246, 255, 0.1); }
+    #posterContent::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); z-index: 1; }
+    #posterContent > * { position: relative; z-index: 2; }
+    .poster-title { font-size: 2em; text-transform: uppercase; font-weight: 700; text-shadow: 3px 3px 5px rgba(0,0,0,0.5); margin: 0; }
+    .poster-datetime { font-size: 1.1em; font-weight: bold; margin-top: -0.1rem; color: #ffeb3b; }
+    .poster-tagline { font-size: 1em; margin: -0.1rem 0; }
+    .prize-section { margin: 0rem auto; padding: 0rem; border-radius: 8px; max-width: 100%; }
+    .prize-section h3 { text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid #ffeb3b; display: inline-block; padding-bottom: 5px; margin-bottom: 1rem; }
+    .prize-list { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left; }
+    .prize-column p { margin: 0.5rem 0; font-size: 1.2em; }
+    #prize-amounts { text-align: right; font-weight: bold; }
+    .ticket-details { font-size: 0.9em; font-weight: bold; background: #ffeb3b; color: #000; padding: 0.5rem 1rem; border-radius: 5px; display: inline-block; margin: 0; }
+    .contact-section { margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 0; }
+    .contact-section p { font-size: 1.1em; margin: 0; }
+    .contact-section a { color: #ffffff; text-decoration: none; }
+    .contact-section a:hover { text-decoration: underline; }
+
+    .gamePopDiv .tableInp, .gamePopDiv .tableInp1 { width: 100%; font-size: 0.9rem; padding: 0.7rem 1rem; border-radius: 10px; text-align: center; font-family: var(--font-family-neon); background: var(--secondary-bg-dash); border: 1px solid var(--accent-color-dash); color: var(--light-text-dash); box-sizing: border-box; transition: box-shadow 0.2s ease, border-color 0.2s ease; }
+    .gamePopDiv .tableInp:focus { border-color: var(--accent-color-dash); box-shadow: 0 0 8px var(--accent-color-dash); outline: none; }
+    .gamePopDiv select.tableInp { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; padding-right: 2.5rem; }
+    .runGameTable button.actionBtn { margin: 0 !important; height: auto; font-size: 1rem; border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
+    .runGameTable button.actionBtn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.4); }
+    .gamePopDiv .ticketBlockDiv { display: flex; flex-direction: column; gap: 0.5rem; }
+    .compact-sheet-row { display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: 4px; background-color: var(--secondary-bg-dash); }
+    .compact-sheet-row .sheet-tick-box { width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent-color-dash); flex-shrink: 0; }
+    .compact-sheet-row .ticket-buttons-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; flex-grow: 1; }
+    .gamePopDiv .ticketBlockBtn { font-size: 0.8rem; padding: 0; height: 35px; width: 100%; aspect-ratio: unset; min-width: 35px; border-width: 1px; line-height: 35px; }
     
-    .gamePopDiv .ticketBlockDiv {
-        flex-grow: 1;
-        overflow-y: auto;
-        margin: 0;
-        width: 100%;
-        max-height: none;
-        padding: 8px;
-    }
+    #poster-bg-controls { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding: 8px; margin-bottom: 1rem; background-color: rgba(0, 0, 0, 0.25); border-radius: 8px; -webkit-overflow-scrolling: touch; border: 1px solid var(--secondary-bg-dash); }
+    #poster-bg-controls::-webkit-scrollbar { height: 5px; }
+    #poster-bg-controls::-webkit-scrollbar-track { background: transparent; }
+    #poster-bg-controls::-webkit-scrollbar-thumb { background: var(--accent-color-dash); border-radius: 5px; }
+    #poster-bg-controls::-webkit-scrollbar-thumb:hover { background: #1fe0b8; }
+    #poster-bg-controls > .actionBtn, #poster-bg-controls > span, #poster-bg-controls > label.actionBtn { flex-shrink: 0; margin: 0 !important; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 6px 12px; font-size: 0.85em; height: auto; }
+    #poster-bg-controls > span { align-self: center; font-weight: 600; color: var(--light-text-dash); }
+    #poster-bg-controls > .actionBtn:hover, #poster-bg-controls > label.actionBtn:hover { transform: translateY(-2px); filter: brightness(1.2); box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+    #poster-bg-controls > .actionBtn.active { background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: var(--text-dark); font-weight: 700; transform: scale(1.05) translateY(-2px); box-shadow: 0 0 12px var(--accent-primary); border-color: var(--light-text-dash); }
+    #poster-bg-controls label.actionBtn { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+    .poster-actions { display: flex; justify-content: space-around; gap: 10px; padding-top: 15px; border-top: 1px solid var(--muted-color-dash); margin-top: 15px; }
+    .poster-actions .actionBtn { flex-grow: 1; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .poster-actions .actionBtn:hover { transform: translateY(-2px); filter: brightness(1.2); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
 
-    .bookInpDiv {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-    }
+    #publicBookingActionFooter { position: fixed; bottom: 55px; left: 0; width: 100%; background: var(--primary-surface); padding: 0.8rem; box-shadow: 0 -5px 15px rgba(255, 0, 160, 0.2); border-top: 2px solid var(--accent-secondary); z-index: 998; transform: translateY(200%); transition: transform 0.4s var(--transition-ease); }
+    #publicBookingActionFooter.visible { transform: translateY(0); }
+    .booking-form-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+    #publicBookingActionFooter .login-btn { margin-bottom: 0; padding: 0.7rem; }
+    #publicBookingActionFooter #publicSelectionIndicator { margin: 0; padding: 0.5rem; min-height: auto; font-size: 0.8rem; border-width: 1px; }
+    @media (max-width: 600px) { .booking-form-row { grid-template-columns: 1fr; gap: 0.4rem; margin-bottom: 0.8rem; } }
     
-    #adminGameSettingTable .booked-ticket-line-1 {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: bold;
-        font-size: 1rem;
-    }
-    #adminGameSettingTable .booked-ticket-line-1 .fa-edit,
-    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt {
-        color: var(--accent-color-dash);
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-    #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt {
-        color: #e74c3c;
-        margin-left: 10px;
-    }
-     #adminGameSettingTable .booked-ticket-line-1 .fa-edit:hover,
-     #adminGameSettingTable .booked-ticket-line-1 .fa-trash-alt:hover {
-        transform: scale(1.2);
-    }
-    #adminGameSettingTable .booked-ticket-line-2 {
-        font-size: 0.8rem;
-        color: var(--muted-color-dash);
-        margin-top: 4px;
-    }
-    #adminGameSettingTable .admin-ticket-row td {
-        display: block;
-        width: 100%;
-        padding: 10px;
-    }
-     #adminGameSettingTable .admin-ticket-row.available-ticket td {
-        display: table-cell;
-    }
-    
-    #dividendSettingsTable tr {
-        grid-template-columns: 1fr; 
-    }
-    #dividendSettingsTable td {
-        display: flex; 
-        align-items: center;
-        gap: 10px;
-    }
-    .dividend-name-text {
-        flex-grow: 1; 
-        font-weight: 500;
-        color: var(--light-text-dash);
-    }
-    .dividend-amount {
-        width: 90px !important; 
-        flex-shrink: 0;
-        text-align: right !important;
-    }
+    .loading-spinner-container { display: none; margin: 0 auto 1.5rem auto; width: 80px; height: 80px; }
+    .loading-spinner { display: inline-block; width: 80px; height: 80px; }
+    .loading-spinner:after { content: " "; display: block; width: 64px; height: 64px; margin: 8px; border-radius: 50%; border: 6px solid var(--accent-primary); border-color: var(--accent-primary) transparent var(--accent-primary) transparent; animation: lds-dual-ring 1.2s linear infinite; }
+    @keyframes lds-dual-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #bookingSuccessPopup.processing .success-animation { display: none; }
+    #bookingSuccessPopup.processing .loading-spinner-container { display: block; }
+    .success-animation { margin: 0 auto 1rem auto; width: 100px; height: 100px; }
+    .checkmark { width: 100px; height: 100px; border-radius: 50%; display: block; stroke-width: 2; stroke: #ffffff; stroke-miterlimit: 10; box-shadow: inset 0px 0px 0px #2ecc71; margin: 0 auto; animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both; }
+    .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10; stroke: #2ecc71; fill: none; animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+    .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+    @keyframes stroke_anim { 100% { stroke-dashoffset: 0; } }
+    @keyframes scale_anim { 0% { transform: none; } 20% { transform: scale3d(1.1, 1.1, 1); } 40% { transform: scale3d(0.9, 0.9, 1); } 60% { transform: scale3d(1.03, 1.03, 1); } 80% { transform: scale3d(0.97, 0.97, 1); } 100% { transform: none; } }
+    @keyframes fill_anim { 100% { box-shadow: inset 0px 0px 0px 50px #2ecc71; } }
 
-    #genericInfoPopupContent ul {
-        list-style-type: none;
-        padding-left: 0;
-    }
-    #genericInfoPopupContent li {
-        padding: 8px;
-        border-bottom: 1px solid var(--secondary-surface);
-    }
-    #genericInfoPopupContent li:last-child {
-        border-bottom: none;
-    }
-    #genericInfoPopupContent .winner-dividend {
-        font-weight: 700;
-        color: var(--accent-primary);
-    }
-    #genericInfoPopupContent .winner-details {
-        font-size: 0.9em;
-        color: var(--text-primary);
-    }
+    #adminGameSettingTable.agent-list-view { display: block; }
+    #adminGameSettingTable.agent-list-view thead { display: none; }
+    #adminGameSettingTable.agent-list-view tbody, #adminGameSettingTable.agent-list-view tr.agent-row-card { display: block; width: 100%; }
+    tr.agent-row-card { margin-bottom: 0.5rem !important; padding: 0 !important; border: 1px solid transparent !important; border-radius: 6px; background-color: var(--secondary-bg-dash); cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+    tr.agent-row-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-color: var(--accent-color-dash) !important; }
+    tr.agent-row-card td { display: block; padding: 0.8rem !important; border: none !important; }
+    .agent-card-container { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; }
+    .agent-card-info { flex-grow: 1; min-width: 0; }
+    .agent-card-name { font-weight: 700; font-size: 1rem; color: var(--light-text-dash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .agent-card-name small { font-weight: 400; font-size: 0.8em; color: var(--muted-color-dash); text-transform: capitalize; }
+    .agent-card-phone { font-size: 0.85rem; color: var(--muted-color-dash); margin-top: 4px; display: flex; align-items: center; gap: 0.3rem; }
+    .agent-card-stats { display: flex; gap: 1rem; text-align: center; flex-shrink: 0; }
+    .agent-stat-item { display: flex; flex-direction: column; min-width: 80px; }
+    .agent-stat-item span { font-size: 1.1rem; font-weight: 700; color: var(--accent-color-dash); }
+    .agent-stat-item label { font-size: 0.7rem; color: var(--muted-color-dash); text-transform: uppercase; letter-spacing: 0.5px; }
+    .agent-card-actions { flex-shrink: 0; padding-left: 0.5rem; }
+    .agent-card-actions .fa-trash-alt { color: #e74c3c; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s, color 0.2s; }
+    .agent-card-actions .fa-trash-alt:hover { transform: scale(1.2); color: #ff7675; }
+    .agent-card-actions span { color: var(--muted-color-dash); font-size: 1.2rem; }
 
-    #posterContent {
-        font-family: 'Oswald', sans-serif;
-        color: #ffffff;
-        padding: 2rem;
-        background-size: cover;
-        background-position: center;
-        text-align: center;
-        border-radius: 8px;
-        position: relative;
-        overflow: hidden;
-        transition: background-image 0.5s ease-in-out;
-    }
-    
-    #posterContent [contenteditable="true"]:hover {
-        outline: 2px dashed var(--accent-primary);
-        background-color: rgba(0, 246, 255, 0.1);
-    }
-
-    #posterContent::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(0, 0, 0, 0.6);
-        z-index: 1;
-    }
-
-    #posterContent > * {
-        position: relative;
-        z-index: 2;
-    }
-
-   .poster-title {
-        font-size: 2em;
-        text-transform: uppercase;
-        font-weight: 700;
-        text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
-        margin: 0;
-    }
-
-    .poster-datetime {
-        font-size: 1.1em;
-        font-weight: bold;
-        margin-top: -0.1rem;
-        color: #ffeb3b;
-    }
-
-    .poster-tagline {
-        font-size: 1em;
-        margin: -0.1rem 0;
-    }
-
-    .prize-section {
-        margin: 0rem auto;
-        padding: 0rem;
-        border-radius: 8px;
-        max-width: 100%;
-    }
-
-    .prize-section h3 {
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        border-bottom: 2px solid #ffeb3b;
-        display: inline-block;
-        padding-bottom: 5px;
-        margin-bottom: 1rem;
-    }
-
-    .prize-list {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        text-align: left;
-    }
-
-    .prize-column p {
-        margin: 0.5rem 0;
-        font-size: 1.2em;
-    }
-
-    #prize-amounts {
-        text-align: right;
-        font-weight: bold;
-    }
-
-    .ticket-details {
-        font-size: 0.9em;
-        font-weight: bold;
-        background: #ffeb3b;
-        color: #000;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        display: inline-block;
-        margin: 0;
-    }
-
-    .contact-section {
-        margin-top: 0.5rem;
-        border-top: 1px solid rgba(255,255,255,0.3);
-        padding-top: 0;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0;
-    }
-
-    .contact-section p {
-        font-size: 1.1em;
-        margin: 0;
-    }
-
-    .contact-section a {
-        color: #ffffff;
-        text-decoration: none;
-    }
-    .contact-section a:hover {
-        text-decoration: underline;
-    }
-
-    .gamePopDiv .tableInp, .gamePopDiv .tableInp1 {
-        width: 100%;
-        font-size: 0.9rem;
-        padding: 0.7rem 1rem;
-        border-radius: 10px;
-        text-align: center;
-        font-family: var(--font-family-neon);
-        background: var(--secondary-bg-dash);
-        border: 1px solid var(--accent-color-dash);
-        color: var(--light-text-dash);
-        box-sizing: border-box;
-        transition: box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-
-    .gamePopDiv .tableInp:focus {
-        border-color: var(--accent-color-dash);
-        box-shadow: 0 0 8px var(--accent-color-dash);
-        outline: none;
-    }
-
-    .gamePopDiv select.tableInp {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 1em;
-        padding-right: 2.5rem;
-    }
-
-    .runGameTable button.actionBtn {
-        margin: 0 !important;
-        height: auto;
-        font-size: 1rem;
-	    border-radius: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .runGameTable button.actionBtn:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-    }
-    
-    .gamePopDiv .ticketBlockDiv {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .compact-sheet-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px;
-        border-radius: 4px;
-        background-color: var(--secondary-bg-dash);
-    }
-
-    .compact-sheet-row .sheet-tick-box {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        accent-color: var(--accent-color-dash);
-        flex-shrink: 0;
-    }
-
-    .compact-sheet-row .ticket-buttons-group {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 4px;
-        flex-grow: 1;
-    }
-
-    .gamePopDiv .ticketBlockBtn {
-        font-size: 0.8rem;
-        padding: 0;
-        height: 35px;
-        width: 100%;
-        aspect-ratio: unset;
-        min-width: 35px;
-        border-width: 1px;
-        line-height: 35px;
-    }
-    
-    /* --- Poster Maker Styles --- */
-    #poster-bg-controls {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 8px;
-        padding: 8px;
-        margin-bottom: 1rem;
-        background-color: rgba(0, 0, 0, 0.25);
-        border-radius: 8px;
-        -webkit-overflow-scrolling: touch;
-        border: 1px solid var(--secondary-bg-dash);
-    }
-
-    #poster-bg-controls::-webkit-scrollbar {
-        height: 5px;
-    }
-    #poster-bg-controls::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    #poster-bg-controls::-webkit-scrollbar-thumb {
-        background: var(--accent-color-dash);
-        border-radius: 5px;
-    }
-    #poster-bg-controls::-webkit-scrollbar-thumb:hover {
-        background: #1fe0b8;
-    }
-
-    #poster-bg-controls > .actionBtn,
-    #poster-bg-controls > span,
-    #poster-bg-controls > label.actionBtn {
-        flex-shrink: 0;
-        margin: 0 !important;
-        transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        padding: 6px 12px;
-        font-size: 0.85em;
-        height: auto;
-    }
-
-    #poster-bg-controls > span {
-        align-self: center;
-        font-weight: 600;
-        color: var(--light-text-dash);
-    }
-
-    #poster-bg-controls > .actionBtn:hover,
-    #poster-bg-controls > label.actionBtn:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.2);
-        box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    }
-
-    #poster-bg-controls > .actionBtn.active {
-        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
-        color: var(--text-dark);
-        font-weight: 700;
-        transform: scale(1.05) translateY(-2px);
-        box-shadow: 0 0 12px var(--accent-primary);
-        border-color: var(--light-text-dash);
-    }
-    
-    #poster-bg-controls label.actionBtn {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .poster-actions {
-        display: flex;
-        justify-content: space-around;
-        gap: 10px;
-        padding-top: 15px;
-        border-top: 1px solid var(--muted-color-dash);
-        margin-top: 15px;
-    }
-
-    .poster-actions .actionBtn {
-        flex-grow: 1;
-        font-size: 1rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .poster-actions .actionBtn:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.2);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-
-    /* --- NEW STYLES FOR BOOKING PAGE --- */
-    #publicBookingActionFooter {
-        position: fixed;
-        bottom: 55px; /* Adjust if bottom-nav height changes */
-        left: 0;
-        width: 100%;
-        background: var(--primary-surface);
-        padding: 0.8rem;
-        box-shadow: 0 -5px 15px rgba(255, 0, 160, 0.2);
-        border-top: 2px solid var(--accent-secondary);
-        z-index: 998;
-        transform: translateY(200%);
-        transition: transform 0.4s var(--transition-ease);
-    }
-
-    #publicBookingActionFooter.visible {
-        transform: translateY(0);
-    }
-
-    .booking-form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
-        gap: 0.5rem;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-    #publicBookingActionFooter .login-btn {
-        margin-bottom: 0;
-        padding: 0.7rem;
-    }
-    #publicBookingActionFooter #publicSelectionIndicator {
-        margin: 0;
-        padding: 0.5rem;
-        min-height: auto;
-        font-size: 0.8rem;
-        border-width: 1px;
-    }
-    @media (max-width: 600px) {
-        .booking-form-row {
-            grid-template-columns: 1fr;
-            gap: 0.4rem;
-            margin-bottom: 0.8rem;
-        }
-    }
-    
-    /* --- NEW: STYLISH LOADING SPINNER --- */
-    .loading-spinner-container {
-        display: none; /* Hidden by default */
-        margin: 0 auto 1.5rem auto;
-        width: 80px;
-        height: 80px;
-    }
-    .loading-spinner {
-        display: inline-block;
-        width: 80px;
-        height: 80px;
-    }
-    .loading-spinner:after {
-        content: " ";
-        display: block;
-        width: 64px;
-        height: 64px;
-        margin: 8px;
-        border-radius: 50%;
-        border: 6px solid var(--accent-primary);
-        border-color: var(--accent-primary) transparent var(--accent-primary) transparent;
-        animation: lds-dual-ring 1.2s linear infinite;
-    }
-    @keyframes lds-dual-ring {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    /* Show spinner and hide checkmark when popup is in processing state */
-    #bookingSuccessPopup.processing .success-animation {
-        display: none;
-    }
-    #bookingSuccessPopup.processing .loading-spinner-container {
-        display: block;
-    }
-    
-    .success-animation {
-        margin: 0 auto 1rem auto;
-        width: 100px;
-        height: 100px;
-    }
-
-    .checkmark {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        display: block;
-        stroke-width: 2;
-        stroke: #ffffff;
-        stroke-miterlimit: 10;
-        box-shadow: inset 0px 0px 0px #2ecc71;
-        margin: 0 auto;
-        animation: fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both;
-    }
-
-    .checkmark__circle {
-        stroke-dasharray: 166;
-        stroke-dashoffset: 166;
-        stroke-width: 2;
-        stroke-miterlimit: 10;
-        stroke: #2ecc71;
-        fill: none;
-        animation: stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-
-    .checkmark__check {
-        transform-origin: 50% 50%;
-        stroke-dasharray: 48;
-        stroke-dashoffset: 48;
-        animation: stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-    }
-
-    @keyframes stroke_anim {
-        100% {
-            stroke-dashoffset: 0;
-        }
-    }
-
-    @keyframes scale_anim {
-        0% {
-            transform: none;
-        }
-        20% {
-            transform: scale3d(1.1, 1.1, 1);
-        }
-        40% {
-            transform: scale3d(0.9, 0.9, 1);
-        }
-        60% {
-            transform: scale3d(1.03, 1.03, 1);
-        }
-        80% {
-            transform: scale3d(0.97, 0.97, 1);
-        }
-        100% {
-            transform: none;
-        }
-    }
-
-    @keyframes fill_anim {
-        100% {
-            box-shadow: inset 0px 0px 0px 50px #2ecc71;
-        }
-    }
-
-    /* --- NEW AGENT LIST CARD STYLES --- */
-    #adminGameSettingTable.agent-list-view {
-        display: block;
-    }
-    #adminGameSettingTable.agent-list-view thead {
-        display: none;
-    }
-    #adminGameSettingTable.agent-list-view tbody,
-    #adminGameSettingTable.agent-list-view tr.agent-row-card {
-        display: block;
-        width: 100%;
-    }
-    tr.agent-row-card {
-        margin-bottom: 0.5rem !important;
-        padding: 0 !important;
-        border: 1px solid transparent !important;
-        border-radius: 6px;
-        background-color: var(--secondary-bg-dash);
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-    tr.agent-row-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        border-color: var(--accent-color-dash) !important;
-    }
-    tr.agent-row-card td {
-        display: block;
-        padding: 0.8rem !important;
-        border: none !important;
-    }
-    .agent-card-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        width: 100%;
-    }
-    .agent-card-info {
-        flex-grow: 1;
-        min-width: 0;
-    }
-    .agent-card-name {
-        font-weight: 700;
-        font-size: 1rem;
-        color: var(--light-text-dash);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .agent-card-name small {
-        font-weight: 400;
-        font-size: 0.8em;
-        color: var(--muted-color-dash);
-        text-transform: capitalize;
-    }
-    .agent-card-phone {
-        font-size: 0.85rem;
-        color: var(--muted-color-dash);
-        margin-top: 4px;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-    .agent-card-stats {
-        display: flex;
-        gap: 1rem;
-        text-align: center;
-        flex-shrink: 0;
-    }
-    .agent-stat-item {
-        display: flex;
-        flex-direction: column;
-        min-width: 80px;
-    }
-    .agent-stat-item span {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--accent-color-dash);
-    }
-    .agent-stat-item label {
-        font-size: 0.7rem;
-        color: var(--muted-color-dash);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .agent-card-actions {
-        flex-shrink: 0;
-        padding-left: 0.5rem;
-    }
-    .agent-card-actions .fa-trash-alt {
-        color: #e74c3c;
-        cursor: pointer;
-        font-size: 1.2rem;
-        transition: transform 0.2s, color 0.2s;
-    }
-    .agent-card-actions .fa-trash-alt:hover {
-        transform: scale(1.2);
-        color: #ff7675;
-    }
-    .agent-card-actions span {
-        color: var(--muted-color-dash);
-        font-size: 1.2rem;
-    }
-
-    /* NEW AUDIO STYLES */
-    @keyframes mic-live-glow {
-        0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-        50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; }
-        100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; }
-    }
-
-    #micToggleBtn.live {
-        background-color: #e74c3c;
-        color: white;
-        animation: mic-live-glow 1.5s infinite;
-    }
-
-    .music-control-wrapper {
-        display: flex;
-        gap: 5px;
-    }
-    .music-control-wrapper .tableInp {
-        flex-grow: 1;
-    }
-    .music-control-wrapper .actionBtn {
-        width: auto !important;
-        flex-grow: 0;
-        padding: 0 1rem;
-    }
-
-    #musicPlaylist, #popupMusicPlaylist {
-        max-height: 250px;
-        overflow-y: auto;
-        background: var(--secondary-bg-dash);
-        border-radius: 4px;
-        padding: 0.5rem;
-    }
-    #musicPlaylist {
-        margin: 1rem 2.5% 0 2.5%;
-        width: 95%;
-    }
-    #popupMusicPlaylist {
-        padding: 0 0.5rem 0.5rem 0.5rem;
-    }
-
-    .playlist-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem;
-        border-bottom: 1px solid var(--primary-bg-dash);
-        color: var(--light-text-dash);
-        transition: background-color 0.3s;
-    }
-    .playlist-item:last-child {
-        border-bottom: none;
-    }
-    .playlist-item-name {
-        flex-grow: 1;
-        font-size: 0.9rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .playlist-item-actions button {
-        background: transparent;
-        border: none;
-        color: var(--light-text-dash);
-        cursor: pointer;
-        font-size: 1rem;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        transition: background-color 0.2s, transform 0.2s;
-        position: relative; /* For gradient */
-        z-index: 1;
-    }
-    .playlist-item-actions button:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        transform: scale(1.1);
-    }
+    @keyframes mic-live-glow { 0% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; } 50% { box-shadow: 0 0 15px #ff7979, 0 0 20px #ff7979; } 100% { box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d; } }
+    #micToggleBtn.live { background-color: #e74c3c; color: white; animation: mic-live-glow 1.5s infinite; }
+    .music-control-wrapper { display: flex; gap: 5px; }
+    .music-control-wrapper .tableInp { flex-grow: 1; }
+    .music-control-wrapper .actionBtn { width: auto !important; flex-grow: 0; padding: 0 1rem; }
+    #musicPlaylist, #popupMusicPlaylist { max-height: 250px; overflow-y: auto; background: var(--secondary-bg-dash); border-radius: 4px; padding: 0.5rem; }
+    #musicPlaylist { margin: 1rem 2.5% 0 2.5%; width: 95%; }
+    #popupMusicPlaylist { padding: 0 0.5rem 0.5rem 0.5rem; }
+    .playlist-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-bottom: 1px solid var(--primary-bg-dash); color: var(--light-text-dash); transition: background-color 0.3s; }
+    .playlist-item:last-child { border-bottom: none; }
+    .playlist-item-name { flex-grow: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .playlist-item-actions button { background: transparent; border: none; color: var(--light-text-dash); cursor: pointer; font-size: 1rem; width: 30px; height: 30px; border-radius: 50%; transition: background-color 0.2s, transform 0.2s; position: relative; z-index: 1; }
+    .playlist-item-actions button:hover { background-color: rgba(255, 255, 255, 0.1); transform: scale(1.1); }
     .playlist-item-actions .fa-play-circle { color: var(--accent-color-dash); }
     .playlist-item-actions .fa-trash-alt { color: #e74c3c; }
 
-    /* NEW Playlist Animation Styles */
-    @keyframes glowing-gradient-border {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    @keyframes pulse-icon {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-    }
-
-    .playlist-item.playing .playlist-item-actions button:first-child::before {
-        content: '';
-        position: absolute;
-        top: -3px; left: -3px;
-        right: -3px; bottom: -3px;
-        background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary));
-        background-size: 400% 400%;
-        border-radius: 50%;
-        z-index: -1;
-        animation: glowing-gradient-border 4s linear infinite;
-        filter: blur(4px);
-    }
-    .playlist-item.playing .playlist-item-actions button:first-child {
-        background-color: var(--primary-bg-dash) !important;
-        transform: scale(1.1);
-    }
-    .playlist-item.playing .playlist-item-actions .fa-play-circle {
-        color: var(--accent-primary);
-        animation: pulse-icon 1.5s infinite ease-in-out;
-    }
+    @keyframes glowing-gradient-border { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes pulse-icon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    .playlist-item.playing .playlist-item-actions button:first-child::before { content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary), #fff200, var(--accent-primary)); background-size: 400% 400%; border-radius: 50%; z-index: -1; animation: glowing-gradient-border 4s linear infinite; filter: blur(4px); }
+    .playlist-item.playing .playlist-item-actions button:first-child { background-color: var(--primary-bg-dash) !important; transform: scale(1.1); }
+    .playlist-item.playing .playlist-item-actions .fa-play-circle { color: var(--accent-primary); animation: pulse-icon 1.5s infinite ease-in-out; }
     
-    /* NEW: Announcement Image/Video Popup Style */
-    #liveImagePopup .popup-content, #liveVideoPopup .popup-content {
-        padding: 0.5rem;
-        background: var(--primary-surface);
-    }
-    #liveImagePopup img, #liveVideoPopup video {
-        max-width: 100%;
-        max-height: 85vh;
-        height: auto;
-        display: block;
-        border-radius: 4px;
-    }
+    #liveImagePopup .popup-content, #liveVideoPopup .popup-content { padding: 0.5rem; background: var(--primary-surface); }
+    #liveImagePopup img, #liveVideoPopup video { max-width: 100%; max-height: 85vh; height: auto; display: block; border-radius: 4px; }
     
-    /* --- NEW: Styles for the improved announcement panel --- */
-    .announcement-controls {
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .announcement-controls label {
-        font-weight: bold;
-        color: var(--muted-color-dash);
-        font-size: 0.9rem;
-    }
-
-    .announcement-controls textarea.tableInp {
-        background-color: white;
-        color: var(--text-dark);
-        border: 1px solid var(--secondary-bg-dash);
-        min-height: 100px; /* Set a minimum height */
-        resize: vertical; /* Allow user to resize vertically */
-        text-align: left !important; /* Override centered text for better readability */
-        padding: 0.7rem 1rem !important; /* Ensure padding is consistent */
-    }
-
-    .announcement-controls .actionBtn {
-        width: 100%; /* Make the button full-width */
-        margin: 0.25rem 0 0 0;
-    }
+    .announcement-controls { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .announcement-controls label { font-weight: bold; color: var(--muted-color-dash); font-size: 0.9rem; }
+    .announcement-controls textarea.tableInp { background-color: white; color: var(--text-dark); border: 1px solid var(--secondary-bg-dash); min-height: 100px; resize: vertical; text-align: left !important; padding: 0.7rem 1rem !important; }
+    .announcement-controls .actionBtn { width: 100%; margin: 0.25rem 0 0 0; }
 
 </style>
 </head>
@@ -1877,9 +692,7 @@ body {
 
     <div class="page-wrapper">
         <div class="panel">
-<div class="timer-status-bar" id="public-timer-bar"
-     style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;">
-            </div>
+            <div class="timer-status-bar" id="public-timer-bar" style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;"></div>
         </div>
 
         <main class="game-layout">
@@ -1941,18 +754,18 @@ body {
 
     <div class="page-wrapper">
         <div class="panel">
-            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; margin: 0;">
-            </div>
+            <div class="timer-status-bar" id="booking-timer-bar" style="border-top: none; padding: 0.5rem; color: white !important; margin: 0;"></div>
         </div>
-
-        <section class="panel">
-            <h2 class="panel-title"></h2>
-            <div id="bookingGridContainer">
-            </div>
-        </section>
+        
+        <main class="game-layout full-width-booking">
+            <section class="panel">
+                <h2 class="panel-title">AVAILABLE TICKETS</h2>
+                <div id="bookingGridContainer">
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- NEW CONDITIONAL BOOKING FOOTER -->
     <div id="publicBookingActionFooter">
         <div class="booking-form-row">
             <input type="text" id="bookerName" placeholder="Your Name">
@@ -2074,7 +887,6 @@ body {
             </tbody>
         </table>
     </div>
-    <!-- UPDATED: REAL-TIME ANNOUNCEMENT PANEL -->
     <div class="gameSettingDiv">
         <button class="titleBtn">REAL-TIME ANNOUNCEMENTS</button>
         <div class="announcement-controls">
@@ -2504,8 +1316,6 @@ body {
 
 
 <script>
-// --- START OF FIXED AND IMPLEMENTED SCRIPT ---
-
 const firebaseConfig = {
     apiKey: "AIzaSyBxtWgmOPaFY1tq1mHHYOC5IRtV_gIIFuQ",
     authDomain: "sinthahousiev5.firebaseapp.com",
@@ -2517,12 +1327,10 @@ const firebaseConfig = {
     measurementId: "G-L6CPQFGSRH"
   };
 
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// --- For music synchronization ---
 let serverTimeOffset = 0;
 db.ref('.info/serverTimeOffset').on('value', (snap) => {
     serverTimeOffset = snap.val();
@@ -2548,7 +1356,7 @@ let countdownInterval = null;
 let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
 let knownWinners = {}; 
-let isInitialWinnerLoad = true; // FIX: To prevent notifications on first load
+let isInitialWinnerLoad = true; 
 let ticketIdToEdit = null;
 let originalOwnerInfo = { name: '', phone: '' };
 let ticketToDeleteInfo = {};
@@ -2558,8 +1366,8 @@ let adminListState = 'tickets';
 let lastNotification = { message: '', type: '', timestamp: 0 };
 let displayedSearchPhones = new Set();
 let adminDisplayedSearchPhones = new Set();
-const popupCloseTimeouts = new Map(); // FIX: Manages popup close timers to prevent race conditions
-const listeners = {}; // To keep track of Firebase listeners
+const popupCloseTimeouts = new Map(); 
+const listeners = {}; 
 let predeterminedCallSequence = []; 
 
 // --- Audio/Announcement Variables ---
@@ -2611,7 +1419,6 @@ function showView(viewId) {
     renderDashboards();
 }
 
-
 function handleRouting() {
     const hash = window.location.hash.replace('#', '');
     if (hash === 'admin' && currentUserRole === 'admin') {
@@ -2629,7 +1436,13 @@ window.addEventListener('hashchange', handleRouting);
 function showNotification(message, type = 'info', duration = 4000) {
     const now = Date.now();
     if (message === lastNotification.message && type === lastNotification.type && (now - lastNotification.timestamp) < 5000) return;
+    
+    // FIX: Limit max visible notifications to 3 to prevent lag
     const container = document.getElementById('notification-container');
+    if (container.childElementCount >= 3) {
+        container.removeChild(container.firstElementChild);
+    }
+    
     if (Array.from(container.querySelectorAll('.notification')).some(n => n.textContent === message)) return;
     lastNotification = { message, type, timestamp: now };
     const notification = document.createElement('div');
@@ -2652,7 +1465,6 @@ async function triggerGlobalNotification(message, type = 'info') {
 }
 
 // --- Authentication ---
-
 auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     if (user) {
@@ -2730,12 +1542,9 @@ async function handleForgotPassword(e) {
     } catch (error) { showNotification(`Error: ${error.message}`, 'error'); }
 }
 
-
 // --- Popups and UI Helpers ---
-
 function bindEventListeners() {
     document.querySelectorAll('.x-button').forEach(btn => btn.addEventListener('click', closePopups));
-    //document.getElementById('showSignupFormBtn').addEventListener('click', showSignupForm);
     document.getElementById('showLoginFormBtn').addEventListener('click', showLoginForm);
     document.getElementById('adminLoginBtn').addEventListener('click', () => loginUser('admin'));
     document.getElementById('agentLoginBtn').addEventListener('click', () => loginUser('agent'));
@@ -2769,27 +1578,20 @@ function bindEventListeners() {
     });
     document.getElementById('bg-upload').addEventListener('change', handlePosterBgUpload);
     document.getElementById('viewPlaylistBtn').addEventListener('click', () => showPopup('playlistPopup'));
-    
-    // NEW: Bind announcement buttons
     document.getElementById('sendLiveTextBtn').addEventListener('click', sendLiveText);
     document.getElementById('sendLiveImageBtn').addEventListener('click', sendLiveImage);
     document.getElementById('sendLiveVideoBtn').addEventListener('click', sendLiveVideo);
 }
 
-// --- FIX: ROBUST POPUP MANAGEMENT ---
 function showPopup(id) {
-    // First, close any other popups that are currently active.
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
-        if (p.id !== id) { // Don't touch the popup we are about to open
-            p.style.pointerEvents = 'none'; // Prevent interaction during transition
+        if (p.id !== id) { 
+            p.style.pointerEvents = 'none'; 
             p.classList.remove('active');
-            
-            // If there's a pending timeout to hide it, clear it.
             if (popupCloseTimeouts.has(p.id)) {
                 clearTimeout(popupCloseTimeouts.get(p.id));
                 popupCloseTimeouts.delete(p.id);
             }
-            // Hide it immediately instead of waiting for a transition.
             p.style.display = 'none';
             p.style.pointerEvents = 'auto';
         }
@@ -2797,40 +1599,31 @@ function showPopup(id) {
 
     const popup = document.getElementById(id);
     if (popup) {
-        // If there's a pending close timeout for THIS popup, cancel it.
         if (popupCloseTimeouts.has(id)) {
             clearTimeout(popupCloseTimeouts.get(id));
             popupCloseTimeouts.delete(id);
         }
-        
-        // Make the popup visible and start the fade-in transition.
-        popup.style.pointerEvents = 'auto'; // Ensure it's interactive
+        popup.style.pointerEvents = 'auto'; 
         popup.style.display = popup.classList.contains('overlay-popup') ? 'flex' : 'block';
-        setTimeout(() => popup.classList.add('active'), 10); // Use timeout for CSS transition
+        setTimeout(() => popup.classList.add('active'), 10); 
     }
 }
 
 function closePopups() {
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
-        p.style.pointerEvents = 'none'; // Prevent interaction while closing
+        p.style.pointerEvents = 'none'; 
         p.classList.remove('active');
-
-        // If a timeout is already scheduled for this popup, clear it before setting a new one.
         if (popupCloseTimeouts.has(p.id)) {
             clearTimeout(popupCloseTimeouts.get(p.id));
         }
-
-        // Set a new timeout to hide the element after the CSS transition completes.
         const timeoutId = setTimeout(() => {
             p.style.display = 'none';
-            p.style.pointerEvents = 'auto'; // Reset pointer events
-            popupCloseTimeouts.delete(p.id); // Clean up the map
-        }, 450); // Match this duration to your CSS transition time
-
-        popupCloseTimeouts.set(p.id, timeoutId); // Store the new timeout ID
+            p.style.pointerEvents = 'auto'; 
+            popupCloseTimeouts.delete(p.id); 
+        }, 450); 
+        popupCloseTimeouts.set(p.id, timeoutId); 
     });
 }
-// --- END OF FIX ---
 
 function showLoginForm() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('signupForm').style.display = 'none'; }
 function showSignupForm() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('signupForm').style.display = 'block'; }
@@ -2856,7 +1649,6 @@ function showAgentListPopup() {
 }
 
 // --- Data Listeners & UI Updaters ---
-
 function setupRealtimeListeners() {
     Object.values(listeners).forEach(ref => ref.off());
 
@@ -2879,7 +1671,6 @@ function setupRealtimeListeners() {
         }
         currentCalledNumbers = newNumbers;
         
-        // --- FIX: WINNER NOTIFICATION LOGIC (Ensures notifications show only for new winners) ---
         const newWinners = data.winners || {};
         if (!isInitialWinnerLoad) {
             for (const dividendName in newWinners) {
@@ -2887,20 +1678,18 @@ function setupRealtimeListeners() {
                 const oldWinnerArray = knownWinners[dividendName] || [];
                 const oldWinnerTicketIds = new Set(oldWinnerArray.map(w => w.ticketId));
 
-                // Find winners in the new list that were not in the old list
                 const justAnnouncedWinners = newWinnerArray.filter(w => !oldWinnerTicketIds.has(w.ticketId));
 
                 if (justAnnouncedWinners.length > 0) {
                     const winnerNames = justAnnouncedWinners.map(w => `${w.name} (Tkt: ${w.ticketId})`).join(', ');
                     const msg = `${winnerNames} has won ${dividendName}!`;
-                    triggerGlobalNotification(msg, 'success');
+                    showNotification(msg, 'success');
                     if (dividendSoundMap[dividendName]) playSound(audioBaseUrl + dividendSoundMap[dividendName]);
                 }
             }
         }
-        knownWinners = newWinners; // Update our record of known winners
-        isInitialWinnerLoad = false; // Allow notifications for all subsequent updates
-        // --- END OF FIX ---
+        knownWinners = newWinners; 
+        isInitialWinnerLoad = false; 
 
         updateGameRelatedUIs(data);
     }, err => { console.error("GameState listener error:", err); });
@@ -2908,7 +1697,18 @@ function setupRealtimeListeners() {
     listeners.tickets = db.ref('tickets');
     listeners.tickets.on('value', snapshot => {
         const ticketsObject = snapshot.val();
-        allTicketsData = ticketsObject ? Object.values(ticketsObject) : [];
+        
+        // FIX: PRE-CALCULATE FLAT ARRAYS TO PREVENT PERFORMANCE/LAG ISSUES
+        allTicketsData = ticketsObject ? Object.values(ticketsObject).map(t => {
+            if (t.numbers && !t.flatNumbers) {
+                t.flatNumbers = t.numbers.flat().filter(n => n > 0);
+                t.row1 = t.numbers[0].filter(n => n > 0);
+                t.row2 = t.numbers[1].filter(n => n > 0);
+                t.row3 = t.numbers[2].filter(n => n > 0);
+            }
+            return t;
+        }) : [];
+        
         updatePublicTicketUIs();
         renderDashboards();
     }, err => { console.error("Tickets listener error:", err); });
@@ -2943,7 +1743,6 @@ function setupRealtimeListeners() {
         }
     }, err => console.error("Audio listener error:", err));
 
-    // --- ANNOUNCEMENT LISTENERS ---
     listeners.liveText = db.ref('announcements/liveText');
     listeners.liveText.on('value', snapshot => {
         if (!snapshot.exists()) return;
@@ -2967,7 +1766,7 @@ function setupRealtimeListeners() {
     listeners.liveVideo.on('value', snapshot => {
         if (!snapshot.exists()) return;
         const data = snapshot.val();
-        if (data && data.video && (Date.now() - data.timestamp) < 60000) { // 60 second validity
+        if (data && data.video && (Date.now() - data.timestamp) < 60000) { 
             const videoEl = document.getElementById('liveVideoDisplay');
             videoEl.src = data.video;
             showPopup('liveVideoPopup');
@@ -2975,8 +1774,6 @@ function setupRealtimeListeners() {
         }
     });
 
-
-    // --- WINNING TICKET PREDICTION LISTENER ---
     listeners.winningTickets = db.ref('gameSecrets/upcomingGame/winningTickets');
     listeners.winningTickets.on('value', snapshot => {
         if(currentUserRole === 'admin') {
@@ -2987,12 +1784,8 @@ function setupRealtimeListeners() {
 }
 
 function renderDashboards() {
-    if (!currentUserRole || (currentView !== 'adminDashboardView' && currentView !== 'agentDashboardView')) {
-        return;
-    }
-    if (Object.keys(gameSettingsData).length === 0 || allUsersData.length === 0) {
-        return;
-    }
+    if (!currentUserRole || (currentView !== 'adminDashboardView' && currentView !== 'agentDashboardView')) return;
+    if (Object.keys(gameSettingsData).length === 0 || allUsersData.length === 0) return;
 
     if (currentUserRole === 'admin') {
         updateAdminSettingsUI(gameSettingsData);
@@ -3004,7 +1797,6 @@ function renderDashboards() {
         showAgentSoldTickets();
     }
 }
-
 
 function updateAllUIsWithSettings(data) {
     document.getElementById('whatsappGroupLink').href = data.whatsappLink || '#';
@@ -3037,7 +1829,6 @@ function updatePublicTicketUIs() {
     }
 }
 function updatePublicUserUIs() { }
-
 
 function updateUIAfterLogin() {
     document.querySelectorAll('#publicLoginBtn, #bookingLoginBtn').forEach(btn => btn.style.display = 'none');
@@ -3125,6 +1916,7 @@ function checkSheetSelection(selectedIds) {
     const message = parts.join(' & ') + ' Selected';
     return { valid: true, message: message };
 }
+
 function generateNumberBoard() {
     const publicBoard = document.getElementById('numberBoard');
     const adminPopupBoard = document.getElementById('runGamePopupBoard');
@@ -3143,7 +1935,6 @@ function generateNumberBoard() {
     if(adminPopupBoard) adminPopupBoard.innerHTML = adminPopupBoardHtml;
 }
 
-// --- Professional announceNumber function ---
 function announceNumber(number) {
     isAnnouncing = true;
     lastAnnouncedNumber = number;
@@ -3156,22 +1947,13 @@ function announceNumber(number) {
     
     numberDisplay.textContent = number;
 
-    // Kill any previous animation to prevent overlap
     gsap.killTweensOf([overlay, numberDisplay]);
 
     gsap.timeline({ onComplete: () => { isAnnouncing = false; } })
-      .set(numberDisplay, { y: '-100px' }) // Start ball hidden 'inside' dispenser
-      .to(overlay, { autoAlpha: 1, duration: 0.2 }) // Show dispenser
-      .to(numberDisplay, { 
-          y: 0, // Drop ball down to its final position
-          duration: 1.2, 
-          ease: 'elastic.out(1, 0.7)' // Bouncy effect
-      })
-      .to(overlay, { 
-          autoAlpha: 0, // Fade out the whole thing
-          duration: 0.5, 
-          ease: 'power2.in' 
-      }, "+=2.5"); // Wait 2.5 seconds before fading out
+      .set(numberDisplay, { y: '-100px' }) 
+      .to(overlay, { autoAlpha: 1, duration: 0.2 }) 
+      .to(numberDisplay, { y: 0, duration: 1.2, ease: 'elastic.out(1, 0.7)' })
+      .to(overlay, { autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, "+=2.5"); 
 }
 
 function updateCountdownTimers(targetDateString) {
@@ -3225,12 +2007,6 @@ function updateCountdownTimers(targetDateString) {
 function renderVisualTicketBookingPage() {
     const gridContainer = document.getElementById('bookingGridContainer');
     if (!gridContainer) return;
-    gridContainer.innerHTML = '';
-
-    if (currentView === 'ticketBookingView') {
-        publicSelectedTickets = [];
-        updatePublicSelectionIndicator();
-    }
 
     const totalTickets = gameSettingsData.totalTickets || 0;
     if (totalTickets === 0) {
@@ -3239,6 +2015,47 @@ function renderVisualTicketBookingPage() {
     }
 
     const ticketsMap = new Map(allTicketsData.map(t => [t.id, t]));
+
+    const existingTickets = gridContainer.querySelectorAll('.ticket-view');
+    if (existingTickets.length === totalTickets) {
+        for (let j = 1; j <= totalTickets; j++) {
+            const ticket = ticketsMap.get(j);
+            const ticketView = document.getElementById(`booking-ticket-${j}`);
+            if (ticketView && ticket) {
+                const wasSold = ticketView.classList.contains('sold');
+                if (ticket.is_sold && !wasSold) {
+                    ticketView.classList.add('sold');
+                    ticketView.classList.remove('selected');
+                    ticketView.onclick = null;
+                    const header = ticketView.querySelector('.ticket-header');
+                    if (header) header.innerHTML = `<span>Ticket ${j}</span><span class="ticket-status sold">SOLD</span>`;
+                } else if (!ticket.is_sold && wasSold) {
+                    ticketView.classList.remove('sold');
+                    ticketView.onclick = () => togglePublicTicketSelection(j);
+                    const header = ticketView.querySelector('.ticket-header');
+                    if (header) header.innerHTML = `<span>Ticket ${j}</span><span class="ticket-status available">AVAILABLE</span>`;
+                }
+            }
+        }
+        if (currentView === 'ticketBookingView') {
+            publicSelectedTickets = publicSelectedTickets.filter(id => {
+                const t = ticketsMap.get(id);
+                return t && !t.is_sold;
+            });
+            updatePublicSelectionIndicator();
+        }
+        return;
+    }
+
+    if (currentView === 'ticketBookingView') {
+        publicSelectedTickets = publicSelectedTickets.filter(id => {
+            const t = ticketsMap.get(id);
+            return t && !t.is_sold;
+        });
+        updatePublicSelectionIndicator();
+    }
+
+    gridContainer.innerHTML = '';
     const numSheets = Math.ceil(totalTickets / 6);
 
     for (let i = 0; i < numSheets; i++) {
@@ -3291,6 +2108,7 @@ function renderVisualTicketBookingPage() {
             }
 
             ticketView.innerHTML = `${headerHTML}<div class="ticket-grid">${gridHTML}</div>`;
+            if (publicSelectedTickets.includes(j)) ticketView.classList.add('selected');
             sheetContent.appendChild(ticketView);
         }
         gridContainer.appendChild(sheetWrapper);
@@ -3335,7 +2153,6 @@ function togglePublicTicketSelection(ticketId) {
     }
 }
 
-
 function updatePublicSelectionIndicator() {
     const indicator = document.getElementById('publicSelectionIndicator');
     if (!indicator) return;
@@ -3343,7 +2160,6 @@ function updatePublicSelectionIndicator() {
     indicator.textContent = result.message || 'Select tickets to see booking options';
     indicator.style.borderColor = result.valid ? 'var(--accent-primary)' : 'var(--accent-secondary)';
 }
-
 
 function handlePublicBookingRequest() {
     const name = document.getElementById('bookerName').value.trim();
@@ -3379,41 +2195,29 @@ async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets
 function generateUniqueCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
-    for (let i = 0; i < 6; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+    for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
     return result;
 }
 
 async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
     const code = generateUniqueCode();
     const bookingRequest = {
-        name: userName,
-        phone: userPhone,
-        tickets: ticketIds,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        requestedBy: "public_user"
+        name: userName, phone: userPhone, tickets: ticketIds,
+        createdAt: firebase.database.ServerValue.TIMESTAMP, requestedBy: "public_user"
     };
 
     try {
         const snapshot = await db.ref(`bookingRequests/${code}`).once('value');
-        if (snapshot.exists()) {
-            return redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds); // Recurse on collision
-        }
+        if (snapshot.exists()) return redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds); 
 
         await db.ref(`bookingRequests/${code}`).set(bookingRequest);
-
         const baseURL = window.location.origin + window.location.pathname;
         const bookingLink = `${baseURL}?book=${code}`;
-
         const ticketNumbers = ticketIds.sort((a, b) => a - b).join(', ');
-        
         const message = `Hello, I would like to book tickets.\n\n*Name*: ${userName}\n*Phone*: ${userPhone}\n*Selected Tickets*: ${ticketNumbers}\n\n*Click this link to confirm (Admin/Agent Only):*\n${bookingLink}`;
-        
         const cleanPhone = agentPhone.replace(/\D/g, '');
         window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
         closePopups();
-
     } catch (error) {
         console.error("Error creating booking link:", error);
         showNotification("Could not create booking link. Please try again.", "error");
@@ -3425,12 +2229,10 @@ async function processBookingLink() {
     const bookingCode = urlParams.get('book');
     if (!bookingCode) return;
 
-    // --- IMMEDIATE UI FEEDBACK WITH SPINNER ---
     const popup = document.getElementById('bookingSuccessPopup');
     const titleEl = document.getElementById('bookingSuccessTitle');
     const messageEl = document.getElementById('bookingSuccessMessage');
 
-    // Setup processing state with spinner
     popup.classList.add('processing'); 
     titleEl.textContent = 'Processing Booking...';
     titleEl.style.color = 'var(--accent-primary)'; 
@@ -3439,9 +2241,7 @@ async function processBookingLink() {
     showPopup('bookingSuccessPopup');
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    // This is the core booking logic, defined as an async function
     const bookingLogic = async () => {
-        // Wait for auth to be ready
         const startTime = Date.now();
         while (!authInitialized && Date.now() - startTime < 8000) {
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -3452,9 +2252,7 @@ async function processBookingLink() {
 
         const requestRef = db.ref(`bookingRequests/${bookingCode}`);
         const snapshot = await requestRef.once('value');
-        if (!snapshot.exists()) {
-            throw new Error('This booking link is invalid or has already been used.');
-        }
+        if (!snapshot.exists()) throw new Error('This booking link is invalid or has already been used.');
 
         const requestData = snapshot.val();
         const { name, phone, tickets: ticketIdsToBook } = requestData;
@@ -3466,16 +2264,10 @@ async function processBookingLink() {
 
         const ticketsRef = db.ref('tickets');
         const transactionResult = await ticketsRef.transaction(currentTickets => {
-            if (currentTickets === null) return; // Abort if tickets node doesn't exist
-
-            // Check if all requested tickets are available
+            if (currentTickets === null) return; 
             for (const id of ticketIdsToBook) {
-                if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) {
-                    return; // Abort transaction if a ticket is missing or already sold
-                }
+                if (!currentTickets[id] || (currentTickets[id] && currentTickets[id].is_sold)) return; 
             }
-
-            // All tickets are available, so book them
             const timestamp = firebase.database.ServerValue.TIMESTAMP;
             ticketIdsToBook.forEach(id => {
                 currentTickets[id].is_sold = true;
@@ -3488,10 +2280,9 @@ async function processBookingLink() {
             return currentTickets;
         });
 
-        await requestRef.remove(); // Clean up the request from DB
+        await requestRef.remove();
 
         if (!transactionResult.committed) {
-            // Transaction failed, find out why for a better error message
             const freshSnapshot = await ticketsRef.once('value');
             const freshTickets = freshSnapshot.val();
             const soldTickets = ticketIdsToBook.filter(id => freshTickets[id] && freshTickets[id].is_sold);
@@ -3501,21 +2292,16 @@ async function processBookingLink() {
                 throw new Error('Booking failed due to a data conflict. Please refresh and try again.');
             }
         }
-
-        // Success
         triggerGlobalNotification(`${ticketIdsToBook.length} ticket(s) just booked for ${name}.`, 'info');
         return `${ticketIdsToBook.length} ticket(s) successfully booked for ${name}. Redirecting...`;
     };
 
     try {
-        // Run booking logic and a minimum animation delay in parallel
-        // This ensures the "Processing" state is visible for at least 1.5 seconds for a smooth UX
         const [successMsg] = await Promise.all([
             bookingLogic(),
             new Promise(resolve => setTimeout(resolve, 1500))
         ]);
 
-        // --- UPDATE UI TO SUCCESS STATE ---
         popup.classList.remove('processing');
         titleEl.textContent = 'Booking Successful!';
         titleEl.style.color = '#2ecc71';
@@ -3523,40 +2309,31 @@ async function processBookingLink() {
         messageEl.textContent = successMsg;
         const checkmarkSVG = popup.querySelector('.checkmark');
         if (checkmarkSVG) {
-            // This logic forces the browser to restart the CSS animation
             const circle = popup.querySelector('.checkmark__circle');
             const check = popup.querySelector('.checkmark__check');
             [checkmarkSVG, circle, check].forEach(el => {
                 el.style.animation = 'none';
-                void el.offsetWidth; // Trigger a DOM reflow
+                void el.offsetWidth; 
             });
             checkmarkSVG.style.animation = 'fill_anim 0.4s ease-in-out 0.4s forwards, scale_anim 0.3s ease-in-out 0.9s both';
             circle.style.animation = 'stroke_anim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards';
             check.style.animation = 'stroke_anim 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards';
         }
         
-        // Wait a moment on the success screen before redirecting
         setTimeout(() => {
-            if (currentUserRole) {
-                window.location.hash = currentUserRole;
-            } else {
-                handleRouting();
-            }
+            if (currentUserRole) window.location.hash = currentUserRole;
+            else handleRouting();
             closePopups();
         }, 2500);
 
     } catch(e) {
         popup.classList.remove('processing');
-        closePopups(); // Close the processing popup on error
-        showNotification(e.message, 'error'); // Show the specific error message
-        if (e.message.includes('must be logged in')) {
-            showPopup('loginPopup');
-        } else {
-            handleRouting();
-        }
+        closePopups(); 
+        showNotification(e.message, 'error'); 
+        if (e.message.includes('must be logged in')) showPopup('loginPopup');
+        else handleRouting();
     }
 }
-
 
 function searchTicketPublic(searchTermOverride = null, isRerender = false) {
     const searchTerm = searchTermOverride || document.getElementById('ticketSearchInp').value.trim();
@@ -3631,9 +2408,7 @@ function updateDisplayedTicketPublic() {
                  const isCalled = currentCalledNumbers.includes(num);
                  cell.classList.toggle('ticked', isCalled);
                 cell.classList.remove('last-called-highlight');
-                if (num === lastAnnouncedNumber) {
-                     cell.classList.add('last-called-highlight');
-                }
+                if (num === lastAnnouncedNumber) cell.classList.add('last-called-highlight');
             }
         });
     });
@@ -3642,24 +2417,16 @@ function updateDisplayedTicketPublic() {
 function populateDividendList(dividends) {
     const tbodies = document.querySelectorAll('#dividendListTable tbody, #runGameDividendTable tbody');
     if(tbodies.length === 0) return;
-    
-    const rowsHTML = (dividends || [])
-        .map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
-                      <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
-                      <td class="winner-info"><span class="winner-name">Pending...</span></td>
-                  </tr>`)
-        .join('');
-
+    const rowsHTML = (dividends || []).map(d => `<tr data-dividend-name="${d.name.replace(/\s+/g, '-')}">
+        <td>${d.name} <span style="font-size:0.8em; color: var(--text-secondary);">(₹${d.amount || 0})</span></td>
+        <td class="winner-info"><span class="winner-name">Pending...</span></td></tr>`).join('');
     tbodies.forEach(tbody => tbody.innerHTML = rowsHTML);
 }
 
 function updateWinners(winners) {
     const tables = document.querySelectorAll('#dividendListTable, #runGameDividendTable');
-    
     tables.forEach(table => {
-        table.querySelectorAll('.winner-info').forEach(el => {
-            el.innerHTML = `<span class="winner-name">Pending...</span>`;
-        });
+        table.querySelectorAll('.winner-info').forEach(el => { el.innerHTML = `<span class="winner-name">Pending...</span>`; });
     });
 
     for (const name in winners) {
@@ -3670,9 +2437,7 @@ function updateWinners(winners) {
         const totalAmount = dividendData ? dividendData.amount : 0;
         const shareText = winnerArray.length > 1 ? `<span class="prize-share">(₹${(totalAmount / winnerArray.length).toFixed(2)} each)</span>` : '';
         
-        const winnerListHTML = `<ul>` + winnerArray.map(w => 
-            `<li><span class="winner-name">${w.name}</span> (Tkt: ${w.ticketId})</li>`
-        ).join('') + `</ul>`;
+        const winnerListHTML = `<ul>` + winnerArray.map(w => `<li><span class="winner-name">${w.name}</span> (Tkt: ${w.ticketId})</li>`).join('') + `</ul>`;
 
         let eyeIcon = '';
         if (winnerArray.length > 0) {
@@ -3691,7 +2456,6 @@ function updateWinners(winners) {
         });
     }
 }
-
 
 function updateNumberBoard(called) {
     const lastCalled = called.length > 0 ? called[called.length - 1] : null;
@@ -3742,13 +2506,31 @@ function renderSheetWiseBookedList() {
 
     const totalTickets = gameSettingsData.totalTickets;
     const allTicketsMap = new Map(allTicketsData.map(t => [t.id, t]));
-    container.innerHTML = '';
-
+    
     if (allTicketsMap.size === 0) {
         container.innerHTML = '<p style="text-align:center; font-style: italic; color: #01579b;">No tickets have been generated by the admin.</p>';
         return;
     }
 
+    const existingTickets = container.querySelectorAll('.ticket-view');
+    if (existingTickets.length === totalTickets && container.innerHTML.indexOf('Sheet') !== -1) {
+        for (let j = 1; j <= totalTickets; j++) {
+            const ticket = allTicketsMap.get(j);
+            const ticketView = container.querySelector(`.ticket-view[data-ticket-id="${j}"]`);
+            if (ticketView && ticket) {
+                const header = ticketView.querySelector('.ticket-header');
+                if (ticket.is_sold) {
+                    if (header) header.innerHTML = `<div>${ticket.owner_name}</div><span style="font-weight:normal;">Ticket ${j}</span>`;
+                } else {
+                    if (header) header.innerHTML = `<span>Ticket ${j}</span><button class="book-now-btn-small" onclick="goToBooking(${j})">Book Now</button>`;
+                }
+            }
+        }
+        updateDisplayedTicketPublic();
+        return;
+    }
+
+    container.innerHTML = '';
     const numSheets = Math.ceil(totalTickets / 6);
 
     for (let i = 0; i < numSheets; i++) {
@@ -3804,7 +2586,6 @@ function renderSheetWiseBookedList() {
         }
         container.appendChild(sheetWrapper);
     }
-
     updateDisplayedTicketPublic();
 }
 
@@ -3844,9 +2625,7 @@ function showAllWinningTicketsForDividend(dividendName) {
             }
         } else {
             const singleTicket = allTicketsData.find(t => t.id == ticketId);
-            if (singleTicket) {
-                ticketsToDisplay.push(singleTicket);
-            }
+            if (singleTicket) ticketsToDisplay.push(singleTicket);
         }
 
         if (ticketsToDisplay.length > 0) {
@@ -3862,8 +2641,6 @@ function showAllWinningTicketsForDividend(dividendName) {
                 } else {
                      gridHTML = '<p style="text-align:center; padding: 1rem; color: red;">Visual ticket data missing.</p>';
                 }
-
-
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
                                     <div class="ticket-header">Ticket ${ticket.id}</div>
                                     <div class="ticket-grid">${gridHTML}</div>
@@ -3882,9 +2659,7 @@ function toggleDividendAmountInput(checkbox) {
     const amountInput = checkbox.closest('td').querySelector('.dividend-amount');
     if (amountInput) {
         amountInput.disabled = !checkbox.checked;
-        if (!checkbox.checked) {
-            amountInput.value = '';
-        }
+        if (!checkbox.checked) amountInput.value = '';
     }
 }
 
@@ -3941,13 +2716,11 @@ async function saveGameSetting() {
     const processSave = async () => {
         try {
             await db.ref('settings/gameConfig').update(settingsToSave);
-            // NEW: Generate predictions if game time is set for the future
             if (newDateTime && newDateTime !== oldDateTime && new Date(newDateTime) > new Date()) {
-                await generatePredictions(); // This will show its own notifications
+                await generatePredictions(); 
             } else {
                 showNotification('Game settings saved successfully!', 'success');
             }
-             
         } catch (e) {
              showNotification('Error saving settings: ' + e.message, 'error');
         }
@@ -3962,10 +2735,7 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             await generateHousieTickets(true);
             showNotification('Settings saved and all tickets regenerated.', 'success');
-            // Regenerate predictions after ticket reset
-            if (newDateTime && new Date(newDateTime) > new Date()) {
-                await generatePredictions();
-            }
+            if (newDateTime && new Date(newDateTime) > new Date()) await generatePredictions();
         };
 
         document.getElementById('confirmNoResetBtn').onclick = async () => {
@@ -3973,10 +2743,7 @@ async function saveGameSetting() {
             await db.ref('settings/gameConfig').update(settingsToSave);
             await updateTicketCountWithoutReset(newTotalTickets, oldTotalTickets);
             showNotification('Settings saved and ticket count adjusted.', 'success');
-             // Regenerate predictions after ticket adjustment
-            if (newDateTime && new Date(newDateTime) > new Date()) {
-                await generatePredictions();
-            }
+            if (newDateTime && new Date(newDateTime) > new Date()) await generatePredictions();
         };
 
         showPopup('ticketResetConfirmPopup');
@@ -4019,9 +2786,7 @@ async function appendNewTickets(newCount, oldCount) {
                 const ticketId = oldCount + (i * 6) + j + 1;
                 if (ticketId > newCount) continue;
                 updates[ticketId] = {
-                    id: ticketId,
-                    numbers: currentSet[j],
-                    is_sold: false,
+                    id: ticketId, numbers: currentSet[j], is_sold: false,
                     owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
                 };
             }
@@ -4049,22 +2814,16 @@ async function saveDividendSettings() {
                 hasError = true;
             } else {
                  amountInput.style.border = '1px solid var(--secondary-bg-dash)';
-                 activeDividends.push({
-                    name: name,
-                    amount: amount
-                });
+                 activeDividends.push({ name: name, amount: amount });
             }
         }
     });
 
-    if (hasError) {
-        return; 
-    }
+    if (hasError) return; 
 
     try {
         await db.ref('settings/gameConfig/dividends').set(activeDividends);
         showNotification('Dividend settings saved!', 'success');
-
     } catch (e) { showNotification('Error saving dividends: ' + e.message, 'error'); }
 }
 
@@ -4113,20 +2872,17 @@ async function createAgentByAdmin() {
 
         await db.ref('users/' + newUser.uid).set({
             name, email, phone, role: 'agent',
-            createdBy: currentUser.uid,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
+            createdBy: currentUser.uid, createdAt: firebase.database.ServerValue.TIMESTAMP
         });
 
         await secondaryAuth.signOut();
         const successMsg = `Agent '${name}' created successfully!`;
-
         await triggerGlobalNotification(successMsg, 'success');
 
         document.getElementById('createAgentNameInp').value = '';
         document.getElementById('createAgentEmailInp').value = '';
         document.getElementById('createAgentPhoneInp').value = '';
         document.getElementById('createAgentPassInp').value = '';
-
     } catch (error) {
         showNotification(`Error creating agent: ${error.message}`, 'error');
     } finally {
@@ -4138,13 +2894,9 @@ async function resetCallNum() {
     if(!confirm('Are you sure? This will reset all called numbers, winners, and the game timer.')) return;
     try {
         await db.ref('gameState/currentState').update({
-            calledNumbers: null,
-            winners: null,
-            isGameRunning: false,
-            gameStartedAt: null 
+            calledNumbers: null, winners: null, isGameRunning: false, gameStartedAt: null 
         });
         showNotification('Game state has been reset.', 'success');
-
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
 }
 async function resetTicket() {
@@ -4165,7 +2917,6 @@ async function resetTicket() {
            await db.ref().update(updates);
         }
         showNotification('All sold tickets have been reset.', 'success');
-
     } catch (e) { showNotification('Error resetting tickets: ' + e.message, 'error'); }
 }
 
@@ -4176,22 +2927,14 @@ async function resetAgent() {
         const agents = allUsersData.filter(u => u.role === 'agent');
         if (agents.length === 0) return showNotification("No agents to delete.", "info");
 
-        agents.forEach(agent => {
-            updates[`/users/${agent.uid}`] = null;
-        });
+        agents.forEach(agent => { updates[`/users/${agent.uid}`] = null; });
         await db.ref().update(updates);
-
-        const msg = `${agents.length} agent account(s) deleted.`;
-        showNotification(msg, 'success');
-
+        showNotification(`${agents.length} agent account(s) deleted.`, 'success');
     } catch (e) { showNotification('Error deleting agents: ' + e.message, 'error'); }
 }
 
 function showLastSoldTicket() {
-    const soldTickets = allTicketsData
-        .filter(t => t.is_sold && t.sold_at)
-        .sort((a, b) => b.sold_at - a.sold_at);
-
+    const soldTickets = allTicketsData.filter(t => t.is_sold && t.sold_at).sort((a, b) => b.sold_at - a.sold_at);
     if (soldTickets.length > 0) {
         const lastTicket = soldTickets[0];
         const agent = allUsersData.find(u => u.uid === lastTicket.agent_uid);
@@ -4213,7 +2956,6 @@ async function showPreviousGameWinners() {
 
         const titleEl = document.getElementById('genericInfoPopupTitle');
         const contentEl = document.getElementById('genericInfoPopupContent');
-
         titleEl.textContent = 'Previous Game Winners';
 
         let contentHTML = '<ul>';
@@ -4231,7 +2973,6 @@ async function showPreviousGameWinners() {
 
         contentEl.innerHTML = contentHTML;
         showPopup('genericInfoPopup');
-
     } catch (e) {
         showNotification('Error fetching previous winners: ' + e.message, 'error');
     }
@@ -4321,10 +3062,7 @@ function updateAdminList() {
             const soldCount = allTicketsData.filter(t => t.agent_uid === u.uid).length;
             const commission = soldCount * commissionPerTicket;
             const safeName = u.name ? u.name.replace(/'/g, "\\'") : 'N/A';
-            
-            const actionButtonHTML = u.role === 'agent' 
-                ? `<i class="fas fa-trash-alt" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i>` 
-                : '<span>-</span>';
+            const actionButtonHTML = u.role === 'agent' ? `<i class="fas fa-trash-alt" title="Delete Agent" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"></i>` : '<span>-</span>';
 
             return `<tr class="agent-row-card" onclick="showAgentBookings('${u.uid}', '${safeName}')" title="Click to see tickets sold by ${safeName}">
                 <td colspan="5">
@@ -4334,23 +3072,14 @@ function updateAdminList() {
                             <div class="agent-card-phone"><i class="fas fa-phone-alt"></i> ${u.phone || 'N/A'}</div>
                         </div>
                         <div class="agent-card-stats">
-                            <div class="agent-stat-item">
-                                <span>${soldCount}</span>
-                                <label>Tickets Sold</label>
-                            </div>
-                            <div class="agent-stat-item">
-                                <span>₹${commission.toLocaleString()}</span>
-                                <label>Commission</label>
-                            </div>
+                            <div class="agent-stat-item"><span>${soldCount}</span><label>Tickets Sold</label></div>
+                            <div class="agent-stat-item"><span>₹${commission.toLocaleString()}</span><label>Commission</label></div>
                         </div>
-                        <div class="agent-card-actions">
-                            ${actionButtonHTML}
-                        </div>
+                        <div class="agent-card-actions">${actionButtonHTML}</div>
                     </div>
                 </td>
             </tr>`;
         }).join('');
-
         table.innerHTML = `<tbody>${tableHTML}</tbody>`;
     }
 }
@@ -4358,10 +3087,7 @@ function updateAdminList() {
 function showAgentBookings(agentUid, agentName) {
     if (!agentUid) return;
 
-    const agentBookings = allTicketsData
-        .filter(t => t.agent_uid === agentUid)
-        .sort((a, b) => a.id - b.id);
-
+    const agentBookings = allTicketsData.filter(t => t.agent_uid === agentUid).sort((a, b) => a.id - b.id);
     const titleEl = document.getElementById('genericInfoPopupTitle');
     const contentEl = document.getElementById('genericInfoPopupContent');
 
@@ -4372,15 +3098,11 @@ function showAgentBookings(agentUid, agentName) {
     } else {
         let contentHTML = '<ul>';
         agentBookings.forEach(ticket => {
-            contentHTML += `<li>
-                <strong>Ticket ${ticket.id}</strong><br>
-                <span style="font-size: 0.9em;">Owner: ${ticket.owner_name} | Phone: ${ticket.owner_phone || 'N/A'}</span>
-            </li>`;
+            contentHTML += `<li><strong>Ticket ${ticket.id}</strong><br><span style="font-size: 0.9em;">Owner: ${ticket.owner_name} | Phone: ${ticket.owner_phone || 'N/A'}</span></li>`;
         });
         contentHTML += '</ul>';
         contentEl.innerHTML = contentHTML;
     }
-    
     showPopup('genericInfoPopup');
 }
 
@@ -4400,19 +3122,15 @@ async function saveTicketOwnerChanges() {
     const newName = document.getElementById('editOwnerNameInp').value.trim();
     const newPhone = document.getElementById('editOwnerPhoneInp').value.trim();
 
-    if (!newName || !newPhone) {
-        return showNotification('Name and Phone cannot be empty.', 'error');
-    }
+    if (!newName || !newPhone) return showNotification('Name and Phone cannot be empty.', 'error');
 
     const ownedTickets = allTicketsData.filter(t => t.is_sold && t.owner_phone === originalOwnerInfo.phone);
 
     if (ownedTickets.length > 1) {
         const confirmText = document.getElementById('applyToAllConfirmText');
         confirmText.innerHTML = `<b>${originalOwnerInfo.name}</b> owns <b>${ownedTickets.length}</b> tickets. <br/><br/> Do you want to apply the new details to all of them?`;
-
         document.getElementById('confirmApplyToAllBtn').onclick = () => applyOwnerChanges(true, newName, newPhone);
         document.getElementById('confirmApplyToSingleBtn').onclick = () => applyOwnerChanges(false, newName, newPhone);
-
         showPopup('applyToAllConfirmPopup');
     } else {
         applyOwnerChanges(false, newName, newPhone);
@@ -4525,42 +3243,27 @@ async function performDelete(identifier, deleteAll) {
 
 
 async function deleteUser(uid, name) {
-    if (uid === currentUser.uid) {
-        return showNotification("You cannot delete your own account.", "error");
-    }
+    if (uid === currentUser.uid) return showNotification("You cannot delete your own account.", "error");
     const userToDelete = allUsersData.find(u => u.uid === uid);
-    if (userToDelete && userToDelete.role === 'admin') {
-        return showNotification("Admins cannot be deleted from this panel.", "error");
-    }
-
+    if (userToDelete && userToDelete.role === 'admin') return showNotification("Admins cannot be deleted from this panel.", "error");
     if (!confirm(`Are you sure you want to PERMANENTLY DELETE the agent '${name}'? This action cannot be undone.`)) return;
-
     try {
         await db.ref(`users/${uid}`).remove();
-        const msg = `Agent '${name}' has been deleted.`;
-        showNotification(msg, 'success');
-
-    } catch (e) {
-        showNotification('Error deleting user: ' + e.message, 'error');
-    }
+        showNotification(`Agent '${name}' has been deleted.`, 'success');
+    } catch (e) { showNotification('Error deleting user: ' + e.message, 'error'); }
 }
 
 function changePosterBackground(buttonElement, source) {
     const bgButtons = document.querySelectorAll('#poster-bg-controls .actionBtn');
     bgButtons.forEach(btn => btn.classList.remove('active'));
 
-    if (buttonElement) {
-        buttonElement.classList.add('active');
-    }
+    if (buttonElement) buttonElement.classList.add('active');
     
     const posterContent = document.getElementById('posterContent');
     if (posterContent) {
         let newImageUrl;
-        if (source.startsWith('http') || source.startsWith('data:image')) {
-            newImageUrl = source;
-        } else {
-            newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
-        }
+        if (source.startsWith('http') || source.startsWith('data:image')) newImageUrl = source;
+        else newImageUrl = `https://source.unsplash.com/random/600x800/?${source}&t=${new Date().getTime()}`;
         posterContent.style.backgroundImage = `url('${newImageUrl}')`;
     }
 }
@@ -4569,9 +3272,7 @@ function handlePosterBgUpload(event) {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            changePosterBackground(null, e.target.result);
-        };
+        reader.onload = function(e) { changePosterBackground(null, e.target.result); };
         reader.readAsDataURL(file);
     } else if (file) {
         showNotification('Please select a valid image file (e.g., JPG, PNG, GIF).', 'error');
@@ -4605,12 +3306,8 @@ function showPosterModal() {
         <div class="prize-section">
             <h3>PRIZES</h3>
             <div class="prize-list">
-                <div class="prize-column" id="prize-names">
-                    ${dividendNamesHTML}
-                </div>
-                <div class="prize-column" id="prize-amounts">
-                    ${dividendAmountsHTML}
-                </div>
+                <div class="prize-column" id="prize-names">${dividendNamesHTML}</div>
+                <div class="prize-column" id="prize-amounts">${dividendAmountsHTML}</div>
             </div>
         </div>
 
@@ -4623,17 +3320,12 @@ function showPosterModal() {
     `;
 
     document.getElementById('posterContent').innerHTML = posterHTML;
-    
     const firstBgButton = document.querySelector('#poster-bg-controls .actionBtn[onclick]');
-    if (firstBgButton) {
-      firstBgButton.click();
-    } else {
-      changePosterBackground(null, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg');
-    }
+    if (firstBgButton) firstBgButton.click();
+    else changePosterBackground(null, 'https://raw.githubusercontent.com/Anandkhuman/housie/main/bg1.jpeg');
     
     showPopup('posterMakerPopup');
 }
-
 
 function savePosterAsImage() {
     const posterElement = document.getElementById('posterContent');
@@ -4641,11 +3333,12 @@ function savePosterAsImage() {
 
     showNotification('Generating poster image...', 'info');
 
+    // FIX: Reduced scale to 2 to prevent memory limits/browser crashing on mobile
     html2canvas(posterElement, {
         useCORS: true, 
         allowTaint: true,
         logging: false,
-        scale: 3,
+        scale: 2, 
     }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'sintha-housie-poster.png';
@@ -4661,11 +3354,10 @@ function savePosterAsImage() {
 async function sharePoster() {
     const posterElement = document.getElementById('posterContent');
     if (!posterElement) return showNotification('Poster element not found.', 'error');
-
     showNotification('Preparing poster for sharing...', 'info');
-
     try {
-        const canvas = await html2canvas(posterElement, { useCORS: true, allowTaint: true, scale: 3});
+        // FIX: Reduced scale to 2 to prevent out of memory issues
+        const canvas = await html2canvas(posterElement, { useCORS: true, allowTaint: true, scale: 2}); 
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         const file = new File([blob], 'housie-poster.png', { type: 'image/png' });
         const filesArray = [file];
@@ -4795,11 +3487,8 @@ function selectFullSheetDashboard(checkbox, startId, endId) {
         const btn = document.getElementById(`dash-ticket-btn-${id}`);
         if (btn && !btn.disabled) {
             const isSelected = btn.classList.contains('selected');
-            if (checkbox.checked && !isSelected) {
-                btn.click();
-            } else if (!checkbox.checked && isSelected) {
-                btn.click();
-            }
+            if (checkbox.checked && !isSelected) btn.click();
+            else if (!checkbox.checked && isSelected) btn.click();
         }
     }
 }
@@ -4861,10 +3550,8 @@ function renderPublicBookingGrid() {
     for (let i = 0; i < numSheets; i++) {
         const startTicket = i * 6 + 1;
         const endTicket = startTicket + 5;
-        
         const sheetRow = document.createElement('div');
         sheetRow.className = 'compact-sheet-row';
-        
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'sheet-tick-box';
@@ -4887,7 +3574,6 @@ function renderPublicBookingGrid() {
             }
             buttonGroup.appendChild(btn);
         }
-
         sheetRow.appendChild(buttonGroup);
         container.appendChild(sheetRow);
     }
@@ -4913,11 +3599,8 @@ function selectFullSheetPublic(checkbox, startId, endId) {
         const btn = document.getElementById(`public-ticket-btn-${id}`);
         if (btn && !btn.disabled) {
             const isSelected = publicPopupSelectedTickets.includes(id);
-            if (checkbox.checked && !isSelected) {
-                togglePublicPopupTicketSelection(id);
-            } else if (!checkbox.checked && isSelected) {
-                togglePublicPopupTicketSelection(id);
-            }
+            if (checkbox.checked && !isSelected) togglePublicPopupTicketSelection(id);
+            else if (!checkbox.checked && isSelected) togglePublicPopupTicketSelection(id);
         }
     }
 }
@@ -4949,9 +3632,6 @@ async function prepareAndShowRunGame() {
             predeterminedCallSequence = snapshot.val();
             showPopup('runGameWindowDiv');
         } else {
-
-
-
             predeterminedCallSequence = [];
             showNotification('No game sequence found. Please save game settings with a future date to generate one.', 'error');
         }
@@ -4984,7 +3664,6 @@ async function toggleGameRunner() {
             });
             
             playSound(audioBaseUrl + "gamehasstarted.mp3");
-
             await triggerGlobalNotification('The game has started! Good luck!', 'success');
             const intervalSeconds = parseInt(document.getElementById('callIntervalInp').value, 10);
             if (isNaN(intervalSeconds) || intervalSeconds < 1) {
@@ -5035,9 +3714,8 @@ function callNextNumber() {
         const newNumber = predeterminedCallSequence[nextNumberIndex];
 
         if (called.includes(newNumber)) {
-            // This case should not happen with a valid sequence, but as a safeguard:
             console.error(`Attempted to call duplicate number ${newNumber} from sequence.`);
-            return; // Abort transaction to prevent data corruption
+            return; 
         }
 
         gameState.calledNumbers = [...called, newNumber];
@@ -5074,7 +3752,7 @@ function callNextNumber() {
 }
 
 
-// --- START OF FIX: MULTIPLE WINNER CAPTURE ---
+// --- FIX: OPTIMIZED MULTIPLE WINNER CAPTURE ---
 function checkAllWinners(calledNumbers, currentWinners) {
     let updatedWinners = JSON.parse(JSON.stringify(currentWinners));
     const activeDividends = gameSettingsData.dividends || [];
@@ -5084,7 +3762,15 @@ function checkAllWinners(calledNumbers, currentWinners) {
     const lastCalledNumber = calledNumbers[calledNumbers.length - 1];
     if (!lastCalledNumber) return updatedWinners;
 
-    const countMarked = (ticket) => (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n)).length;
+    // Optimized count using pre-calculated flatNumbers
+    const countMarked = (ticket) => {
+        if (!ticket.flatNumbers) return 0;
+        let count = 0;
+        for(let n of ticket.flatNumbers) {
+            if(calledNumbers.includes(n)) count++;
+        }
+        return count;
+    };
 
     const ticketsByOwner = soldTickets.reduce((acc, ticket) => {
         if (ticket.owner_phone) {
@@ -5102,7 +3788,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
         let winnersThisTurn = [];
         
         for (const ticket of soldTickets) {
-            if (!ticket.numbers || !Array.isArray(ticket.numbers) || ticket.numbers.length < 3) continue;
+            if (!ticket.flatNumbers || ticket.flatNumbers.length < 3) continue;
             
             let isWinner = false;
             let winningPatternNumbers = [];
@@ -5115,8 +3801,10 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 return false;
             };
 
-            const [r1, r2, r3] = ticket.numbers.map(row => row.filter(n => n > 0));
-            const allTicketNumbers = [...r1, ...r2, ...r3];
+            const r1 = ticket.row1 || [];
+            const r2 = ticket.row2 || [];
+            const r3 = ticket.row3 || [];
+            const allTicketNumbers = ticket.flatNumbers;
 
             switch (dividend.name) {
                 case "Top Line":
@@ -5157,7 +3845,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         const count = parseInt(dividend.name.match(/\d+/)[0], 10);
                         if (countMarked(ticket) === count) {
                             isWinner = true;
-                            winningPatternNumbers = (ticket.numbers || []).flat().filter(n => n > 0 && calledNumbers.includes(n));
+                            winningPatternNumbers = allTicketNumbers.filter(n => calledNumbers.includes(n));
                         }
                     }
                     break;
@@ -5188,7 +3876,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                 for (const sheetNum in ticketsBySheet) {
                     const sheetTickets = ticketsBySheet[sheetNum];
                     if (dividend.name === 'Full Sheet Bonus' && sheetTickets.length === 6) {
-                        if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                        if (sheetTickets.every(t => countMarked(t) >= 2) && sheetTickets.some(t => t.flatNumbers.includes(lastCalledNumber))) {
                             const fullSheetTicketIds = sheetTickets.map(t => t.id).sort((a,b)=>a-b);
                             winnersThisTurn.push({ 
                                 name: sheetTickets[0].owner_name, 
@@ -5210,7 +3898,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
 
                         if (isFirstHalfComplete) {
                             const halfSheetTickets = sheetTickets.filter(t => firstHalfIds.includes(t.id));
-                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => t.flatNumbers.includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
                                     name: halfSheetTickets[0].owner_name,
                                     phone: ownerPhone,
@@ -5223,7 +3911,7 @@ function checkAllWinners(calledNumbers, currentWinners) {
                         }
                         if (isSecondHalfComplete) {
                             const halfSheetTickets = sheetTickets.filter(t => secondHalfIds.includes(t.id));
-                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => (t.numbers || []).flat().includes(lastCalledNumber))) {
+                            if (halfSheetTickets.every(t => countMarked(t) >= 2) && halfSheetTickets.some(t => t.flatNumbers.includes(lastCalledNumber))) {
                                 winnersThisTurn.push({
                                     name: halfSheetTickets[0].owner_name,
                                     phone: ownerPhone,
@@ -5240,7 +3928,6 @@ function checkAllWinners(calledNumbers, currentWinners) {
         }
         
         if (winnersThisTurn.length > 0) {
-            // Deduplicate winners in case of complex scenarios (e.g., sheet bonuses)
             const uniqueWinners = winnersThisTurn.reduce((acc, current) => {
                 if (!acc.some(item => item.name === current.name && item.ticketId === current.ticketId)) {
                     acc.push(current);
@@ -5262,14 +3949,10 @@ function checkAllWinners(calledNumbers, currentWinners) {
 async function generatePredictions() {
     showNotification('Generating winner predictions... This may take a moment.', 'info');
     
-    // 1. Generate a fixed, shuffled sequence of numbers 1-90
     const sequence = shuffleArray(Array.from({ length: 90 }, (_, i) => i + 1));
-    
-    // 2. Simulate the game with this sequence to find winners
     let simulatedWinners = {};
     let simulatedCalledNumbers = [];
     
-    // Make a temporary copy of active dividends
     const activeDividends = gameSettingsData.dividends || [];
     if (activeDividends.length === 0) {
         showNotification('No active dividends set. Cannot generate predictions.', 'error');
@@ -5278,36 +3961,30 @@ async function generatePredictions() {
     
     // Simulate number by number
     for (const num of sequence) {
+        // FIX: Add tiny delay to prevent the browser from freezing during calculation
+        await new Promise(resolve => setTimeout(resolve, 2));
+
         simulatedCalledNumbers.push(num);
         simulatedWinners = checkAllWinners(simulatedCalledNumbers, simulatedWinners);
 
-        // Stop if all dividends are claimed
-        if (activeDividends.every(div => simulatedWinners[div.name])) {
-            break;
-        }
+        if (activeDividends.every(div => simulatedWinners[div.name])) break;
     }
     
-    // 3. Format the results
     const winningTicketsList = [];
     for (const dividendName in simulatedWinners) {
         const winnersArray = simulatedWinners[dividendName];
         winnersArray.forEach(winner => {
             const callNumberIndex = sequence.indexOf(winner.winningNumber) + 1;
             winningTicketsList.push({
-                dividendName: dividendName,
-                ticketId: winner.ticketId,
-                winningNumber: winner.winningNumber,
-                callNumber: callNumberIndex
+                dividendName: dividendName, ticketId: winner.ticketId,
+                winningNumber: winner.winningNumber, callNumber: callNumberIndex
             });
         });
     }
 
-    // 4. Save the sequence and the results to a secure location
     try {
         await db.ref('gameSecrets/upcomingGame').set({
-            callSequence: sequence,
-            winningTickets: winningTicketsList,
-            generatedAt: firebase.database.ServerValue.TIMESTAMP
+            callSequence: sequence, winningTickets: winningTicketsList, generatedAt: firebase.database.ServerValue.TIMESTAMP
         });
         showNotification('Winner predictions generated successfully and saved.', 'success');
     } catch (e) {
@@ -5324,11 +4001,8 @@ function renderWinningTicketsList(predictions) {
         return;
     }
 
-    // Group by dividend
     const groupedByDividend = predictions.reduce((acc, current) => {
-        if (!acc[current.dividendName]) {
-            acc[current.dividendName] = [];
-        }
+        if (!acc[current.dividendName]) acc[current.dividendName] = [];
         acc[current.dividendName].push(current);
         return acc;
     }, {});
@@ -5337,8 +4011,7 @@ function renderWinningTicketsList(predictions) {
     for (const dividendName in groupedByDividend) {
         html += `<div class="gameSettingDiv" style="margin-top: 1rem;">
                     <div class="titleBtn">${dividendName}</div>
-                    <table class="gameSettingTable" style="width: 100%; margin: 0; padding: 0.5rem;">
-                        <tbody>`;
+                    <table class="gameSettingTable" style="width: 100%; margin: 0; padding: 0.5rem;"><tbody>`;
         
         groupedByDividend[dividendName].forEach(winner => {
             html += `<tr style="grid-template-columns: 1fr 1fr;">
@@ -5346,12 +4019,8 @@ function renderWinningTicketsList(predictions) {
                         <td style="font-weight: normal; text-align: right;">Wins on Number <strong>${winner.winningNumber}</strong> (Call #${winner.callNumber})</td>
                      </tr>`;
         });
-
-        html += `   </tbody>
-                 </table>
-               </div>`;
+        html += `</tbody></table></div>`;
     }
-
     container.innerHTML = html;
 }
 
@@ -5365,7 +4034,6 @@ async function generateHousieTickets(bypassConfirm = false) {
 
     showNotification(`Generating ${totalTickets} new tickets... This may take a moment.`, 'info');
 
-
     try {
         await db.ref('/tickets').set(null); 
         setTimeout(async () => {
@@ -5377,18 +4045,14 @@ async function generateHousieTickets(bypassConfirm = false) {
                 for (let j = 0; j < 6; j++) {
                     const ticketId = i * 6 + j + 1;
                     newTicketsObject[ticketId] = {
-                        id: ticketId,
-                        numbers: currentSet[j],
-                        is_sold: false,
+                        id: ticketId, numbers: currentSet[j], is_sold: false,
                         owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null
                     };
                 }
             }
             await db.ref('/tickets').set(newTicketsObject);
-            const successMsg = `${totalTickets} new tickets generated successfully!`;
-            showNotification(successMsg, 'success');
+            showNotification(`${totalTickets} new tickets generated successfully!`, 'success');
         }, 50);
-
     } catch (e) {
         showNotification("Error generating tickets: " + e.message, 'error');
     }
@@ -5416,9 +4080,7 @@ function createTambolaSetOf6() {
         for (let colIndex = 0; colIndex < 9; colIndex++) {
             const numCellsInCol = ticketColumnCount[colIndex];
             const rowsToPlaceIn = shuffleArray([0, 1, 2]).slice(0, numCellsInCol);
-            for (const rowIndex of rowsToPlaceIn) {
-                layout[rowIndex][colIndex] = 1;
-            }
+            for (const rowIndex of rowsToPlaceIn) layout[rowIndex][colIndex] = 1;
         }
         let isBalanced = false;
         while (!isBalanced) {
@@ -5441,7 +4103,6 @@ function createTambolaSetOf6() {
                 layout[underfullRowIndex][colToSwap] = 1;
             }
         }
-
         ticketLayouts.push(layout);
     }
 
@@ -5487,7 +4148,6 @@ function createTambolaSetOf6() {
         }
     }
 
-    
     return finalTickets;
 }
 
@@ -5505,22 +4165,15 @@ function createListPDF(title, headers, dataRows, filename) {
 
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
-    headers.forEach((header, i) => {
-        doc.text(header, colPositions[i], startY);
-    });
+    headers.forEach((header, i) => { doc.text(header, colPositions[i], startY); });
 
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     let y = startY + 7;
 
     dataRows.forEach(row => {
-        if (y > 280) { 
-            doc.addPage();
-            y = 15;
-        }
-        row.forEach((cell, i) => {
-            doc.text(String(cell), colPositions[i], y);
-        });
+        if (y > 280) { doc.addPage(); y = 15; }
+        row.forEach((cell, i) => { doc.text(String(cell), colPositions[i], y); });
         y += 7;
     });
 
@@ -5547,13 +4200,7 @@ async function downloadPreviousGameTicketList() {
             return [ticket.id, ticket.owner_name, agentName];
         });
 
-        createListPDF(
-            'Previous Game - Sold Tickets',
-            ['Ticket ID', 'Owner Name', 'Booked By'],
-            dataRows,
-            'Previous-Game-Tickets.pdf'
-        );
-
+        createListPDF('Previous Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'], dataRows, 'Previous-Game-Tickets.pdf');
     } catch (e) {
         showNotification('Error downloading previous ticket list: ' + e.message, 'error');
     }
@@ -5561,24 +4208,16 @@ async function downloadPreviousGameTicketList() {
 
 function downloadCurrentSoldTickets() {
     const soldTickets = allTicketsData.filter(t => t.is_sold);
-    if (soldTickets.length === 0) {
-        return showNotification('No tickets have been sold in the current game yet.', 'info');
-    }
+    if (soldTickets.length === 0) return showNotification('No tickets have been sold in the current game yet.', 'info');
 
     const userMap = new Map(allUsersData.map(u => [u.uid, u]));
-
     const dataRows = soldTickets.map(ticket => {
         const agent = ticket.agent_uid ? userMap.get(ticket.agent_uid) : null;
         const agentName = agent ? agent.name : 'Direct/Admin';
         return [ticket.id, ticket.owner_name, agentName];
     });
 
-    createListPDF(
-        'Current Game - Sold Tickets',
-        ['Ticket ID', 'Owner Name', 'Booked By'],
-        dataRows,
-        'Current-Sold-Tickets.pdf'
-    );
+    createListPDF('Current Game - Sold Tickets', ['Ticket ID', 'Owner Name', 'Booked By'], dataRows, 'Current-Sold-Tickets.pdf');
 }
 
 async function downloadTicketAsPDF(ticketId) {
@@ -5758,7 +4397,7 @@ function updateAdminDisplayedTickets() {
 
 // --- Live Announcement Functions ---
 async function sendLiveText() {
-    const input = document.getElementById('liveTextAnnounceInp'); // This is now a textarea
+    const input = document.getElementById('liveTextAnnounceInp'); 
     const text = input.value.trim();
     if (!text) return showNotification('Please enter a message to announce.', 'error');
     
@@ -5985,7 +4624,12 @@ async function toggleMic() {
     } else {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const options = { mimeType: 'audio/webm;codecs=opus' };
+            
+            // FIX: Lower Bitrate to Prevent RTDB limits from blocking Main Thread
+            const options = { 
+                mimeType: 'audio/webm;codecs=opus', 
+                audioBitsPerSecond: 16000 // Reduced quality to save massive bandwidth/lag
+            };
             mediaRecorder = new MediaRecorder(localStream, options);
 
             mediaRecorder.ondataavailable = event => {
@@ -6002,12 +4646,14 @@ async function toggleMic() {
             };
             
             mediaRecorder.onstart = () => db.ref('settings/audio/liveAnnouncement').set({ isLive: true, isNewStream: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            mediaRecorder.start(1500); // Chunk every 1.5 seconds
+            
+            // FIX: Send chunks every 3 seconds instead of 1.5 to reduce database write operations
+            mediaRecorder.start(3000); 
 
             document.getElementById('micToggleBtn').classList.add('live');
             document.getElementById('micToggleBtn').innerHTML = '<i class="fas fa-microphone"></i> Mic is LIVE';
             isMicOn = true;
-            showNotification('Live announcement started!', 'success');
+            showNotification('Live announcement started! (Sending data every 3 sec)', 'success');
         } catch (err) {
             showNotification('Could not access microphone: ' + err.message, 'error');
             console.error(err);
