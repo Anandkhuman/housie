@@ -1957,7 +1957,8 @@ body.dashboard-view-active #universalBookFloatBtn {
                 <tr><td>Default to Book Page</td><td>
                     <select class="tableInp" id="defaultBookPageInp">
                         <option value="off">OFF</option>
-                        <option value="on">ON</option>
+                        <option value="on">ON (Always Book Page)</option>
+                        <option value="auto">AUTOMATIC (Book page before game time, Game page after)</option>
                     </select>
                 </td></tr>
                 <tr><td>Total ticket limit</td><td><input class="tableInp" id="totalTicketInp" type="number" value="600"></td></tr>
@@ -2658,7 +2659,21 @@ function handleRouting() {
     } else if (hash === 'game') {
         showView('publicView');
     } else {
-        if (gameSettingsData && gameSettingsData.defaultBookPage === 'on') {
+        let showBook = false;
+        if (gameSettingsData) {
+            if (gameSettingsData.defaultBookPage === 'on') {
+                showBook = true;
+            } else if (gameSettingsData.defaultBookPage === 'auto') {
+                if (gameSettingsData.gameDateTime) {
+                    const targetDate = new Date(gameSettingsData.gameDateTime).getTime();
+                    const now = new Date().getTime();
+                    if (now < targetDate) {
+                        showBook = true;
+                    }
+                }
+            }
+        }
+        if (showBook) {
             showView('ticketBookingView');
         } else {
             showView('publicView');
@@ -3370,6 +3385,11 @@ function updateCountdownTimers(targetDateString) {
             if (!gameLiveSoundPlayed) {
                 playSound(audioBaseUrl + "GAMEISLIVE.mp3");
                 gameLiveSoundPlayed = true;
+            }
+            if (gameSettingsData && gameSettingsData.defaultBookPage === 'auto' && window.location.hash.replace('#', '') === '') {
+                if (currentView === 'ticketBookingView') {
+                    showView('publicView');
+                }
             }
         } else {
             const d = Math.floor(distance / 86400000).toString().padStart(2, '0');
@@ -5112,7 +5132,7 @@ function savePosterAsImage() {
         showNotification('Poster download started!', 'success');
     }).catch(err => {
         console.error("html2canvas error:", err);
-        showNotification('Could not generate poster image.', 'error');
+showNotification('Could not generate poster image.', 'error');
     });
 }
 
