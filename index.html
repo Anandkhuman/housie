@@ -1954,6 +1954,12 @@ body.dashboard-view-active #universalBookFloatBtn {
         <table class="gameSettingTable" id="settingsTable">
             <tbody>
                 <tr><td>Game date-time</td><td><input class="tableInp" id="dateTimeInp" type="datetime-local"></td></tr>
+                <tr><td>Default to Book Page</td><td>
+                    <select class="tableInp" id="defaultBookPageInp">
+                        <option value="off">OFF</option>
+                        <option value="on">ON</option>
+                    </select>
+                </td></tr>
                 <tr><td>Total ticket limit</td><td><input class="tableInp" id="totalTicketInp" type="number" value="600"></td></tr>
                 <tr><td>Ticket price</td><td><input class="tableInp" id="ticketPriceInp" type="number" value="300"></td></tr>
                 <tr><td>Agent commission</td><td><input class="tableInp" id="agentCommissionInp" type="number" value="50"></td></tr>
@@ -1966,6 +1972,7 @@ body.dashboard-view-active #universalBookFloatBtn {
         <div class="actionBtnDiv">
             <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
             <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
+            <button class="actionBtn" onclick="promptShuffleTickets()">SHUFFLE TICKETS</button>
             <button class="actionBtn" onclick="resetAgent()">RESET AGENT</button>
             <button class="actionBtn" onclick="showLastSoldTicket()">LAST SOLD TICKET</button>
             <button class="actionBtn" onclick="showPreviousGameWinners()">PREV. GAME WINNERS</button>
@@ -2124,6 +2131,20 @@ body.dashboard-view-active #universalBookFloatBtn {
         <table class="gameSettingTable" id="agentSoldTicketsTable"></table>
     </div>
     <button class="bookFloatBtn" onclick="showPopup('dashboardBookingPopup')">BOOK TICKET</button>
+</div>
+
+<!-- Shuffle Confirm Popup -->
+<div class="overlay-popup" id="shuffleConfirmPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Shuffle Tickets</h3>
+        <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.5;">How do you want to regenerate tickets?</p>
+        <div class="login-form" style="display: flex; flex-direction: column; gap: 0.8rem;">
+             <button onclick="executeShuffle(false)" class="login-btn secondary">Keep Booked & Shuffle Rest</button>
+             <button onclick="executeShuffle(true)" class="login-btn admin">Reset ALL & Shuffle</button>
+             <button onclick="closePopups()" class="login-btn" style="background-color: var(--muted-color-dash);">Cancel</button>
+        </div>
+    </div>
 </div>
 
 <div class="overlay-popup" id="loginPopup">
@@ -2535,6 +2556,7 @@ let gameRunnerInterval = null;
 let gameLiveSoundPlayed = false;
 let knownWinners = {}; 
 
+let isInitialSettingLoad = true;
 let isInitialLoadForNumbers = true;
 let isInitialWinnerLoad = true;
 let isFirstLiveText = true;
@@ -2633,8 +2655,14 @@ function handleRouting() {
         showView('agentDashboardView');
     } else if (hash === 'book') {
         showView('ticketBookingView');
-    } else {
+    } else if (hash === 'game') {
         showView('publicView');
+    } else {
+        if (gameSettingsData && gameSettingsData.defaultBookPage === 'on') {
+            showView('ticketBookingView');
+        } else {
+            showView('publicView');
+        }
     }
 }
 window.addEventListener('hashchange', handleRouting);
@@ -2896,7 +2924,13 @@ function updateSingleTicketUI(ticket) {
         if (ticket.is_sold) {
             bookingTicketView.classList.add('sold');
             const header = bookingTicketView.querySelector('.ticket-header');
-            if(header) header.innerHTML = `<span>Ticket ${ticket.id}</span><span class="ticket-status sold">SOLD</span>`;
+            if(header) {
+                header.style.flexDirection = 'column';
+                header.style.alignItems = 'flex-start';
+                header.style.gap = '4px';
+                header.innerHTML = `<div style="display:flex; justify-content:space-between; width:100%;"><span>Ticket ${ticket.id}</span><span class="ticket-status sold">SOLD</span></div>
+                <div style="font-size: 0.75rem; width: 100%; text-align: left; opacity: 0.9;">Owner: ${ticket.owner_name || 'Unknown'}</div>`;
+            }
             
             // Remove from selected public pool if it was being clicked while someone else booked
             const index = publicSelectedTickets.indexOf(ticket.id);
@@ -2908,7 +2942,12 @@ function updateSingleTicketUI(ticket) {
         } else {
             bookingTicketView.classList.remove('sold');
             const header = bookingTicketView.querySelector('.ticket-header');
-            if(header) header.innerHTML = `<span>Ticket ${ticket.id}</span><span class="ticket-status available">AVAILABLE</span>`;
+            if(header) {
+                header.style.flexDirection = 'row';
+                header.style.alignItems = 'center';
+                header.style.gap = '0';
+                header.innerHTML = `<span>Ticket ${ticket.id}</span><span class="ticket-status available">AVAILABLE</span>`;
+            }
         }
     }
 
@@ -2963,6 +3002,11 @@ function setupRealtimeListeners() {
         gameSettingsData = snapshot.val() || {};
         updateAllUIsWithSettings(gameSettingsData);
         renderDashboards();
+
+        if (isInitialSettingLoad) {
+            isInitialSettingLoad = false;
+            handleRouting();
+        }
     }, err => { console.error("Settings listener error:", err); });
 
     listeners.gameState = db.ref('gameState/currentState');
@@ -3389,9 +3433,12 @@ function renderVisualTicketBookingPage() {
             if (ticket) {
                 if (ticket.is_sold) {
                     extraClass = ' sold';
-                    headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status sold">SOLD</span></div>`;
+                    headerHTML = `<div class="ticket-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <div style="display:flex; justify-content:space-between; width:100%;"><span>Ticket ${j}</span><span class="ticket-status sold">SOLD</span></div>
+                        <div style="font-size: 0.75rem; width: 100%; text-align: left; opacity: 0.9;">Owner: ${ticket.owner_name || 'Unknown'}</div>
+                    </div>`;
                 } else {
-                    headerHTML = `<div class="ticket-header"><span>Ticket ${j}</span><span class="ticket-status available">AVAILABLE</span></div>`;
+                    headerHTML = `<div class="ticket-header" style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span>Ticket ${j}</span><span class="ticket-status available">AVAILABLE</span></div>`;
                 }
                 
                 if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
@@ -3575,7 +3622,7 @@ async function processBookingLink() {
         const requestData = snapshot.val();
         const { name, phone, tickets: ticketIdsToBook } = requestData;
 
-        if (!name || !phone || !Array.isArray(ticketIdsToBook) || ticketIdsToBook.length === 0) {
+        if (!name || phone == null || !Array.isArray(ticketIdsToBook) || ticketIdsToBook.length === 0) {
             await requestRef.remove();
             throw new Error('Invalid data found in the booking link.');
         }
@@ -4187,6 +4234,7 @@ function makeElementDraggable(elmnt) {
 function updateAdminSettingsUI(data) {
     if (currentView !== 'adminDashboardView') return;
     document.getElementById('dateTimeInp').value = data.gameDateTime || '';
+    document.getElementById('defaultBookPageInp').value = data.defaultBookPage || 'off';
     document.getElementById('totalTicketInp').value = data.totalTickets || 600;
     document.getElementById('ticketPriceInp').value = data.ticketPrice || 0;
     document.getElementById('agentCommissionInp').value = data.agentCommission || 0;
@@ -4224,12 +4272,14 @@ async function saveGameSetting() {
     const oldTotalTickets = gameSettingsData.totalTickets || 0;
     const newTotalTickets = parseInt(document.getElementById('totalTicketInp').value, 10);
     const newDateTime = document.getElementById('dateTimeInp').value;
+    const newDefaultBookPage = document.getElementById('defaultBookPageInp').value;
 
     const priceVal = parseInt(document.getElementById('ticketPriceInp').value, 10);
     const commVal = parseInt(document.getElementById('agentCommissionInp').value, 10);
 
     const settingsToSave = {
         gameDateTime: newDateTime,
+        defaultBookPage: newDefaultBookPage,
         totalTickets: isNaN(newTotalTickets) ? 600 : newTotalTickets,
         ticketPrice: isNaN(priceVal) ? 0 : priceVal, 
         agentCommission: isNaN(commVal) ? 0 : commVal, 
@@ -4524,6 +4574,62 @@ async function resetTicket() {
         await db.ref('bookingRequests').remove();
         showNotification('All sold tickets have been reset.', 'success');
     } catch (e) { showNotification('Error resetting tickets: ' + e.message, 'error'); }
+}
+
+function promptShuffleTickets() {
+    showPopup('shuffleConfirmPopup');
+}
+
+async function executeShuffle(resetAll) {
+    closePopups();
+    const totalTickets = gameSettingsData.totalTickets || 600;
+    showNotification(`Regenerating tickets... please wait.`, 'info');
+
+    try {
+        const newTicketsObject = {};
+        const numSets = Math.ceil(totalTickets / 6);
+
+        for (let i = 0; i < numSets; i++) {
+            const currentSet = createTambolaSetOf6();
+            for (let j = 0; j < 6; j++) {
+                const ticketId = i * 6 + j + 1;
+                if (ticketId > totalTickets) break;
+
+                newTicketsObject[ticketId] = {
+                    id: ticketId,
+                    numbers: currentSet[j],
+                    is_sold: false,
+                    owner_name: null, owner_name_lower: null, owner_phone: null, agent_uid: null, sold_at: null
+                };
+            }
+        }
+
+        if (resetAll) {
+            const snap = await db.ref('tickets').once('value');
+            if (snap.exists() && snap.val() !== null) {
+                await db.ref('lastGame/tickets').set(snap.val());
+            }
+            await db.ref('/tickets').set(newTicketsObject);
+            await db.ref('bookingRequests').remove();
+            showNotification('All tickets completely reset and shuffled!', 'success');
+        } else {
+            const currentTicketsSnap = await db.ref('tickets').once('value');
+            const currentTickets = currentTicketsSnap.val() || {};
+
+            const updates = {};
+            for (let i = 1; i <= totalTickets; i++) {
+                if (currentTickets[i] && currentTickets[i].is_sold) {
+                    updates[i] = currentTickets[i]; // Retain booked ticket exact layout and info
+                } else {
+                    updates[i] = newTicketsObject[i]; // Replace remaining with freshly generated layout
+                }
+            }
+            await db.ref('/tickets').set(updates);
+            showNotification('Unbooked tickets successfully regenerated and shuffled!', 'success');
+        }
+    } catch (e) {
+        showNotification("Error shuffling tickets: " + e.message, 'error');
+    }
 }
 
 async function resetAgent() {
@@ -5305,7 +5411,7 @@ async function toggleGameRunner() {
             gameRunnerInterval = setInterval(callNextNumber, intervalSeconds * 1000);
             callNextNumber(); 
         }
-else {
+        else {
             await gameStateRef.child('isGameRunning').set(false);
         }
         showNotification(`Game runner is now ${isRunning ? 'ON' : 'OFF'}.`, 'info');
