@@ -1398,32 +1398,34 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
-    #publicBookingActionFooter {
-        position: fixed;
-        bottom: 55px;
-        left: 0;
-        width: 100%;
-        background: var(--primary-surface);
+    /* Inline Form specific CSS replacing the old fixed footer */
+    #inlineBookingForm {
+        display: none;
+        background: rgba(15, 23, 42, 0.95);
         padding: 0.8rem;
-        box-shadow: 0 -5px 15px rgba(255, 0, 160, 0.2);
-        border-top: 2px solid var(--accent-secondary);
-        z-index: 998;
-        transform: translateY(200%);
-        transition: transform 0.4s var(--transition-ease);
+        margin: 0.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--accent-primary);
+        z-index: 10;
+        position: relative;
     }
-
-    .booking-form-row {
+    #inlineBookingForm.visible {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    #inlineBookingForm .booking-form-row {
         display: grid;
         grid-template-columns: 1fr 1fr auto;
         gap: 0.5rem;
         align-items: center;
         margin-bottom: 0.5rem;
     }
-    #publicBookingActionFooter .login-btn {
+    #inlineBookingForm .login-btn {
         margin-bottom: 0;
         padding: 0.7rem;
     }
-    #publicBookingActionFooter #publicSelectionIndicator {
+    #inlineBookingForm #inlineSelectionIndicator {
         margin: 0;
         padding: 0.5rem;
         min-height: auto;
@@ -1431,11 +1433,15 @@
         border-width: 1px;
     }
     @media (max-width: 600px) {
-        .booking-form-row {
+        #inlineBookingForm .booking-form-row {
             grid-template-columns: 1fr;
             gap: 0.4rem;
             margin-bottom: 0.8rem;
         }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     .loading-spinner-container {
@@ -1848,6 +1854,28 @@ box-shadow:
 body.dashboard-view-active #universalBookFloatBtn {
     display: none !important;
 }
+
+.long-book-btn {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    background: linear-gradient(45deg, #00f6ff, #00ff88);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 15px rgba(0, 246, 255, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: var(--font-family-neon);
+}
+.long-book-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 246, 255, 0.6);
+}
 </style>
 </head>
 <body>
@@ -1909,6 +1937,16 @@ body.dashboard-view-active #universalBookFloatBtn {
     </nav>
 </div>
 
+<!-- Inline Booking Form (Moved dynamically via JS under the last selected ticket) -->
+<div id="inlineBookingForm">
+    <div class="booking-form-row">
+        <input type="text" id="inlineBookerName" placeholder="Your Name">
+        <input type="tel" id="inlineBookerPhone" placeholder="Your Mobile Number">
+        <button class="login-btn" id="inlineRequestBookingBtn">Request</button>
+    </div>
+    <div id="inlineSelectionIndicator" class="selection-indicator">Select tickets to see booking options</div>
+</div>
+
 <div id="ticketBookingView" class="view neon-view">
     <header class="top-header">
         
@@ -1920,18 +1958,9 @@ body.dashboard-view-active #universalBookFloatBtn {
         </div>
 
         <section class="panel">
-            <h2 class="panel-title">AVAILABLE TICKETS</h2>
+            <button class="long-book-btn" onclick="handleUniversalFloatClick()">BOOK HERE</button>
             <div id="bookingGridContainer"></div>
         </section>
-    </div>
-
-    <div id="publicBookingActionFooter">
-        <div class="booking-form-row">
-            <input type="text" id="bookerName" placeholder="Your Name">
-            <input type="tel" id="bookerPhone" placeholder="Your Mobile Number">
-            <button class="login-btn" id="requestBookingBtn">Request</button>
-        </div>
-        <div id="publicSelectionIndicator" class="selection-indicator">Select tickets to see booking options</div>
     </div>
 
     <nav class="bottom-nav">
@@ -2528,6 +2557,7 @@ const firebaseConfig = {
     measurementId: "G-L6CPQFGSRH"
   };
 
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
@@ -2808,7 +2838,7 @@ function bindEventListeners() {
     });
     document.getElementById('navigateToBooking').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'book'; });
     document.getElementById('navigateToGame').addEventListener('click', (e) => { e.preventDefault(); window.location.hash = 'game'; });
-    document.getElementById('requestBookingBtn').addEventListener('click', handlePublicBookingRequest);
+    document.getElementById('inlineRequestBookingBtn').addEventListener('click', handlePublicBookingRequest);
     document.getElementById('checkAvailabilityBtn').addEventListener('click', () => {
         renderPublicBookingGrid();
         showPopup('publicBookingPopup');
@@ -2832,10 +2862,14 @@ function bindEventListeners() {
     const bookingGrid = document.getElementById('bookingGridContainer');
     if (bookingGrid) {
         bookingGrid.addEventListener('click', (e) => {
+            if (e.target.closest('#inlineBookingForm')) return;
+            
             const ticketView = e.target.closest('.ticket-view');
             if (ticketView && !ticketView.classList.contains('sold') && ticketView.id && ticketView.id.startsWith('booking-ticket-')) {
                 const ticketId = parseInt(ticketView.id.replace('booking-ticket-', ''), 10);
-                togglePublicTicketSelection(ticketId);
+                if (e.target.type !== 'checkbox') {
+                    togglePublicTicketSelection(ticketId);
+                }
             }
         });
     }
@@ -2889,6 +2923,22 @@ function showPopup(id) {
     }
 }
 
+function repositionInlineBookingForm() {
+    const form = document.getElementById('inlineBookingForm');
+    if (!form) return;
+    if (publicSelectedTickets.length > 0) {
+        const lastSelectedId = publicSelectedTickets[publicSelectedTickets.length - 1];
+        const lastSelectedView = document.getElementById(`booking-ticket-${lastSelectedId}`);
+        if (lastSelectedView) {
+            lastSelectedView.appendChild(form);
+            form.classList.add('visible');
+        }
+    } else {
+        form.classList.remove('visible');
+        document.body.appendChild(form); 
+    }
+}
+
 function closePopups() {
     document.querySelectorAll('.overlay-popup.active, .gamePopDiv.active').forEach(p => {
         p.style.pointerEvents = 'none';
@@ -2912,6 +2962,7 @@ function showLoginForm() { document.getElementById('loginForm').style.display = 
 function showSignupForm() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('signupForm').style.display = 'block'; }
 
 function showAgentListPopup() {
+    const defaultAgentUid = gameSettingsData.defaultBookingAgentUid;
     const container = document.getElementById('agentListContainer');
     container.innerHTML = '';
     const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent').sort((a, b) => {
@@ -2924,7 +2975,11 @@ function showAgentListPopup() {
             const link = document.createElement('a');
             link.href = `https://wa.me/${agent.phone.replace(/\D/g, '')}`;
             link.target = '_blank';
-            link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
+            let badge = '';
+            if(agent.uid === defaultAgentUid) {
+                badge = `<span style="background-color: #f1c40f; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; margin-left: 10px;">DEFAULT</span>`;
+            }
+            link.innerHTML = `${agent.name}${badge}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
         });
     } else { container.innerHTML = '<p>No agents available.</p>'; }
@@ -2953,6 +3008,7 @@ function updateSingleTicketUI(ticket) {
                 publicSelectedTickets.splice(index, 1);
                 bookingTicketView.classList.remove('selected');
                 updatePublicSelectionIndicator();
+                repositionInlineBookingForm();
             }
         } else {
             bookingTicketView.classList.remove('sold');
@@ -2961,7 +3017,7 @@ function updateSingleTicketUI(ticket) {
                 header.style.flexDirection = 'row';
                 header.style.alignItems = 'center';
                 header.style.gap = '0';
-                header.innerHTML = `<span>Ticket ${ticket.id}</span><span class="ticket-status available">AVAILABLE</span>`;
+                header.innerHTML = `<span>Ticket ${ticket.id}</span><span class="ticket-status available">BOOK THIS</span>`;
             }
         }
     }
@@ -3458,7 +3514,7 @@ function renderVisualTicketBookingPage() {
                         <div style="font-size: 0.75rem; width: 100%; text-align: left; opacity: 0.9;">Owner: ${ticket.owner_name || 'Unknown'}</div>
                     </div>`;
                 } else {
-                    headerHTML = `<div class="ticket-header" style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span>Ticket ${j}</span><span class="ticket-status available">AVAILABLE</span></div>`;
+                    headerHTML = `<div class="ticket-header" style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span>Ticket ${j}</span><span class="ticket-status available">BOOK THIS</span></div>`;
                 }
                 
                 if (Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
@@ -3490,12 +3546,17 @@ function selectFullSheet(checkbox, startId, endId) {
         if (ticketView && !ticketView.classList.contains('sold')) {
             const isSelected = publicSelectedTickets.includes(id);
             if (checkbox.checked && !isSelected) {
-                togglePublicTicketSelection(id);
+                publicSelectedTickets.push(id);
+                ticketView.classList.add('selected');
             } else if (!checkbox.checked && isSelected) {
-                togglePublicTicketSelection(id);
+                const index = publicSelectedTickets.indexOf(id);
+                if(index > -1) publicSelectedTickets.splice(index, 1);
+                ticketView.classList.remove('selected');
             }
         }
     }
+    updatePublicSelectionIndicator();
+    repositionInlineBookingForm();
 }
 
 function togglePublicTicketSelection(ticketId) {
@@ -3511,19 +3572,11 @@ function togglePublicTicketSelection(ticketId) {
         ticketView.classList.add('selected');
     }
     updatePublicSelectionIndicator();
-    
-    const footer = document.getElementById('publicBookingActionFooter');
-    if (footer) {
-        if (publicSelectedTickets.length > 0) {
-            footer.classList.add('visible');
-        } else {
-            footer.classList.remove('visible');
-        }
-    }
+    repositionInlineBookingForm();
 }
 
 function updatePublicSelectionIndicator() {
-    const indicator = document.getElementById('publicSelectionIndicator');
+    const indicator = document.getElementById('inlineSelectionIndicator');
     if (!indicator) return;
     const result = checkSheetSelection(publicSelectedTickets);
     indicator.textContent = result.message || 'Select tickets to see booking options';
@@ -3531,8 +3584,8 @@ function updatePublicSelectionIndicator() {
 }
 
 function handlePublicBookingRequest() {
-    const name = document.getElementById('bookerName').value.trim();
-    const phone = document.getElementById('bookerPhone').value.trim();
+    const name = document.getElementById('inlineBookerName').value.trim();
+    const phone = document.getElementById('inlineBookerPhone').value.trim();
     if (!name || !phone) return showNotification('Please enter your name and mobile number.', 'error');
     if (publicSelectedTickets.length === 0) return showNotification('Please select at least one ticket.', 'error');
 
@@ -3540,6 +3593,19 @@ function handlePublicBookingRequest() {
 }
 
 async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
+    const defaultAgentUid = gameSettingsData.defaultBookingAgentUid;
+    let defaultAgent = null;
+
+    if (defaultAgentUid) {
+        defaultAgent = allUsersData.find(u => u.uid === defaultAgentUid && (u.role === 'admin' || u.role === 'agent'));
+    }
+
+    if (defaultAgent) {
+        // Automatically route to default agent
+        await redirectToWhatsApp(defaultAgent.phone, userName, userPhone, selectedTickets);
+        return;
+    }
+
     const container = document.getElementById('bookingAgentListContainer');
     container.innerHTML = '';
     const agents = allUsersData.filter(u => u.role === 'admin' || u.role === 'agent').sort((a, b) => {
@@ -4661,6 +4727,9 @@ async function resetAgent() {
 
         agents.forEach(agent => {
           updates[`/users/${agent.uid}`] = null;
+          if (gameSettingsData.defaultBookingAgentUid === agent.uid) {
+              updates[`settings/gameConfig/defaultBookingAgentUid`] = null;
+          }
         });
         await db.ref().update(updates);
 
@@ -4758,6 +4827,14 @@ function toggleAdminList(state) {
     updateAdminList();
 }
 
+async function setDefaultBookingAgent(uid) {
+    try {
+        await db.ref('settings/gameConfig/defaultBookingAgentUid').set(uid);
+        showNotification('Default booking agent updated.', 'success');
+    } catch (e) {
+        showNotification('Error updating default agent: ' + e.message, 'error');
+    }
+}
 function updateAdminList() {
     if (currentView !== 'adminDashboardView') return;
     const searchTerm = document.getElementById('adminSearchKeyInp').value.toLowerCase();
@@ -4798,6 +4875,8 @@ function updateAdminList() {
     } else {
         table.className = 'gameSettingTable1 agent-list-view';
         const commissionPerTicket = gameSettingsData.agentCommission || 0;
+        const defaultAgentUid = gameSettingsData.defaultBookingAgentUid || null;
+        
         const users = allUsersData.filter(u => !searchTerm || (u.name||'').toLowerCase().includes(searchTerm) || (u.email||'').toLowerCase().includes(searchTerm) || String(u.phone||'').toLowerCase().includes(searchTerm)); 
         
         const tableHTML = users.map(u => {
@@ -4811,11 +4890,18 @@ function updateAdminList() {
                 ? `<button class="actionBtn" style="background-color: #e74c3c;" onclick="event.stopPropagation(); deleteUser('${u.uid}', '${safeName}')"><i class="fas fa-trash-alt"></i> Delete</button>` 
                 : '';
 
+            const isDefault = u.uid === defaultAgentUid;
+            const defaultBtnHTML = isDefault
+                ? `<button class="actionBtn" style="background-color: #f1c40f; color: #000;" onclick="event.stopPropagation(); setDefaultBookingAgent(null)"><i class="fas fa-star"></i> Clear Receiver</button>`
+                : `<button class="actionBtn" style="background-color: #95a5a6;" onclick="event.stopPropagation(); setDefaultBookingAgent('${u.uid}')"><i class="far fa-star"></i> Set Receiver</button>`;
+
+            const defaultBadge = isDefault ? `<span style="background-color: #f1c40f; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; margin-left: 10px;">DEFAULT RECEIVER</span>` : '';
+
             return `<tr class="agent-row-card" onclick="toggleAgentCardActions('${u.uid}')" title="Click to show actions for ${safeName}">
                 <td colspan="5">
                     <div class="agent-card-container">
                         <div class="agent-card-info">
-                            <div class="agent-card-name">${u.name || 'N/A'} <small style="text-transform:uppercase; font-size:0.75rem; color:var(--accent-color-dash);">(${u.role})</small></div>
+                            <div class="agent-card-name">${u.name || 'N/A'} <small style="text-transform:uppercase; font-size:0.75rem; color:var(--accent-color-dash);">(${u.role})</small> ${defaultBadge}</div>
                             <div class="agent-card-phone"><i class="fas fa-phone-alt"></i> ${u.phone || 'N/A'}</div>
                         </div>
                         <div class="agent-card-stats">
@@ -4829,9 +4915,10 @@ function updateAdminList() {
                             </div>
                         </div>
                     </div>
-                    <div class="agent-card-actions-sub" id="agent-actions-${u.uid}" style="display: none; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div class="agent-card-actions-sub" id="agent-actions-${u.uid}" style="display: none; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
                         <button class="actionBtn" style="background-color: #2980b9;" onclick="event.stopPropagation(); showAgentBookings('${u.uid}', '${safeName}')"><i class="fas fa-eye"></i> View Tickets</button>
                         <button class="actionBtn" style="background-color: #e67e22;" onclick="event.stopPropagation(); showEditAgentPopup('${u.uid}', '${safeName}', '${safePhone}', '${safeRole}')"><i class="fas fa-edit"></i> Edit</button>
+                        ${defaultBtnHTML}
                         ${deleteBtnHTML}
                     </div>
                 </td>
@@ -5017,6 +5104,9 @@ async function deleteUser(uid, name) {
 
     try {
         await db.ref(`users/${uid}`).remove();
+        if(gameSettingsData.defaultBookingAgentUid === uid) {
+            await db.ref('settings/gameConfig/defaultBookingAgentUid').remove();
+        }
         const msg = `User '${name}' has been deleted.`;
         showNotification(msg, 'success');
     } catch (e) {
