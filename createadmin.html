@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Setup - Kangleipak Meitei Housie</title>
+    <title>Admin Setup -Housie</title>
     
     <!-- Fonts & Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
@@ -14,11 +14,12 @@
     <!-- Firebase SDK (Compat version for dynamic init) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            --card-bg: rgba(15, 23, 42, 0.7);
+            --card-bg: rgba(15, 23, 42, 0.85);
             --accent: #00f6ff;
             --accent-hover: #00ff88;
             --text-main: #ffffff;
@@ -38,7 +39,7 @@
         }
 
         .container {
-            width: 90%;
+            width: 95%;
             max-width: 600px;
             margin: 20px auto;
         }
@@ -52,12 +53,12 @@
         /* --- Glassmorphism Card --- */
         .glass-card {
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 246, 255, 0.3);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 246, 255, 0.4);
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,246,255,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,246,255,0.15);
         }
 
         .title {
@@ -66,23 +67,23 @@
             font-size: 2rem;
             color: var(--accent);
             text-shadow: 0 0 10px rgba(0, 246, 255, 0.5);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-transform: uppercase;
         }
 
         /* --- Inputs --- */
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 12px; }
         .input-group label {
-            display: block; font-size: 0.85rem; margin-bottom: 5px; color: var(--text-muted); font-weight: 600;
+            display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-muted); font-weight: 600;
         }
         .form-control {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 12px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border-radius: 6px;
             color: white;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             outline: none;
             transition: all 0.3s;
             box-sizing: border-box;
@@ -93,14 +94,14 @@
             box-shadow: 0 0 10px rgba(0, 246, 255, 0.2);
             background: rgba(255, 255, 255, 0.1);
         }
-        textarea.form-control { resize: vertical; min-height: 120px; font-family: monospace; font-size: 0.8rem; }
+        textarea.form-control { resize: vertical; min-height: 120px; font-family: monospace; font-size: 0.8rem; color: #00ff88; }
 
         /* --- Button --- */
         .btn {
-            width: 100%; padding: 14px; margin-top: 10px;
+            width: 100%; padding: 12px; margin-top: 10px;
             background: linear-gradient(45deg, var(--accent), var(--accent-hover));
-            border: none; border-radius: 8px;
-            color: #100c2A; font-weight: bold; font-size: 1.1rem;
+            border: none; border-radius: 6px;
+            color: #100c2A; font-weight: bold; font-size: 1rem;
             cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
             text-transform: uppercase; letter-spacing: 1px;
         }
@@ -110,14 +111,14 @@
         }
         .btn:active { transform: translateY(0); }
         .btn-outline {
-            background: transparent; color: var(--accent); border: 2px solid var(--accent);
+            background: transparent; color: var(--accent); border: 2px solid var(--accent); margin-top: 10px;
         }
         .btn-outline:hover { background: rgba(0, 246, 255, 0.1); }
 
         /* --- Animation Section --- */
         .animation-container { text-align: center; padding: 40px 0; }
         .checkmark {
-            width: 100px; height: 100px; border-radius: 50%; display: block;
+            width: 80px; height: 80px; border-radius: 50%; display: block;
             stroke-width: 2; stroke: #fff; stroke-miterlimit: 10;
             margin: 10% auto; box-shadow: inset 0px 0px 0px #2ecc71;
             animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
@@ -136,37 +137,93 @@
         @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px #2ecc71; } }
 
         .success-text {
-            color: #2ecc71; font-size: 1.5rem; font-weight: bold; margin-top: 20px;
+            color: #2ecc71; font-size: 1.3rem; font-weight: bold; margin-top: 20px;
             opacity: 0; animation: fadeIn 0.5s ease 1s forwards;
         }
-
-        /* --- Generated Poster Card --- */
-        #posterArea {
-            background: linear-gradient(135deg, #100c2A, #2c2850);
-            border: 2px solid #ff00a0;
-            border-radius: 12px;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-        }
-        #posterArea::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
-            background: linear-gradient(90deg, #00f6ff, #ff00a0, #00f6ff);
-        }
-        .poster-logo { font-size: 3rem; color: #ffeb3b; margin-bottom: 10px; }
-        .poster-title { font-family: 'Rajdhani', sans-serif; font-size: 2.2rem; margin: 0 0 20px 0; color: #fff; text-transform: uppercase; }
-        .poster-badge { background: #ff00a0; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: inline-block; margin-bottom: 20px; }
-        .poster-details { text-align: left; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .poster-details p { margin: 10px 0; font-size: 1.1rem; }
-        .poster-details span { color: var(--accent); font-weight: bold; }
-        .poster-footer { font-size: 0.9rem; color: var(--text-muted); border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px; }
-
-        .action-buttons { display: flex; gap: 15px; margin-top: 20px; }
-        .action-buttons button { flex: 1; }
-        
-        .loading-text { font-size: 1.2rem; color: var(--accent); animation: pulse 1s infinite; }
+        .loading-text { font-size: 1.1rem; color: var(--accent); animation: pulse 1s infinite; margin-top: 15px;}
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* --- Compact Generated Poster Card --- */
+        #posterArea {
+            position: relative;
+            background-image: url('https://i.ibb.co/gb2q30kV/bg.jpg'); /* Background Image Added */
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            border: 2px solid var(--accent);
+            overflow: hidden;
+            text-align: left;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .poster-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85); /* Dark tint for text readability */
+            backdrop-filter: blur(4px);
+            z-index: 1;
+        }
+
+        .poster-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .poster-header {
+            text-align: center;
+            border-bottom: 1px dashed rgba(255,255,255,0.3);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        .poster-logo { font-size: 2rem; color: #ffeb3b; margin-bottom: 5px; }
+        .poster-title-card { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; margin: 0; color: #fff; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;}
+        .poster-badge { background: #ff00a0; color: white; padding: 3px 12px; border-radius: 15px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-top: 5px; letter-spacing: 1px;}
+
+        /* Grid for compact design */
+        .poster-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .detail-item {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full-width { grid-column: 1 / -1; }
+        
+        .detail-item .label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; font-weight: bold; letter-spacing: 0.5px;}
+        .detail-item .value { font-size: 0.95rem; font-weight: bold; color: white; word-break: break-all;}
+
+        .highlight-item {
+            background: rgba(0, 246, 255, 0.15);
+            border-color: var(--accent);
+        }
+
+        .password-value {
+            color: #ffeb3b !important;
+            font-family: monospace;
+            font-size: 1.1rem !important;
+            letter-spacing: 1.5px;
+        }
+
+        .poster-footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .action-buttons { display: flex; gap: 10px; }
+        .action-buttons button { flex: 1; font-size: 0.9rem; padding: 10px;}
     </style>
 </head>
 <body>
@@ -175,37 +232,43 @@
     
     <!-- STEP 1: FORM VIEW -->
     <div id="form-view" class="view-section glass-card active">
-        <h2 class="title"><i class="fas fa-cogs"></i> Admin Setup</h2>
+        <h2 class="title"><i class="fas fa-tools"></i> Admin Setup</h2>
         <form id="setupForm">
             <div class="input-group">
                 <label>1. Paste Firebase SDK Config</label>
-                <textarea id="firebaseConfig" class="form-control" placeholder="const firebaseConfig = {&#10;  apiKey: '...',&#10;  authDomain: '...',&#10;  ...&#10;};" required></textarea>
+                <textarea id="firebaseConfig" class="form-control" placeholder="const firebaseConfig = { ... };" required></textarea>
             </div>
             <div class="input-group">
                 <label>2. Tambola Website Link</label>
                 <input type="url" id="websiteLink" class="form-control" placeholder="https://your-tambola-website.com" required>
             </div>
-            <div class="input-group">
-                <label>3. Admin Name</label>
-                <input type="text" id="adminName" class="form-control" placeholder="Enter Full Name" required>
+            <div style="display: flex; gap: 10px;">
+                <div class="input-group" style="flex: 1;">
+                    <label>3. Admin Name</label>
+                    <input type="text" id="adminName" class="form-control" placeholder="Full Name" required>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>4. Phone Number</label>
+                    <input type="tel" id="adminPhone" class="form-control" placeholder="10-digit Mobile" required>
+                </div>
             </div>
             <div class="input-group">
-                <label>4. Admin Email</label>
+                <label>5. Admin Email</label>
                 <input type="email" id="adminEmail" class="form-control" placeholder="admin@example.com" required>
             </div>
             <div class="input-group">
-                <label>5. Admin Password</label>
-                <input type="password" id="adminPassword" class="form-control" placeholder="Minimum 6 characters" required minlength="6">
+                <label>6. Admin Password</label>
+                <input type="text" id="adminPassword" class="form-control" placeholder="Minimum 6 characters" required minlength="6">
             </div>
-            <button type="submit" class="btn"><i class="fas fa-user-shield"></i> Create Admin Account</button>
+            <button type="submit" class="btn"><i class="fas fa-user-shield"></i> Create Account</button>
         </form>
     </div>
 
     <!-- STEP 2: ANIMATION VIEW -->
     <div id="animation-view" class="view-section glass-card animation-container">
         <div id="processing-state">
-            <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--accent); margin-bottom: 20px;"></i>
-            <div class="loading-text">Configuring System & Creating Account...</div>
+            <i class="fas fa-circle-notch fa-spin" style="font-size: 4rem; color: var(--accent); margin-bottom: 20px;"></i>
+            <div class="loading-text" id="status-text">Connecting to Firebase...</div>
         </div>
         
         <div id="success-state" style="display: none;">
@@ -213,34 +276,63 @@
                 <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
                 <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
             </svg>
-            <div class="success-text">Admin Account Created Successfully!</div>
+            <div class="success-text">Account Initialized!</div>
         </div>
     </div>
 
-    <!-- STEP 3: RESULT & DOWNLOAD VIEW -->
+    <!-- STEP 3: COMPACT RESULT & DOWNLOAD VIEW -->
     <div id="result-view" class="view-section">
+        
+        <!-- Generated Image Area -->
         <div id="posterArea">
-            <div class="poster-logo"><i class="fas fa-ticket-alt"></i></div>
-            <h1 class="poster-title">System Setup Complete</h1>
-            <div class="poster-badge">OFFICIAL ADMIN CREDENTIALS</div>
-            
-            <div class="poster-details">
-                <p><i class="fas fa-user"></i> Name: <span id="resName"></span></p>
-                <p><i class="fas fa-envelope"></i> Email: <span id="resEmail"></span></p>
-                <p><i class="fas fa-globe"></i> Website: <span id="resLink"></span></p>
-                <p><i class="fas fa-key"></i> Password: <span style="color: #ffeb3b;">[ HIDDEN FOR SECURITY ]</span></p>
-            </div>
-            
-            <div class="poster-footer">
-                Keep this pass safe. Use these credentials to access the Admin Dashboard.
+            <div class="poster-overlay"></div>
+            <div class="poster-content">
+                
+                <div class="poster-header">
+                    <div class="poster-logo"><i class="fas fa-shield-alt"></i></div>
+                    <h2 class="poster-title-card">Pothapham Housie</h2>
+                    <div class="poster-badge">ADMIN ACCESS CARD</div>
+                </div>
+                
+                <div class="poster-details-grid">
+                    <div class="detail-item full-width">
+                        <span class="label"><i class="fas fa-globe"></i> Website URL</span>
+                        <span class="value" id="resLink"></span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="label"><i class="fas fa-user-tie"></i> Admin Name</span>
+                        <span class="value" id="resName"></span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="label"><i class="fas fa-phone-alt"></i> Phone No.</span>
+                        <span class="value" id="resPhone"></span>
+                    </div>
+                    
+                    <div class="detail-item full-width">
+                        <span class="label"><i class="fas fa-envelope"></i> Email Address</span>
+                        <span class="value" id="resEmail"></span>
+                    </div>
+                    
+                    <!-- Password Field Displayed -->
+                    <div class="detail-item full-width highlight-item">
+                        <span class="label"><i class="fas fa-key"></i> Login Password</span>
+                        <span class="value password-value" id="resPassword"></span>
+                    </div>
+                </div>
+
+                <div class="poster-footer">
+                    <i class="fas fa-exclamation-circle"></i> This card contains sensitive information. Do not share it publicly.
+                </div>
             </div>
         </div>
 
         <div class="action-buttons">
-            <button class="btn" onclick="downloadPoster()"><i class="fas fa-download"></i> Download Card</button>
-            <button class="btn btn-outline" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share Card</button>
+            <button class="btn" onclick="downloadPoster()"><i class="fas fa-download"></i> Download</button>
+            <button class="btn btn-outline" onclick="sharePoster()"><i class="fas fa-share-alt"></i> Share</button>
         </div>
-        <button class="btn btn-outline" style="margin-top: 15px; border-color: #e74c3c; color: #e74c3c;" onclick="location.reload()">Start Over</button>
+        <button class="btn btn-outline" style="width: 100%; border-color: #e74c3c; color: #e74c3c; padding: 10px;" onclick="location.reload()">Start Over</button>
     </div>
 
 </div>
@@ -252,88 +344,85 @@
         const configText = document.getElementById('firebaseConfig').value;
         const link = document.getElementById('websiteLink').value;
         const name = document.getElementById('adminName').value;
+        const phone = document.getElementById('adminPhone').value;
         const email = document.getElementById('adminEmail').value;
         const password = document.getElementById('adminPassword').value;
 
-        // Switch to Animation View (Loading)
         showView('animation-view');
-        document.getElementById('processing-state').style.display = 'block';
-        document.getElementById('success-state').style.display = 'none';
-
+        const statusText = document.getElementById('status-text');
+        
         try {
-            // Step 1: Extract Firebase Config JSON Object using Regex
+            // Smart Extraction of Config
             const regex = /\{[\s\S]*apiKey[\s\S]*\}/;
             const match = configText.match(regex);
             
-            if (match) {
-                // Parse extracted config safely
-                const configObj = new Function("return " + match[0])();
-                
-                // Initialize Firebase if not already initialized
-                if (firebase.apps.length === 0) {
-                    firebase.initializeApp(configObj);
-                }
+            if (!match) throw new Error("Invalid Firebase Config format. Make sure it contains apiKey.");
 
-                // Create Admin User in Firebase Auth
-                const auth = firebase.auth();
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                
-                // Optional: Update profile name & Realtime DB record (Assuming standard structure)
-                await userCredential.user.updateProfile({ displayName: name });
-                const db = firebase.database();
-                await db.ref('users/' + userCredential.user.uid).set({
-                    name: name,
-                    email: email,
-                    role: 'admin',
-                    website: link,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP
-                });
-                
-                // Sign out immediately to secure session (Admin should login via actual app)
-                await auth.signOut();
-            } else {
-                console.warn("Valid Firebase Config pattern not found. Simulating success for poster generation.");
-                await new Promise(r => setTimeout(r, 2000)); // Simulate delay
+            const configObj = new Function("return " + match[0])();
+            
+            statusText.innerText = "Initializing Backend...";
+            if (firebase.apps.length === 0) {
+                firebase.initializeApp(configObj);
             }
+
+            const auth = firebase.auth();
+            const db = firebase.database();
+
+            statusText.innerText = "Creating Admin Auth Account...";
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            
+            await userCredential.user.updateProfile({ displayName: name });
+            
+            statusText.innerText = "Saving Admin Role in Database...";
+            
+            await db.ref('users/' + userCredential.user.uid).set({
+                name: name,
+                email: email,
+                phone: phone, 
+                role: 'admin',
+                website: link,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            statusText.innerText = "Securing setup...";
+            await auth.signOut();
+
         } catch (error) {
-            console.error("Firebase Error:", error.message);
-            // Even if Firebase fails (e.g. wrong API key or user exists), 
-            // we will proceed to generate the beautiful card as per user UI request.
-            alert("Firebase Notice: " + error.message + "\nProceeding to generate Card.");
+            console.error("Setup Error:", error.message);
+            // Show alert but still generate card
+            alert("Notice: " + error.message + "\n(If it says 'Permission Denied', fix Realtime DB Rules. Generating Card Anyway.)");
         }
 
-        // Show Success Checkmark Animation
         document.getElementById('processing-state').style.display = 'none';
         document.getElementById('success-state').style.display = 'block';
 
-        // Populate Card Data
+        // Populate Card Data (INCLUDING PASSWORD)
         document.getElementById('resName').textContent = name;
+        document.getElementById('resPhone').textContent = phone; 
         document.getElementById('resEmail').textContent = email;
         document.getElementById('resLink').textContent = link;
+        document.getElementById('resPassword').textContent = password; // Password now visible
 
-        // Wait for animation to finish, then show the Final Poster View
         setTimeout(() => {
             showView('result-view');
-        }, 3000);
+        }, 2000);
     });
 
-    // --- Helper Functions --- //
+    // --- Image Generation & Sharing Functions --- //
 
     function showView(id) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
-    let generatedBlob = null; // Store blob for sharing
-
     function downloadPoster() {
         const posterEl = document.getElementById('posterArea');
         html2canvas(posterEl, {
             scale: 3, 
             backgroundColor: null,
-            useCORS: true
+            useCORS: true,
+            allowTaint: true
         }).then(canvas => {
-            // Setup Download
             const link = document.createElement('a');
             link.download = 'Admin_Access_Card.png';
             link.href = canvas.toDataURL('image/png');
@@ -343,22 +432,26 @@
 
     async function sharePoster() {
         const posterEl = document.getElementById('posterArea');
-        const canvas = await html2canvas(posterEl, { scale: 3, useCORS: true });
+        const canvas = await html2canvas(posterEl, { 
+            scale: 3, 
+            useCORS: true,
+            allowTaint: true 
+        });
         
         canvas.toBlob(async (blob) => {
-            const file = new File([blob], 'Admin_Card.png', { type: 'image/png' });
+            const file = new File([blob], 'Admin_Access_Card.png', { type: 'image/png' });
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
                         title: 'Admin Credentials',
-                        text: 'Here is the Tambola Admin Setup Card!',
+                        text: 'Your Tambola Admin Dashboard Credentials.',
                         files: [file]
                     });
                 } catch (error) {
                     console.log('Share canceled or failed', error);
                 }
             } else {
-                alert("Sharing files is not supported on this browser/device. Please download it instead.");
+                alert("Sharing files is not supported on this browser/device. Please click 'Download' instead.");
             }
         });
     }
