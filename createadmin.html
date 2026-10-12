@@ -290,7 +290,8 @@
                 
                 <div class="poster-header">
                     <div class="poster-logo"><i class="fas fa-shield-alt"></i></div>
-                    <h2 class="poster-title-card">Pothapham Housie</h2>
+                    <!-- Dynamically updated poster title -->
+                    <h2 class="poster-title-card" id="posterTitle">SHOW TITLE</h2>
                     <div class="poster-badge">ADMIN ACCESS CARD</div>
                 </div>
                 
@@ -396,7 +397,19 @@
         document.getElementById('processing-state').style.display = 'none';
         document.getElementById('success-state').style.display = 'block';
 
-        // Populate Card Data (INCLUDING PASSWORD)
+        // Extract Title Name from website link dynamically
+        let dynamicTitle = "TAMBOLA";
+        try {
+            const urlObj = new URL(link);
+            // Remove 'www.' if present and split by '.' to get the core domain name
+            let hostname = urlObj.hostname.replace(/^www\./i, '');
+            dynamicTitle = hostname.split('.')[0]; 
+        } catch(e) {
+            console.warn("Invalid URL for dynamic title, fallback to default");
+        }
+
+        // Populate Card Data (INCLUDING DYNAMIC TITLE AND PASSWORD)
+        document.getElementById('posterTitle').textContent = dynamicTitle.toUpperCase() + " SHOW";
         document.getElementById('resName').textContent = name;
         document.getElementById('resPhone').textContent = phone; 
         document.getElementById('resEmail').textContent = email;
