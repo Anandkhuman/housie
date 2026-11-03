@@ -41,6 +41,21 @@
         --light-text-dash: #ffffff;
     }
 
+    /* Page ko mobile par horizontal zoom-out hone se rokne ke liye */
+    html, body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    }
+
     @keyframes pulse-highlight {
         0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
         70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
@@ -80,6 +95,7 @@
         display: none; 
         width: 100%;
         min-height: 100vh;
+        overflow-x: hidden;
     }
 
     .view.active {
@@ -94,6 +110,7 @@
         opacity: 0; visibility: hidden;
         transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
         overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .overlay-popup {
@@ -124,11 +141,14 @@
         background: transparent;
         backdrop-filter: none;
         align-items: flex-start;
-        padding-top: 6px;
+        padding-top: 8px;
         pointer-events: none;
         height: auto;
         justify-content: center;
         z-index: 10000;
+        width: 100%;
+        left: 0;
+        right: 0;
         transform: translateY(-150%);
         transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
@@ -153,7 +173,7 @@
     .top-down-notification-popup .notification-body {
         display: flex;
         align-items: center;
-        gap: 0.2rem;
+        gap: 0.5rem;
         flex-wrap: wrap;
     }
 
@@ -169,6 +189,7 @@
 
     .top-down-notification-popup .notification-text-content {
         flex-grow: 1;
+        min-width: 200px;
     }
 
     .top-down-notification-popup .notification-text-content p {
@@ -249,6 +270,8 @@
     .searchInp,
     .tableInp {
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
         font-size: 0.9rem;
         padding: 0.7rem 1rem;
         border-radius: 8px;
@@ -346,6 +369,7 @@
         width: 95%;
         padding-top: 75px;
         padding-bottom: 120px;
+        overflow-x: hidden;
     }
     
     /* Common container for both Home and Ticket Pages */
@@ -360,14 +384,18 @@
         transform: translateY(10px);
         padding: 0.8rem;
         transition: all 0.3s ease;
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
+    /* Fixed top-header positioning: transform: translateX(-50%) replaced by left: 2%; right: 2%; to prevent 146% viewport overflow */
     .top-header {
         position: fixed;
         top: 0;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 2%;
+        right: 2%;
         width: 96%;
+        margin: 0 auto;
         z-index: 998;
         display: flex;
         justify-content: center;
@@ -422,7 +450,6 @@
 
     .top-header.active {
         opacity: 1;
-        transform: translateY(0);
     }
 
     .bottom-nav {
@@ -518,21 +545,21 @@
     .info-item { display: flex; align-items: center; gap: 0.5rem; font-size: .650rem; font-weight: 600; color:#fff; }
     .info-item i { font-size: 1rem; color: var(--accent-primary); }
     
-    .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.4rem; }
+    .number-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.3rem; width: 100%; max-width: 100%; }
     .num-cell {
         aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
         background: #e1efd6; border-radius: 6px;
-        font-weight: 700; font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+        font-weight: 700; font-size: clamp(0.7rem, 2.8vw, 1.2rem);
         color: black; text-shadow: 0 0 3px rgba(176, 168, 224, 0.5);
         transition: background-color 0.5s ease, color 0.5s ease, text-shadow 0.5s ease, transform 0.5s ease;
         will-change: transform, background-color, color, text-shadow;
+        min-width: 0;
     }
     .num-cell.called { background: var(--called-color); color: var(--text-dark); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); transform: scale(1.05); }
     .info-column { display: flex; flex-direction: column; gap: 0.8rem; }
     
     .called-numbers-list {
         display: grid;grid-template-columns: repeat(10, 1fr); gap: 0.2rem;
-        gap: 0.2rem;
         justify-content: center;
         max-height: 120px;
         overflow-y: auto;
@@ -604,12 +631,6 @@
         margin-bottom: 0;
     }
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    }
-
     .sheet-view {
         background: rgba(0, 0, 0, 0.25);
         backdrop-filter: blur(12px);
@@ -617,8 +638,10 @@
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         padding: 0.8rem;
-        margin: -0.80rem;
+        margin: 0.4rem 0;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .sheet-header {
@@ -640,15 +663,15 @@
         color: #e3f2fd;
     }    
     
-    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
+    .ticket-view { border: 2px solid #0288d1; border-radius: 6px; padding: 0; background-color: #f0faff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; max-width: 100%; }
     .ticket-header { padding: 0.4rem 0.6rem; background-color: #b3e5fc; color: #01579b; font-family: sans-serif; font-weight: bold; font-size: 0.8rem; text-shadow: none; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
     .ticket-header span, .ticket-header div { color: #01579b !important; }
     .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; padding: 0.4rem; }
     .ticket-num { background-color: white; border: 1px solid black; color: #212121; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; 
-       font-family: "Times New Roman", Times, Georgia, serif !important; 
-    font-weight: bold !important; 
-    font-size: clamp(1.2rem, 2.5vw, 1.4rem) !important; 
-        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; will-change: transform, background-color, color, text-shadow;}
+        font-family: "Times New Roman", Times, Georgia, serif !important; 
+        font-weight: bold !important; 
+        font-size: clamp(1rem, 2.5vw, 1.4rem) !important; 
+        padding: 0; border-radius: 0; transition: background-color 0.4s ease, color 0.4s ease, transform 0.4s ease; will-change: transform, background-color, color, text-shadow; min-width: 0;}
     .ticket-num.empty { background-color: #f0faff; border: 1px solid black; }
     .ticket-num.ticked { background-color: #00ffff !important; color: #000000 !important; transform: scale(1.05); text-shadow: none; border: 1px solid #000000; }
     #bookingGridContainer .ticket-view.selected { border-color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; }
@@ -713,7 +736,7 @@
         border-radius: 8px;
         padding: 0.3rem;
         width: 40%;
-        min-width: 160px;
+        min-width: 140px;
         font-weight: bold;
         font-size: 0.80rem;
         cursor: pointer;
@@ -737,8 +760,8 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
-        margin-bottom: 0.2rem;
-        border-radius: 4px;
+        margin-bottom: 0.4rem;
+        border-radius: 6px;
         overflow: hidden;
         background: #ffffff;
         border: 2px solid #b3002d;
@@ -903,7 +926,7 @@
     .full-sheet-selector input { width: 14px; height: 14px; cursor: pointer; }
     .book-now-btn-small { background: var(--accent-primary); color: var(--text-dark); border: none; border-radius: 3px; padding: 2px 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: filter 0.2s; }
     .book-now-btn-small:hover { filter: brightness(1.2); }
-    .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 0.2rem; }
+    .dashboard-view .gameSettingDiv { background: var(--primary-bg-dash); padding: 1px 0 8px 0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 95%; margin-left: 2.5%; margin-top: 0.4rem; max-width: 100%; box-sizing: border-box; }
     .dashboard-view .gameSettingDiv:first-child { margin-top: 1rem; }
     .dashboard-view .titleBtn { width: 100%; border: 0; padding: 10px; color: var(--light-text-dash); background: rgba(255, 255, 255, 0.05); border-radius: 6px 6px 0 0; font-weight: bold; text-align: center; font-size: 1rem; }
     .dashboard-view .clickBtn { padding: 8px; color: var(--light-text-dash); border-radius: 6px; border: 0; margin: 2px; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.85rem; }
@@ -914,7 +937,7 @@
     .dashboard-view .gameSettingTable { display: block; width: 95%; margin-left: 2.5%; border-collapse: collapse; margin-top: 8px;}
     .dashboard-view .gameSettingTable_thead { display: none; }
     .dashboard-view .gameSettingTable tbody, .dashboard-view .gameSettingTable tr { display: block; text-align: left; }
-    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 2fr 1fr; gap: 0px; align-items: center;}
+    .dashboard-view .gameSettingTable tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 4px; align-items: center;}
     .dashboard-view .gameSettingTable1 tr { border-bottom: 2px solid var(--secondary-bg-dash); margin-bottom: 1px; padding-bottom: 1px; display: grid; grid-template-columns: 11fr 2fr; gap: 0px; align-items: center;}
 
     .dashboard-view .gameSettingTable td { padding: 4px 0px; position: relative; border: none; font-size: 0.9rem; vertical-align: middle; }
@@ -933,7 +956,7 @@
     .dashboard-view .toggleDiv { display: grid; grid-template-columns: 1fr 1fr; width: 90%; margin: 0 auto; }
     .dashboard-view #showTicketBtn { background: var(--accent-color-dash); }
     .dashboard-view #showAgentBtn { background: var(--secondary-bg-dash); }
-    .dashboard-view .actionBtnDiv { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 4px; padding: 8px; }
+    .dashboard-view .actionBtnDiv { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 4px; padding: 8px; }
     .dashboard-view .numBlockDiv { width: 90%; margin: 1rem auto; border: 8px solid silver; display: grid; grid-template-columns: repeat(10, 1fr); }
     .dashboard-view .numBlockDiv .num-cell { font-size: 1rem; color: var(--text-dark); background: #fff;}
     .dashboard-view .numBlockDiv .num-cell.called { background: var(--accent-color-dash); color: white; }
@@ -983,6 +1006,7 @@
         position: relative;
         height: 95vh;
         width: 95%;
+        max-width: 900px;
         margin: 2.5% auto;
         display: flex;
         flex-direction: column;
@@ -1059,7 +1083,7 @@
     }
     
     #dividendSettingsTable tr {
-        grid-template-columns: 1fr; 
+        grid-template-columns: 1fr !important; 
     }
     #dividendSettingsTable td {
         display: flex; 
@@ -1301,7 +1325,7 @@
         height: 35px;
         width: 100%;
         aspect-ratio: unset;
-        min-width: 35px;
+        min-width: 30px;
         border-width: 1px;
         line-height: 35px;
     }
@@ -1403,7 +1427,7 @@
         display: none;
         background: rgba(15, 23, 42, 0.95);
         padding: 0.8rem;
-        margin: 0.5rem;
+        margin: 0.5rem 0;
         border-radius: 8px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         border: 1px solid var(--accent-primary);
@@ -1775,107 +1799,137 @@
         width: 100%;
         margin: 0.25rem 0 0 0;
     }
-/* --- Floating booking button CSS --- */
-.universal-float-btn {
-    position: fixed;
-    bottom: 70px;
-    right: 20px;
-    top: auto;
-    left: auto;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-box-shadow:
-    0 0 10px rgba(0, 198, 255, 0.6),
-    0 0 20px rgba(37, 117, 252, 0.5),
-    0 0 35px rgba(106, 17, 203, 0.45),
-    inset 0 0 10px rgba(0, 198, 255, 0.6),
-    inset 0 0 20px rgba(37, 117, 252, 0.5),
-    inset 0 0 35px rgba(106, 17, 203, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: grab;
-    z-index: 997;
-    user-select: none;
-    -webkit-user-drag: none;
-    overflow: hidden;
 
-    background: transparent;
-}
+    /* --- Floating booking button CSS --- */
+    .universal-float-btn {
+        position: fixed;
+        bottom: 70px;
+        right: 20px;
+        top: auto;
+        left: auto;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        box-shadow:
+            0 0 10px rgba(0, 198, 255, 0.6),
+            0 0 20px rgba(37, 117, 252, 0.5),
+            0 0 35px rgba(106, 17, 203, 0.45),
+            inset 0 0 10px rgba(0, 198, 255, 0.6),
+            inset 0 0 20px rgba(37, 117, 252, 0.5),
+            inset 0 0 35px rgba(106, 17, 203, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        z-index: 997;
+        user-select: none;
+        -webkit-user-drag: none;
+        overflow: hidden;
+        background: transparent;
+    }
 
-.universal-float-btn::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    padding: 2px;
+    .universal-float-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        padding: 2px;
+        background: linear-gradient(
+            270deg,
+            #00c6ff,
+            #0072ff,
+            #6a11cb,
+            #2575fc,
+            #00c6ff
+        );
+        background-size: 400% 400%;
+        animation: borderGradient 4s linear infinite;
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+    }
 
-    background: linear-gradient(
-        270deg,
-        #00c6ff,
-        #0072ff,
-        #6a11cb,
-        #2575fc,
-        #00c6ff
-    );
-    background-size: 400% 400%;
-    animation: borderGradient 4s linear infinite;
+    .universal-float-btn:active {
+        cursor: grabbing;
+    }
 
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-}
+    .universal-float-btn img {
+        width: 98%;
+        height: 98%;
+        object-fit: cover;
+        pointer-events: none;
+        transform: scale(1);
+        border-radius: 50%;
+        position: relative;
+        z-index: 1;
+    }
 
-.universal-float-btn:active {
-    cursor: grabbing;
-}
+    /* Border animation */
+    @keyframes borderGradient {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+    }
 
-.universal-float-btn img {
-    width: 98%;
-    height: 98%;
-    object-fit: cover;
-    pointer-events: none;
-    transform: scale(1);
-    border-radius: 50%;
-    position: relative;
-    z-index: 1;
-}
+    /* Hide floating button if active dashboard mode is on */
+    body.dashboard-view-active #universalBookFloatBtn {
+        display: none !important;
+    }
 
-/* Border animation */
-@keyframes borderGradient {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
+    .long-book-btn {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        background: linear-gradient(45deg, #00f6ff, #00ff88);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        box-shadow: 0 4px 15px rgba(0, 246, 255, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-family: var(--font-family-neon);
+    }
+    .long-book-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 246, 255, 0.6);
+    }
 
-/* Hide floating button if active dashboard mode is on */
-body.dashboard-view-active #universalBookFloatBtn {
-    display: none !important;
-}
+    /* Mobile Responsive Enhancements (Prevent desktop-mode zoom-out & misalignments) */
+    @media (max-width: 768px) {
+        .dashboard-view .gameSettingTable tr,
+        .dashboard-view .gameSettingTable1 tr {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 6px !important;
+        }
 
-.long-book-btn {
-    width: 100%;
-    margin-bottom: 1rem;
-    padding: 0.8rem;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    background: linear-gradient(45deg, #00f6ff, #00ff88);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    box-shadow: 0 4px 15px rgba(0, 246, 255, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
-    font-family: var(--font-family-neon);
-}
-.long-book-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 246, 255, 0.6);
-}
+        .dashboard-view .gameSettingTable td {
+            font-size: 0.82rem;
+        }
+
+        .number-board {
+            gap: 0.2rem !important;
+        }
+
+        .num-cell {
+            min-width: 0 !important;
+            font-size: clamp(0.65rem, 2.5vw, 0.95rem) !important;
+        }
+
+        .gameDiv {
+            width: 96% !important;
+            height: 92vh !important;
+            margin: 4% auto !important;
+        }
+
+        .top-header {
+            padding: 1.5rem 0.5rem;
+        }
+    }
 </style>
 </head>
 <body>
@@ -6443,13 +6497,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateNumberBoard();
     bindEventListeners();
-    gsap.to('.top-header, .bottom-nav, .panel', { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: "expo.out" });
-
+    gsap.to('.top-header, .bottom-nav, .panel', { opacity: 1, duration: 0.8, stagger: 0.05, ease: "power2.out" });
     makeElementDraggable(document.getElementById('universalBookFloatBtn'));
 
     setTimeout(() => {
+    if (!currentView.includes('DashboardView') && !sessionStorage.getItem('visited_sintha')) {
         showPopup('firstVisitPopup');
-    }, 1500);
+        sessionStorage.setItem('visited_sintha', 'true');
+    }
+}, 1500);
 });
 </script>
 </body>
