@@ -490,7 +490,7 @@
         background: transparent; border: none; color: var(--accent-primary); 
         border-radius: 6px; 
         padding: 0.5rem 0.2rem;
-        font-size: 0.75rem;
+        font-size: 0.70rem;
         font-weight: 600; cursor: pointer; text-decoration: none; 
         transition: background-color var(--transition-speed) ease, color 0.3s, transform 0.3s; 
         flex-grow: 1; flex-basis: 0; text-align: center;
@@ -3470,24 +3470,36 @@ function updateCountdownTimers(targetDateString) {
         document.getElementById('booking-timer-bar'),
         document.getElementById('runGame-timer-bar')
     ];
-
+    
     if (!targetDateString || isNaN(targetDate)) {
         gameLiveSoundPlayed = false;
         const waitingHTML = `<div class="info-item"><i class="fas fa-hourglass-half"></i><span>Awaiting Game Schedule</span></div>`;
-        timerBars.forEach(bar => { if(bar) bar.innerHTML = waitingHTML; });
+        timerBars.forEach(bar => { if (bar) bar.innerHTML = waitingHTML; });
         return;
     }
-
+    
     const date = new Date(targetDate);
-    const dateText = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    const timeText = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-
+    
     const update = () => {
         const distance = targetDate - new Date().getTime();
         let countdownText;
-        if (distance < 0) {
-            clearInterval(countdownInterval);
-            countdownText = 'Game is in Progress!';
+        
+        // Check if game has ended (All dividends claimed or all 90 numbers called)
+        let isGameEnded = false;
+        const activeDividends = gameSettingsData?.dividends || [];
+        if (activeDividends.length > 0 && Object.keys(knownWinners).length > 0) {
+            const allClaimed = activeDividends.every(div => knownWinners[div.name] && knownWinners[div.name].length > 0);
+            if (allClaimed) isGameEnded = true;
+        }
+        if (currentCalledNumbers && currentCalledNumbers.length >= 90) {
+            isGameEnded = true;
+        }
+        
+        if (isGameEnded) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownText = 'Game end';
+        } else if (distance < 0) {
+            countdownText = 'Live';
             if (!gameLiveSoundPlayed) {
                 playSound(audioBaseUrl + "GAMEISLIVE.mp3");
                 gameLiveSoundPlayed = true;
@@ -3504,24 +3516,25 @@ function updateCountdownTimers(targetDateString) {
             const s = Math.floor((distance % 60000) / 1000).toString().padStart(2, '0');
             countdownText = `${d}d ${h}h ${m}m ${s}s`;
         }
-
+        
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const formattedDate = `${day}-${month}-${year}`;
         const formattedTime = date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-});
-
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+        
         const timerHTML = `
             <div class="info-item">${formattedDate}</div>
             <div class="info-item">${countdownText}</div>
             <div class="info-item">${formattedTime}</div>`;
-        timerBars.forEach(bar => { if(bar) bar.innerHTML = timerHTML; });
+        timerBars.forEach(bar => { if (bar) bar.innerHTML = timerHTML; });
     };
+    
     update();
     countdownInterval = setInterval(update, 1000);
 }
@@ -6242,7 +6255,6 @@ function clearAdminSearchResult(phone) {
     adminDisplayedSearchPhones.delete(phone);
 }
 
-// Optimization: Converted lookups inside admin visual area to a Set for lag-free visual sync
 function updateAdminDisplayedTickets() {
     const calledSet = new Set(currentCalledNumbers);
     const lastCalled = lastAnnouncedNumber;
