@@ -490,7 +490,7 @@
         background: transparent; border: none; color: var(--accent-primary); 
         border-radius: 6px; 
         padding: 0.5rem 0.2rem;
-        font-size: 0.70rem;
+        font-size: 0.65rem;
         font-weight: 600; cursor: pointer; text-decoration: none; 
         transition: background-color var(--transition-speed) ease, color 0.3s, transform 0.3s; 
         flex-grow: 1; flex-basis: 0; text-align: center;
@@ -504,7 +504,7 @@
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
     }
     .icon-btn i {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
     
     .timer-status-bar { 
@@ -4197,8 +4197,7 @@ function showAllWinningTicketsForDividend(dividendName) {
     winnerArray.forEach(winner => {
         const winningNumber = winner.winningNumber;
         const ticketId = winner.ticketId;
-        
-        // ---> NAYA LOGIC: Sirf winning number tak hi called array ko cut karna hai <---
+     
         const winIndex = currentCalledNumbers.indexOf(winningNumber);
         const validCalledNumbers = winIndex !== -1 ? currentCalledNumbers.slice(0, winIndex + 1) : currentCalledNumbers;
         
@@ -4232,7 +4231,7 @@ function showAllWinningTicketsForDividend(dividendName) {
                 let gridHTML;
                 if (ticket && Array.isArray(ticket.numbers) && ticket.numbers.length > 0) {
                     gridHTML = ticket.numbers.flat().map(n => {
-                        // ---> currentCalledNumbers ki jagah validCalledNumbers ka use hoga <---
+
                         const isCalled = n > 0 && validCalledNumbers.includes(n);
                         const isWinningStrike = n === winningNumber;
                         const classes = `ticket-num ${n > 0 ? '' : 'empty'} ${isCalled ? 'ticked' : ''} ${isWinningStrike ? 'winning-strike' : ''}`;
@@ -4243,8 +4242,7 @@ function showAllWinningTicketsForDividend(dividendName) {
                 }
                 
                 allTicketsHTML += `<div class="ticket-view" data-ticket-id="${ticket.id}" style="margin: 1rem 0;">
-                                    <div class="ticket-header" style="position: relative; padding-right: 35px;">Ticket ${ticket.id}</div>
-                                    <div class="download-pdf-btn" onclick="downloadTicketAsPDF(${ticket.id})" title="Download Ticket PDF"><i class="fas fa-download" style="font-size: 0.8rem; color: white !important;"></i></div>
+                                    <div class="ticket-header">Ticket ${ticket.id}</div>
                                     <div class="ticket-grid">${gridHTML}</div>
                                </div>`;
             });
@@ -6255,6 +6253,7 @@ function clearAdminSearchResult(phone) {
     adminDisplayedSearchPhones.delete(phone);
 }
 
+// Optimization: Converted lookups inside admin visual area to a Set for lag-free visual sync
 function updateAdminDisplayedTickets() {
     const calledSet = new Set(currentCalledNumbers);
     const lastCalled = lastAnnouncedNumber;
