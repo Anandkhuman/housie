@@ -146,7 +146,7 @@
         /* --- Compact Generated Poster Card --- */
         #posterArea {
             position: relative;
-            background-image: url('https://i.ibb.co/gb2q30kV/bg.jpg'); /* Background Image Added */
+            background-image: url('https://i.ibb.co/gb2q30kV/bg.jpg'); 
             background-size: cover;
             background-position: center;
             border-radius: 12px;
@@ -160,7 +160,7 @@
         .poster-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.85); /* Dark tint for text readability */
+            background: rgba(15, 23, 42, 0.85); 
             backdrop-filter: blur(4px);
             z-index: 1;
         }
@@ -409,12 +409,12 @@
         }
 
         // Populate Card Data (INCLUDING DYNAMIC TITLE AND PASSWORD)
-        document.getElementById('posterTitle').textContent = dynamicTitle.toUpperCase()";
+        document.getElementById('posterTitle').textContent = dynamicTitle.toUpperCase(); // <-- ERROR FIXED HERE
         document.getElementById('resName').textContent = name;
         document.getElementById('resPhone').textContent = phone; 
         document.getElementById('resEmail').textContent = email;
         document.getElementById('resLink').textContent = link;
-        document.getElementById('resPassword').textContent = password; // Password now visible
+        document.getElementById('resPassword').textContent = password; 
 
         setTimeout(() => {
             showView('result-view');
