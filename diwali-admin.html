@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Diwali Wishes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    :root { --gold: #ffd36a; --orange: #ff8a25; --dark: #160d27; --bg: #08091c; }
+    body { background: var(--bg); color: white; min-height: 100vh; }
+    
+    /* Login Section */
+    #login-section { display: flex; justify-content: center; align-items: center; height: 100vh; background: radial-gradient(ellipse at 50% 50%, #210b20 0%, #08091c 100%); }
+    .login-box { background: rgba(20, 10, 30, 0.9); padding: 40px; border-radius: 15px; border: 1px solid var(--gold); text-align: center; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(255, 138, 37, 0.3); }
+    .login-box h2 { color: var(--gold); margin-bottom: 20px; font-size: 28px; }
+    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--gold); background: rgba(0,0,0,0.6); color: white; outline: none; }
+    .btn { padding: 10px 20px; border: none; border-radius: 25px; background: linear-gradient(135deg,#ffca62,#e86a1b); color: #38120a; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; font-size: 16px; }
+    .btn:hover { box-shadow: 0 5px 15px rgba(255, 138, 37, 0.5); transform: translateY(-2px); }
+
+    /* Dashboard Section */
+    #dashboard-section { display: none; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: rgba(20, 10, 30, 0.8); border-bottom: 2px solid var(--gold); border-radius: 10px; margin-bottom: 30px; }
+    .header h1 { color: var(--gold); font-size: 24px; }
+    .logout-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+    .logout-btn:hover { background: var(--gold); color: var(--dark); }
+
+    /* Cards Grid */
+    .cards-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+    .card { background: linear-gradient(145deg, #2a1630, #160d27); border: 1px solid rgba(255, 211, 106, 0.3); border-radius: 15px; padding: 20px; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: 0.3s; }
+    .card:hover { border-color: var(--gold); transform: translateY(-5px); }
+    
+    .card-header { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+    .card-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; background: #000; }
+    .card-info h3 { color: var(--gold); font-size: 18px; margin-bottom: 5px; text-transform: capitalize; }
+    .card-info .date { font-size: 12px; color: #aaa; }
+    
+    .card-body { font-size: 14px; color: #ddd; margin-bottom: 20px; }
+    .whatsapp-row { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: bold; color: #25D366; margin-bottom: 10px; background: rgba(37, 211, 102, 0.1); padding: 8px; border-radius: 8px; }
+    .msg-box { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; font-style: italic; max-height: 80px; overflow-y: auto; border-left: 3px solid var(--orange); }
+    .msg-box::-webkit-scrollbar { width: 4px; }
+    .msg-box::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+    .card-actions { display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+    .action-btn { background: transparent; border: none; font-size: 18px; cursor: pointer; transition: 0.3s; }
+    .edit-btn { color: #4dabf7; }
+    .edit-btn:hover { color: #74c0fc; transform: scale(1.1); }
+    .delete-btn { color: #fa5252; }
+    .delete-btn:hover { color: #ff8787; transform: scale(1.1); }
+
+    /* Modal for Edit */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal { background: #160d27; padding: 25px; border-radius: 15px; width: 90%; max-width: 450px; border: 1px solid var(--gold); }
+    .modal h3 { color: var(--gold); margin-bottom: 20px; }
+    .modal input, .modal textarea { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid var(--gold); background: #000; color: #fff; }
+    .modal textarea { height: 100px; resize: none; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .btn-save { background: #25D366; color: white; }
+    .btn-cancel { background: #fa5252; color: white; }
+
+    .empty-state { text-align: center; grid-column: 1 / -1; color: #aaa; padding: 50px; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Login Section -->
+<div id="login-section">
+    <div class="login-box">
+        <h2>Admin Login</h2>
+        <input type="email" id="email" placeholder="Admin Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button class="btn" id="loginBtn">Login 🚀</button>
+        <p id="login-error" style="color: #ff8787; font-size: 13px; margin-top: 10px; display: none;"></p>
+    </div>
+</div>
+
+<!-- 2. Dashboard Section -->
+<div id="dashboard-section">
+    <div class="header">
+        <h1>✨ Diwali Wishes Admin Panel</h1>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+    
+    <div class="cards-container" id="cards-container">
+        <!-- Cards Yaha Dynamically JS se aayenge -->
+    </div>
+</div>
+
+<!-- 3. Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <h3>✏️ Edit Wish</h3>
+        <input type="hidden" id="edit-key">
+        <label>Name:</label>
+        <input type="text" id="edit-name">
+        <label>WhatsApp Number:</label>
+        <input type="number" id="edit-phone">
+        <label>Wish Message:</label>
+        <textarea id="edit-msg"></textarea>
+        
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save" id="saveEditBtn">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // FIREBASE CONFIGURATION
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxtWgmOPaFY1tq1mHHYOC5IRtV_gIIFuQ",
+    authDomain: "sinthahousiev5.firebaseapp.com",
+    databaseURL: "https://sinthahousiev5-default-rtdb.firebaseio.com",
+    projectId: "sinthahousiev5",
+    storageBucket: "sinthahousiev5.firebasestorage.app",
+    messagingSenderId: "847328700536",
+    appId: "1:847328700536:web:180eba328bcd5e6485258d",
+    measurementId: "G-L6CPQFGSRH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  const loginSection = document.getElementById('login-section');
+  const dashboardSection = document.getElementById('dashboard-section');
+  const cardsContainer = document.getElementById('cards-container');
+
+  // ---------- AUTHENTICATION (Login Persistence) ----------
+  onAuthStateChanged(auth, (user) => {
+      if (user) {
+          // Already logged in
+          loginSection.style.display = 'none';
+          dashboardSection.style.display = 'block';
+          loadWishes(); // Load Data
+      } else {
+          // Needs login
+          loginSection.style.display = 'flex';
+          dashboardSection.style.display = 'none';
+      }
+  });
+
+  // Login Button Click
+  document.getElementById('loginBtn').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      const errorMsg = document.getElementById('login-error');
+      
+      if(email && pass) {
+          signInWithEmailAndPassword(auth, email, pass)
+          .then(() => { errorMsg.style.display = 'none'; })
+          .catch((error) => {
+              errorMsg.innerText = "Error: " + error.message;
+              errorMsg.style.display = 'block';
+          });
+      } else {
+          errorMsg.innerText = "Please enter email and password!";
+          errorMsg.style.display = 'block';
+      }
+  });
+
+  // Logout Button Click
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth);
+  });
+
+
+  // ---------- DASHBOARD DATA LOADING (Realtime) ----------
+  function loadWishes() {
+      const wishesRef = ref(db, 'wishes');
+      
+      onValue(wishesRef, (snapshot) => {
+          cardsContainer.innerHTML = ''; // Clear container
+
+          if (!snapshot.exists()) {
+              cardsContainer.innerHTML = '<div class="empty-state">No wishes created yet! 🪔</div>';
+              return;
+          }
+
+          // Generate Cards
+          snapshot.forEach((childSnapshot) => {
+              const key = childSnapshot.key;
+              const data = childSnapshot.val();
+
+              // Date formatting
+              let dateStr = "Unknown Time";
+              if (data.timestamp) {
+                  const d = new Date(data.timestamp);
+                  dateStr = d.toLocaleDateString('en-IN') + ' ' + d.toLocaleTimeString('en-IN', {hour: '2-digit', minute:'2-digit'});
+              }
+
+              // Placeholder image if no photo uploaded
+              const imgSrc = data.photo && data.photo !== "" ? data.photo : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+              const cardHtml = `
+                  <div class="card" id="card-${key}">
+                      <div class="card-header">
+                          <img src="${imgSrc}" class="card-img" alt="User">
+                          <div class="card-info">
+                              <h3>${data.name}</h3>
+                              <div class="date"><i class="far fa-clock"></i> ${dateStr}</div>
+                          </div>
+                      </div>
+                      
+                      <div class="card-body">
+                          <div class="whatsapp-row">
+                              <i class="fab fa-whatsapp"></i> +91 ${data.phone}
+                          </div>
+                          <div class="msg-box">${data.message}</div>
+                      </div>
+
+                      <div class="card-actions">
+                          <button class="action-btn edit-btn" onclick="openEditModal('${key}')" title="Edit">
+                              <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="action-btn delete-btn" onclick="deleteWish('${key}', '${data.name}')" title="Delete">
+                              <i class="fas fa-trash-alt"></i>
+                          </button>
+                      </div>
+                  </div>
+              `;
+              cardsContainer.innerHTML += cardHtml;
+          });
+      });
+  }
+
+  // ---------- DELETE LOGIC ----------
+  window.deleteWish = function(key, name) {
+      if(confirm(`Are you sure you want to delete the wish for ${name}?`)) {
+          const itemRef = ref(db, `wishes/${key}`);
+          remove(itemRef)
+          .then(() => console.log("Deleted successfully!"))
+          .catch(err => alert("Error deleting: " + err.message));
+      }
+  };
+
+  // ---------- EDIT LOGIC ----------
+  const editModal = document.getElementById('editModal');
+  let currentWishesData = {};
+
+  // Fetch current data once to populate modal
+  onValue(ref(db, 'wishes'), (snap) => {
+      if(snap.exists()){ currentWishesData = snap.val(); }
+  });
+
+  window.openEditModal = function(key) {
+      if(currentWishesData[key]) {
+          document.getElementById('edit-key').value = key;
+          document.getElementById('edit-name').value = currentWishesData[key].name;
+          document.getElementById('edit-phone').value = currentWishesData[key].phone;
+          document.getElementById('edit-msg').value = currentWishesData[key].message;
+          editModal.style.display = 'flex';
+      }
+  }
+
+  window.closeModal = function() {
+      editModal.style.display = 'none';
+  }
+
+  document.getElementById('saveEditBtn').addEventListener('click', () => {
+      const key = document.getElementById('edit-key').value;
+      const updatedName = document.getElementById('edit-name').value.trim();
+      const updatedPhone = document.getElementById('edit-phone').value.trim();
+      const updatedMsg = document.getElementById('edit-msg').value.trim();
+
+      if(!updatedName || !updatedPhone || !updatedMsg) {
+          alert("All fields are required!"); return;
+      }
+
+      const itemRef = ref(db, `wishes/${key}`);
+      update(itemRef, {
+          name: updatedName,
+          phone: updatedPhone,
+          message: updatedMsg
+      }).then(() => {
+          closeModal();
+      }).catch(err => {
+          alert("Error updating: " + err.message);
+      });
+  });
+
+</script>
+</body>
+</html>
