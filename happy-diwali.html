@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali ✨ Wishes Generator</title>
+<style>
+*{box-sizing:border-box} 
+:root{--gold:#ffd36a;--orange:#ff8a25; --dark:#160d27}
+body{margin:0;min-height:100vh;overflow-x:hidden;font-family:Georgia,serif;color:#fff7df;background:radial-gradient(ellipse at 50% 75%,#55200c 0%,#210b20 42%,#08091c 100%);display:grid;place-items:center}
+.scene{position:relative;width:100%;height:100vh;display:flex;justify-content:center;align-items:center;perspective:1000px;isolation:isolate}
+.stars,.fireworks{position:absolute;inset:0;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;background:#fff4c6;border-radius:50%;box-shadow:0 0 9px #ffd36a;animation:twinkle 2s infinite alternate}
+@keyframes twinkle{to{opacity:.2;transform:scale(.4)}}
+
+/* Generator Form Styles */
+.generator-box {position:relative; z-index: 10; width: min(90vw, 450px); padding: 40px 30px; background: rgba(20, 10, 30, 0.7); border-radius: 20px; border: 1px solid var(--gold); text-align: center; box-shadow: 0 0 35px rgba(255, 138, 37, 0.3); backdrop-filter: blur(12px);}
+.generator-box h2 { color: var(--gold); margin-top: 0; font-size: 26px; font-family: Arial, sans-serif; text-shadow: 0 0 10px var(--orange); }
+.input-group { margin-bottom: 22px; text-align: left; }
+.input-group label { display: block; margin-bottom: 8px; color: #ffe7b0; font-family: Arial, sans-serif; font-size: 15px;}
+.input-group input[type="text"] { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid var(--gold); background: rgba(0,0,0,0.6); color: white; outline: none; font-size: 15px;}
+.input-group input[type="file"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px dashed var(--gold); background: rgba(0,0,0,0.4); color: white; outline: none; }
+.input-group input[type="file"]::file-selector-button { background: linear-gradient(135deg,#ffca62,#e86a1b); border: none; padding: 8px 15px; border-radius: 5px; color: #38120a; font-weight: bold; cursor: pointer; margin-right: 15px;}
+
+#share-section { display: none; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255, 211, 106, 0.3); }
+#share-link { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #fff; color: #000; margin-bottom: 15px; font-size: 13px; font-family: monospace;}
+
+/* Card Styles */
+.card-wrapper { display: none; position:relative; z-index:2; width:min(92vw,500px); max-height: 95vh; overflow-y: auto; text-align:center; padding: 20px 0; }
+.card-wrapper::-webkit-scrollbar { display: none; }
+.card{position:relative; width: 100%; padding:45px 25px 35px; border:1px solid #f8c96a88;border-radius:28px;background:linear-gradient(145deg,#4c1b25ee,#160d27ff);box-shadow:0 25px 60px #0009,inset 0 0 35px #ffb52a20;transform-style:preserve-3d;animation:float 5s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:rotateX(2deg) rotateY(-2deg) translateY(0)}50%{transform:rotateX(-1deg) rotateY(2deg) translateY(-8px)}}
+
+/* Custom Image on Card */
+.user-photo-wrap { display: none; margin: -75px auto 15px; width: 120px; height: 120px; border-radius: 50%; padding: 5px; background: linear-gradient(135deg, var(--gold), var(--orange)); box-shadow: 0 10px 25px rgba(255, 138, 37, 0.7); position: relative; z-index: 5;}
+.user-photo { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--dark); background: #000;}
+
+h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(--gold);text-shadow:0 0 12px #ffb52a,0 0 35px #ff6a00;letter-spacing:1px}
+.wishes-name { font-size: clamp(1.4rem, 6vw, 2.2rem); color: #fff; text-shadow: 0 0 15px var(--orange), 0 0 5px #fff; margin: 10px 0 20px; font-family: Arial, sans-serif; font-weight: bold; text-transform: capitalize; letter-spacing: 1px;}
+.sub{font-family:Arial,sans-serif;font-size:clamp(0.85rem,3vw,1rem);letter-spacing:3px;text-transform:uppercase;color:#ffe7b0}
+.message{font-family:Arial,sans-serif;color:#ffe9d0;font-size:1rem;line-height:1.6;margin:20px auto 0;max-width:400px; padding: 0 10px;}
+.om{font-size:32px;color:#ffd36a;text-shadow:0 0 15px #ff8a25; margin-bottom: -15px; opacity: 0.8;}
+
+/* Diya Animation */
+.diya-wrap{height:100px;display:flex;justify-content:center;align-items:end;margin: 25px auto 15px;filter:drop-shadow(0 0 22px #ff8a25)}
+.flame{position:absolute;bottom:78px;width:28px;height:50px;border-radius:50% 50% 45% 45%;background:radial-gradient(ellipse at 50% 70%,#fffbd0 0 12%,#ffd64b 30%,#ff7a16 65%,transparent 72%);transform-origin:bottom;animation:flicker .16s infinite alternate;filter:blur(.2px)}
+@keyframes flicker{to{transform:rotate(5deg) scaleX(.82) scaleY(1.08)}}
+.bowl{width:105px;height:42px;background:linear-gradient(#ffcf6b,#a83b12 45%,#55140b);border-radius:8px 8px 60px 60px;transform:rotateX(-12deg);box-shadow:inset 0 7px 9px #fff5a5,0 12px 15px #0008}
+.bowl:after{content:"";position:absolute;left:8px;right:8px;top:4px;height:8px;border-radius:50%;background:#ffdf8c}
+
+button{padding:14px 28px;border:1px solid #ffdb8a;border-radius:30px;background:linear-gradient(135deg,#ffca62,#e86a1b);color:#38120a;font-weight:bold;font-size:15px;cursor:pointer;box-shadow:0 6px 22px #ff8a2555;transition:.25s; margin: 8px 5px;}
+button:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 10px 30px #ff8a2588}
+.btn-outline { background: transparent; color: var(--gold); border: 2px solid var(--gold); }
+.btn-outline:hover { background: rgba(255, 211, 106, 0.15); color: #fff;}
+
+.footer{position:absolute;bottom:12px;font:11px Arial,sans-serif;letter-spacing:2px;color:#f9c77c99;text-align:center;width:100%}
+.burst{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--c);box-shadow:0 0 8px 2px var(--c);animation:burst 1.2s ease-out forwards}
+@keyframes burst{from{transform:translate(0,0) scale(1);opacity:1}to{transform:translate(var(--x),var(--y)) scale(0);opacity:0}}
+</style>
+</head>
+<body>
+<div class="scene" id="scene">
+  <div class="stars" id="stars"></div>
+  <div class="fireworks" id="fireworks"></div>
+
+  <!-- 1. Generator Form -->
+  <div class="generator-box" id="generatorBox">
+    <h2>✨ Create Diwali Wishes ✨</h2>
+    <div class="input-group">
+      <label>Enter Your Name</label>
+      <input type="text" id="userName" placeholder="E.g. Rahul Sharma" required>
+    </div>
+    <div class="input-group">
+      <label>Upload Your Best Photo</label>
+      <input type="file" id="userPhoto" accept="image/*">
+      <small style="color: #bbb; font-size: 11.5px; display: block; margin-top: 6px;">(Photo automatically cropped & enhanced)</small>
+    </div>
+    <button id="generateBtn" style="width: 100%; margin: 10px 0 0;">Generate Magic Link 🚀</button>
+
+    <div id="share-section">
+      <p style="color: var(--gold); font-size: 15px; margin-top: 0; font-weight: bold;">🎉 Link is Ready to Share!</p>
+      <input type="text" id="share-link" readonly>
+      <button id="copyBtn">📋 Copy Link</button>
+      <button id="previewBtn" class="btn-outline">👁️ Preview</button>
+    </div>
+  </div>
+
+  <!-- 2. The Wishes Card (Hidden initially) -->
+  <div class="card-wrapper" id="wishesCardWrapper">
+      <main class="card" id="wishesCard">
+        
+        <div class="user-photo-wrap" id="displayPhotoWrap">
+            <img src="" alt="User" class="user-photo" id="displayPhoto">
+        </div>
+
+        <div class="om">ॐ</div>
+        
+        <div class="sub" style="margin-top: 15px;">Wishing You A Very</div>
+        <h1>Happy Diwali</h1>
+        
+        <div class="wishes-name" id="displayName"></div>
+        <div class="sub">✨ शुभ दीपावली ✨</div>
+
+        <div class="diya-wrap"><div style="position:relative"><div class="flame"></div><div class="bowl"></div></div></div>
+        
+        <p class="message">May the supreme light illumine your minds, enlighten your hearts, and strengthen the human bonds in your homes and communities.</p>
+        
+        <!-- Only "Create Your Own" button is here now -->
+        <div style="margin-top: 30px;">
+            <button id="createOwnBtn" class="btn-outline">✨ Create Your Own</button>
+        </div>
+      </main>
+  </div>
+  
+  <div class="footer">LIGHT • LOVE • PROSPERITY</div>
+</div>
+
+<script>
+// ---------- ANIMATION LOGIC (Stars & Fireworks) ----------
+const stars=document.getElementById('stars'),fx=document.getElementById('fireworks');
+for(let i=0;i<95;i++){let s=document.createElement('i');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=Math.random()*3+'s';s.style.opacity=.3+Math.random()*.7;stars.appendChild(s)}
+
+function burst(x,y){
+    const colors=['#ffd76a','#ff7a28','#fff2bd','#ff4d75','#8eeaff', '#4dff75'];
+    for(let i=0;i<55;i++){
+        let a=Math.PI*2*i/55, d=60+Math.random()*120, b=document.createElement('i');
+        b.className='burst';
+        b.style.left=x+'px'; b.style.top=y+'px';
+        b.style.setProperty('--x',Math.cos(a)*d+'px');
+        b.style.setProperty('--y',Math.sin(a)*d+'px');
+        b.style.setProperty('--c',colors[i%colors.length]);
+        fx.appendChild(b);
+        setTimeout(()=>b.remove(),1300);
+    }
+}
+
+function randomBurst(){burst(Math.random()*innerWidth, Math.random()*innerHeight*0.7)}
+
+// Continuous background firecrackers (fully automatic)
+setInterval(()=>{if(Math.random()>.4)randomBurst()},1500);
+
+// Initial fireworks on load
+function startInitialFireworks() {
+    let count = 0;
+    let burstInterval = setInterval(() => {
+        randomBurst();
+        count++;
+        if(count >= 12) clearInterval(burstInterval); // Fires 12 times quickly then stops
+    }, 250);
+}
+
+
+// ---------- GENERATOR LOGIC ----------
+let compressedImageBase64 = "";
+
+document.getElementById('userPhoto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 256; 
+            let w = img.width, h = img.height;
+            
+            let minSize = Math.min(w, h);
+            let sx = (w - minSize) / 2;
+            let sy = (h - minSize) / 2;
+
+            canvas.width = MAX_SIZE; 
+            canvas.height = MAX_SIZE;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.drawImage(img, sx, sy, minSize, minSize, 0, 0, MAX_SIZE, MAX_SIZE);
+            compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        }
+        img.src = event.target.result;
+    }
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('generateBtn').addEventListener('click', function() {
+    const name = document.getElementById('userName').value.trim();
+    if(!name) { alert("Please enter your name first!"); return; }
+    
+    const params = new URLSearchParams();
+    params.set('n', name);
+    if(compressedImageBase64) {
+        params.set('i', compressedImageBase64);
+    }
+    
+    const shareUrl = window.location.href.split('#')[0] + '#' + params.toString();
+    
+    document.getElementById('share-link').value = shareUrl;
+    document.getElementById('share-section').style.display = 'block';
+});
+
+document.getElementById('copyBtn').addEventListener('click', function() {
+    const linkInput = document.getElementById('share-link');
+    linkInput.select();
+    document.execCommand('copy');
+    
+    const originalText = this.innerText;
+    this.innerText = "✔ Copied!";
+    setTimeout(() => this.innerText = originalText, 2000);
+});
+
+document.getElementById('previewBtn').addEventListener('click', function() {
+    window.location.href = document.getElementById('share-link').value;
+    window.location.reload();
+});
+
+document.getElementById('createOwnBtn').addEventListener('click', function() {
+    window.location.href = window.location.href.split('#')[0];
+});
+
+
+// ---------- ON PAGE LOAD: CHECK FOR WISHES ----------
+window.onload = function() {
+    const hash = window.location.hash.substring(1);
+    if(hash) {
+        const params = new URLSearchParams(hash);
+        const name = params.get('n');
+        const img = params.get('i');
+        
+        if(name || img) {
+            document.getElementById('generatorBox').style.display = 'none';
+            document.getElementById('wishesCardWrapper').style.display = 'block';
+            
+            if(name) {
+                document.getElementById('displayName').innerText = name;
+            }
+            if(img) {
+                document.getElementById('displayPhoto').src = img;
+                document.getElementById('displayPhotoWrap').style.display = 'block';
+                document.getElementById('wishesCard').style.marginTop = '40px'; 
+            }
+            
+            // Automatic firecrackers on load
+            setTimeout(startInitialFireworks, 300);
+        }
+    }
+};
+</script>
+</body>
+</html>
