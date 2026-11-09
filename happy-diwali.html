@@ -73,7 +73,7 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
     <h2>✨ Create Diwali Wishes ✨</h2>
     
     <div class="input-group">
-      <label>Enter Your Name *</label>
+      <label>Enter Receiver's Name * (Jisko wish bhejni hai)</label>
       <input type="text" id="userName" placeholder="E.g. Rahul Sharma" required>
     </div>
 
@@ -84,7 +84,7 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
     </div>
 
     <div class="input-group">
-      <label>Upload Your Photo (Optional)</label>
+      <label>Upload Receiver's Photo (Optional)</label>
       <input type="file" id="userPhoto" accept="image/*">
     </div>
 
@@ -102,7 +102,7 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
 
     <div id="share-section">
       <p style="color: var(--gold); font-size: 15px; margin-top: 0; font-weight: bold;">🎉 Your Link is Ready!</p>
-      <textarea id="share-link" rows="4" readonly></textarea>
+      <textarea id="share-link" rows="5" readonly></textarea>
       
       <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 5px;">
         <button id="copyBtn">📋 Copy</button>
@@ -121,7 +121,8 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
         <div class="om">ॐ</div>
         <div class="sub" style="margin-top: 10px;">Wishing You A Very</div>
         <h1>Happy Diwali</h1>
-        <div class="wishes-name" id="displayName"></div>
+        <!-- Dikhne me acha lagega: Happy Diwali Dear Rahul -->
+        <div class="wishes-name" id="displayName"></div> 
         <div class="sub">✨ शुभ दीपावली ✨</div>
         <div class="diya-wrap"><div style="position:relative"><div class="flame"></div><div class="bowl"></div></div></div>
         
@@ -167,7 +168,7 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
     "May millions of lamps illuminate your life with endless joy, prosperity, health and wealth forever.",
     "A festival full of sweet childhood memories, a sky full of fireworks, mouth full of sweets. Happy Diwali!",
     "May the goddess of wealth shower you with riches and endless happiness. Happy Diwali!",
-    "Light a lamp of love, blast a chain of sorrow, shoot a rocket of prosperity, fire a flowerpot of happiness. Wish you and your family sparkling Diwali.",
+    "Light a lamp of love, blast a chain of sorrow, shoot a rocket of prosperity, fire a flowerpot of happiness. Wish you sparkling Diwali.",
     "Let each diya you light bring a glow of happiness on your face and enlighten your soul. Happy Diwali!",
     "May this Diwali mark the beginning of a joyous and prosperous year for you.",
     "Wishing you a gleam of diyas, echo of holy chants, contentment and happiness today, tomorrow and forever. Happy Diwali!",
@@ -180,7 +181,7 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
     "May every aspect of your life become as luminous and exciting as the lights flickering on the lamps in the festival of lights.",
     "Happy Diwali! May this festival of light brighten up your life.",
     "Have a safe and happy Diwali! May your home be filled with light and love.",
-    "I hope you have a blessed, healthy and prosperous Diwali. A very happy Diwali to you and your family!",
+    "I hope you have a blessed, healthy and prosperous Diwali. A very happy Diwali to you!",
     "May this Diwali bring cheer and happiness into your life and life of your loved ones!",
     "May the light of diyas fill your home with wealth, happiness, and everything that brings you joy! Happy Diwali!",
     "With gleam of Diyas and the Echo of the Chants, May Happiness and Contentment Fill Your life.",
@@ -190,7 +191,7 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
     "Wishing you a deeply joyful Diwali. May it bring peace and prosperity to you and your family.",
     "May your dreams come true and you find all the happiness of the world. Happy Diwali!",
     "Open your doors to the goddess of wealth and happiness. Wishing you a very Happy Diwali!",
-    "Let’s celebrate the victory of light over darkness. Happy Diwali to all!",
+    "Let’s celebrate the victory of light over darkness. Happy Diwali to you!",
     "I pray that this Diwali brings you all the happiness and prosperity in the world.",
     "Sending you warm wishes and bright light this Diwali!",
     "May your home be blessed with love, light, and prosperity. Happy Diwali!",
@@ -285,7 +286,7 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
       const customWish = document.getElementById('customWish').value.trim();
       const selectedWish = document.getElementById('wishDropdown').value;
 
-      if(!name) { alert("Please enter your name!"); return; }
+      if(!name) { alert("Please enter the receiver's name!"); return; }
       if(!/^\d{10}$/.test(phone)) { alert("Please enter exactly 10 digits for WhatsApp number (No +91 needed)."); return; }
       
       const finalWish = customWish !== "" ? customWish : selectedWish;
@@ -298,34 +299,31 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
           let finalFormattedName = baseFormattedName;
           let counter = 1;
 
-          // LOOP TO FIND A UNIQUE NAME (e.g. Rahul, Rahul-1, Rahul-2)
           while (true) {
               const snapshot = await get(child(dbRef, `wishes/${finalFormattedName}`));
               if (!snapshot.exists()) {
-                  break; // Khali jagah mil gayi! Loop break.
+                  break; 
               }
-              // Agar naam already hai, toh -1, -2 add karke check karo
               finalFormattedName = `${baseFormattedName}-${counter}`;
               counter++;
           }
 
           this.innerText = "Saving Data... ⏳";
 
-          // Ab Unique ID pe save karega
           const userRef = ref(db, 'wishes/' + finalFormattedName);
           await set(userRef, {
-              name: name, // Card me display ke liye original naam hi rahega
+              name: name,
               phone: phone,
               message: finalWish,
               photo: compressedImageBase64,
               timestamp: new Date().toISOString()
           });
 
-          // PURE NAME URL: website.com/?name=Rahul-1
           generatedUrl = window.location.href.split('?')[0] + '?name=' + finalFormattedName;
           targetPhone = phone;
           
-          const shareMessage = `✨ *${name}* has sent you a special Happy Diwali wish! 🪔🎆\n\nClick the link below to open your surprise 👇\n\n${generatedUrl}`;
+          // PRE-FILLED WHATSAPP MESSAGE UPDATED (For the Receiver)
+          const shareMessage = `✨ Dear *${name}*, I have created a special Happy Diwali surprise for you! 🪔🎆\n\nClick the link below to open your wish 👇\n\n${generatedUrl}`;
           
           document.getElementById('share-link').value = shareMessage;
           document.getElementById('share-section').style.display = 'block';
@@ -377,13 +375,12 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
               const snapshot = await get(child(dbRef, `wishes/${urlName}`));
               
               if (snapshot.exists()) {
-                  // Firebase me data mil gaya
                   const data = snapshot.val();
                   
                   document.getElementById('wishesCardWrapper').style.display = 'block';
                   
-                  // ID agar Rahul-1 ho, toh bhi display Name "Rahul" hi hoga, kyunki database me real name save hua hai.
-                  document.getElementById('displayName').innerText = "- " + data.name + " -";
+                  // NAME FORMAT UPDATED FOR RECEIVER ("Dear Rahul")
+                  document.getElementById('displayName').innerText = "Dear " + data.name;
                   document.getElementById('displayMessage').innerText = data.message;
                   
                   if(data.photo) {
@@ -393,13 +390,12 @@ h1{font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin:15px 0 5px;color:var(
                   }
                   
               } else {
-                  // FALLBACK: Agar Database me nahi mila, toh bhi Name show karega (-1 hatakar)
                   let decodedName = decodeURIComponent(urlName).replace(/-/g, ' ');
-                  // Agar naam me last me number laga hai fallback me, toh usko filter out karne ka basic logic
                   decodedName = decodedName.replace(/\s\d+$/, ''); 
                   
                   document.getElementById('wishesCardWrapper').style.display = 'block';
-                  document.getElementById('displayName').innerText = "- " + decodedName + " -";
+                  // FALLBACK NAME FORMAT
+                  document.getElementById('displayName').innerText = "Dear " + decodedName;
                   document.getElementById('displayMessage').innerText = "May the supreme light illumine your minds, enlighten your hearts, and strengthen the human bonds in your homes and communities. Happy Diwali!";
               }
               
