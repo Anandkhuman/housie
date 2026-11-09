@@ -1898,6 +1898,23 @@ box-shadow:
     100% { background-position: 100% 50%; }
 }
 
+	/* Diwali Special Icon Animation */
+    @keyframes diwali-flicker {
+        0%, 100% { transform: scale(1) translateY(0); color: #ffb300; filter: drop-shadow(0 0 5px #ffb300); }
+        50% { transform: scale(1.25) translateY(-4px); color: #ff3d00; filter: drop-shadow(0 0 15px #ff3d00); }
+    }
+    @keyframes diwali-text-glow {
+        0%, 100% { color: #ffb300; text-shadow: 0 0 5px #ffb300; }
+        50% { color: #ff3d00; text-shadow: 0 0 10px #ff3d00; }
+    }
+    .diwali-icon-btn i {
+        animation: diwali-flicker 1.2s infinite ease-in-out;
+    }
+    .diwali-icon-btn span {
+        animation: diwali-text-glow 1.2s infinite ease-in-out;
+        font-weight: 800 !important;
+	}
+
 /* Hide floating button if active dashboard mode is on */
 body.dashboard-view-active #universalBookFloatBtn {
     display: none !important;
@@ -1982,6 +1999,10 @@ body.dashboard-view-active #universalBookFloatBtn {
         <div class="icon-bar" id="public-icon-bar">
             <a href="#" id="whatsappGroupLink" target="_blank" class="icon-btn"><i class="fab fa-whatsapp"></i><span>Join Group</span></a>
             <a href="#book" id="navigateToBooking" class="icon-btn"><i class="fas fa-ticket-alt"></i><span>Tickets</span></a>
+			<a href="https://sinthahousie.in/happy-diwali" target="_blank" class="icon-btn diwali-icon-btn">
+    <i class="fas fa-fire"></i>
+    <span>Diwali</span>
+			</a>
 			<button class="icon-btn" id="showAgentsBtn"><i class="fas fa-users"></i><span>Agents</span></button>
             <button class="icon-btn" id="publicLoginBtn"><i class="fas fa-sign-in-alt"></i><span>Login</span></button>
             <button class="icon-btn" id="publicLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
