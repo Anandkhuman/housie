@@ -1929,13 +1929,36 @@ body.dashboard-view-active #universalBookFloatBtn {
         grid-column: 1 / -1 !important;
         width: 100% !important;
     }
+
+	#adminGameSettingTable {
+    display: block;
+    width: 90%;
+    margin: 10px auto;
+}
+#adminGameSettingTable thead,
+#adminGameSettingTable tbody,
+#adminGameSettingTable thead tr,
+#adminGameSettingTable tr.admin-ticket-row:not(.available-ticket) {
+    display: block;
+    width: 100%;
+}
+#adminGameSettingTable thead th {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 6px;
+}
+#adminGameSettingTable tr.admin-ticket-row.available-ticket {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+}
 </style>
 </head>
 <body>
 
 <div id="notification-container"></div>
 
-<!-- Floating Draggable Ticket Booking GIF Button -->
 <div class="universal-float-btn" id="universalBookFloatBtn" title="Hold & drag anywhere. Tap to Book.">
     <img id="universalFloatImg" src="https://www.image2url.com/r2/default/gifs/1780822007989-c833182f-7557-4336-ba04-86cac2a908dd.gif" alt="Booking Ticket GIF">
 </div>
@@ -1968,9 +1991,7 @@ body.dashboard-view-active #universalBookFloatBtn {
                         <button class="search-btn" id="clearAllSearchBtn" title="Clear All Search Results" style="padding: 0 0.8rem;"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="ticketDisplayArea" id="ticketDisplayArea"></div>
-                </section>
-		
-                <!-- Redesigned dividends and winners layout (Unified panel matching) -->
+				</section>
                 <section class="panel">
                     <h2 class="panel-title" style="color: #ffffff; font-weight: bold; margin-top: 0.4rem; text-align: center; font-size: 1.1rem;">DIVIDENT LIST</h2>
                     <div class="dividend-cards-list" id="dividendListContainer"></div>
