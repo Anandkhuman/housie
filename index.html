@@ -2072,6 +2072,7 @@ body.dashboard-view-active #universalBookFloatBtn {
     <div class="gameSettingDiv">
         <button class="titleBtn">ACTION BUTTONS</button>
         <div class="actionBtnDiv">
+            <button class="actionBtn" onclick="openPaymentSetupPopup()">ONLINE PAYMENT SETUP</button> <!-- NEW BUTTON ADDED -->
             <button class="actionBtn" onclick="resetCallNum()">RESET CALL</button>
             <button class="actionBtn" onclick="resetTicket()">RESET TICKET</button>
             <button class="actionBtn" onclick="promptShuffleTickets()">SHUFFLE TICKETS</button>
@@ -2319,6 +2320,29 @@ body.dashboard-view-active #universalBookFloatBtn {
                  <option value="admin">Admin</option>
              </select>
              <button id="saveAgentDetailsChangesBtn" class="login-btn agent" onclick="saveAgentDetailsChanges()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- NEW ONLINE PAYMENT SETUP POPUP ADDED -->
+<div class="overlay-popup" id="paymentSetupPopup">
+    <div class="popup-content">
+        <button class="x-button" onclick="closePopups()"><i class="fas fa-times"></i></button>
+        <h3 class="popup-title">Online Payment Setup</h3>
+        <div class="login-form">
+            <label style="color: white; margin-bottom: 5px; display:block; text-align:left;">Online Payment Mode</label>
+            <select id="paySetupToggle" class="tableInp" style="margin-bottom: 1rem;">
+                <option value="off">OFF (Normal WhatsApp Mode)</option>
+                <option value="on">ON (Razorpay Mode)</option>
+            </select>
+            <label style="color: white; margin-bottom: 5px; display:block; text-align:left;">Payment Link (Optional)</label>
+            <input type="text" id="paySetupLink" class="agent-inp" placeholder="Add custom payment link here" style="margin-bottom: 0.8rem;">
+            
+            <label style="color: white; margin-bottom: 5px; display:block; text-align:left;">Amount Configuration (₹)</label>
+            <input type="number" id="paySetupSingle" class="agent-inp" placeholder="Single Ticket Amount (e.g. 50)" style="margin-bottom: 0.8rem;">
+            <input type="number" id="paySetupHalf" class="agent-inp" placeholder="Half Sheet Amount (e.g. 150)" style="margin-bottom: 0.8rem;">
+            <input type="number" id="paySetupFull" class="agent-inp" placeholder="Full Sheet Amount (e.g. 300)" style="margin-bottom: 1.2rem;">
+            <button class="login-btn agent" onclick="savePaymentSetup()">Save Settings</button>
         </div>
     </div>
 </div>
@@ -2628,7 +2652,6 @@ const firebaseConfig = {
     appId: "1:847328700536:web:180eba328bcd5e6485258d",
     measurementId: "G-L6CPQFGSRH"
   };
-
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -3030,6 +3053,45 @@ function closePopups() {
     });
 }
 
+// -------------------------------------------------------------
+// NEW ONLINE PAYMENT SETUP LOGIC START
+// -------------------------------------------------------------
+function openPaymentSetupPopup() {
+    if(!currentUser) return;
+    const userData = allUsersData.find(u => u.uid === currentUser.uid);
+    const settings = userData?.paymentSettings || {};
+    
+    document.getElementById('paySetupToggle').value = settings.enabled ? 'on' : 'off';
+    document.getElementById('paySetupLink').value = settings.link || '';
+    document.getElementById('paySetupSingle').value = settings.single || '';
+    document.getElementById('paySetupHalf').value = settings.half || '';
+    document.getElementById('paySetupFull').value = settings.full || '';
+    
+    showPopup('paymentSetupPopup');
+}
+
+async function savePaymentSetup() {
+    if(!currentUser) return;
+    const enabled = document.getElementById('paySetupToggle').value === 'on';
+    const link = document.getElementById('paySetupLink').value.trim();
+    const single = parseInt(document.getElementById('paySetupSingle').value) || 0;
+    const half = parseInt(document.getElementById('paySetupHalf').value) || 0;
+    const full = parseInt(document.getElementById('paySetupFull').value) || 0;
+
+    try {
+        await db.ref(`users/${currentUser.uid}/paymentSettings`).set({
+            enabled, link, single, half, full
+        });
+        showNotification('Online payment settings saved!', 'success');
+        closePopups();
+    } catch(e) {
+        showNotification('Error saving payment settings: ' + e.message, 'error');
+    }
+}
+// -------------------------------------------------------------
+// NEW ONLINE PAYMENT SETUP LOGIC END
+// -------------------------------------------------------------
+
 function showLoginForm() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('signupForm').style.display = 'none'; }
 function showSignupForm() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('signupForm').style.display = 'block'; }
 
@@ -3058,9 +3120,7 @@ function showAgentListPopup() {
     showPopup('agentListPopup');
 }
 
-// Single ticket targeted UI update (Resolves Lag & Hang Issue from Ticket Data reload)
 function updateSingleTicketUI(ticket) {
-    // 1. Update Visual Grid (Ticket Booking View)
     const bookingTicketView = document.getElementById(`booking-ticket-${ticket.id}`);
     if (bookingTicketView) {
         if (ticket.is_sold) {
@@ -3074,7 +3134,6 @@ function updateSingleTicketUI(ticket) {
                 <div style="font-size: 0.75rem; width: 100%; text-align: left; opacity: 0.9;">Owner: ${ticket.owner_name || 'Unknown'}</div>`;
             }
             
-            // Remove from selected public pool if it was being clicked while someone else booked
             const index = publicSelectedTickets.indexOf(ticket.id);
             if (index > -1) {
                 publicSelectedTickets.splice(index, 1);
@@ -3094,7 +3153,6 @@ function updateSingleTicketUI(ticket) {
         }
     }
 
-    // 2. Update Public Booked View (Sheet-wise booked list)
     const publicBookedView = document.querySelector(`#bookedTicketsDisplay .ticket-view[data-ticket-id="${ticket.id}"]`);
     if (publicBookedView) {
         const header = publicBookedView.querySelector('.ticket-header');
@@ -3116,7 +3174,6 @@ function updateSingleTicketUI(ticket) {
         }
     }
 
-    // 3. Update Dashboard Popups Selection States
     const dashBtn = document.getElementById(`dash-ticket-btn-${ticket.id}`);
     if (dashBtn) {
         dashBtn.disabled = ticket.is_sold;
@@ -3188,7 +3245,6 @@ function setupRealtimeListeners() {
         debouncedUpdateGameRelatedUIs(data);
     }, err => { console.error("GameState listener error:", err); });
 
-    // Super Optimized Child Listeners (Eliminates Firebase Overload Lag)
     listeners.tickets = db.ref('tickets');
     listeners.tickets.once('value', snapshot => {
         const ticketsObject = snapshot.val();
@@ -3200,7 +3256,6 @@ function setupRealtimeListeners() {
         debouncedUpdatePublicTicketUIs();
         renderDashboards();
 
-        // Listen only for single targeted changes
         listeners.tickets.on('child_changed', childSnapshot => {
             const updatedTicket = childSnapshot.val();
             if(!updatedTicket) return;
@@ -3219,7 +3274,6 @@ function setupRealtimeListeners() {
             }
         });
 
-        // Listen for massive adjustments
         listeners.tickets.on('child_added', childSnapshot => {
             const newTicket = childSnapshot.val();
             if(newTicket && !allTicketsData.some(t => t.id === newTicket.id)) {
@@ -3324,7 +3378,6 @@ function updateGameRelatedUIs(gameState) {
     }
 }
 
-// Debounced wrapper of the game states to avoid UI freezing
 const debouncedUpdateGameRelatedUIs = debounce(updateGameRelatedUIs, 100);
 
 function updatePublicTicketUIs() {
@@ -3373,7 +3426,7 @@ function updateUIAfterLogout() {
 function checkSheetSelection(selectedIds) {
     const count = selectedIds.length;
     if (count === 0) {
-        return { valid: false, message: "" };
+        return { valid: false, message: "", counts: {full: 0, half: 0, random: 0} };
     }
 
     const sheets = {};
@@ -3427,11 +3480,11 @@ function checkSheetSelection(selectedIds) {
     }
 
     if (parts.length === 0) {
-        return { valid: false, message: "Select your tickets." };
+        return { valid: false, message: "Select your tickets.", counts: {full: 0, half: 0, random: 0} };
     }
 
     const message = parts.join(' & ') + ' Selected';
-    return { valid: true, message: message };
+    return { valid: true, message: message, counts: {full: fullSheetCount, half: halfSheetCount, random: randomCount} };
 }
 
 function generateNumberBoard() {
@@ -3506,7 +3559,6 @@ function updateCountdownTimers(targetDateString) {
         const distance = targetDate - new Date().getTime();
         let countdownText;
         
-        // Check if game has ended (All dividends claimed or all 90 numbers called)
         let isGameEnded = false;
         const activeDividends = gameSettingsData?.dividends || [];
         if (activeDividends.length > 0 && Object.keys(knownWinners).length > 0) {
@@ -3561,7 +3613,6 @@ function updateCountdownTimers(targetDateString) {
     countdownInterval = setInterval(update, 1000);
 }
 
-// Render Optimization: Visual Booking grid is now compiled as a single string to prevent lagging
 function renderVisualTicketBookingPage() {
     if (currentView !== 'ticketBookingView') return;
     const gridContainer = document.getElementById('bookingGridContainer');
@@ -3689,6 +3740,9 @@ function handlePublicBookingRequest() {
     openAgentSelectorForWhatsApp(name, phone, publicSelectedTickets);
 }
 
+// -------------------------------------------------------------
+// NEW AGENT ROUTING (CHECKS FOR ONLINE PAYMENT / WHATSAPP MODE)
+// -------------------------------------------------------------
 async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets) {
     const defaultAgentUid = gameSettingsData.defaultBookingAgentUid;
     let defaultAgent = null;
@@ -3698,8 +3752,7 @@ async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets
     }
 
     if (defaultAgent) {
-        // Automatically route to default agent
-        await redirectToWhatsApp(defaultAgent.phone, userName, userPhone, selectedTickets);
+        await processAgentBookingRoute(defaultAgent, userName, userPhone, selectedTickets);
         return;
     }
 
@@ -3710,13 +3763,14 @@ async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets
         if (a.role !== 'admin' && b.role === 'admin') return 1;
         return (a.name || '').localeCompare(b.name || '');
     });
+    
     if (agents.length > 0) {
         agents.forEach(agent => {
             const link = document.createElement('a');
             link.href = '#';
             link.onclick = async (e) => { 
                 e.preventDefault(); 
-                await redirectToWhatsApp(agent.phone, userName, userPhone, selectedTickets); 
+                await processAgentBookingRoute(agent, userName, userPhone, selectedTickets); 
             };
             link.innerHTML = `${agent.name}<i class="fab fa-whatsapp"></i>`;
             container.appendChild(link);
@@ -3726,6 +3780,51 @@ async function openAgentSelectorForWhatsApp(userName, userPhone, selectedTickets
         showNotification('No agents are available to handle bookings.', 'info');
     }
 }
+
+async function processAgentBookingRoute(agent, userName, userPhone, ticketIds) {
+    if(agent.paymentSettings && agent.paymentSettings.enabled) {
+        const settings = agent.paymentSettings;
+        const result = checkSheetSelection(ticketIds);
+        
+        const amountSingle = settings.single || 0;
+        const amountHalf = settings.half || 0;
+        const amountFull = settings.full || 0;
+        
+        const totalAmount = (result.counts.full * amountFull) + 
+                            (result.counts.half * amountHalf) + 
+                            (result.counts.random * amountSingle);
+        
+        if(totalAmount <= 0) {
+            showNotification('Ticket prices are not properly set by the admin for online payment.', 'error');
+            return;
+        }
+
+        try {
+            showNotification('Redirecting to secure payment gateway...', 'info');
+            const payId = db.ref('pendingPayments').push().key;
+            await db.ref(`pendingPayments/${payId}`).set({
+                tickets: ticketIds,
+                name: userName,
+                phone: userPhone,
+                amount: totalAmount,
+                agentUid: agent.uid,
+                status: 'pending',
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            });
+const currentSiteUrl = window.location.origin + window.location.pathname;
+
+let paymentUrl = settings.link ? settings.link.trim() : 'pay.html';
+
+const separator = paymentUrl.includes('?') ? '&' : '?';
+window.location.href = `${paymentUrl}${separator}payId=${payId}&returnUrl=${encodeURIComponent(currentSiteUrl)}`;
+        } catch(e) {
+            showNotification('Error initiating payment process: ' + e.message, 'error');
+        }
+    } else {
+        await redirectToWhatsApp(agent.phone, userName, userPhone, ticketIds);
+    }
+}
+// -------------------------------------------------------------
 
 function generateUniqueCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -3767,9 +3866,16 @@ async function redirectToWhatsApp(agentPhone, userName, userPhone, ticketIds) {
     }
 }
 
-// ** MAJOR PERFORMANCE FIX FOR BOOKING LINKS ** //
 async function processBookingLink() {
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // Check if returning from a successful Razorpay payment
+    if(urlParams.get('payment_success') === 'true') {
+        showNotification('Payment successful! Your tickets are securely booked.', 'success', 8000);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
+
     const bookingCode = urlParams.get('book');
     if (!bookingCode || isProcessingBooking) return;
 
@@ -3787,7 +3893,6 @@ async function processBookingLink() {
 
     const bookingLogic = async () => {
         const startTime = Date.now();
-        // Wait up to 8s for auth initialization and user role setup
         while ((!authInitialized || (currentUser && !currentUserRole)) && Date.now() - startTime < 8000) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
@@ -3810,7 +3915,6 @@ async function processBookingLink() {
             throw new Error('Invalid data found in the booking link.');
         }
 
-        // Fetching standard tickets node strictly for visual check 
         const ticketsRef = db.ref('tickets');
         const ticketsSnap = await ticketsRef.once('value');
         const currentTickets = ticketsSnap.val();
@@ -3830,7 +3934,6 @@ async function processBookingLink() {
             throw new Error(`Booking failed. Ticket(s) ${alreadySold.join(', ')} were already sold.`);
         }
 
-        // Extremely fast multi-path execution bypasses 5+ seconds load times on large grids
         const updates = {};
         const timestamp = firebase.database.ServerValue.TIMESTAMP;
         ticketIdsToBook.forEach(id => {
@@ -3965,7 +4068,6 @@ function clearSearchResult(phone) {
     displayedSearchPhones.delete(phone);
 }
 
-// Visual Ticked Search: Lookups updated to Set complexity for optimal lag-free operations
 function updateDisplayedTicketPublic() {
     const lastCalled = lastAnnouncedNumber;
     const calledSet = new Set(currentCalledNumbers);
@@ -3984,7 +4086,6 @@ function updateDisplayedTicketPublic() {
     });
 }
 
-// Unified renderer to keep public view cards synchronized
 function renderPublicDividends() {
     const publicContainer = document.getElementById('dividendListContainer');
     if (!publicContainer) return;
@@ -4014,11 +4115,9 @@ function renderPublicDividends() {
 
         return `
         <div class="dividend-row-card">
-            <!-- Top dark blue section (Dividend Name) -->
             <div style="background-color: #01579b; padding: 0.5rem; text-align: center; color: #ffffff; font-weight: bold; font-size: 1.01rem; font-family: sans-serif; border-bottom: 0.4px solid #b3002d;">
                 ${d.name}
             </div>
-            <!-- Bottom white section (Winners / VIEW Button) -->
             <div style="background-color: #ffffff; padding: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
                 <div class="winner-info-area" style="width: 100%; margin-bottom: 0rem;">
                     ${winnerHTML}
@@ -4124,7 +4223,6 @@ function goToBooking(ticketId) {
     }, 200);
 }
 
-// Optimize List Rendering: Batching single HTML string assignment to avoid heavy DOM loops
 function renderSheetWiseBookedList() {
     if (currentView !== 'publicView') return;
     const container = document.getElementById('bookedTicketsDisplay');
@@ -4286,7 +4384,6 @@ function toggleDividendAmountInput(checkbox) {
     }
 }
 
-// Global click handler (will be executed dynamically by dragging script upon standard tab/clicks)
 function handleUniversalFloatClick() {
     if (!currentUser || !currentUserRole) {
         renderPublicBookingGrid();
@@ -4300,11 +4397,10 @@ function handleUniversalFloatClick() {
     }
 }
 
-// Custom Drag and Drop Engine for the Floating Button (with Boundary Constrains)
 function makeElementDraggable(elmnt) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     let startX = 0, startY = 0;
-    const dragThreshold = 6; // Minimal px threshold to mark as an active drag
+    const dragThreshold = 6; 
     let isDragging = false;
 
     elmnt.addEventListener('mousedown', dragMouseDown);
@@ -4340,7 +4436,6 @@ function makeElementDraggable(elmnt) {
         let newTop = elmnt.offsetTop - pos2;
         let newLeft = elmnt.offsetLeft - pos1;
 
-        // Viewport boundaries constrain
         const maxLeft = window.innerWidth - elmnt.offsetWidth;
         const maxTop = window.innerHeight - elmnt.offsetHeight;
         
@@ -4359,7 +4454,6 @@ function makeElementDraggable(elmnt) {
         document.removeEventListener('mouseup', closeDragElement);
         document.removeEventListener('mousemove', elementDrag);
         
-        // Execute booking popup trigger only if elements were not dragged
         if (!isDragging) {
             handleUniversalFloatClick();
         }
@@ -4378,7 +4472,7 @@ function makeElementDraggable(elmnt) {
     }
 
     function elementTouchDrag(e) {
-        e.preventDefault(); // Prevent touch browser scroll lock
+        e.preventDefault(); 
         const touch = e.touches[0];
         pos1 = pos3 - touch.clientX;
         pos2 = pos4 - touch.clientY;
@@ -4728,7 +4822,7 @@ async function resetCallNum() {
             gameStartedAt: null 
         });
         
-        await db.ref('bookingRequests').remove(); // Clears booking data post game ending/resetting
+        await db.ref('bookingRequests').remove(); 
         
         showNotification('Game state has been reset.', 'success');
     } catch (e) { showNotification('Error resetting game state: ' + e.message, 'error'); }
@@ -4934,6 +5028,7 @@ async function setDefaultBookingAgent(uid) {
         showNotification('Error updating default agent: ' + e.message, 'error');
     }
 }
+
 function updateAdminList() {
     if (currentView !== 'adminDashboardView') return;
     const searchTerm = document.getElementById('adminSearchKeyInp').value.toLowerCase();
@@ -5321,7 +5416,7 @@ function savePosterAsImage() {
         showNotification('Poster download started!', 'success');
     }).catch(err => {
         console.error("html2canvas error:", err);
-showNotification('Could not generate poster image.', 'error');
+        showNotification('Could not generate poster image.', 'error');
     });
 }
 
@@ -5687,10 +5782,10 @@ function callNextNumber() {
                 const allClaimed = activeDividends.every(div => finalState.winners && finalState.winners[div.name]);
 
                 if (allClaimed) {
-                    db.ref('bookingRequests').remove(); // Auto purge bookings when all dividends won
+                    db.ref('bookingRequests').remove();
                     triggerGlobalNotification("All dividends have been won! The game has ended!", 'info');
                 } else if (finalState.calledNumbers?.length >= 90) {
-                    db.ref('bookingRequests').remove(); // Auto purge bookings when all numbers called
+                    db.ref('bookingRequests').remove(); 
                     triggerGlobalNotification("All 90 numbers called! The game has ended!", 'info');
                 }
             }
@@ -5905,7 +6000,7 @@ async function generateHousieTickets(bypassConfirm = false) {
         }
 
         await db.ref('/tickets').set(null); 
-        await db.ref('bookingRequests').remove(); // Auto purge bookings when generating fresh tickets
+        await db.ref('bookingRequests').remove(); 
         setTimeout(async () => {
             const newTicketsObject = {};
             const numSets = Math.ceil(totalTickets / 6);
@@ -6275,7 +6370,6 @@ function clearAdminSearchResult(phone) {
     adminDisplayedSearchPhones.delete(phone);
 }
 
-// Optimization: Converted lookups inside admin visual area to a Set for lag-free visual sync
 function updateAdminDisplayedTickets() {
     const calledSet = new Set(currentCalledNumbers);
     const lastCalled = lastAnnouncedNumber;
