@@ -1,0 +1,2784 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thabiyu Phaobiyu Lagao</title>
+<!-- Google Fonts for the theme -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- ================== FIREBASE SDKs ================== -->
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
+<style>
+    /* ==================== GLOBAL & THEME STYLES ==================== */
+    :root {
+        --gold: #FFD700;
+        --deep-red: #8B0000;
+        --dark-red: #4a0404;
+        --table-green: #00ffff;
+        --light-gold: #fffbeb;
+        --dark-gray: #333;
+        --loader-dice-size: 60px; /* Variable for easy dice size adjustment */
+        --loader-dice-translateZ: calc(var(--loader-dice-size) / 2);
+    }
+
+    body {
+        margin: 0 0 80px 0; /* Add bottom margin for nav bar */
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--dark-red);
+        background-image: radial-gradient(var(--deep-red) 1px, transparent 1px),
+                          radial-gradient(var(--deep-red) 1px, var(--dark-red) 1px);
+        background-size: 20px 20px;
+        background-position: 0 0, 10px 10px;
+        color: white;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+    
+    /* Hide navigation bar until authentication status is confirmed to prevent UI flashing */
+    body.loading-auth .bottom-nav {
+        visibility: hidden;
+    }
+    
+    /* ==================== NEW: 3D LOADER STYLES (MODIFIED) ==================== */
+    #app-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--dark-red);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    #app-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    /* Scene container to establish a 3D perspective */
+    .loader-dice-scene {
+        width: var(--loader-dice-size);
+        height: var(--loader-dice-size);
+        perspective: 500px;
+    }
+
+    /* The cube itself, which will be animated */
+    .loader-dice-cube {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        animation: roll-3d 3s infinite linear;
+    }
+
+    /* Common styles for all 6 faces of the cube */
+    .loader-dice-cube .face {
+        position: absolute;
+        width: var(--loader-dice-size);
+        height: var(--loader-dice-size);
+        background-color: var(--gold);
+        border: 2px solid white;
+        box-sizing: border-box;
+        background-size: 80%; /* Adjust image size inside the face */
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 8px;
+    }
+
+    /* Positioning and applying images to each face */
+    .face.front  { 
+        transform: rotateY(0deg) translateZ(var(--loader-dice-translateZ));
+        background-image: url('https://raw.githubusercontent.com/Anandkhuman/housie/main/1.png'); /* club */
+    }
+    .face.back   { 
+        transform: rotateY(180deg) translateZ(var(--loader-dice-translateZ));
+        background-image: url('https://raw.githubusercontent.com/Anandkhuman/housie/main/2.png'); /* face */
+    }
+    .face.right  { 
+        transform: rotateY(90deg) translateZ(var(--loader-dice-translateZ));
+        background-image: url('https://raw.githubusercontent.com/Anandkhuman/housie/main/3.png'); /* spade */
+    }
+    .face.left   { 
+        transform: rotateY(-90deg) translateZ(var(--loader-dice-translateZ));
+        background-image: url('https://raw.githubusercontent.com/Anandkhuman/housie/main/4.png'); /* diamond */
+    }
+    .face.top    { 
+        transform: rotateX(90deg) translateZ(var(--loader-dice-translateZ));
+        background-image: url('https://raw.githubusercontent.com/Anandkhuman/housie/main/5.png'); /* flag */
+    }
+    .face.bottom { 
+        transform: rotateX(-90deg) translateZ(var(--loader-dice-translateZ));
+        background-image: url('https://raw.githubusercontent.com/Anandkhuman/housie/main/6.png'); /* heart */
+    }
+
+    /* 3D rolling animation */
+    @keyframes roll-3d {
+        0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+        100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(360deg); }
+    }
+
+    .loader-text {
+        margin-top: 40px; /* Increased margin for better spacing with larger 3D cube */
+        font-family: 'Cinzel Decorative', cursive;
+        color: var(--gold);
+        font-size: 1.2rem;
+        text-shadow: 1px 1px 2px var(--deep-red);
+        letter-spacing: 2px;
+    }
+    /* ==================== END 3D LOADER STYLES ==================== */
+    
+    .page {
+        display: none; /* Hide all pages by default */
+        min-height: calc(100vh - 110px);
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        flex-direction: column; /* Allow multiple containers vertically */
+    }
+
+    .page.active {
+        display: flex; /* Show the active page */
+    }
+    
+    .content-container {
+        width: 100%;
+        max-width: 600px;
+        background-color: rgba(0, 0, 0, 0.4);
+        border: 3px solid var(--gold);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .page-title {
+        font-family: 'Cinzel Decorative', cursive;
+        color: var(--gold);
+        font-size: 1.5rem;
+        margin: 0;
+        text-shadow: 2px 2px 4px var(--deep-red);
+        text-align: center;
+        border-bottom: 2px solid var(--gold);
+        padding-bottom: 10px;
+    }
+
+    /* ==================== GAME STYLES (Existing & NEW) ==================== */
+    .game-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+    .game-title { font-family: 'Cinzel Decorative', cursive; color: var(--gold); font-size: 1.5rem; margin: 0; text-shadow: 2px 2px 4px var(--deep-red); }
+    .wallet { background-color: var(--gold); color: var(--deep-red); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 1.1rem; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+    .game-state { text-align: center; }
+    .period-info { text-align: center; font-size: 1.1rem; color: var(--gold); margin-bottom: 5px; font-weight: 600; }
+    .timer-display { font-size: 4rem; font-weight: 700; line-height: 1; color: #4ade80; transition: color 0.5s; }
+    .timer-display.locked { color: #f87171; }
+    .status-message { font-size: 1.2rem; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; min-height: 22px; }
+    .dice-tray { display: flex; justify-content: center; gap: 10px; perspective: 800px; min-height: 54px; }
+    .dice { width: 50px; height: 50px; background-color: #fef08a; border: 2px solid #ca8a04; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: var(--deep-red); box-shadow: 3px 3px 5px rgba(0,0,0,0.3); transition: transform 0.5s ease-out, color 0.1s; }
+    
+    .dice-tray.rolling .dice {
+        animation: tumble 1.5s ease-out forwards;
+        color: transparent; 
+    }
+
+    @keyframes tumble { 0% { transform: scale(0.8) rotateX(0deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: scale(1) rotateX(720deg) rotateY(1080deg) rotateZ(360deg); } }
+    .betting-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    
+    /* === MODIFIED STYLES AS PER REQUEST === */
+    .bet-spot {
+        position: relative;
+        border: 3px solid var(--gold);
+        border-radius: 10px;
+        height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s, filter 0.2s;
+        background-color: green; /* Added background color */
+    }
+    
+    .bet-spot:hover:not(.locked) {
+        filter: brightness(1.2);
+        transform: translateY(-3px);
+    }
+    
+    .bet-spot.locked { cursor: not-allowed; opacity: 0.7; }
+
+    /* === MODIFIED STYLES AS PER REQUEST === */
+    .bet-symbol { 
+        /* Position is no longer absolute, parent flexbox handles centering */
+    }
+    
+    .bet-symbol img, .dice img { display: block; object-fit: contain; }
+    .bet-symbol img { width: 50px; height: 50px; }
+    .dice img { width: 40px; height: 40px; }
+    .bet-amount { position: absolute; top: -10px; right: -10px; background-color: var(--deep-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px black; transform: scale(0); transition: transform 0.2s ease-out; }
+    .bet-amount.visible { transform: scale(1); }
+    .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .chip-selector { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .chip { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #ccc; font-size: 1rem; font-weight: bold; cursor: pointer; background-color: #f8fafc; color: #334155; box-shadow: 0 4px #94a3b8; transition: all 0.1s ease-in-out; }
+    .chip:active { transform: translateY(2px); box-shadow: 0 2px #94a3b8; }
+    .chip.active { border-color: var(--gold); transform: scale(1.1); box-shadow: 0 4px var(--gold); }
+    .clear-btn { background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+    .clear-btn:disabled { background-color: #999; cursor: not-allowed; }
+
+    /* ==================== UPDATED BET HISTORY STYLES ==================== */
+    #bet-history-list, #user-history-bets {
+        max-height: 350px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-right: 5px; /* space for scrollbar */
+    }
+    .history-item {
+        display: grid;
+        grid-template-columns: 0.8fr 1.1fr 1.3fr 1fr;
+        align-items: center;
+        gap: 5px;
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 8px 12px;
+        border-radius: 8px;
+        border-left: 4px solid var(--gold);
+        font-size: 0.9rem;
+    }
+    .history-item > div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .history-label {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+    .history-bet-symbol {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 2px;
+        font-weight: bold;
+    }
+    .history-bet-symbol img {
+        width: 35px;
+        height: 35px;
+        background-color: white;
+        border-radius: 5px;
+    }
+    .history-dice-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    .history-dice-tray {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 3px;
+        max-width: 90px; /* Forces a 3x2 grid for dice */
+    }
+    .history-dice-tray img {
+        width: 24px;
+        height: 24px;
+        border-radius: 5px;
+        background-color: white;
+    }
+    .history-amount {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .history-amount.win { color: #4ade80; }
+    .history-amount.loss { color: #f87171; }
+
+    /* Simple scrollbar styling */
+    #bet-history-list::-webkit-scrollbar, #user-history-bets::-webkit-scrollbar, #user-history-transactions::-webkit-scrollbar, #user-bets-list::-webkit-scrollbar, textarea::-webkit-scrollbar { width: 5px; }
+    #bet-history-list::-webkit-scrollbar-track, #user-history-bets::-webkit-scrollbar-track, #user-history-transactions::-webkit-scrollbar-track, #user-bets-list::-webkit-scrollbar-track, textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+    #bet-history-list::-webkit-scrollbar-thumb, #user-history-bets::-webkit-scrollbar-thumb, #user-history-transactions::-webkit-scrollbar-thumb, #user-bets-list::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; }
+    
+    /* ==================== FORM & UI STYLES ==================== */
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; color: var(--gold); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid var(--gold); background-color: var(--light-gold); color: var(--dark-gray); box-sizing: border-box; }
+    .btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 25px; background-color: var(--gold); color: var(--deep-red); font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; text-align: center; text-decoration: none; }
+    .btn:hover { background-color: #e6c300; }
+    .link-text { text-align: center; margin-top: 15px; }
+    .link-text a { color: var(--gold); text-decoration: none; font-weight: bold; }
+    
+    .wallet-info { background-color: green ; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid var(--gold); }
+    .wallet-balance-display { font-size: 2.5rem; color: var(--gold); font-weight: bold; margin: 0; }
+    .wallet-label { font-size: 1rem; color: #eee; }
+    .wallet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+    /* NEW: Referral section styles */
+    .referral-section {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: rgba(0,0,0,0.2);
+        border-radius: 10px;
+        text-align: center;
+    }
+    .referral-title {
+        color: var(--gold);
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    .referral-code-box {
+        background-color: var(--light-gold);
+        border: 2px dashed var(--gold);
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+    #referral-code-display {
+        color: var(--deep-red);
+        font-weight: bold;
+        font-size: 1.1rem;
+        word-break: break-all;
+        flex-grow: 1;
+        text-align: left;
+        letter-spacing: 2px; /* Added for better readability */
+    }
+    .referral-actions button {
+        background: none;
+        border: none;
+        color: var(--deep-red);
+        font-size: 1.4rem;
+        cursor: pointer;
+        padding: 5px;
+    }
+    .referral-actions button:hover {
+        color: #000;
+    }
+    #copy-feedback {
+        font-size: 0.8rem;
+        color: #4ade80;
+        height: 1em;
+        transition: opacity 0.3s;
+    }
+
+
+    .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .data-table th, .data-table td { padding: 8px; border: 1px solid var(--gold); text-align: left; font-size: 0.9rem; }
+    .data-table th { background-color: var(--deep-red); }
+    .data-table td { word-break: break-all; }
+    .action-btn { padding: 5px 8px; font-size: 0.8rem; margin: 2px; border-radius: 5px; width: auto; display: inline-block; }
+    .approve-btn, .topup-action-btn { background-color: #22c55e; color: white; }
+    .reject-btn, .delete-btn { background-color: #ef4444; color: white; }
+    .ban-btn { background-color: #f97316; color: white;}
+    .unban-btn { background-color: #3b82f6; color: white;}
+    
+    .audio-control-container { display: flex; justify-content: space-between; align-items: center; }
+    .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+    input:checked + .slider { background-color: #22c55e; }
+    input:focus + .slider { box-shadow: 0 0 1px #22c55e; }
+    input:checked + .slider:before { transform: translateX(22px); }
+    .slider.round { border-radius: 28px; }
+    .slider.round:before { border-radius: 50%; }
+
+    /* ==================== BOTTOM NAV BAR ==================== */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(0, 0, 0, 0.8); border-top: 2px solid var(--gold); display: flex; justify-content: space-around; padding: 5px 0; box-shadow: 0 -5px 15px rgba(255, 215, 0, 0.2); z-index: 100; transition: visibility 0.2s; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #ccc; text-decoration: none; padding: 5px 10px; font-size: 0.8rem; transition: color 0.2s; }
+    .nav-item i { font-size: 1.5rem; margin-bottom: 3px; }
+    .nav-item.active, .nav-item:hover { color: var(--gold); }
+    
+    /* Hide admin-specific navigation items by default to prevent flashing on load */
+    .admin-nav {
+        display: none;
+    }
+
+    /* ==================== MODAL STYLES (UPDATED) ==================== */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .modal-overlay.visible { opacity: 1; visibility: visible; }
+    .modal-content { 
+        position: relative; /* Anchor for the close button */
+        background: var(--dark-red); 
+        color: white; 
+        padding: 30px; 
+        border-radius: 10px; 
+        border: 2px solid var(--gold); 
+        text-align: center; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+        animation: slide-in 0.3s ease-out; 
+        max-width: 90%; 
+        width: 350px; 
+    }
+    @keyframes slide-in { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    
+    .result-icon-container { margin-bottom: 15px; }
+    .result-icon { width: 80px; height: 80px; display: none; margin: 0 auto; }
+    .modal-content.result-win .win-icon { display: block; color: var(--gold); }
+    .modal-content.result-loss .loss-icon { display: block; color: #ef4444; }
+    #modal-title { margin-top: 0; font-family: 'Cinzel Decorative', cursive; }
+    #modal-text { font-size: 1.1rem; line-height: 1.5; }
+
+    #payment-qr-code { max-width: 200px; margin: 15px auto; }
+    #payment-details p { margin: 5px 0; font-weight: bold; }
+
+    /* ==================== LOGIN LOADING & SUCCESS ANIMATION ==================== */
+    .animation-container {
+        text-align: center;
+        color: white;
+        transform: scale(0.7);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s;
+    }
+    .modal-overlay.visible .animation-container { transform: scale(1); opacity: 1; }
+    .animation-title { font-family: 'Cinzel Decorative', cursive; margin: 15px 0 5px; font-size: 1.8rem; color: var(--gold); text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+    .animation-text { margin: 0; font-size: 0.9rem; opacity: 0.8; }
+    .login-animation { position: relative; width: 80px; height: 80px; margin: 0 auto 20px; }
+    .loader { width: 80px; height: 80px; border: 5px solid rgba(255, 255, 255, 0.3); border-top-color: green; border-radius: 50%; animation: spin 1s linear infinite; transition: opacity 0.3s, transform 0.3s; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .checkmark { width: 80px; height: 80px; border-radius: 50%; display: block; stroke-width: 4; stroke: green ; stroke-miterlimit: 10; position: absolute; top: 0; left: 0; opacity: 0; transform: scale(0.8); transition: opacity 0.3s 0.2s, transform 0.4s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 4; stroke-miterlimit: 10; stroke: green; fill: none; }
+    .animation-container.success .checkmark__circle { animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+    .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; }
+    .animation-container.success .checkmark__check { animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+    @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+    .animation-container.success .loader { opacity: 0; transform: scale(0); }
+    .animation-container.success .checkmark { opacity: 1; transform: scale(1); }
+    
+    /* ==================== USER HISTORY & NEW ANNOUNCEMENT MODAL STYLES ==================== */
+    #user-history-modal .modal-content {
+        width: 95%;
+        max-width: 800px;
+        text-align: left;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+    }
+    #user-history-modal-title {
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .user-history-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .close-modal-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        z-index: 10;
+    }
+    .user-history-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    .history-section-title {
+        color: var(--gold);
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    #user-history-transactions {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    /* ==================== LIVE BETTING STATUS (ADMIN) STYLES ==================== */
+    .live-status-subtitle {
+        color: var(--gold);
+        border-bottom: 1px solid rgba(255, 215, 0, 0.5);
+        padding-bottom: 8px;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    #dice-summary-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .dice-summary-item, .user-bet-item {
+        display: flex;
+        align-items: center;
+        background-color: rgba(0,0,0,0.2);
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+    .dice-summary-item img {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+        background: #fff;
+        border-radius: 5px;
+    }
+    .dice-summary-amount {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #4ade80; /* a bright green for amounts */
+    }
+    .user-bet-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .user-bet-header {
+        font-weight: bold;
+        color: var(--gold);
+        margin-bottom: 8px;
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 5px;
+    }
+    .user-bet-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .user-bet-chip {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background-color: rgba(255,255,255,0.05);
+        padding: 4px 8px;
+        border-radius: 15px;
+    }
+    .user-bet-chip img {
+        width: 25px;
+        height: 25px;
+        background: #fff;
+        border-radius: 4px;
+    }
+    #user-bets-list {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+    
+    /* Responsive for smaller screens */
+    @media (max-width: 768px) {
+        .user-history-sections {
+            grid-template-columns: 1fr;
+        }
+        .data-table th, .data-table td { font-size: 0.8rem; }
+    }
+</style>
+
+</head>
+<!-- Add 'loading-auth' class to hide UI elements until authentication is ready -->
+<body class="loading-auth">
+
+<!-- NEW: Full-screen loading animation with 3D Dice -->
+<div id="app-loader">
+    <div class="loader-dice-scene">
+        <div class="loader-dice-cube">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face right"></div>
+            <div class="face left"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+        </div>
+    </div>
+    <p class="loader-text">Loading...</p>
+</div>
+
+<!-- Audio element for the game countdown sound -->
+<audio id="game-audio" loop src="https://raw.githubusercontent.com/Anandkhuman/housie/main/lagao.mp3" preload="auto"></audio>
+<!-- Audio elements for win and loss sounds -->
+<audio id="win-sound" src="https://raw.githubusercontent.com/Anandkhuman/lagao/main/win.mp3" preload="auto"></audio>
+<audio id="loss-sound" src="https://raw.githubusercontent.com/Anandkhuman/lagao/main/loss.mp3" preload="auto"></audio>
+
+<!-- ============================================== -->
+<!-- ============== PAGE CONTAINERS =============== -->
+<!-- ============================================== -->
+
+<!-- PAGE: GAME -->
+<main id="page-game" class="page">
+    <div id="game-container" class="content-container">
+        <header class="game-header">
+            <h1 class="game-title">THABIYU PHAOBIYU LAGAO</h1>
+            <div class="wallet">
+                <span>Balance:</span>
+                <span id="wallet-balance">₹0</span>
+            </div>
+        </header>
+        <div class="game-state">
+            <div class="period-info">Period: <span id="period-id-display">--</span></div>
+            <div id="timer" class="timer-display">--</div>
+            <div id="status-message" class="status-message">Connecting...</div>
+        </div>
+        <div id="dice-tray" class="dice-tray">
+            <div class="dice">?</div><div class="dice">?</div><div class="dice">?</div>
+            <div class="dice">?</div><div class="dice">?</div><div class="dice">?</div>
+        </div>
+        <div id="betting-grid" class="betting-grid"></div>
+        <footer class="controls">
+            <div class="chip-selector">
+                <button class="chip" data-value="10">10</button>
+                <button class="chip" data-value="20">20</button>
+                <button class="chip" data-value="50">50</button>
+                <button class="chip active" data-value="100">100</button>
+                <button class="chip" data-value="200">200</button>
+            </div>
+            <button id="clear-bets-btn" class="clear-btn">Clear Bets</button>
+        </footer>
+    </div>
+    <!-- ================= BETTING HISTORY SECTION ================= -->
+    <div id="bet-history-container" class="content-container" style="margin-top: 20px;">
+        <h2 class="page-title" style="font-size: 1.2rem; margin-bottom: 15px; border:none;">My Betting History</h2>
+        <div id="bet-history-list">
+            <p style="text-align:center; opacity:0.7;">Loading betting history...</p>
+        </div>
+    </div>
+
+    <!-- ================= LIVE BETTING STATUS (ADMIN ONLY) ================= -->
+    <div id="live-betting-status" class="content-container" style="display: none; margin-top: 20px;">
+        <h2 class="page-title" style="font-size: 1.2rem; border:none;">Live Betting Status</h2>
+        
+        <div class="live-status-section">
+            <h3 class="live-status-subtitle">Dice Totals</h3>
+            <div id="dice-summary-list">
+                <p style="text-align:center; opacity:0.7; grid-column: 1 / -1;">Waiting for bets...</p>
+            </div>
+        </div>
+
+        <div class="live-status-section" style="margin-top: 5px;">
+            <h3 class="live-status-subtitle">User Bets</h3>
+            <div id="user-bets-list">
+                 <p style="text-align:center; opacity:0.7;">No users are currently betting.</p>
+            </div>
+        </div>
+              
+    </div>
+</main>
+
+<!-- PAGE: WALLET -->
+<main id="page-wallet" class="page">
+    <div class="content-container">
+        <h1 class="page-title">My Wallet</h1>
+        <div class="wallet-info">
+            <p class="wallet-label">Available Balance</p>
+            <h2 id="wallet-balance-display" class="wallet-balance-display">₹0</h2>
+        </div>
+
+        <!-- NEW: REFERRAL SECTION -->
+        <div class="referral-section">
+            <h3 class="referral-title">Invite Friends & Earn!</h3>
+            <p id="referral-info-text" style="font-size: 0.9rem; margin-top:-5px; margin-bottom: 15px;">Share your code. When your friend registers, you get ₹30!</p>
+            <div class="referral-code-box">
+                <span id="referral-code-display">Loading...</span>
+                <div class="referral-actions">
+                    <button id="copy-referral-btn" title="Copy Code"><i class="fas fa-copy"></i></button>
+                    <button id="share-referral-btn" title="Share Link"><i class="fas fa-share-alt"></i></button>
+                </div>
+            </div>
+            <div id="copy-feedback"></div>
+        </div>
+        
+        <div id="topup-section">
+             <h3 style="text-align: center; color: var(--gold);">Top-up</h3>
+             <div class="form-group">
+                <label for="topup-amount">Enter Amount (₹)</label>
+                <input type="number" id="topup-amount" placeholder="e.g., 500">
+            </div>
+            <button id="topup-btn" class="btn">Add Funds</button>
+        </div>
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+        <div id="withdrawal-section">
+            <h3 style="text-align: center; color: var(--gold);">Withdraw</h3>
+            <div class="form-group">
+                <label for="withdrawal-amount">Enter Amount (₹)</label>
+                <input type="number" id="withdrawal-amount" placeholder="e.g., 500">
+            </div>
+            <!-- THIS TEXT IS NOW DYNAMICALLY UPDATED BY JAVASCRIPT -->
+            <p id="withdrawal-info-text" style="text-align:center; font-size:0.9rem; margin: -5px 0 10px;">Loading withdrawal rules...</p>
+            <button id="withdrawal-btn" class="btn">Request Withdrawal</button>
+        </div>
+    </div>
+</main>
+
+<!-- PAGE: HISTORY -->
+<main id="page-history" class="page">
+    <div class="content-container">
+        <h1 class="page-title">Transaction History</h1>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+                </thead>
+                <tbody id="transaction-history-list">
+                    <!-- History items will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- PAGE: PROFILE / SETTINGS -->
+<main id="page-profile" class="page">
+     <div class="content-container">
+        <h1 class="page-title">Profile Settings</h1>
+        <form id="profile-form">
+            <div class="form-group">
+                <label for="profile-name">Name</label>
+                <input type="text" id="profile-name" required>
+            </div>
+             <div class="form-group">
+                <label for="profile-phone">Phone</label>
+                <input type="tel" id="profile-phone" required>
+            </div>
+            <div class="form-group">
+                <label for="profile-email">Email</label>
+                <input type="email" id="profile-email" readonly>
+            </div>
+            <div class="form-group">
+                <label for="profile-upi">UPI ID</label>
+                <input type="text" id="profile-upi" placeholder="yourname@upi">
+            </div>
+             <div class="form-group">
+                <label for="profile-password">New Password (optional)</label>
+                <input type="password" id="profile-password" placeholder="Leave blank to keep current">
+            </div>
+            <button type="submit" class="btn">Update Profile</button>
+        </form>
+    </div>
+</main>
+
+<!-- PAGE: LOGIN -->
+<main id="page-login" class="page">
+    <div class="content-container">
+        <h1 class="page-title">Login</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <p class="link-text" style="margin-bottom: -5px;"><a href="#" id="goto-forgot-password">Forgot Password?</a></p>
+        <p class="link-text">Don't have an account? <a href="#" id="goto-register">Register here</a></p>
+    </div>
+</main>
+
+<!-- PAGE: REGISTER -->
+<main id="page-register" class="page">
+     <div class="content-container">
+        <h1 class="page-title">Create Account</h1>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="register-name">Full Name</label>
+                <input type="text" id="register-name" required>
+            </div>
+            <div class="form-group">
+                <label for="register-email">Email</label>
+                <input type="email" id="register-email" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password">Password</label>
+                <input type="password" id="register-password" required>
+            </div>
+            <div class="form-group">
+                <label for="register-upi">UPI ID (Optional)</label>
+                <input type="text" id="register-upi" placeholder="yourname@upi">
+            </div>
+             <!-- NEW: REFERRAL CODE INPUT -->
+            <div class="form-group">
+                <label for="register-referral-code">Referral Code (Optional)</label>
+                <input type="text" id="register-referral-code" placeholder="Enter code if you have one" style="text-transform:uppercase">
+            </div>
+            <!-- SECURITY FIX: Removed the role selection dropdown. All users must register as 'user'. -->
+            <button type="submit" class="btn">Register</button>
+        </form>
+        <p class="link-text">Already have an account? <a href="#" id="goto-login">Login here</a></p>
+    </div>
+</main>
+
+<!-- PAGE: FORGOT PASSWORD -->
+<main id="page-forgot-password" class="page">
+    <div class="content-container">
+        <h1 class="page-title">Reset Password</h1>
+        <p style="text-align:center; font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px;">Enter your email address and we will send you a link to reset your password.</p>
+        <form id="forgot-password-form">
+            <div class="form-group">
+                <label for="forgot-password-email">Email</label>
+                <input type="email" id="forgot-password-email" placeholder="Enter your registered email" required>
+            </div>
+            <button type="submit" class="btn">Send Reset Link</button>
+        </form>
+        <p class="link-text">Remember your password? <a href="#" id="goto-login-from-forgot">Login here</a></p>
+    </div>
+</main>
+
+<!-- PAGE: ADMIN DASHBOARD -->
+<main id="page-admin" class="page">
+    <div class="content-container">
+        <h1 class="page-title">Admin Dashboard</h1>
+
+        <h3 style="color: var(--gold);">Pending Top-up Requests</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>User</th><th>Amount</th><th>Tnx ID</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="admin-topup-list"></tbody>
+            </table>
+        </div>
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+
+        <h3 style="color: var(--gold);">Pending Withdrawal Requests</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>User</th><th>Amount</th><th>UPI ID</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="admin-withdrawal-list"></tbody>
+            </table>
+        </div>
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+
+        <h3 style="color: var(--gold);">Payment Settings</h3>
+        <form id="payment-settings-form">
+            <div class="form-group">
+                <label for="admin-upi-id">Receiving UPI ID</label>
+                <input type="text" id="admin-upi-id" placeholder="your-upi@oksbi" required>
+            </div>
+            <button type="submit" class="btn">Update UPI</button>
+        </form>
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">   
+        <h3 style="color: var(--gold);">Withdrawal Settings</h3>
+        <form id="withdrawal-settings-form">
+            <div class="form-group">
+                <label for="admin-min-bets">Minimum Bets for Withdrawal</label>
+                <input type="number" id="admin-min-bets" placeholder="e.g., 20" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-min-withdrawal-amount">Minimum Withdrawal Amount (₹)</label>
+                <input type="number" id="admin-min-withdrawal-amount" placeholder="e.g., 500" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-withdrawal-charge">Withdrawal Charge (%)</label>
+                <input type="number" id="admin-withdrawal-charge" placeholder="e.g., 5" step="0.1" required>
+            </div>
+            <button type="submit" class="btn">Update Withdrawal Settings</button>
+        </form>
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+        <h3 style="color: var(--gold);">Bonus Settings</h3>
+        <form id="bonus-settings-form">
+            <div class="form-group">
+                <label for="admin-registration-bonus">First Registration Bonus (₹)</label>
+                <input type="number" id="admin-registration-bonus" placeholder="e.g., 20">
+            </div>
+            <div class="form-group">
+                <label for="admin-referral-bonus">Referral Bonus (₹)</label>
+                <input type="number" id="admin-referral-bonus" placeholder="e.g., 30">
+            </div>
+            <button type="submit" class="btn">Update Bonus</button>
+        </form>
+
+        <!-- ==================== NEW: BETTING SETTINGS ==================== -->
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+        <h3 style="color: var(--gold);">Betting Settings</h3>
+        <form id="bet-settings-form">
+            <div class="form-group">
+                <label for="admin-min-bet">Minimum Bet Amount (₹)</label>
+                <input type="number" id="admin-min-bet" placeholder="e.g., 10" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-max-bet">Maximum Bet Amount (per spot) (₹)</label>
+                <input type="number" id="admin-max-bet" placeholder="e.g., 5000" required>
+            </div>
+            <button type="submit" class="btn">Update Bet Settings</button>
+        </form>
+        <!-- ==================== END NEW SECTION ==================== -->
+
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+        <h3 style="color: var(--gold);">Audio Settings</h3>
+        <div class="audio-control-container">
+            <span>Background Music</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="music-toggle-checkbox">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        
+        <hr style="border-color: var(--gold); opacity: 0.5;">
+        <h3 style="color: var(--gold);">Modal Popup Announcement</h3>
+        <form id="modal-announcement-form">
+            <div class="form-group">
+                <label for="admin-modal-announcement-title">Popup Title</label>
+                <input type="text" id="admin-modal-announcement-title" placeholder="e.g., Important Update" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-modal-announcement-text">Popup Message</label>
+                <textarea id="admin-modal-announcement-text" rows="4" style="resize: vertical;" required></textarea>
+            </div>
+            <button type="submit" class="btn">Post Popup Announcement</button>
+        </form>
+    </div>
+</main>
+
+<!-- PAGE: ADMIN USER MANAGEMENT -->
+<main id="page-users" class="page">
+    <div class="content-container" style="max-width: 90%;">
+        <h1 class="page-title">User Management</h1>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>User</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="admin-user-list"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- ============================================== -->
+<!-- ============== MODAL POPUPS ================== -->
+<!-- ============================================== -->
+
+<!-- Result Modal Popup -->
+<div id="result-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="result-icon-container">
+            <svg class="result-icon win-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.7.27a.75.75 0 00-1.4 0L8.43 5.92a.75.75 0 01-.56.41l-6.23.9a.75.75 0 00-.42 1.28l4.5 4.39a.75.75 0 01.22.66l-1.07 6.2a.75.75 0 001.09.79l5.57-2.93a.75.75 0 01.7 0l5.57 2.93a.75.75 0 001.09-.79l-1.07-6.2a.75.75 0 01.22-.66l4.5-4.39a.75.75 0 00-.42-1.28l-6.23-.9a.75.75 0 01-.56-.41L12.7.27z"></path></svg>
+            <svg class="result-icon loss-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-2.625 6c-.54 0-.975.435-.975.975s.435.975.975.975.975-.435.975-.975S9.915 8.25 9.375 8.25zm5.25 0c-.54 0-.975.435-.975.975s.435.975.975.975.975-.435.975-.975-.435-.975-.975-.975zM12 18a6.75 6.75 0 006-3.75H6A6.75 6.75 0 0012 18z" clip-rule="evenodd"></path></svg>
+        </div>
+        <h2 id="modal-title"></h2>
+        <p id="modal-text"></p>
+    </div>
+</div>
+
+<!-- Payment Modal Popup -->
+<div id="payment-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 class="page-title">Complete Your Top-up</h2>
+        <p>Scan the QR code or use the UPI ID below to pay.</p>
+        <img id="payment-qr-code" src="" alt="QR Code Loading...">
+        <div id="payment-details">
+            <p>Amount: <span id="payment-modal-amount"></span></p>
+            <p>UPI ID: <span id="payment-upi-display">Loading...</span></p>
+        </div>
+        <form id="payment-form">
+            <div class="form-group">
+                <label for="transaction-id">Enter Transaction ID</label>
+                <input type="text" id="transaction-id" required placeholder="12-digit UPI reference number">
+            </div>
+            <button type="submit" class="btn">Submit Request</button>
+            <button type="button" id="payment-cancel-btn" class="btn" style="background-color:#999; margin-top:10px;">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Admin Top-up Modal -->
+<div id="admin-topup-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 class="page-title">Top-up User</h2>
+        <p>Add funds directly to <strong id="admin-topup-username"></strong>'s account.</p>
+        <form id="admin-topup-form">
+            <input type="hidden" id="admin-topup-userid">
+            <div class="form-group">
+                <label for="admin-topup-amount">Amount (₹)</label>
+                <input type="number" id="admin-topup-amount" required placeholder="e.g., 500">
+            </div>
+            <button type="submit" class="btn">Confirm Top-up</button>
+            <button type="button" id="admin-topup-cancel-btn" class="btn" style="background-color:#999; margin-top:10px;">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Login Animation Modal -->
+<div id="login-success-ticket" class="modal-overlay">
+    <div class="animation-container">
+        <div class="login-animation">
+            <div class="loader"></div>
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
+        <h2 class="animation-title">Authenticating...</h2>
+        <p class="animation-text">Please wait.</p>
+    </div>
+</div>
+
+<!-- ==================== ANNOUNCEMENT MODAL ==================== -->
+<div id="announcement-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button id="announcement-modal-close-btn" class="close-modal-btn">&times;</button>
+        <h2 id="announcement-modal-title" class="page-title" style="border:none; margin-bottom: 15px;"></h2>
+        <p id="announcement-modal-text" style="line-height: 1.6; text-align: left;"></p>
+    </div>
+</div>
+<!-- ==================== END SECTION ==================== -->
+
+<!-- Custom Alert Modal -->
+<div id="custom-alert-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 id="custom-alert-title" class="page-title" style="border:none; font-size: 1.3rem; margin-bottom: 15px;">Notification</h2>
+        <p id="custom-alert-text" style="line-height: 1.6;"></p>
+        <button id="custom-alert-ok-btn" class="btn" style="margin-top: 20px;">OK</button>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- ============== BOTTOM NAV BAR ================ -->
+<!-- ============================================== -->
+<nav class="bottom-nav">
+    <a href="#game" class="nav-item user-nav" data-page="game"><i class="fas fa-dice"></i> Game</a>
+    <a href="#wallet" class="nav-item user-nav" data-page="wallet"><i class="fas fa-wallet"></i> Wallet</a>
+    <a href="#history" class="nav-item user-nav" data-page="history"><i class="fas fa-history"></i> History</a>
+    <a href="#profile" class="nav-item user-nav" data-page="profile"><i class="fas fa-user-cog"></i> Profile</a>
+    <a href="#admin" class="nav-item admin-nav" data-page="admin"><i class="fas fa-user-shield"></i> Admin</a>
+    <a href="#users" class="nav-item admin-nav" data-page="users"><i class="fas fa-users-cog"></i> Users</a>
+    <a href="#login" class="nav-item" id="auth-link" data-page="login"><i class="fas fa-sign-in-alt"></i> Login</a>
+</nav>
+
+<!-- JS Library for confetti effect -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // ================== FIREBASE CONFIGURATION ==================
+    const firebaseConfig = {
+      apiKey: "AIzaSyBI8OiXTZ9UFpqbC-Lx2egLo8DGTZSM_xs",
+      authDomain: "thabiyuphaobiyulagao.firebaseapp.com",
+      databaseURL: "https://thabiyuphaobiyulagao-default-rtdb.firebaseio.com",
+      projectId: "thabiyuphaobiyulagao",
+      storageBucket: "thabiyuphaobiyulagao.firebasestorage.app",
+      messagingSenderId: "754133843979",
+      appId: "1:754133843979:web:6121ce39a616cfffa0470e",
+      measurementId: "G-YQTEFE6WSY"
+    };
+
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const gameStateRef = db.ref('gameState'); 
+
+    // ==================== GLOBAL STATE & CONFIG ====================
+    const AppState = {
+        currentUser: null, 
+        currentUserAuth: null, 
+        paymentSettings: { upiId: 'default-upi@provider' },
+        audioSettings: { enabled: true },
+        withdrawalSettings: {
+            minBets: 20,
+            chargePercent: 5,
+            minAmount: 500
+        },
+        // NEW: Betting settings state with defaults
+        betSettings: {
+            minBet: 10,
+            maxBet: 5000
+        },
+        bonusSettings: {
+            registrationAmount: 10,
+            referralAmount: 30
+        }
+    };
+    let betHistoryRef = null; 
+    let liveBetsRef = null; 
+    let currentLiveBetPeriod = null; 
+    let prefilledReferralCode = null; 
+    
+    let isAudioUnlocked = false;
+
+    // ==================== HELPER FUNCTIONS ====================
+    const generateReferralCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 6; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    };
+
+    const getCurrentDateString = (timestamp) => {
+        const now = new Date(timestamp);
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        return `${year}${month}${day}`;
+    };
+
+    const checkUrlForReferral = () => {
+        const params = new URLSearchParams(window.location.search);
+        const refCode = params.get('ref');
+        if (refCode) {
+            prefilledReferralCode = refCode.toUpperCase();
+        }
+    };
+    checkUrlForReferral(); 
+
+
+    db.ref('settings/paymentDetails').on('value', snapshot => {
+        const settings = snapshot.val();
+        if (settings && settings.upiId) {
+            AppState.paymentSettings = settings;
+        }
+        const upiId = AppState.paymentSettings.upiId;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${upiId}`;
+        
+        const qrCodeImg = document.getElementById('payment-qr-code');
+        if (qrCodeImg) qrCodeImg.src = qrCodeUrl;
+
+        const upiDisplay = document.getElementById('payment-upi-display');
+        if (upiDisplay) upiDisplay.textContent = upiId;
+    });
+
+    db.ref('settings/withdrawal').on('value', snapshot => {
+        const settings = snapshot.val();
+        if (settings) {
+            AppState.withdrawalSettings = { ...AppState.withdrawalSettings, ...settings };
+        }
+        
+        const infoTextEl = document.getElementById('withdrawal-info-text');
+        if (infoTextEl) {
+            const chargeText = AppState.withdrawalSettings.chargePercent > 0 
+                ? ` A ${AppState.withdrawalSettings.chargePercent}% charge applies.` 
+                : '';
+            infoTextEl.textContent = `Min withdrawal ₹${AppState.withdrawalSettings.minAmount}. Must place ${AppState.withdrawalSettings.minBets} bets to enable.${chargeText}`;
+        }
+        
+        if (document.getElementById('page-admin').classList.contains('active')) {
+            const minBetsInput = document.getElementById('admin-min-bets');
+            const chargeInput = document.getElementById('admin-withdrawal-charge');
+            const minAmountInput = document.getElementById('admin-min-withdrawal-amount');
+            if (minBetsInput) minBetsInput.value = AppState.withdrawalSettings.minBets;
+            if (chargeInput) chargeInput.value = AppState.withdrawalSettings.chargePercent;
+            if (minAmountInput) minAmountInput.value = AppState.withdrawalSettings.minAmount;
+        }
+    });
+
+    // NEW: Listener for betting settings
+    db.ref('settings/betting').on('value', snapshot => {
+        const settings = snapshot.val();
+        if (settings) {
+            AppState.betSettings = { ...AppState.betSettings, ...settings };
+        }
+        
+        if (document.getElementById('page-admin').classList.contains('active')) {
+            const minBetInput = document.getElementById('admin-min-bet');
+            const maxBetInput = document.getElementById('admin-max-bet');
+            if (minBetInput) minBetInput.value = AppState.betSettings.minBet;
+            if (maxBetInput) maxBetInput.value = AppState.betSettings.maxBet;
+        }
+    });
+
+    db.ref('settings/bonuses').on('value', snapshot => {
+        const settings = snapshot.val();
+        if (settings) {
+            AppState.bonusSettings = { ...AppState.bonusSettings, ...settings };
+        }
+
+        const referralInfoText = document.getElementById('referral-info-text');
+        if (referralInfoText) {
+            referralInfoText.innerHTML = `Share your code. When your friend registers, you get <strong>₹${AppState.bonusSettings.referralAmount || 30}</strong>!`;
+        }
+        
+        if (document.getElementById('page-admin').classList.contains('active')) {
+            const bonusInput = document.getElementById('admin-registration-bonus');
+            const referralBonusInput = document.getElementById('admin-referral-bonus');
+            if (bonusInput) bonusInput.value = AppState.bonusSettings.registrationAmount;
+            if (referralBonusInput) referralBonusInput.value = AppState.bonusSettings.referralAmount;
+        }
+    });
+
+    db.ref('settings/audio').on('value', snapshot => {
+        const settings = snapshot.val();
+        if (settings) {
+            AppState.audioSettings = settings;
+        }
+        updateMusicSwitchUI();
+    });
+
+    db.ref('settings/modalAnnouncement').on('value', snapshot => {
+        const announcement = snapshot.val();
+        if (announcement && announcement.id && announcement.title && announcement.text) {
+            const seenId = localStorage.getItem('seenAnnouncementId');
+            if (announcement.id.toString() !== seenId) {
+                const announcementModal = document.getElementById('announcement-modal');
+                const announcementModalTitle = document.getElementById('announcement-modal-title');
+                const announcementModalText = document.getElementById('announcement-modal-text');
+
+                announcementModalTitle.textContent = announcement.title;
+                announcementModalText.innerHTML = announcement.text.replace(/\n/g, '<br>');
+                announcementModal.classList.add('visible');
+            }
+        }
+    });
+    
+    let serverTimeOffset = 0;
+    db.ref('.info/serverTimeOffset').on('value', snap => {
+        serverTimeOffset = snap.val();
+    });
+    const estimatedServerTime = () => Date.now() + serverTimeOffset;
+
+    const GAME_CONFIG = {
+        SYMBOLS: [
+            { id: 'club',    image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/1.png', background: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/1bg.jpg' },
+            { id: 'face',    image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/2.png', background: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/2bg.jpg' },
+            { id: 'spade',   image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/3.png', background: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/3bg.jpg' },
+            { id: 'diamond', image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/4.png', background: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/4bg.jpg' },
+            { id: 'flag',    image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/5.png', background: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/5bg.jpg' },
+            { id: 'heart',   image: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/6.png', background: 'https://raw.githubusercontent.com/Anandkhuman/housie/main/6bg.jpg' }
+        ],
+        BETTING_DURATION: 35,
+        RESULT_VIEW_DURATION: 3,
+        BETTING_LOCKED_TIME: 5,
+        ANIMATION_DURATION: 1500
+    };
+
+    let gameState = {
+        currentBets: {}, selectedChipValue: 100, serverState: null,
+        lastProcessedPeriodId: null, isGameInitialized: false, uiUpdateInterval: null,
+        isBettingLocked: false, hasCommittedBets: false, isTransitioning: false
+    };
+
+    // ==================== DOM ELEMENT REFERENCES ====================
+    const appLoader = document.getElementById('app-loader');
+    const pages = document.querySelectorAll('.page');
+    const navItems = document.querySelectorAll('.nav-item');
+    const authLink = document.getElementById('auth-link');
+    const userNavItems = document.querySelectorAll('.user-nav');
+    const adminNavItems = document.querySelectorAll('.admin-nav');
+    const walletBalanceEl = document.getElementById('wallet-balance');
+    const periodIdDisplayEl = document.getElementById('period-id-display');
+    const timerEl = document.getElementById('timer');
+    const statusMessageEl = document.getElementById('status-message');
+    const diceTrayEl = document.getElementById('dice-tray');
+    const bettingGridEl = document.getElementById('betting-grid');
+    const chipSelectorEl = document.querySelector('.chip-selector');
+    const clearBetsBtn = document.getElementById('clear-bets-btn');
+    const gameDiceEls = () => diceTrayEl.querySelectorAll('.dice');
+    const resultModalEl = document.getElementById('result-modal');
+    const resultModalContentEl = resultModalEl.querySelector('.modal-content');
+    const resultModalTitleEl = document.getElementById('modal-title');
+    const resultModalTextEl = document.getElementById('modal-text');
+    const walletBalanceDisplay = document.getElementById('wallet-balance-display');
+    const topupAmountInput = document.getElementById('topup-amount');
+    const withdrawalAmountInput = document.getElementById('withdrawal-amount');
+    const profileForm = document.getElementById('profile-form');
+    const profileNameInput = document.getElementById('profile-name');
+    const profilePhoneInput = document.getElementById('profile-phone');
+    const profileEmailInput = document.getElementById('profile-email');
+    const profileUpiInput = document.getElementById('profile-upi');
+    const profilePasswordInput = document.getElementById('profile-password');
+    const adminTopupList = document.getElementById('admin-topup-list');
+    const adminWithdrawalList = document.getElementById('admin-withdrawal-list');
+    const adminUserList = document.getElementById('admin-user-list');
+    const paymentModal = document.getElementById('payment-modal');
+    const paymentModalAmount = document.getElementById('payment-modal-amount');
+    const transactionIdInput = document.getElementById('transaction-id');
+    const adminTopupModal = document.getElementById('admin-topup-modal');
+    const adminTopupForm = document.getElementById('admin-topup-form');
+    const loginSuccessTicket = document.getElementById('login-success-ticket');
+    const withdrawalSection = document.getElementById('withdrawal-section'); 
+    const gameAudio = document.getElementById('game-audio');
+    const winSound = document.getElementById('win-sound');
+    const lossSound = document.getElementById('loss-sound');
+    const announcementModal = document.getElementById('announcement-modal');
+    const announcementModalCloseBtn = document.getElementById('announcement-modal-close-btn');
+    const customAlertModal = document.getElementById('custom-alert-modal');
+    const customAlertText = document.getElementById('custom-alert-text');
+    const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
+    const referralCodeDisplay = document.getElementById('referral-code-display');
+    const copyReferralBtn = document.getElementById('copy-referral-btn');
+    const shareReferralBtn = document.getElementById('share-referral-btn');
+    const copyFeedbackEl = document.getElementById('copy-feedback');
+    const registerReferralInput = document.getElementById('register-referral-code');
+
+    // ==================== CUSTOM ALERT LOGIC ====================
+    const showCustomAlert = (message) => {
+        const messageText = typeof message !== 'string' ? JSON.stringify(message, null, 2) : message;
+        customAlertText.innerHTML = messageText.replace(/\n/g, '<br>');
+        customAlertModal.classList.add('visible');
+    };
+    const hideCustomAlert = () => {
+        customAlertModal.classList.remove('visible');
+    };
+    customAlertOkBtn.addEventListener('click', hideCustomAlert);
+    customAlertModal.addEventListener('click', (e) => {
+        if (e.target === customAlertModal) {
+            hideCustomAlert();
+        }
+    });
+    window.alert = showCustomAlert;
+
+    // ==================== AUDIO LOGIC ====================
+    const unlockAudio = () => {
+        if (isAudioUnlocked) return;
+        const audioElements = [gameAudio, winSound, lossSound];
+        const playPromises = [];
+        audioElements.forEach(audioEl => {
+            audioEl.muted = true;
+            const playPromise = audioEl.play();
+            if (playPromise !== undefined) {
+                playPromises.push(
+                    playPromise.then(() => {
+                        audioEl.pause();
+                        audioEl.currentTime = 0;
+                        audioEl.muted = false;
+                    })
+                );
+            }
+        });
+        Promise.all(playPromises)
+            .then(() => {
+                isAudioUnlocked = true;
+                console.log("Audio contexts unlocked.");
+            })
+            .catch(error => {
+                console.error("Error unlocking audio contexts:", error);
+            });
+    };
+    const playAudio = () => {
+        if (!isAudioUnlocked || !AppState.audioSettings.enabled) return;
+        if (gameAudio.paused) {
+            const playPromise = gameAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => { console.warn("Countdown audio prevented:", error); });
+            }
+        }
+    };
+    const pauseAudio = () => {
+        if (!gameAudio.paused) {
+            gameAudio.pause();
+            gameAudio.currentTime = 0; 
+        }
+    };
+    
+    // ==================== PAGE NAVIGATION & UI UPDATES ====================
+    const showPage = (pageId) => {
+        pages.forEach(page => page.classList.remove('active'));
+        const pageToShow = document.getElementById(`page-${pageId}`);
+        if (pageToShow) pageToShow.classList.add('active');
+
+        navItems.forEach(item => {
+            item.classList.toggle('active', item.dataset.page === pageId);
+        });
+        
+        if (pageId === 'game' && AppState.currentUser) {
+            if (!gameState.isGameInitialized) {
+                initializeGame();
+            }
+            renderBetHistory(); 
+        }
+        
+        if (pageId === 'wallet' && AppState.currentUser) {
+            referralCodeDisplay.textContent = AppState.currentUser.referralCode || 'Generating...';
+        }
+
+        if (pageId === 'register' && prefilledReferralCode) {
+            registerReferralInput.value = prefilledReferralCode;
+        }
+        
+        manageAdminLiveView();
+    };
+
+    const updateUI = () => {
+        const betHistoryContainer = document.getElementById('bet-history-container');
+
+        if (AppState.currentUser) {
+            if(betHistoryContainer) {
+                betHistoryContainer.style.display = AppState.currentUser.role === 'admin' ? 'none' : 'block';
+            }
+
+            authLink.innerHTML = `<i class="fas fa-sign-out-alt"></i> Logout`;
+            authLink.dataset.page = 'logout';
+            userNavItems.forEach(item => item.style.display = 'flex');
+            adminNavItems.forEach(item => {
+                item.style.display = AppState.currentUser.role === 'admin' ? 'flex' : 'none';
+            });
+
+            if (AppState.currentUser.role === 'admin') {
+                const walletNavItem = document.querySelector('.nav-item[data-page="wallet"]');
+                if (walletNavItem) walletNavItem.style.display = 'none';
+            }
+            
+            if (withdrawalSection) {
+                withdrawalSection.style.display = AppState.currentUser.role === 'admin' ? 'none' : 'block';
+            }
+
+            const balance = AppState.currentUser.balance || 0;
+            const balanceText = `₹${balance.toLocaleString()}`;
+            walletBalanceEl.textContent = balanceText;
+            walletBalanceDisplay.textContent = balanceText;
+
+        } else {
+            if(betHistoryContainer) {
+                betHistoryContainer.style.display = 'none';
+            }
+
+            authLink.innerHTML = `<i class="fas fa-sign-in-alt"></i> Login`;
+            authLink.dataset.page = 'login';
+            userNavItems.forEach(item => item.style.display = 'none');
+            adminNavItems.forEach(item => item.style.display = 'none');
+            if (withdrawalSection) withdrawalSection.style.display = 'block'; 
+            showPage('login');
+        }
+    };
+    const renderProfilePage = () => {
+        const user = AppState.currentUser;
+        if (!user) return;
+        profileNameInput.value = user.name || '';
+        profilePhoneInput.value = user.phone || '';
+        profileEmailInput.value = user.email || '';
+        profileUpiInput.value = user.upi || '';
+        profilePasswordInput.value = '';
+    };
+
+    const updateMusicSwitchUI = () => {
+        const musicToggleCheckbox = document.getElementById('music-toggle-checkbox');
+        if (!musicToggleCheckbox) return;
+        musicToggleCheckbox.checked = AppState.audioSettings.enabled;
+    };
+
+
+    // ==================== AUTH, PROFILE, WALLET, ADMIN ====================
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            AppState.currentUserAuth = user;
+            db.ref('users/' + user.uid).on('value', (snapshot) => {
+                const userData = snapshot.val();
+                if (userData) {
+                    AppState.currentUser = { uid: user.uid, ...userData };
+                    updateUI();
+                    if (!document.querySelector('.page.active') || document.getElementById('page-login').classList.contains('active')) {
+                       showPage(AppState.currentUser.role === 'admin' ? 'admin' : 'game');
+                    }
+                    manageAdminLiveView();
+                } else {
+                    auth.signOut();
+                }
+                // Once user data (including role) is loaded, hide the loader and show nav
+                appLoader.classList.add('hidden');
+                document.body.classList.remove('loading-auth');
+            });
+        } else {
+            if(AppState.currentUserAuth) db.ref('users/' + AppState.currentUserAuth.uid).off();
+            if (betHistoryRef) { 
+                betHistoryRef.off();
+                betHistoryRef = null;
+            }
+            AppState.currentUser = null;
+            AppState.currentUserAuth = null;
+            updateUI();
+            manageAdminLiveView();
+            // User is logged out, hide the loader and show nav
+            appLoader.classList.add('hidden');
+            document.body.classList.remove('loading-auth');
+        }
+    });
+    
+    const handleLogin = (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        const animationModal = document.getElementById('login-success-ticket');
+        const animationContainer = animationModal.querySelector('.animation-container');
+        const animationTitle = animationModal.querySelector('.animation-title');
+        const animationText = animationModal.querySelector('.animation-text');
+
+        animationContainer.classList.remove('success');
+        animationTitle.textContent = 'Authenticating...';
+        animationText.textContent = 'Please wait.';
+        animationModal.classList.add('visible');
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(userCredential => {
+                db.ref('users/' + userCredential.user.uid).get().then(snapshot => {
+                    const userData = snapshot.val();
+                    if (userData && userData.isBanned) {
+                        alert('Your account has been suspended. Please contact support.');
+                        auth.signOut();
+                        animationModal.classList.remove('visible');
+                    } else {
+                       document.getElementById('login-form').reset();
+                       
+                       setTimeout(() => {
+                           animationContainer.classList.add('success');
+                           animationTitle.textContent = 'Login Successful';
+                           animationText.textContent = 'Welcome back! Preparing the game...';
+                       }, 1000);
+
+                       setTimeout(() => {
+                           animationModal.classList.remove('visible');
+                           setTimeout(() => {
+                               animationContainer.classList.remove('success');
+                           }, 500);
+                           showPage(userData.role === 'admin' ? 'admin' : 'game');
+                       }, 3500);
+                    }
+                });
+            })
+            .catch(error => {
+                alert(error.message);
+                animationModal.classList.remove('visible');
+            });
+    };
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('register-name').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const role = 'user'; // SECURITY FIX: All new registrations must be 'user' role.
+        const upi = document.getElementById('register-upi').value.trim();
+        const referralCodeInput = registerReferralInput.value.trim().toUpperCase();
+
+        try {
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            let referrerUid = null;
+            if (referralCodeInput) {
+                const codesRef = db.ref('referralCodes').orderByKey().equalTo(referralCodeInput);
+                const snapshot = await codesRef.get();
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    referrerUid = data[referralCodeInput];
+                } else {
+                    alert("The referral code you entered is not valid. Registration will continue without a referral bonus.");
+                }
+            }
+            
+            if (referrerUid) {
+                const referrerRef = db.ref('users/' + referrerUid);
+                const bonusAmount = AppState.bonusSettings.referralAmount || 30;
+                await referrerRef.child('balance').transaction(balance => (balance || 0) + bonusAmount);
+                await db.ref('referrals/' + referrerUid).push({
+                    referredUserId: user.uid,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+
+            let newReferralCode;
+            let isCodeUnique = false;
+            while (!isCodeUnique) {
+                newReferralCode = generateReferralCode();
+                const existingCodeRef = db.ref('referralCodes/' + newReferralCode);
+                const snapshot = await existingCodeRef.get();
+                if (!snapshot.exists()) {
+                    isCodeUnique = true;
+                }
+            }
+
+            const newUser = {
+                name: name,
+                email: email,
+                role: role,
+                balance: AppState.bonusSettings.registrationAmount || 10,
+                phone: '',
+                upi: upi,
+                isBanned: false,
+                betCount: 0,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                referralCode: newReferralCode
+            };
+
+            if (referrerUid) {
+                newUser.referredBy = referrerUid;
+            }
+
+            const updates = {};
+            updates['/users/' + user.uid] = newUser;
+            updates['/referralCodes/' + newReferralCode] = user.uid;
+            
+            await db.ref().update(updates);
+            
+            alert('Registration successful! Please log in.');
+            document.getElementById('register-form').reset();
+            showPage('login');
+
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
+
+    const handleLogout = () => auth.signOut().catch(error => alert(error.message));
+    const handleForgotPassword = (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgot-password-email').value;
+        auth.sendPasswordResetEmail(email)
+            .then(() => {
+                alert('Password reset email sent! Please check your inbox.');
+                document.getElementById('forgot-password-form').reset();
+                showPage('login');
+            })
+            .catch(error => {
+                alert(`Error: ${error.message}`);
+            });
+    };
+    const handleProfileUpdate = (e) => {
+        e.preventDefault();
+        if(!AppState.currentUser) return;
+        const updates = {
+            name: profileNameInput.value,
+            phone: profilePhoneInput.value,
+            upi: profileUpiInput.value,
+        };
+        db.ref('users/' + AppState.currentUser.uid).update(updates)
+            .then(() => {
+                alert('Profile updated successfully!');
+                const newPassword = profilePasswordInput.value;
+                if(newPassword) {
+                    AppState.currentUserAuth.updatePassword(newPassword)
+                        .then(() => alert('Password updated successfully!'))
+                        .catch(error => alert(`Password update failed: ${error.message}`));
+                }
+            })
+            .catch(error => alert(`Profile update failed: ${error.message}`));
+    };
+
+    const handleTopupSubmit = (e) => {
+        e.preventDefault();
+        const amount = parseInt(paymentModalAmount.textContent.replace('₹', ''), 10);
+        const transactionId = transactionIdInput.value;
+        if (!transactionId) {
+            alert('Please enter the transaction ID.');
+            return;
+        }
+
+        const userId = AppState.currentUser.uid;
+        const newRequestKey = db.ref('topupRequests').push().key;
+
+        const newRequestData = {
+            userId: userId,
+            userEmail: AppState.currentUser.email,
+            amount: amount,
+            transactionId: transactionId,
+            status: 'pending',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        const updates = {};
+        updates[`/topupRequests/${newRequestKey}`] = newRequestData;
+        updates[`/userTransactions/${userId}/all/${newRequestKey}`] = { ...newRequestData, type: 'Top-up' };
+
+        db.ref().update(updates)
+            .then(() => {
+                paymentModal.classList.remove('visible');
+                document.getElementById('payment-form').reset();
+                topupAmountInput.value = '';
+                alert('Top-up request submitted! It will be reviewed by an admin.');
+            }).catch(err => alert(err.message));
+    };
+
+    const handleWithdrawalRequest = () => {
+        const amount = parseInt(withdrawalAmountInput.value, 10);
+        
+        const userBetCount = AppState.currentUser.betCount || 0;
+        if (userBetCount < AppState.withdrawalSettings.minBets) {
+            const remainingBets = AppState.withdrawalSettings.minBets - userBetCount;
+            alert(`Withdrawal is not allowed yet. You need to place ${remainingBets} more bet${remainingBets > 1 ? 's' : ''}.`);
+            return;
+        }
+        
+        if (isNaN(amount) || amount < AppState.withdrawalSettings.minAmount) {
+            alert(`Minimum withdrawal amount is ₹${AppState.withdrawalSettings.minAmount}.`);
+            return;
+        }
+
+        if (!AppState.currentUser.upi) {
+            alert('Please update your UPI ID in your profile before making a withdrawal request.');
+            showPage('profile');
+            return;
+        }
+
+        const feePercent = AppState.withdrawalSettings.chargePercent || 0;
+        const fee = Math.round((amount * feePercent) / 100);
+        const totalDeduction = amount + fee;
+        const userId = AppState.currentUser.uid;
+        const userBalanceRef = db.ref('users/' + userId + '/balance');
+
+        userBalanceRef.transaction(currentBalance => {
+            if (currentBalance >= totalDeduction) {
+                return currentBalance - totalDeduction;
+            }
+            return; 
+        }, (error, committed, snapshot) => {
+            if (error) {
+                alert('Withdrawal failed. Please try again.');
+            } else if (committed) {
+                const newRequestKey = db.ref('withdrawalRequests').push().key;
+                
+                const newRequestData = {
+                    userId: userId,
+                    userEmail: AppState.currentUser.email,
+                    amount: amount,
+                    fee: fee,
+                    upi: AppState.currentUser.upi,
+                    status: 'pending',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                const updates = {};
+                updates[`/withdrawalRequests/${newRequestKey}`] = newRequestData;
+                updates[`/userTransactions/${userId}/all/${newRequestKey}`] = { ...newRequestData, type: 'Withdrawal' };
+
+                db.ref().update(updates)
+                    .then(() => {
+                         withdrawalAmountInput.value = '';
+                         alert(`Withdrawal request for ₹${amount} submitted! A charge of ₹${fee} has been applied. Your balance has been updated.`);
+                    });
+
+            } else {
+                alert(`Insufficient balance. You need ₹${totalDeduction} (including ₹${fee} charge) to withdraw ₹${amount}.`);
+            }
+        });
+    };
+    
+    const handleTopupRequest = () => {
+        const amount = parseInt(topupAmountInput.value, 10);
+        if (isNaN(amount) || amount <= 0) {
+            alert('Please enter a valid amount.');
+            return;
+        }
+        paymentModalAmount.textContent = `₹${amount}`;
+        paymentModal.classList.add('visible');
+    };
+
+    const renderAdminDashboard = () => {
+        db.ref('topupRequests').orderByChild('status').equalTo('pending').on('value', snapshot => {
+            adminTopupList.innerHTML = '';
+            if(snapshot.exists()){
+                snapshot.forEach(childSnapshot => {
+                    const req = childSnapshot.val();
+                    const reqId = childSnapshot.key;
+                    adminTopupList.innerHTML += `<tr><td>${req.userEmail.split('@')[0]}</td><td>₹${req.amount}</td><td>${req.transactionId}</td><td><button class="btn action-btn approve-btn" onclick="app.approveRequest('topup', '${reqId}')">Approve</button><button class="btn action-btn reject-btn" onclick="app.rejectRequest('topup', '${reqId}')">Reject</button></td></tr>`;
+                });
+            } else {
+                adminTopupList.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>';
+            }
+        });
+        db.ref('withdrawalRequests').orderByChild('status').equalTo('pending').on('value', snapshot => {
+            adminWithdrawalList.innerHTML = '';
+            if(snapshot.exists()){
+                snapshot.forEach(childSnapshot => {
+                    const req = childSnapshot.val();
+                    const reqId = childSnapshot.key;
+                    adminWithdrawalList.innerHTML += `<tr><td>${req.userEmail.split('@')[0]}</td><td>₹${req.amount} (Fee: ₹${req.fee || 0})</td><td>${req.upi}</td><td><button class="btn action-btn approve-btn" onclick="app.approveRequest('withdrawal', '${reqId}')">Approve</button><button class="btn action-btn reject-btn" onclick="app.rejectRequest('withdrawal', '${reqId}')">Reject</button></td></tr>`;
+                });
+            } else {
+                adminWithdrawalList.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>';
+            }
+        });
+        const adminUpiInput = document.getElementById('admin-upi-id');
+        if (adminUpiInput && AppState.paymentSettings) {
+            adminUpiInput.value = AppState.paymentSettings.upiId;
+        }
+        
+        const adminMinBetsInput = document.getElementById('admin-min-bets');
+        const adminWithdrawalChargeInput = document.getElementById('admin-withdrawal-charge');
+        const adminMinWithdrawalAmountInput = document.getElementById('admin-min-withdrawal-amount');
+        if (adminMinBetsInput) {
+            adminMinBetsInput.value = AppState.withdrawalSettings.minBets;
+        }
+        if (adminWithdrawalChargeInput) {
+            adminWithdrawalChargeInput.value = AppState.withdrawalSettings.chargePercent;
+        }
+        if (adminMinWithdrawalAmountInput) {
+            adminMinWithdrawalAmountInput.value = AppState.withdrawalSettings.minAmount;
+        }
+
+        const adminRegistrationBonusInput = document.getElementById('admin-registration-bonus');
+        const adminReferralBonusInput = document.getElementById('admin-referral-bonus');
+        if (adminRegistrationBonusInput) {
+            adminRegistrationBonusInput.value = AppState.bonusSettings.registrationAmount;
+        }
+        if (adminReferralBonusInput) {
+            adminReferralBonusInput.value = AppState.bonusSettings.referralAmount;
+        }
+        
+        // Populate betting settings fields
+        const adminMinBetInput = document.getElementById('admin-min-bet');
+        const adminMaxBetInput = document.getElementById('admin-max-bet');
+        if (adminMinBetInput) {
+            adminMinBetInput.value = AppState.betSettings.minBet;
+        }
+        if (adminMaxBetInput) {
+            adminMaxBetInput.value = AppState.betSettings.maxBet;
+        }
+    };
+
+    const renderUserManagementPage = () => {
+         db.ref('users').on('value', snapshot => {
+            adminUserList.innerHTML = '';
+            if(snapshot.exists()){
+                snapshot.forEach(childSnapshot => {
+                    const user = childSnapshot.val();
+                    const userId = childSnapshot.key;
+                    if(userId === AppState.currentUser.uid) return;
+                    const status = user.isBanned ? '<span style="color:#ef4444; font-weight:bold;">Banned</span>' : '<span style="color:#22c55e; font-weight:bold;">Active</span>';
+                    const banBtn = user.isBanned ? `<button class="btn action-btn unban-btn" onclick="app.toggleUserBan('${userId}', false)">Unban</button>` : `<button class="btn action-btn ban-btn" onclick="app.toggleUserBan('${userId}', true)">Ban</button>`;
+                    adminUserList.innerHTML += `
+                        <tr>
+                            <td>${user.name}<br><small>${user.email}</small></td>
+                            <td>₹${(user.balance || 0).toLocaleString()}</td>
+                            <td>${status}</td>
+                            <td style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                ${banBtn}
+                                <button class="btn action-btn topup-action-btn" onclick="app.openAdminTopupModal('${userId}', '${user.name.replace(/'/g, "\\'")}')">Top-up</button>
+                                <button class="btn action-btn delete-btn" onclick="app.deleteUser('${userId}')">Delete</button>
+                            </td>
+                        </tr>`;
+                });
+            } else {
+                adminUserList.innerHTML = '<tr><td colspan="4">No users found.</td></tr>';
+            }
+        });
+    };
+    
+    const renderHistoryPage = async () => {
+        if (!AppState.currentUser) return;
+
+        const historyListEl = document.getElementById('transaction-history-list');
+        const historyTableHead = historyListEl.parentElement.querySelector('thead tr');
+        const isAdmin = AppState.currentUser.role === 'admin';
+        const colspan = isAdmin ? 5 : 4;
+
+        historyListEl.innerHTML = `<tr><td colspan="${colspan}">Loading history...</td></tr>`;
+        
+        historyTableHead.innerHTML = isAdmin 
+            ? '<th>Date</th><th>User</th><th>Type</th><th>Amount</th><th>Status</th>'
+            : '<th>Date</th><th>Type</th><th>Amount</th><th>Status</th>';
+        
+        try {
+            let transactions = [];
+            let transactionKeys = []; 
+
+            if (isAdmin) {
+                const [topupSnapshot, withdrawalSnapshot] = await Promise.all([
+                    db.ref('topupRequests').get(),
+                    db.ref('withdrawalRequests').get()
+                ]);
+                topupSnapshot.forEach(snap => {
+                    transactions.push({ ...snap.val(), type: 'Top-up' });
+                    transactionKeys.push({key: snap.key, type: 'topup'});
+                });
+                withdrawalSnapshot.forEach(snap => {
+                    transactions.push({ ...snap.val(), type: 'Withdrawal' });
+                    transactionKeys.push({key: snap.key, type: 'withdrawal'});
+                });
+            } else {
+                const userTransactionsRef = db.ref(`userTransactions/${AppState.currentUser.uid}/all`);
+                const snapshot = await userTransactionsRef.get();
+                snapshot.forEach(snap => {
+                    transactions.push(snap.val());
+                    transactionKeys.push({key: snap.key, type: snap.val().type === 'Top-up' ? 'topup' : 'withdrawal'});
+                });
+            }
+
+            const combined = transactions.map((tx, i) => ({...tx, key: transactionKeys[i].key, typeKey: transactionKeys[i].type}));
+            combined.sort((a, b) => b.timestamp - a.timestamp);
+
+            if (combined.length === 0) {
+                historyListEl.innerHTML = `<tr><td colspan="${colspan}">No transactions found.</td></tr>`;
+                return;
+            }
+
+            const [allTopups, allWithdrawals] = await Promise.all([db.ref('topupRequests').get(), db.ref('withdrawalRequests').get()]);
+            const statusMap = {};
+            allTopups.forEach(snap => statusMap[snap.key] = snap.val().status);
+            allWithdrawals.forEach(snap => statusMap[snap.key] = snap.val().status);
+            
+            let html = '';
+            combined.forEach(tx => {
+                const currentStatus = statusMap[tx.key] || tx.status;
+                const date = new Date(tx.timestamp).toLocaleString();
+                const statusClass = currentStatus === 'approved' ? 'approve-btn' : (currentStatus === 'rejected' ? 'reject-btn' : '');
+                const statusText = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+                const userCell = isAdmin ? `<td>${(tx.userEmail || 'N/A').split('@')[0]}</td>` : '';
+                
+                html += `
+                    <tr>
+                        <td>${date}</td>
+                        ${userCell}
+                        <td>${tx.type}</td>
+                        <td>₹${(tx.amount || 0).toLocaleString()}</td>
+                        <td><span class="action-btn ${statusClass}" style="cursor:default;border:none;">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            historyListEl.innerHTML = html;
+
+        } catch (error) {
+            console.error("Error fetching history:", error);
+            historyListEl.innerHTML = `<tr><td colspan="${colspan}">Error loading history.</td></tr>`;
+        }
+    };
+    
+    const generateBetHistoryHtml = (rounds) => {
+        if (!rounds || rounds.length === 0) {
+            return `<p style="text-align:center; opacity:0.7;">No betting history found.</p>`;
+        }
+
+        let historyHtml = '';
+        rounds.slice().reverse().forEach(round => {
+            const period = round.periodId ? round.periodId.toString().slice(-6) : 'N/A';
+            if (!round.bets) return; 
+
+            let diceResultHtml = `<div><span class="history-label">Round Result</span><span>-</span></div>`;
+            if (round.diceResult && Array.isArray(round.diceResult)) {
+                diceResultHtml = `
+                    <div class="history-dice-container">
+                        <span class="history-label">Round Result</span>
+                        <div class="history-dice-tray">
+                            ${round.diceResult.map(diceId => {
+                                const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === diceId);
+                                return symbolData ? `<img src="${symbolData.image}" alt="${diceId}" title="${diceId}">` : '';
+                            }).join('')}
+                        </div>
+                    </div>`;
+            }
+
+            for (const symbolId in round.bets) {
+                const bet = round.bets[symbolId];
+                const betSymbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
+                if (!betSymbolData) continue;
+                
+                const betAmount = bet.amount || 0;
+                const profit = bet.profit || 0;
+                const isWin = profit > 0;
+                const amountClass = isWin ? 'win' : 'loss';
+                const amountText = isWin ? `+${profit.toLocaleString()}` : `${profit.toLocaleString()}`;
+                
+                historyHtml += `
+                    <div class="history-item">
+                        <div>
+                            <span class="history-label">Period</span>
+                            <span>${period}</span>
+                        </div>
+                        <div>
+                            <span class="history-label">Bet</span>
+                            <div class="history-bet-symbol">
+                               <img src="${betSymbolData.image}" alt="${symbolId}">
+                               <span>₹${betAmount.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        ${diceResultHtml}
+                        <div>
+                            <span class="history-label">Profit/Loss</span>
+                            <span class="history-amount ${amountClass}">₹${amountText}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        return historyHtml;
+    };
+
+    const renderBetHistory = () => {
+        if (!AppState.currentUser || AppState.currentUser.role === 'admin') return;
+
+        if (betHistoryRef) betHistoryRef.off();
+        betHistoryRef = db.ref(`userTransactions/${AppState.currentUser.uid}/betHistory`).orderByChild('timestamp').limitToLast(20);
+
+        betHistoryRef.on('value', snapshot => {
+            const historyListEl = document.getElementById('bet-history-list');
+            const rounds = [];
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    rounds.push(childSnapshot.val());
+                });
+            }
+            historyListEl.innerHTML = generateBetHistoryHtml(rounds);
+        });
+    };
+
+    window.app = {
+        approveRequest: (type, reqId) => {
+            const requestRef = db.ref(`${type}Requests/${reqId}`);
+            requestRef.get().then(snapshot => {
+                if (!snapshot.exists()) return;
+                const req = snapshot.val();
+                const updates = {};
+                updates[`/${type}Requests/${reqId}/status`] = 'approved';
+                updates[`/userTransactions/${req.userId}/all/${reqId}/status`] = 'approved';
+
+                if(type === 'topup'){
+                    const userRef = db.ref(`users/${req.userId}/balance`);
+                    userRef.transaction(currentBalance => (currentBalance || 0) + req.amount, (err, comm) => {
+                        if (comm) db.ref().update(updates).then(() => alert(`Request approved.`));
+                    });
+                } else {
+                     db.ref().update(updates).then(() => alert(`Request approved.`));
+                }
+            });
+        },
+        rejectRequest: (type, reqId) => {
+            const requestRef = db.ref(`${type}Requests/${reqId}`);
+            requestRef.get().then(snapshot => {
+                if (!snapshot.exists()) return;
+                const req = snapshot.val();
+                const updates = {};
+                updates[`/${type}Requests/${reqId}/status`] = 'rejected';
+                updates[`/userTransactions/${req.userId}/all/${reqId}/status`] = 'rejected';
+
+                if(type === 'withdrawal') {
+                    const userRef = db.ref(`users/${req.userId}/balance`);
+                    userRef.transaction(currentBalance => (currentBalance || 0) + req.amount + (req.fee || 0), (err, comm) => {
+                       if (comm) db.ref().update(updates).then(() => alert(`Request rejected.`));
+                    });
+                } else {
+                     db.ref().update(updates).then(() => alert(`Request rejected.`));
+                }
+            });
+        },
+        toggleUserBan: (userId, shouldBeBanned) => {
+            db.ref(`users/${userId}`).update({ isBanned: shouldBeBanned });
+        },
+        deleteUser: (userId) => {
+            if(confirm('Are you sure you want to delete this user? This removes their database record permanently but does not delete their auth entry.')) {
+                db.ref(`users/${userId}`).remove()
+                    .then(() => alert('User data deleted successfully.'))
+                    .catch(e => alert(e.message));
+            }
+        },
+        openAdminTopupModal: (userId, userName) => {
+            document.getElementById('admin-topup-userid').value = userId;
+            document.getElementById('admin-topup-username').textContent = userName;
+            adminTopupModal.classList.add('visible');
+        }
+    };
+
+    // ==================== LIVE BETTING LOGIC (ADMIN & USER) ====================
+    const stopListeningToLiveBets = () => {
+        if (liveBetsRef) {
+            liveBetsRef.off();
+            liveBetsRef = null;
+            currentLiveBetPeriod = null;
+        }
+    };
+
+    const manageAdminLiveView = () => {
+        const liveStatusContainer = document.getElementById('live-betting-status');
+        const isAdmin = AppState.currentUser?.role === 'admin';
+        const isGamePageActive = document.getElementById('page-game').classList.contains('active');
+
+        if (isAdmin && isGamePageActive) {
+            liveStatusContainer.style.display = 'block';
+            const currentPeriodId = gameState.serverState?.periodId;
+            if (currentPeriodId) {
+                if (currentLiveBetPeriod !== currentPeriodId) {
+                    listenToLiveBets(currentPeriodId);
+                }
+            }
+        } else {
+            liveStatusContainer.style.display = 'none';
+            stopListeningToLiveBets();
+        }
+    };
+
+    const listenToLiveBets = (periodId) => {
+        stopListeningToLiveBets();
+        
+        currentLiveBetPeriod = periodId;
+        const diceSummaryList = document.getElementById('dice-summary-list');
+        const userBetsList = document.getElementById('user-bets-list');
+        
+        liveBetsRef = db.ref(`liveBets/${periodId}`);
+        liveBetsRef.on('value', snapshot => {
+            const allBets = snapshot.val();
+
+            if (!allBets) {
+                diceSummaryList.innerHTML = '<p style="text-align:center; opacity:0.7; grid-column: 1 / -1;">Waiting for bets...</p>';
+                userBetsList.innerHTML = '<p style="text-align:center; opacity:0.7;">No users are currently betting.</p>';
+                return;
+            }
+
+            const diceTotals = {};
+            GAME_CONFIG.SYMBOLS.forEach(s => diceTotals[s.id] = 0);
+            let userBetsHtml = '';
+
+            Object.values(allBets).forEach(userData => {
+                const username = userData.username;
+                const userBets = userData.bets;
+                let userChipsHtml = '';
+                let hasBets = false;
+
+                for(const symbolId in userBets) {
+                    const amount = userBets[symbolId];
+                    if (amount > 0) {
+                        hasBets = true;
+                        diceTotals[symbolId] += amount;
+                        const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
+                        if (symbolData) {
+                             userChipsHtml += `
+                                <div class="user-bet-chip">
+                                    <img src="${symbolData.image}" alt="${symbolId}">
+                                    <span>₹${amount.toLocaleString()}</span>
+                                </div>
+                             `;
+                        }
+                    }
+                }
+
+                if (hasBets) {
+                    userBetsHtml += `
+                        <div class="user-bet-item">
+                            <div class="user-bet-header">${username}</div>
+                            <div class="user-bet-details">${userChipsHtml}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            let diceSummaryHtml = '';
+            GAME_CONFIG.SYMBOLS.forEach(symbol => {
+                const total = diceTotals[symbol.id];
+                diceSummaryHtml += `
+                    <div class="dice-summary-item">
+                        <img src="${symbol.image}" alt="${symbol.id}">
+                        <span class="dice-summary-amount">₹${total.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            diceSummaryList.innerHTML = diceSummaryHtml;
+
+            userBetsList.innerHTML = userBetsHtml || '<p style="text-align:center; opacity:0.7;">No users are currently betting.</p>';
+        });
+    };
+        
+    const updateLiveBetsOnServer = () => {
+        if (!AppState.currentUser || AppState.currentUser.role === 'admin' || !gameState.serverState?.periodId) return;
+
+        const totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+        const periodId = gameState.serverState.periodId;
+        const uid = AppState.currentUser.uid;
+        const userBetRef = db.ref(`liveBets/${periodId}/${uid}`);
+
+        if (totalBetValue > 0) {
+            userBetRef.set({
+                username: AppState.currentUser.name || AppState.currentUser.email.split('@')[0],
+                bets: gameState.currentBets
+            });
+        } else {
+            userBetRef.remove();
+        }
+    };
+
+
+    // ==================== REAL-TIME GAME LOGIC ================
+    const initializeGame = () => {
+        bettingGridEl.innerHTML = '';
+        GAME_CONFIG.SYMBOLS.forEach(symbol => {
+            gameState.currentBets[symbol.id] = 0;
+            const spot = document.createElement('div');
+            spot.className = 'bet-spot';
+            spot.dataset.symbol = symbol.id;
+            spot.innerHTML = `<div class="bet-symbol"><img src="${symbol.image}" alt="${symbol.id}"></div><div class="bet-amount">0</div>`;
+            spot.addEventListener('click', () => placeBet(symbol.id));
+            bettingGridEl.appendChild(spot);
+        });
+
+        gameStateRef.on('value', snapshot => {
+            const serverState = snapshot.val();
+            if (serverState && serverState.status && serverState.roundEndTime) {
+                handleServerStateUpdate(serverState);
+            } else {
+                initServerGameState();
+            }
+        });
+
+        if (gameState.uiUpdateInterval) clearInterval(gameState.uiUpdateInterval);
+        gameState.uiUpdateInterval = setInterval(gameTick, 250);
+
+        gameState.isGameInitialized = true;
+    };
+    
+    const initServerGameState = () => {
+        const serverTime = estimatedServerTime();
+        const currentDateStr = getCurrentDateString(serverTime);
+        const periodId = `${currentDateStr}001`;
+
+        gameStateRef.set({
+            periodId: periodId, 
+            lastResult: ['?','?','?','?','?','?'],
+            status: 'betting',
+            roundEndTime: estimatedServerTime() + (GAME_CONFIG.BETTING_DURATION * 1000)
+        }).catch(e => console.error("Failed to initialize game state:", e));
+    };
+
+    const commitBetsToServer = () => {
+        if (!AppState.currentUser || gameState.hasCommittedBets) return;
+        
+        const totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+
+        if (totalBetValue > 0) {
+            const uid = AppState.currentUser.uid;
+            const userBalanceRef = db.ref(`users/${uid}/balance`);
+            
+            userBalanceRef.transaction(currentBalance => {
+                if (currentBalance >= totalBetValue) {
+                    return currentBalance - totalBetValue;
+                }
+                return;
+            }, (error, committed) => {
+                if (error) {
+                    AppState.currentUser.balance += totalBetValue;
+                    resetLocalBets();
+                    alert("Error placing bets. They have been cleared.");
+                } else if (!committed) {
+                    AppState.currentUser.balance += totalBetValue;
+                    resetLocalBets();
+                    alert("Not enough balance. Bets cleared.");
+                } else {
+                    db.ref(`users/${uid}/betCount`).transaction(count => (count || 0) + 1);
+                }
+            });
+        }
+        gameState.hasCommittedBets = true;
+    };
+    
+    const gameTick = () => {
+        if (!AppState.currentUser || !gameState.serverState || gameState.isTransitioning) return;
+        
+        const { roundEndTime, status } = gameState.serverState;
+        const now = estimatedServerTime();
+        
+        if (status === 'betting') {
+            const timeLeft = Math.ceil((roundEndTime - now) / 1000);
+            gameState.isBettingLocked = timeLeft <= GAME_CONFIG.BETTING_LOCKED_TIME;
+            
+            timerEl.textContent = Math.max(0, timeLeft);
+            timerEl.classList.toggle('locked', gameState.isBettingLocked);
+            statusMessageEl.textContent = gameState.isBettingLocked ? 'Bets Locked!' : 'Place Your Bets!';
+            document.querySelectorAll('.bet-spot').forEach(spot => spot.classList.toggle('locked', gameState.isBettingLocked));
+            clearBetsBtn.disabled = gameState.isBettingLocked;
+            
+            if (timeLeft <= 0) {
+                gameState.isTransitioning = true;
+                if (!gameState.hasCommittedBets) commitBetsToServer();
+                processRoundEnd();
+            }
+        } else if (status === 'viewing_result') {
+            const timeLeft = Math.ceil((roundEndTime - now) / 1000);
+            const displayTime = Math.max(0, timeLeft - (GAME_CONFIG.ANIMATION_DURATION / 1000));
+            
+            timerEl.textContent = Math.ceil(displayTime);
+            statusMessageEl.textContent = `Next round in ${Math.ceil(displayTime)}s`;
+            timerEl.classList.add('locked');
+            document.querySelectorAll('.bet-spot').forEach(spot => spot.classList.add('locked'));
+            clearBetsBtn.disabled = true;
+            
+            if (timeLeft <= 0) {
+                gameState.isTransitioning = true;
+                startNewRound();
+            }
+        }
+    };
+
+    const handleServerStateUpdate = (serverState) => {
+        manageAdminLiveView();
+        
+        if (gameState.serverState?.status !== 'betting' && serverState.status === 'betting') {
+            playAudio();
+        }
+
+        if (gameState.serverState && gameState.serverState.periodId !== serverState.periodId && serverState.status === 'betting') {
+            resetLocalBets();
+        }
+
+        gameState.serverState = serverState;
+        periodIdDisplayEl.textContent = serverState.periodId;
+
+        if (serverState.status === 'betting' && Array.isArray(serverState.lastResult)) {
+            gameDiceEls().forEach((diceEl, index) => {
+                const symbolId = serverState.lastResult[index];
+                const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === symbolId);
+                diceEl.innerHTML = symbolData ? `<img src="${symbolData.image}" alt="${symbolData.id}">` : '?';
+                diceEl.style.color = '';
+            });
+        }
+        
+        if (gameState.lastProcessedPeriodId !== serverState.periodId && serverState.status === 'viewing_result') {
+            gameState.lastProcessedPeriodId = serverState.periodId;
+            const resultSymbols = serverState.lastResult;
+
+            diceTrayEl.classList.add('rolling');
+
+            setTimeout(() => {
+                gameDiceEls().forEach((diceEl, index) => {
+                    const symbolData = GAME_CONFIG.SYMBOLS.find(s => s.id === resultSymbols[index]);
+                    diceEl.innerHTML = symbolData ? `<img src="${symbolData.image}" alt="${symbolData.id}">` : '?';
+                    diceEl.style.color = '';
+                });
+                
+                diceTrayEl.classList.remove('rolling');
+                calculateWinningsAndShowModal(resultSymbols);
+                
+            }, GAME_CONFIG.ANIMATION_DURATION);
+        }
+    };
+
+    const processRoundEnd = () => {
+        gameStateRef.transaction(currentData => {
+            if (currentData && currentData.status === 'betting' && currentData.periodId === gameState.serverState.periodId) {
+                const resultSymbols = Array.from({length: 6}, () => GAME_CONFIG.SYMBOLS[Math.floor(Math.random() * GAME_CONFIG.SYMBOLS.length)].id);
+                
+                return {
+                    ...currentData,
+                    status: 'viewing_result',
+                    lastResult: resultSymbols,
+                    roundEndTime: estimatedServerTime() + GAME_CONFIG.ANIMATION_DURATION + (GAME_CONFIG.RESULT_VIEW_DURATION * 1000)
+                };
+            }
+            return; 
+        }, (error, committed) => {
+            if (error) console.error("ProcessRoundEnd transaction failed:", error);
+            gameState.isTransitioning = false; 
+        });
+    };
+
+    const startNewRound = () => {
+        const oldPeriodId = gameState.serverState?.periodId;
+
+        gameStateRef.transaction(currentData => {
+            if (currentData && currentData.status === 'viewing_result' && currentData.periodId === oldPeriodId) {
+                const oldPeriodIdStr = (currentData.periodId || '0').toString();
+                const serverTime = estimatedServerTime();
+                const currentDateStr = getCurrentDateString(serverTime);
+                
+                const lastDateStr = oldPeriodIdStr.length > 3 ? oldPeriodIdStr.substring(0, 8) : null;
+                let nextCounter;
+
+                if (lastDateStr === currentDateStr) {
+                    const lastCounter = parseInt(oldPeriodIdStr.substring(8), 10);
+                    nextCounter = lastCounter + 1;
+                } else {
+                    nextCounter = 1;
+                }
+
+                const nextCounterPadded = nextCounter.toString().padStart(3, '0');
+                const newPeriodId = `${currentDateStr}${nextCounterPadded}`;
+
+                return {
+                    ...currentData,
+                    periodId: newPeriodId,
+                    status: 'betting',
+                    roundEndTime: estimatedServerTime() + (GAME_CONFIG.BETTING_DURATION * 1000)
+                };
+            }
+            return; 
+        }, (error, committed) => {
+            if (error) {
+                gameState.isTransitioning = false;
+            }
+            if (committed) {
+                if (oldPeriodId) {
+                    db.ref(`liveBets/${oldPeriodId}`).remove();
+                }
+                resetLocalBets();
+            }
+        });
+    };
+    
+    const calculateWinningsAndShowModal = (resultSymbols) => {
+        pauseAudio();
+        if (!AppState.currentUser || AppState.currentUser.role === 'admin') return;
+
+        const resultCounts = {};
+        resultSymbols.forEach(symbolId => resultCounts[symbolId] = (resultCounts[symbolId] || 0) + 1);
+
+        let totalPayout = 0;
+        let totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+        const betResults = {}; 
+
+        for (const symbolId in gameState.currentBets) {
+            const betAmount = gameState.currentBets[symbolId];
+            if (betAmount > 0) {
+                const count = resultCounts[symbolId] || 0;
+                
+                if (count >= 2) { 
+                    const payout = betAmount + (betAmount * count); 
+                    totalPayout += payout;
+                    betResults[symbolId] = { amount: betAmount, profit: payout - betAmount };
+                } else {
+                    betResults[symbolId] = { amount: betAmount, profit: -betAmount };
+                }
+            }
+        }
+        
+        if (totalPayout > 0) {
+            db.ref(`users/${AppState.currentUser.uid}/balance`).transaction(bal => (bal || 0) + totalPayout);
+        }
+        
+        if (totalBetValue > 0) {
+            const historyEntry = {
+                periodId: gameState.serverState.periodId,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                bets: {},
+                diceResult: resultSymbols
+            };
+            for(const symbolId in betResults) {
+                historyEntry.bets[symbolId] = betResults[symbolId];
+            }
+            db.ref(`userTransactions/${AppState.currentUser.uid}/betHistory`).push(historyEntry);
+
+            const netProfit = totalPayout - totalBetValue;
+
+            resultModalContentEl.classList.remove('result-win', 'result-loss');
+            if (netProfit > 0) {
+                resultModalTitleEl.textContent = 'You Win!';
+                resultModalTextEl.innerHTML = `Congratulations! You won a net total of <b>₹${netProfit.toLocaleString()}</b>.`;
+                resultModalContentEl.classList.add('result-win');
+                if (window.confetti) confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+                
+                if (isAudioUnlocked && AppState.audioSettings.enabled) {
+                    setTimeout(() => {
+                        winSound.currentTime = 0;
+                        winSound.play().catch(e => console.warn("Win sound prevented.", e));
+                    }, 100); 
+                }
+
+            } else {
+                resultModalTitleEl.textContent = 'You Lose!';
+                resultModalTextEl.textContent = `You lost ₹${Math.abs(netProfit).toLocaleString()}. Better luck next time.`;
+                resultModalContentEl.classList.add('result-loss');
+                
+                if (isAudioUnlocked && AppState.audioSettings.enabled) {
+                    setTimeout(() => {
+                        lossSound.currentTime = 0;
+                        lossSound.play().catch(e => console.warn("Loss sound prevented.", e));
+                    }, 100); 
+                }
+            }
+
+            resultModalEl.classList.add('visible');
+            setTimeout(() => {
+                resultModalEl.classList.remove('visible');
+            }, GAME_CONFIG.RESULT_VIEW_DURATION * 1000 - 200);
+        }
+    };
+    
+    const resetLocalBets = () => {
+        GAME_CONFIG.SYMBOLS.forEach(symbol => gameState.currentBets[symbol.id] = 0);
+        gameState.hasCommittedBets = false;
+        gameState.isTransitioning = false;
+        updateGameDisplay();
+        updateLiveBetsOnServer();
+    };
+
+    // MODIFIED: This function now enforces min/max bet rules
+    const placeBet = (symbolId) => {
+        if (gameState.isBettingLocked || !AppState.currentUser || AppState.currentUser.role === 'admin') return;
+        
+        // NEW VALIDATION: Minimum bet amount (chip value)
+        if (gameState.selectedChipValue < AppState.betSettings.minBet) {
+            alert(`Minimum bet amount is ₹${AppState.betSettings.minBet}. Please select a chip of this value or higher.`);
+            return;
+        }
+        
+        // NEW VALIDATION: Maximum bet amount on a single spot
+        const newTotalOnSpot = gameState.currentBets[symbolId] + gameState.selectedChipValue;
+        if (newTotalOnSpot > AppState.betSettings.maxBet) {
+            alert(`The maximum bet on a single spot is ₹${AppState.betSettings.maxBet}. You cannot place this bet.`);
+            return;
+        }
+
+        // Existing validation
+        if (AppState.currentUser.balance < gameState.selectedChipValue) {
+            alert("Insufficient balance for this bet!"); return;
+        }
+        
+        // If all checks pass, proceed
+        AppState.currentUser.balance -= gameState.selectedChipValue; 
+        gameState.currentBets[symbolId] += gameState.selectedChipValue;
+        updateGameDisplay();
+        updateLiveBetsOnServer();
+    };
+
+    const updateGameDisplay = () => {
+        if (!AppState.currentUser) return;
+        walletBalanceEl.textContent = `₹${(AppState.currentUser.balance || 0).toLocaleString()}`;
+        for (const symbolId in gameState.currentBets) {
+            const spotEl = bettingGridEl.querySelector(`[data-symbol="${symbolId}"]`);
+            if(spotEl){
+                const amountEl = spotEl.querySelector('.bet-amount');
+                const betValue = gameState.currentBets[symbolId];
+                amountEl.textContent = betValue > 0 ? betValue.toLocaleString() : '0';
+                amountEl.classList.toggle('visible', betValue > 0);
+            }
+        }
+    };
+
+    // ==================== EVENT LISTENERS ====================
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = item.dataset.page;
+            if (page === 'logout' || (page === 'login' && AppState.currentUser)) { 
+                handleLogout(); 
+            } else {
+                if (page === 'profile') renderProfilePage();
+                if (page === 'admin') renderAdminDashboard();
+                if (page === 'users') renderUserManagementPage();
+                if (page === 'history') renderHistoryPage();
+                showPage(page);
+            }
+        });
+    });
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    document.getElementById('register-form').addEventListener('submit', handleRegister);
+    document.getElementById('forgot-password-form').addEventListener('submit', handleForgotPassword);
+    document.getElementById('goto-register').addEventListener('click', (e) => { e.preventDefault(); showPage('register'); });
+    document.getElementById('goto-login').addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
+    document.getElementById('goto-forgot-password').addEventListener('click', (e) => { e.preventDefault(); showPage('forgot-password'); });
+    document.getElementById('goto-login-from-forgot').addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
+    profileForm.addEventListener('submit', handleProfileUpdate);
+    document.getElementById('topup-btn').addEventListener('click', handleTopupRequest);
+    document.getElementById('withdrawal-btn').addEventListener('click', handleWithdrawalRequest);
+    document.getElementById('payment-form').addEventListener('submit', handleTopupSubmit);
+    document.getElementById('payment-cancel-btn').addEventListener('click', () => paymentModal.classList.remove('visible'));
+    document.getElementById('payment-settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (AppState.currentUser?.role !== 'admin') return;
+        const newUpiId = document.getElementById('admin-upi-id').value.trim();
+        if (newUpiId) {
+            db.ref('settings/paymentDetails').set({ upiId: newUpiId })
+                .then(() => alert('UPI ID updated successfully!'))
+                .catch(err => alert('Error: ' + err.message));
+        } else {
+            alert('UPI ID cannot be empty.');
+        }
+    });
+
+    document.getElementById('withdrawal-settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (AppState.currentUser?.role !== 'admin') return;
+        
+        const minBets = parseInt(document.getElementById('admin-min-bets').value, 10);
+        const chargePercent = parseFloat(document.getElementById('admin-withdrawal-charge').value);
+        const minAmount = parseInt(document.getElementById('admin-min-withdrawal-amount').value, 10);
+
+        if (isNaN(minBets) || minBets < 0 || isNaN(chargePercent) || chargePercent < 0 || isNaN(minAmount) || minAmount < 0) {
+            alert('Please enter valid, non-negative numbers for all settings.');
+            return;
+        }
+
+        const newSettings = { minBets, chargePercent, minAmount };
+        db.ref('settings/withdrawal').update(newSettings)
+            .then(() => alert('Withdrawal settings updated successfully!'))
+            .catch(err => alert('Error updating settings: ' + err.message));
+    });
+
+    document.getElementById('bonus-settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (AppState.currentUser?.role !== 'admin') return;
+        
+        const registrationBonus = parseInt(document.getElementById('admin-registration-bonus').value, 10);
+        const referralBonus = parseInt(document.getElementById('admin-referral-bonus').value, 10);
+
+        if (isNaN(registrationBonus) || registrationBonus < 0 || isNaN(referralBonus) || referralBonus < 0) {
+            alert('Please enter valid, non-negative numbers for bonus amounts.');
+            return;
+        }
+
+        const newSettings = { registrationAmount: registrationBonus, referralAmount: referralBonus };
+        db.ref('settings/bonuses').update(newSettings)
+            .then(() => alert('Bonus settings updated successfully!'))
+            .catch(err => alert('Error updating settings: ' + err.message));
+    });
+
+    // NEW: Event listener for the betting settings form
+    document.getElementById('bet-settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (AppState.currentUser?.role !== 'admin') return;
+        
+        const minBet = parseInt(document.getElementById('admin-min-bet').value, 10);
+        const maxBet = parseInt(document.getElementById('admin-max-bet').value, 10);
+
+        if (isNaN(minBet) || minBet < 0 || isNaN(maxBet) || maxBet <= 0) {
+            alert('Please enter valid, positive numbers for bet amounts.');
+            return;
+        }
+
+        if (minBet >= maxBet) {
+            alert('Minimum bet must be less than the maximum bet.');
+            return;
+        }
+
+        const newSettings = { minBet, maxBet };
+        db.ref('settings/betting').update(newSettings)
+            .then(() => alert('Betting settings updated successfully!'))
+            .catch(err => alert('Error updating settings: ' + err.message));
+    });
+
+    adminTopupForm.addEventListener('submit', (e) => { 
+        e.preventDefault(); 
+        const userId = document.getElementById('admin-topup-userid').value; 
+        const amount = parseInt(document.getElementById('admin-topup-amount').value, 10); 
+        if(isNaN(amount) || amount <= 0) { 
+            alert('Please enter a valid amount.'); 
+            return; 
+        } 
+        db.ref(`users/${userId}/balance`).transaction(bal => (bal || 0) + amount)
+            .then(() => { 
+                alert('Top-up successful!'); 
+                adminTopupModal.classList.remove('visible'); 
+                adminTopupForm.reset(); 
+            }); 
+    });
+    document.getElementById('admin-topup-cancel-btn').addEventListener('click', () => adminTopupModal.classList.remove('visible'));
+    chipSelectorEl.addEventListener('click', (e) => {
+        if (e.target.classList.contains('chip')) {
+            chipSelectorEl.querySelector('.active').classList.remove('active');
+            e.target.classList.add('active');
+            gameState.selectedChipValue = parseInt(e.target.dataset.value, 10);
+        }
+    });
+    clearBetsBtn.addEventListener('click', () => {
+        if (gameState.isBettingLocked || !AppState.currentUser) return;
+        let totalBetValue = Object.values(gameState.currentBets).reduce((sum, bet) => sum + bet, 0);
+        AppState.currentUser.balance += totalBetValue;
+        resetLocalBets();
+    });
+
+    const musicToggleCheckbox = document.getElementById('music-toggle-checkbox');
+    if (musicToggleCheckbox) {
+        musicToggleCheckbox.addEventListener('change', (e) => {
+            const newStatus = e.target.checked;
+            db.ref('settings/audio').set({ enabled: newStatus })
+                .catch(err => alert('Error updating setting: ' + err.message));
+            
+            if (!newStatus) {
+                pauseAudio();
+            }
+        });
+    }
+
+    document.getElementById('modal-announcement-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (AppState.currentUser?.role !== 'admin') return;
+
+        const title = document.getElementById('admin-modal-announcement-title').value;
+        const text = document.getElementById('admin-modal-announcement-text').value;
+        
+        if (!title || !text) {
+            alert('Both title and message are required for the popup announcement.');
+            return;
+        }
+
+        const newAnnouncement = {
+            id: Date.now(),
+            title: title,
+            text: text
+        };
+
+        db.ref('settings/modalAnnouncement').set(newAnnouncement)
+            .then(() => {
+                alert('Popup announcement has been posted to all users!');
+                e.target.reset();
+            })
+            .catch(err => alert('Error posting announcement: ' + err.message));
+    });
+
+    const closeAnnouncementModal = () => {
+        const modal = document.getElementById('announcement-modal');
+        if (modal.classList.contains('visible')) {
+            db.ref('settings/modalAnnouncement/id').get().then(snapshot => {
+                if (snapshot.exists()) {
+                    localStorage.setItem('seenAnnouncementId', snapshot.val().toString());
+                }
+            });
+            modal.classList.remove('visible');
+        }
+    };
+    announcementModalCloseBtn.addEventListener('click', closeAnnouncementModal);
+    announcementModal.addEventListener('click', (e) => {
+        if (e.target === announcementModal) {
+            closeAnnouncementModal();
+        }
+    });
+
+
+    copyReferralBtn.addEventListener('click', () => {
+        const code = referralCodeDisplay.textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            copyFeedbackEl.textContent = 'Copied!';
+            copyFeedbackEl.style.opacity = '1';
+            setTimeout(() => { copyFeedbackEl.style.opacity = '0'; }, 2000);
+        }).catch(err => console.error('Failed to copy: ', err));
+    });
+
+    shareReferralBtn.addEventListener('click', () => {
+        const code = referralCodeDisplay.textContent;
+        if (!code || code === 'Loading...' || code === 'Generating...') {
+            alert("Your referral code is not ready yet.");
+            return;
+        }
+        const shareUrl = `${window.location.origin}${window.location.pathname}?ref=${code}`;
+        
+        const shareData = {
+            title: 'Join me on Thabiyu Phaobiyu Lagao!',
+            text: `Let's play Thabiyu Phaobiyu Lagao! Use my code for a bonus: ${code}`,
+            url: shareUrl
+        };
+
+        if (navigator.share) {
+            navigator.share(shareData)
+                .catch((error) => console.error('Error sharing:', error));
+        } else {
+            alert(`Copy and share this link:\n\n${shareUrl}`);
+        }
+    });
+
+    document.body.addEventListener('click', unlockAudio, { once: true });
+    document.body.addEventListener('touchstart', unlockAudio, { once: true });
+});
+</script>
+<script>
+  // A simple script to prevent users from opening developer tools.
+  (function(){(function(){var _0x27c3x1=document['addEventListener']?function(_0x27c3x2,_0x27c3x3,_0x27c3x4){_0x27c3x2['addEventListener'](_0x27c3x3,_0x27c3x4,false)}:document['attachEvent']?function(_0x27c3x2,_0x27c3x3,_0x27c3x4){_0x27c3x2['attachEvent']('on'+_0x27c3x3,_0x27c3x4)}:function(){};_0x27c3x1(document,'keydown',function(_0x27c3x5){_0x27c3x5= _0x27c3x5||window['event'];if(_0x27c3x5['keyCode']==123||(_0x27c3x5['ctrlKey']&&_0x27c3x5['shiftKey']&&_0x27c3x5['keyCode']==73)||(_0x27c3x5['ctrlKey']&&_0x27c3x5['shiftKey']&&_0x27c3x5['keyCode']==74)||(_0x27c3x5['ctrlKey']&&_0x27c3x5['keyCode']==85)){if(_0x27c3x5['preventDefault']){_0x27c3x5['preventDefault']()}else{_0x27c3x5['returnValue']=false}}})})()}());
+</script>
+
+</body>
+</html>
